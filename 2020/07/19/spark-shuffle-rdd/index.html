@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="Spark Shuffle是什么Spark Shuffle是spark的最核心部分之一，它涉及到RDD，DAGScheduler，Network，Storage，RPC等，也是spark中优化和问题最多的地方。在讲Shuffle之前要讲介绍下RDD，这里不讲老生常谈的弹性数据集之类的，引用大神Michael Armbrust的经典总结，what is rdd：  Dependencies Part">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spark Shuffle Non-amateur First Look">
+<meta property="og:url" content="http://example.com/2020/07/19/spark-shuffle-rdd/index.html">
+<meta property="og:site_name" content="Macduan Notes">
+<meta property="og:description" content="Spark Shuffle是什么Spark Shuffle是spark的最核心部分之一，它涉及到RDD，DAGScheduler，Network，Storage，RPC等，也是spark中优化和问题最多的地方。在讲Shuffle之前要讲介绍下RDD，这里不讲老生常谈的弹性数据集之类的，引用大神Michael Armbrust的经典总结，what is rdd：  Dependencies Part">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/images/shuffle-arch.png">
+<meta property="article:published_time" content="2020-07-19T11:08:21.000Z">
+<meta property="article:modified_time" content="2023-04-01T01:17:30.445Z">
+<meta property="article:author" content="duanmeng">
+<meta property="article:tag" content="Spark">
+<meta property="article:tag" content="CodeReading">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/shuffle-arch.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Spark Shuffle Non-amateur First Look</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/categories/technology">Technology</a></li><!--
+     --><!--
+       --><li><a href="/categories/life">Life</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Archives</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tags</a></li><!--
+     --><!--
+       --><li><a href="/about">About</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2021/02/11/spark-sql-paper/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2020/05/11/delta-lake/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2020/07/19/spark-shuffle-rdd/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2020/07/19/spark-shuffle-rdd/&text=Spark Shuffle Non-amateur First Look"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2020/07/19/spark-shuffle-rdd/&title=Spark Shuffle Non-amateur First Look"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2020/07/19/spark-shuffle-rdd/&is_video=false&description=Spark Shuffle Non-amateur First Look"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Spark Shuffle Non-amateur First Look&body=Check out this article: http://example.com/2020/07/19/spark-shuffle-rdd/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2020/07/19/spark-shuffle-rdd/&title=Spark Shuffle Non-amateur First Look"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2020/07/19/spark-shuffle-rdd/&title=Spark Shuffle Non-amateur First Look"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2020/07/19/spark-shuffle-rdd/&title=Spark Shuffle Non-amateur First Look"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2020/07/19/spark-shuffle-rdd/&title=Spark Shuffle Non-amateur First Look"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2020/07/19/spark-shuffle-rdd/&name=Spark Shuffle Non-amateur First Look&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2020/07/19/spark-shuffle-rdd/&t=Spark Shuffle Non-amateur First Look"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Spark-Shuffle%E6%98%AF%E4%BB%80%E4%B9%88"><span class="toc-number">1.</span> <span class="toc-text">Spark Shuffle是什么</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E5%88%92%E5%88%86"><span class="toc-number">2.</span> <span class="toc-text">如何划分</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Task%EF%BC%8C-Parition%E6%95%B0%E9%87%8F"><span class="toc-number">3.</span> <span class="toc-text">Task， Parition数量</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%86%8D%E6%8E%A2Task"><span class="toc-number">4.</span> <span class="toc-text">再探Task</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Spark Shuffle Non-amateur First Look
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">duanmeng</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2020-07-19T11:08:21.000Z" itemprop="datePublished">2020-07-19</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/technology/">technology</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/CodeReading/" rel="tag">CodeReading</a>, <a class="tag-link-link" href="/tags/Spark/" rel="tag">Spark</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="Spark-Shuffle是什么"><a href="#Spark-Shuffle是什么" class="headerlink" title="Spark Shuffle是什么"></a>Spark Shuffle是什么</h2><p>Spark Shuffle是spark的最核心部分之一，它涉及到RDD，DAGScheduler，Network，Storage，RPC等，也是spark中优化和问题最多的地方。在讲Shuffle之前要讲介绍下RDD，这里不讲老生常谈的弹性数据集之类的，引用大神Michael Armbrust的经典总结，<a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=i7l3JQRx7Qw">what is rdd</a>：</p>
+<ul>
+<li>Dependencies</li>
+<li>Partitions (with optional locality info)</li>
+<li>Compute Function: Partition &#x3D;&gt; Iterator[T]</li>
+</ul>
+<p>Dependencies是该RDD依赖的RDD，Partitions是该RDD要处理的数据分片，Compute是apply到该RDD的数据的方法（Spark是基于函数式编程思想），compute function本身是opaque，返回类型T也是opaque的，这里是不是有点<a target="_blank" rel="noopener" href="https://dl.acm.org/doi/10.1109/69.273032">volcano</a>中mechanism与policy分离的味道。与之对应在RDD类中有<code>compute</code>方法，<code>getPartitions</code>方法和<code>getDependencies</code>方法。</p>
+<p><img src="/images/shuffle-arch.png" alt="PIC-1"></p>
+<p>Shuffle是分布式计算框架用来衔接上下游任务的数据重分布过程，spark shuffle存在于宽依赖的RDD之间，它是pull &amp; file base的。上游Map Task最终会合并产出一个按照partition排序（key排序不强制）的data和index文件，由下游的Reduce Task去拉取各自需要处理的partition的数据，也就说上游产出多少个partition，下游就会起多少个task去处理，其中partition数量可以通过默认参数<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/45704156/what-is-the-difference-between-spark-sql-shuffle-partitions-and-spark-default-pa">spark.sql.shuffle.partitions，spark.default.parallelism</a>指定，或者自定义partitioner决定。这里会有两个问题：</p>
+<ol>
+<li>如何划分上下游，也就是划分Stage？</li>
+<li>某个Stage如何知道需要多少个map task去拉取上游stage的shuffle数据，和产出多少个partition数据给下游</li>
+</ol>
+<h2 id="如何划分"><a href="#如何划分" class="headerlink" title="如何划分"></a>如何划分</h2><p>Shuffle划分stage，每个stage中一般会有一个RDD是ShuffleRDD（同一stage中可能多个窄依赖的rdd），用经典的WordCount例子来看。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">scala&gt; </span><span class="language-bash">val rdd1 = spark.sparkContext.textFile(<span class="string">&quot;file:///data/macduan/test_words&quot;</span>)</span></span><br><span class="line"><span class="meta prompt_">scala&gt; </span><span class="language-bash">val rdd2 = rdd1.flatMap &#123; _.<span class="built_in">split</span>(<span class="string">&quot; &quot;</span>) &#125;</span></span><br><span class="line"><span class="meta prompt_">scala&gt; </span><span class="language-bash">val rdd3 = rdd2.map &#123; (_, 1) &#125;</span></span><br><span class="line"><span class="meta prompt_">scala&gt; </span><span class="language-bash">val rdd4 = rdd3.reduceByKey(_ + _)</span></span><br><span class="line"><span class="meta prompt_">scala&gt; </span><span class="language-bash">val rdd5 = rdd4.map &#123; <span class="keyword">case</span> (word, count) =&gt; (count, word) &#125;</span></span><br><span class="line"><span class="meta prompt_">scala&gt; </span><span class="language-bash">val rdd6 = rdd5.reduceByKey(_ + _)</span></span><br><span class="line"><span class="meta prompt_">scala&gt; </span><span class="language-bash">rdd6.toDebugString</span></span><br><span class="line">res1: String =</span><br><span class="line">(2) ShuffledRDD[16] at reduceByKey at &lt;console&gt;:25 []</span><br><span class="line"> +-(2) MapPartitionsRDD[15] at map at &lt;console&gt;:25 []</span><br><span class="line">    |  ShuffledRDD[14] at reduceByKey at &lt;console&gt;:25 []</span><br><span class="line">    +-(2) MapPartitionsRDD[13] at map at &lt;console&gt;:25 []</span><br><span class="line">       |  MapPartitionsRDD[12] at flatMap at &lt;console&gt;:25 []</span><br><span class="line">       |  file:///data/macduan/test_words MapPartitionsRDD[11] at textFile at &lt;console&gt;:23 []</span><br><span class="line">       |  file:///data/macduan/test_words HadoopRDD[10] at textFile at &lt;console&gt;:23 []</span><br></pre></td></tr></table></figure>
+<p>通过rdd6.toDebugString发现有3个stage，以中间的stage为例子，它包含MapPartitionsRDD和一个ShuffledRDD，按照DAGScheduler划分stage的逻辑（后续文章详解）MapPartitionsRDD的parent rdd是ShuffledRDD，此时该Stage的实例中成员rdd实际就是MapPartitionRDD，而该rdd的<code>firstParent</code>就是ShuffledRDD。</p>
+<p>抽象出来就是，比如 <strong><code>... MapPartitionsRDD &lt;- ShuffledRDD &lt;- MapPartitionsRDD &lt;- ShuffledRDD &lt;- MapPartitionsRDD ...</code></strong> 划分stage的边界就是ShuffledRDD，最终会被划分为，</p>
+<ul>
+<li><strong>stage1 – [… MapPartitionsRDD]</strong></li>
+<li><strong>stage2 – [ShuffledRDD &lt;- MapPartitionsRDD]</strong></li>
+<li><strong>stage3 – [ShuffledRDD &lt;- MapPartitionsRDD …]</strong></li>
+</ul>
+<p>三个stage，以中间那个<strong>stage2</strong> <code>[ShuffledRDD &lt;- MapPartitionsRDD]</code>为例子，它是一个<code>ShuffleMapStage</code>，从下面的代码的<code>visit</code>函数可以看出它被划分和create的边界就是<strong>stage3的ShuffledRDD</strong>。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// DAGScheduler.scala</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">visit</span></span>(rdd: <span class="type">RDD</span>[_]) &#123;</span><br><span class="line">      ...</span><br><span class="line">          <span class="keyword">for</span> (dep &lt;- rdd.dependencies) &#123;</span><br><span class="line">            dep <span class="keyword">match</span> &#123;</span><br><span class="line">              <span class="keyword">case</span> shufDep: <span class="type">ShuffleDependency</span>[_, _, _] =&gt;</span><br><span class="line">                <span class="keyword">val</span> mapStage = getOrCreateShuffleMapStage(shufDep, stage.firstJobId)</span><br><span class="line">      ...</span><br></pre></td></tr></table></figure>
+
+<h2 id="Task，-Parition数量"><a href="#Task，-Parition数量" class="headerlink" title="Task， Parition数量"></a>Task， Parition数量</h2><p>从下面这两个函数可以直接看出一个map stage被创建时，map task数量和产出的reduce partition数量，分别是该stage的rdd的分区数量和partitioner的分区数量。从ShuffledRDD类也可以看出其dependency就是一个ShuffleDependency，ShuffleDependency中有partitioner，而且在其实例化时会调用registerShuffle方法，partitioner是决定这个stage写的数据的分区数量，该数量也是下游stage的task数量。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">createShuffleMapStage</span></span></span><br><span class="line">    mapOutputTracker.registerShuffle(shuffleDep.shuffleId, rdd.partitions.length, shuffleDep.partitioner.numPartitions)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">registerShuffle</span></span>(shuffleId: <span class="type">Int</span>, numMaps: <span class="type">Int</span>, numReduces: <span class="type">Int</span>)</span><br></pre></td></tr></table></figure>
+<p>那么问题来了，<strong>stage2自身的task数量是怎么知道的呢（也就是上游stage的写的分区的数量），上面分析是其rdd的partition数量，那这个rdd的partition数量又是怎么来的呢？</strong> </p>
+<p>在createShuffleMapStage中rdd是shuffleDep.rdd也就是stage2的MapPartitionsRDD，numTasks是rdd的partitions的length，也就是MapPartitionsRDD.getPartitions的length，从下面代码可以看到是其第一个parent的partition数量，往上追溯那就是stage1的ShuffledRDD的partitions数量，也就是其partitioner的分区数量，这就对应上了上游stage的写的数据的分区数量。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ShuffledRDD</span>[<span class="type">K</span>: <span class="type">ClassTag</span>, <span class="type">V</span>: <span class="type">ClassTag</span>, <span class="type">C</span>: <span class="type">ClassTag</span>](<span class="params"></span></span></span><br><span class="line"><span class="params"><span class="class">    @transient var prev: <span class="type">RDD</span>[_ &lt;: <span class="type">Product2</span>[<span class="type">K</span>, <span class="type">V</span>]],</span></span></span><br><span class="line"><span class="params"><span class="class">    part: <span class="type">Partitioner</span></span>)</span></span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">getDependencies</span></span>: <span class="type">Seq</span>[<span class="type">Dependency</span>[_]] = &#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="type">List</span>(<span class="keyword">new</span> <span class="type">ShuffleDependency</span>(prev, part, serializer, keyOrdering, aggregator, mapSideCombine))</span><br><span class="line">    ...</span><br><span class="line">  <span class="keyword">override</span> <span class="keyword">val</span> partitioner = <span class="type">Some</span>(part)</span><br><span class="line">  ...</span><br><span class="line">  <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">getPartitions</span></span>: <span class="type">Array</span>[<span class="type">Partition</span>] = &#123;</span><br><span class="line">    <span class="type">Array</span>.tabulate[<span class="type">Partition</span>](part.numPartitions)(i =&gt; <span class="keyword">new</span> <span class="type">ShuffledRDDPartition</span>(i))</span><br><span class="line">  &#125;</span><br><span class="line">  ...</span><br><span class="line">  <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">compute</span></span>(split: <span class="type">Partition</span>, context: <span class="type">TaskContext</span>): <span class="type">Iterator</span>[(<span class="type">K</span>, <span class="type">C</span>)] = &#123;</span><br><span class="line">    <span class="keyword">val</span> dep = dependencies.head.asInstanceOf[<span class="type">ShuffleDependency</span>[<span class="type">K</span>, <span class="type">V</span>, <span class="type">C</span>]]</span><br><span class="line">    <span class="type">SparkEnv</span>.get.shuffleManager.getReader(dep.shuffleHandle, split.index, split.index + <span class="number">1</span>, context)</span><br><span class="line">      .read()</span><br><span class="line">      .asInstanceOf[<span class="type">Iterator</span>[(<span class="type">K</span>, <span class="type">C</span>)]]</span><br><span class="line">  &#125;</span><br><span class="line">  ...</span><br><span class="line">  </span><br><span class="line"><span class="keyword">private</span>[spark] <span class="class"><span class="keyword">class</span> <span class="title">MapPartitionsRDD</span>[<span class="type">U</span>: <span class="type">ClassTag</span>, <span class="type">T</span>: <span class="type">ClassTag</span>](<span class="params"></span></span></span><br><span class="line"><span class="params"><span class="class">    var prev: <span class="type">RDD</span>[<span class="type">T</span>],</span></span></span><br><span class="line"><span class="params"><span class="class">    f: (<span class="type">TaskContext</span>, <span class="type">Int</span>, <span class="type">Iterator</span>[<span class="type">T</span>]</span>) <span class="title">=&gt;</span> <span class="title">Iterator</span>[<span class="type">U</span>],  <span class="comment">// (TaskContext, partition index, iterator)</span></span></span><br><span class="line">    preservesPartitioning: <span class="type">Boolean</span> = <span class="literal">false</span>,</span><br><span class="line">    isFromBarrier: <span class="type">Boolean</span> = <span class="literal">false</span>,</span><br><span class="line">    isOrderSensitive: <span class="type">Boolean</span> = <span class="literal">false</span>)</span><br><span class="line">  <span class="keyword">extends</span> <span class="type">RDD</span>[<span class="type">U</span>](prev) &#123;</span><br><span class="line">  ...</span><br><span class="line">  <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">getPartitions</span></span>: <span class="type">Array</span>[<span class="type">Partition</span>] = firstParent[<span class="type">T</span>].partitions</span><br><span class="line">  <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">compute</span></span>(split: <span class="type">Partition</span>, context: <span class="type">TaskContext</span>): <span class="type">Iterator</span>[<span class="type">U</span>] =</span><br><span class="line">    f(context, split.index, firstParent[<span class="type">T</span>].iterator(split, context))</span><br><span class="line">  ...</span><br><span class="line">  </span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ShuffleDependency</span>[<span class="type">K</span>: <span class="type">ClassTag</span>, <span class="type">V</span>: <span class="type">ClassTag</span>, <span class="type">C</span>: <span class="type">ClassTag</span>](<span class="params"></span></span></span><br><span class="line"><span class="params"><span class="class">    @transient private val _rdd: <span class="type">RDD</span>[_ &lt;: <span class="type">Product2</span>[<span class="type">K</span>, <span class="type">V</span>]],</span></span></span><br><span class="line"><span class="params"><span class="class">    val partitioner: <span class="type">Partitioner</span>,</span></span></span><br><span class="line"><span class="params"><span class="class">    ...</span></span></span><br><span class="line"><span class="params"><span class="class">  val shuffleId: <span class="type">Int</span> = _rdd.context.newShuffleId(</span>)</span></span><br><span class="line">    ...</span><br><span class="line">  <span class="keyword">val</span> shuffleHandle: <span class="type">ShuffleHandle</span> = _rdd.context.env.shuffleManager.registerShuffle(</span><br><span class="line">    shuffleId, _rdd.partitions.length, <span class="keyword">this</span>)</span><br><span class="line">    ...</span><br></pre></td></tr></table></figure>
+
+<h2 id="再探Task"><a href="#再探Task" class="headerlink" title="再探Task"></a>再探Task</h2><figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Stage.scala</span></span><br><span class="line"><span class="keyword">private</span>[scheduler] <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">Stage</span>(<span class="params"></span></span></span><br><span class="line"><span class="params"><span class="class">    val id: <span class="type">Int</span>,</span></span></span><br><span class="line"><span class="params"><span class="class">    val rdd: <span class="type">RDD</span>[_],</span></span></span><br><span class="line"><span class="params"><span class="class">    val numTasks: <span class="type">Int</span>,</span></span></span><br><span class="line"><span class="params"><span class="class">    val parents: <span class="type">List</span>[<span class="type">Stage</span>],</span></span></span><br><span class="line"><span class="params"><span class="class">    val firstJobId: <span class="type">Int</span>,</span></span></span><br><span class="line"><span class="params"><span class="class">    val callSite: <span class="type">CallSite</span></span>)</span></span><br><span class="line">  <span class="keyword">extends</span> <span class="type">Logging</span> &#123;</span><br><span class="line"></span><br><span class="line"><span class="comment">// RDD.scala</span></span><br><span class="line"><span class="keyword">protected</span>[spark] <span class="function"><span class="keyword">def</span> <span class="title">firstParent</span></span>[<span class="type">U</span>: <span class="type">ClassTag</span>]: <span class="type">RDD</span>[<span class="type">U</span>] = &#123; </span><br><span class="line">    dependencies.head.rdd.asInstanceOf[<span class="type">RDD</span>[<span class="type">U</span>]]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Spark的每个Job除了触发这个job提交的finalRDD（例如上面的rdd6如果调用了collect()那么它就是这个finalRDD）中的task是ResultTask，其它stage中的task都是ShuffleMapTask。<br>ShuffleMapTask中有一个成员是partition，就是这个task需要处理的rdd的一个partition，在<code>DAGScheduler.submitMissingTasks</code>中有一段代码亦可看出来，上面的stage1的某个ShuffleMapTask就是处理MapPartitionsRDD的一个partition。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">partitions = stage.rdd.partitions</span><br><span class="line">......</span><br><span class="line"><span class="keyword">val</span> part = partitions(id)</span><br><span class="line">......</span><br><span class="line"><span class="keyword">new</span> <span class="type">ShuffleMapTask</span>(stage.id, stage.latestInfo.attemptNumber,</span><br><span class="line">  taskBinary, part, ......</span><br></pre></td></tr></table></figure>
+<p>ShuffleMapTask中最重要的方法是runTask，里面会反序列化得到RDD（task在跑在Executor上，由Driver分发的），从SparkEnv中拿到ShuffleManager获取writer等（这些在后续文章中会详细介绍），其中很关键的一行代码是<br><code>writer.write(rdd.iterator(partition, context).asInstanceOf[Iterator[_ &lt;: Product2[Any, Any]]])</code><br>在本文的例子的stage1的ShuffleMapTask中，这里既包含读Shuffle数据也包含写处理完读取的shuffle数据后写入新的shuffle数据，其中的rdd就是上面提到的MapPartitionsRDD。<br><code>write</code>的参数<code>rdd.iterator(partition, context)</code>，这个iterator方法最终会调用MapPartitionsRDD的compute方法，</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">// MapPartitionsRDD.scala</span><br><span class="line">override def compute(split: Partition, context: TaskContext): Iterator[U] =</span><br><span class="line">  f(context, split.index, firstParent[T].iterator(split, context))</span><br></pre></td></tr></table></figure>
+<p>这里的firstParent就是MapPartitionsRDD依赖的ShuffledRDD，而ShuffledRDD的iterator方法最终会调用它的compute方法，</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">// ShuffledRDD.scala</span><br><span class="line">override def compute(split: Partition, context: TaskContext): Iterator[(K, C)] = &#123;</span><br><span class="line">  val dep = dependencies.head.asInstanceOf[ShuffleDependency[K, V, C]]</span><br><span class="line">  SparkEnv.get.shuffleManager.getReader(dep.shuffleHandle, split.index, split.index + 1, context)</span><br><span class="line">    .read()</span><br><span class="line">    .asInstanceOf[Iterator[(K, C)]]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个方法会通过ShuffleManager拿到Shuffle reader然后读取上游阶段的shuffle数据。到这里Shuffle怎么产生的，读和写发生哪里都比较清晰的介绍了。</p>
+
+  </div>
+</article>
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/categories/technology">Technology</a></li>
+         
+          <li><a href="/categories/life">Life</a></li>
+         
+          <li><a href="/archives/">Archives</a></li>
+         
+          <li><a href="/tags/">Tags</a></li>
+         
+          <li><a href="/about">About</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Spark-Shuffle%E6%98%AF%E4%BB%80%E4%B9%88"><span class="toc-number">1.</span> <span class="toc-text">Spark Shuffle是什么</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E5%88%92%E5%88%86"><span class="toc-number">2.</span> <span class="toc-text">如何划分</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Task%EF%BC%8C-Parition%E6%95%B0%E9%87%8F"><span class="toc-number">3.</span> <span class="toc-text">Task， Parition数量</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%86%8D%E6%8E%A2Task"><span class="toc-number">4.</span> <span class="toc-text">再探Task</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2020/07/19/spark-shuffle-rdd/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2020/07/19/spark-shuffle-rdd/&text=Spark Shuffle Non-amateur First Look"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2020/07/19/spark-shuffle-rdd/&title=Spark Shuffle Non-amateur First Look"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2020/07/19/spark-shuffle-rdd/&is_video=false&description=Spark Shuffle Non-amateur First Look"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Spark Shuffle Non-amateur First Look&body=Check out this article: http://example.com/2020/07/19/spark-shuffle-rdd/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2020/07/19/spark-shuffle-rdd/&title=Spark Shuffle Non-amateur First Look"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2020/07/19/spark-shuffle-rdd/&title=Spark Shuffle Non-amateur First Look"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2020/07/19/spark-shuffle-rdd/&title=Spark Shuffle Non-amateur First Look"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2020/07/19/spark-shuffle-rdd/&title=Spark Shuffle Non-amateur First Look"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2020/07/19/spark-shuffle-rdd/&name=Spark Shuffle Non-amateur First Look&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2020/07/19/spark-shuffle-rdd/&t=Spark Shuffle Non-amateur First Look"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2023
+    duanmeng
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/categories/technology">Technology</a></li><!--
+     --><!--
+       --><li><a href="/categories/life">Life</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Archives</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tags</a></li><!--
+     --><!--
+       --><li><a href="/about">About</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+
+  <script src='https://unpkg.com/mermaid@9.0.0/dist/mermaid.min.js'></script>
+  <script>
+    if (window.mermaid) {
+      mermaid.initialize({theme: 'forest'});
+    }
+  </script>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

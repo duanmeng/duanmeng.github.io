@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="数据传输-常规做法考虑从文件中读取数据并通过网络将数据传输到另一个程序的场景，比如，提供静态内容的Web应用程序、FTP服务器、邮件服务器等。常规实现就是从磁盘读取文件内容到一个buffer，然后通过网卡发送，代码实现也很简单： 12File.read(fileDesc, buf, len);Socket.send(socket, buf, len);          然而，如上面两图所示，实际">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[Back-To-Basic] - Zero Copy">
+<meta property="og:url" content="http://example.com/2018/05/19/zero-copy/index.html">
+<meta property="og:site_name" content="Macduan Notes">
+<meta property="og:description" content="数据传输-常规做法考虑从文件中读取数据并通过网络将数据传输到另一个程序的场景，比如，提供静态内容的Web应用程序、FTP服务器、邮件服务器等。常规实现就是从磁盘读取文件内容到一个buffer，然后通过网卡发送，代码实现也很简单： 12File.read(fileDesc, buf, len);Socket.send(socket, buf, len);          然而，如上面两图所示，实际">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://s3.us.cloud-object-storage.appdomain.cloud/developer/default/articles/j-zerocopy/images/figure1.gif">
+<meta property="og:image" content="https://s3.us.cloud-object-storage.appdomain.cloud/developer/default/articles/j-zerocopy/images/figure2.gif">
+<meta property="og:image" content="https://s3.us.cloud-object-storage.appdomain.cloud/developer/default/articles/j-zerocopy/images/figure3.gif">
+<meta property="og:image" content="https://s3.us.cloud-object-storage.appdomain.cloud/developer/default/articles/j-zerocopy/images/figure4.gif">
+<meta property="og:image" content="https://s3.us.cloud-object-storage.appdomain.cloud/developer/default/articles/j-zerocopy/images/figure5.gif">
+<meta property="article:published_time" content="2018-05-19T11:48:31.000Z">
+<meta property="article:modified_time" content="2023-04-01T01:17:30.446Z">
+<meta property="article:author" content="duanmeng">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="Storage">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s3.us.cloud-object-storage.appdomain.cloud/developer/default/articles/j-zerocopy/images/figure1.gif">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>[Back-To-Basic] - Zero Copy</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/categories/technology">Technology</a></li><!--
+     --><!--
+       --><li><a href="/categories/life">Life</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Archives</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tags</a></li><!--
+     --><!--
+       --><li><a href="/about">About</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2018/08/24/epoll-notes/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2018/03/27/mac/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2018/05/19/zero-copy/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2018/05/19/zero-copy/&text=[Back-To-Basic] - Zero Copy"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2018/05/19/zero-copy/&title=[Back-To-Basic] - Zero Copy"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2018/05/19/zero-copy/&is_video=false&description=[Back-To-Basic] - Zero Copy"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=[Back-To-Basic] - Zero Copy&body=Check out this article: http://example.com/2018/05/19/zero-copy/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2018/05/19/zero-copy/&title=[Back-To-Basic] - Zero Copy"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2018/05/19/zero-copy/&title=[Back-To-Basic] - Zero Copy"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2018/05/19/zero-copy/&title=[Back-To-Basic] - Zero Copy"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2018/05/19/zero-copy/&title=[Back-To-Basic] - Zero Copy"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2018/05/19/zero-copy/&name=[Back-To-Basic] - Zero Copy&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2018/05/19/zero-copy/&t=[Back-To-Basic] - Zero Copy"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E4%BC%A0%E8%BE%93-%E5%B8%B8%E8%A7%84%E5%81%9A%E6%B3%95"><span class="toc-number">1.</span> <span class="toc-text">数据传输-常规做法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Zero-Copy%E5%88%9D%E6%AD%A5"><span class="toc-number">2.</span> <span class="toc-text">Zero Copy初步</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Zero-Copy%E6%9C%80%E7%BB%88%E5%BD%A2%E6%80%81"><span class="toc-number">3.</span> <span class="toc-text">Zero Copy最终形态</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">4.</span> <span class="toc-text">References</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        [Back-To-Basic] - Zero Copy
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">duanmeng</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2018-05-19T11:48:31.000Z" itemprop="datePublished">2018-05-19</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/Linux/" rel="tag">Linux</a>, <a class="tag-link-link" href="/tags/Storage/" rel="tag">Storage</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="数据传输-常规做法"><a href="#数据传输-常规做法" class="headerlink" title="数据传输-常规做法"></a>数据传输-常规做法</h2><p>考虑从文件中读取数据并通过网络将数据传输到另一个程序的场景，比如，提供静态内容的Web应用程序、FTP服务器、邮件服务器等。常规实现就是从磁盘读取文件内容到一个buffer，然后通过网卡发送，代码实现也很简单：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">File.read(fileDesc, buf, len);</span><br><span class="line">Socket.send(socket, buf, len);</span><br></pre></td></tr></table></figure>
+
+<table><tr>
+<td><img src="https://s3.us.cloud-object-storage.appdomain.cloud/developer/default/articles/j-zerocopy/images/figure1.gif" width="380" height="220"></td>
+<td>  </td>
+<td><img src="https://s3.us.cloud-object-storage.appdomain.cloud/developer/default/articles/j-zerocopy/images/figure2.gif" width="380" height="220"></td>
+</tr></table>
+
+<p>然而，如上面两图所示，实际上发生了4次拷贝（copy），4次上下文切换（context switch）和2次系统调用（system call）：</p>
+<ol>
+<li><strong><code>read()</code></strong> 该系统调用导致从用户模式到内核模式的上下文切换。在内部发出<code>sys_read()</code>（或等效函数）以从文件中读取数据。第一个副本由直接内存访问 (DMA) 引擎执行，该引擎从磁盘读取文件内容并将它们存储到内核地址空间缓冲区中（Read buffer）。</li>
+<li>请求的数据量从读取缓冲区复制到用户缓冲区（<code>Application buffer</code>），然后 <code>read()</code> 调用返回。调用的返回导致另一个上下文从内核切换回用户模式。现在数据存储在用户地址空间缓冲区中。</li>
+<li><strong><code>send()</code></strong> 套接字调用导致上下文从用户模式切换到内核模式。执行第三次复制，将数据再次放入内核地址空间缓冲区。不过这一次，数据被放入另一个缓冲区（Socket buffer），该缓冲区与目标套接字相关联。</li>
+<li><strong><code>send()</code></strong> 系统调用返回，创建第四次上下文切换。独立且异步地，当DMA引擎将数据从内核缓冲区传递到协议引擎时（NIC buffer），会发生第四次复制。</li>
+</ol>
+<p><font color='red'><b>上述4个步骤，每个步骤会有一次拷贝，一次上下文切换，步骤1，3有一次系统调用</b></font></p>
+<h2 id="Zero-Copy初步"><a href="#Zero-Copy初步" class="headerlink" title="Zero Copy初步"></a>Zero Copy初步</h2><p>上面流程可以看到，应用程序除了缓存数据并将其传输回套接字缓冲区外什么都不做。相反，数据可以直接从读取缓冲区传输到套接字缓冲区。 Java的transferTo，C&#x2F;C++的sendfile方法可以做到这一点。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">transferTo</span><span class="params">(<span class="type">long</span> position, <span class="type">long</span> count, WritableByteChannel target)</span>;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/socket.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="type">ssize_t</span> <span class="title">sendfile</span><span class="params">(<span class="type">int</span> out_fd, <span class="type">int</span> in_fd, <span class="type">off_t</span> *offset, <span class="type">size_t</span> count)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<table><tr>
+<td><img src="https://s3.us.cloud-object-storage.appdomain.cloud/developer/default/articles/j-zerocopy/images/figure3.gif" width="380" height="220"></td>
+<td>  </td>
+<td><img src="https://s3.us.cloud-object-storage.appdomain.cloud/developer/default/articles/j-zerocopy/images/figure4.gif" width="380" height="220"></td>
+</tr></table>
+
+<p>以Java的transferTo为例，上述流程可以被优化为2步：</p>
+<ol>
+<li><code>transferTo</code>&#x2F;<code>sendFile</code>方法让文件内容被DMA引擎复制到读取缓冲区中。然后数据被内核复制到与输出套接字关联的内核缓冲区中。</li>
+<li>第三次复制发生在DMA引擎将数据从内核套接字缓冲区传递到协议引擎时。</li>
+</ol>
+<h2 id="Zero-Copy最终形态"><a href="#Zero-Copy最终形态" class="headerlink" title="Zero Copy最终形态"></a>Zero Copy最终形态</h2><p>上述优化将上下文切换的次数从四个减少到两个，并将数据拷贝的数量从四个减少到三个（只有一个涉及CPU）。如果底层网络接口卡支持**<code>gather</code>**操作，可以进一步减少内核所做的数据重复。在Linux内核2.4及更高版本中，修改了套接字缓冲区描述符以适配此要求。这种方法不仅减少了多次上下文切换，而且消除了需要CPU 参与的重复数据拷贝。 用户端的用法仍然保持不变，但内部结构发生了变化：</p>
+<p><a><img src="https://s3.us.cloud-object-storage.appdomain.cloud/developer/default/articles/j-zerocopy/images/figure5.gif" width="380" height="220"></a></p>
+<ol>
+<li><code>transferTo</code>&#x2F;<code>sendFile</code>方法导致文件内容被DMA引擎复制到内核缓冲区中</li>
+<li>没有数据被复制到套接字缓冲区中。相反，只有包含有关数据位置和长度信息的描述符才会附加到套接字缓冲区。DMA引擎将数据直接从内核缓冲区传递到协议引擎，从而消除了剩余的最终CPU拷贝</li>
+</ol>
+<p><font color='red'><b>上述2个步骤，每个步骤会有一次拷贝（DMA），一次系统调用，总共两次拷贝，两次系统调用！</b></font></p>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://developer.ibm.com/articles/j-zerocopy/">https://developer.ibm.com/articles/j-zerocopy/</a></li>
+</ul>
+
+  </div>
+</article>
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/categories/technology">Technology</a></li>
+         
+          <li><a href="/categories/life">Life</a></li>
+         
+          <li><a href="/archives/">Archives</a></li>
+         
+          <li><a href="/tags/">Tags</a></li>
+         
+          <li><a href="/about">About</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E4%BC%A0%E8%BE%93-%E5%B8%B8%E8%A7%84%E5%81%9A%E6%B3%95"><span class="toc-number">1.</span> <span class="toc-text">数据传输-常规做法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Zero-Copy%E5%88%9D%E6%AD%A5"><span class="toc-number">2.</span> <span class="toc-text">Zero Copy初步</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Zero-Copy%E6%9C%80%E7%BB%88%E5%BD%A2%E6%80%81"><span class="toc-number">3.</span> <span class="toc-text">Zero Copy最终形态</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">4.</span> <span class="toc-text">References</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2018/05/19/zero-copy/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2018/05/19/zero-copy/&text=[Back-To-Basic] - Zero Copy"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2018/05/19/zero-copy/&title=[Back-To-Basic] - Zero Copy"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2018/05/19/zero-copy/&is_video=false&description=[Back-To-Basic] - Zero Copy"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=[Back-To-Basic] - Zero Copy&body=Check out this article: http://example.com/2018/05/19/zero-copy/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2018/05/19/zero-copy/&title=[Back-To-Basic] - Zero Copy"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2018/05/19/zero-copy/&title=[Back-To-Basic] - Zero Copy"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2018/05/19/zero-copy/&title=[Back-To-Basic] - Zero Copy"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2018/05/19/zero-copy/&title=[Back-To-Basic] - Zero Copy"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2018/05/19/zero-copy/&name=[Back-To-Basic] - Zero Copy&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2018/05/19/zero-copy/&t=[Back-To-Basic] - Zero Copy"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2023
+    duanmeng
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/categories/technology">Technology</a></li><!--
+     --><!--
+       --><li><a href="/categories/life">Life</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Archives</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tags</a></li><!--
+     --><!--
+       --><li><a href="/about">About</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+
+  <script src='https://unpkg.com/mermaid@9.0.0/dist/mermaid.min.js'></script>
+  <script>
+    if (window.mermaid) {
+      mermaid.initialize({theme: 'forest'});
+    }
+  </script>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

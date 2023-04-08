@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="Borg, Omega and Kubernetes – 过去十年从三个容器管理系统中吸取的经验教训">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[译] Borg, Omega and Kubernetes">
+<meta property="og:url" content="http://example.com/2019/01/18/borg-omega-kubernetes/index.html">
+<meta property="og:site_name" content="Macduan Notes">
+<meta property="og:description" content="Borg, Omega and Kubernetes – 过去十年从三个容器管理系统中吸取的经验教训">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2019-01-18T07:14:55.000Z">
+<meta property="article:modified_time" content="2023-04-01T01:17:30.444Z">
+<meta property="article:author" content="duanmeng">
+<meta property="article:tag" content="Kubernetes">
+<meta property="article:tag" content="Cloud">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>[译] Borg, Omega and Kubernetes</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/categories/technology">Technology</a></li><!--
+     --><!--
+       --><li><a href="/categories/life">Life</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Archives</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tags</a></li><!--
+     --><!--
+       --><li><a href="/about">About</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2019/03/25/modern-effective-cpp/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2018/11/19/Eventually-Consistent%20-%20Revisited/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2019/01/18/borg-omega-kubernetes/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2019/01/18/borg-omega-kubernetes/&text=[译] Borg, Omega and Kubernetes"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2019/01/18/borg-omega-kubernetes/&title=[译] Borg, Omega and Kubernetes"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2019/01/18/borg-omega-kubernetes/&is_video=false&description=[译] Borg, Omega and Kubernetes"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=[译] Borg, Omega and Kubernetes&body=Check out this article: http://example.com/2019/01/18/borg-omega-kubernetes/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2019/01/18/borg-omega-kubernetes/&title=[译] Borg, Omega and Kubernetes"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2019/01/18/borg-omega-kubernetes/&title=[译] Borg, Omega and Kubernetes"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2019/01/18/borg-omega-kubernetes/&title=[译] Borg, Omega and Kubernetes"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2019/01/18/borg-omega-kubernetes/&title=[译] Borg, Omega and Kubernetes"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2019/01/18/borg-omega-kubernetes/&name=[译] Borg, Omega and Kubernetes&description=&lt;p&gt;Borg, Omega and Kubernetes – 过去十年从三个容器管理系统中吸取的经验教训"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2019/01/18/borg-omega-kubernetes/&t=[译] Borg, Omega and Kubernetes"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%B9%E5%99%A8"><span class="toc-number">1.</span> <span class="toc-text">容器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%9D%A2%E5%90%91%E5%BA%94%E7%94%A8%E7%9A%84%E6%9E%B6%E6%9E%84"><span class="toc-number">2.</span> <span class="toc-text">面向应用的架构</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BA%94%E7%94%A8%E7%8E%AF%E5%A2%83"><span class="toc-number">2.1.</span> <span class="toc-text">应用环境</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%B9%E5%99%A8%E4%BD%9C%E4%B8%BA%E7%AE%A1%E7%90%86%E5%8D%95%E5%85%83"><span class="toc-number">2.2.</span> <span class="toc-text">容器作为管理单元</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BC%96%E6%8E%92%E5%8F%AA%E6%98%AF%E5%BC%80%E5%A7%8B%EF%BC%8C%E4%B8%8D%E6%98%AF%E7%BB%93%E6%9D%9F"><span class="toc-number">2.3.</span> <span class="toc-text">编排只是开始，不是结束</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%A6%81%E9%81%BF%E5%85%8D%E7%9A%84%E4%BA%8B%E6%83%85"><span class="toc-number">3.</span> <span class="toc-text">要避免的事情</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8D%E8%A6%81%E8%AE%A9%E5%AE%B9%E5%99%A8%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F%E7%AE%A1%E7%90%86%E7%AB%AF%E5%8F%A3%E5%8F%B7"><span class="toc-number">3.1.</span> <span class="toc-text">不要让容器管理系统管理端口号</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8D%E8%A6%81%E5%8F%AA%E5%AF%B9%E5%AE%B9%E5%99%A8%E7%BC%96%E5%8F%B7%EF%BC%9A%E7%BB%99%E5%AE%83%E4%BB%AC%E6%89%93%E6%A0%87%E7%AD%BE"><span class="toc-number">3.2.</span> <span class="toc-text">不要只对容器编号：给它们打标签</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%8F%E5%BF%83%E6%89%80%E6%9C%89%E6%9D%83"><span class="toc-number">3.3.</span> <span class="toc-text">小心所有权</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8D%E8%A6%81%E6%9A%B4%E9%9C%B2%E5%8E%9F%E5%A7%8B%E7%8A%B6%E6%80%81"><span class="toc-number">3.4.</span> <span class="toc-text">不要暴露原始状态</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E4%BA%9B%E5%BC%80%E6%94%BE%EF%BC%8C%E5%9B%B0%E9%9A%BE%E7%9A%84%E9%97%AE%E9%A2%98"><span class="toc-number">4.</span> <span class="toc-text">一些开放，困难的问题</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE"><span class="toc-number">4.1.</span> <span class="toc-text">配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86"><span class="toc-number">4.2.</span> <span class="toc-text">依赖管理</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%93%E8%AE%BA"><span class="toc-number">5.</span> <span class="toc-text">结论</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        [译] Borg, Omega and Kubernetes
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">duanmeng</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2019-01-18T07:14:55.000Z" itemprop="datePublished">2019-01-18</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/technology/">technology</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/Cloud/" rel="tag">Cloud</a>, <a class="tag-link-link" href="/tags/Kubernetes/" rel="tag">Kubernetes</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p>Borg, Omega and Kubernetes – 过去十年从三个容器管理系统中吸取的经验教训<span id="more"></span></p>
+<p>虽然软件容器是最近流行的现象，但是在Google我们已经管理大规模Linux容器十年多了，这期间我们还构建了3套不同的容器管理系统。每套系统都深受上一套系统的影响，虽然它们是为不同的目的而开发的。这篇文章介绍了我们从开发和运维这些系统中吸取的经验教训。</p>
+<p>在Google开发的第一代统一容器管理系统在内部被称作Borg。它旨在用来管理长期运行的服务和批处理作业，它们之前被两套系统管理：BabySitter和Global Work Queue。后者的架构深刻影响了Borg，但其专注于批处理作业；两者都早于Linux控制组（Control Groups）。Borg在这两类应用中共享机器作为提高资源利用率的方法进而降低成本。这种共享是可行的，因为linux内核支持容器了（的确，Google向Linux内核贡献了大部分容器的代码），这样可以更好地隔离延迟敏感的面向用户服务和高CPU占用（CPU-hungry）的批处理。</p>
+<p>随着越来越多的应用被开发运行在Borg上，我们的应用和架构组为这个生态开发了广泛的工具和服务。这些系统提供了配置和更新作业机制；资源需求预测；动态推送配置文件到运行的作业；服务发现与负载均衡；配额（quota）管理；等等。这个生态由Google内部不同组的需求驱动，其结果是变成了某种程度上的异构，临时的系统集合，Borg用户必须使用几种不同的配置语言和流程来配置和交互。Borg依旧是Google内部首选的容器管理系统由于它的规模，广泛的功能以及极强的鲁棒性。</p>
+<p>Omega，Borg的下一代系统，为改善Borg生态的软件工程而开发的。它采用了很多在Borg中被证明成功的模式，但是被从头构建来获得更一致，合理的架构。Omega将集群状态存储在一个中心化的Paxos-based的面向事务的存储系统中，它可以被集群控制面（比如调度器）的不同部分访问，使用乐观并发控制处理偶尔的冲突。这种解耦让Borgmaster的功能被拆解成对等运行的单独的组件，而不是所有变更都通过一个单体的，中心化的Master。许多Omega的创新（包括多调度器）都被整合到Borg中了。</p>
+<p>谷歌开发的第三个容器管理系统是Kubernetes。它是在外部开发人员对Linux容器变得有兴趣，同时谷歌开拓了销售公有云基础设施的业务的背景下构思和开发的。与只作为Google内部系统的Borg和Omega不同，Kubernetes是开源的。与Omega一样，Kubernetes在其核心中有一个持久化的存储和监控相关对象变化的组件。与Omega直接暴露其存储给信任的控制面板组件不同，Kubernetes的状态只能通过特定域的REST API访问，它应用了更高级别的版本控制，验证，语义和策略，支持更多样的客户端。更重要的是，Kubernetes的开发更关注开发者开发运行在集群上应用的体验：它的主要设计目标是使其易于部署和管理复杂的分布式系统，同时仍然受益于容器所带来的更高（资源）利用率。</p>
+<p>本文介绍了Google从Borg到Kubernetes获得的一些知识和经验教训。</p>
+<h2 id="容器"><a href="#容器" class="headerlink" title="容器"></a>容器</h2><p>历史上，第一个容器只提供根文件系统（root file system，通过chroot）隔离，FreeBSD jails将其扩展到其它命名空间（namespace）如进程IDs。Solaris随后开拓和探索了更多的增强功能。Linux控制组（cgroups）采纳了很多，这个领域的发展至今还在持续。</p>
+<p>容器提供的资源隔离使得Google可以将其资源利用率提高到业界平均水平之上。例如，Borg使用容器在相同的物理机上搭配运行批处理作业和延迟敏感面向用户的作业。面向用户的作业会预留比平常更多的资源，从而可以处理负载尖峰（spikes）和容错，并且可以回收利用这些最近未使用的资源来运行批处理作业。容器提供的资源管理工具使之变成可能，同时提供健壮的内核级隔离防止进程之间互相干扰。在开发Borg的同时我们通过增强Linux容器实现了这些功能。但是这种隔离无法防止非内核管理的资源被干扰，例如3级处理器缓存，内存带宽，容器还需要额外的安全层支持（比如，虚拟机）来防止云端出现的恶意攻击者。</p>
+<p>现代容器不仅仅是一个种隔离机制，它还包含镜像——构造容器内运行应用的文件。在Google内部用MPM（Midas Package Manager）构建和部署容器镜像。隔离机制和MPM软件包之间的共生关系与Docker守护进程和Docker镜像仓库之间的关系一样。在本文剩余部分，我们用<em>容器</em>这个词来涵盖这两个方面：运行时隔离和镜像。</p>
+<h2 id="面向应用的架构"><a href="#面向应用的架构" class="headerlink" title="面向应用的架构"></a>面向应用的架构</h2><p>随着时间推移，很明显，容器化的好处不仅仅是更高的资源利用率。容器化将数据中心从面向机器转向面向应用。本节两个例子：</p>
+<ul>
+<li>容器封装了应用环境，从应用开发者和部署架构中剥离了（<em>译者注：abstract away from，这里翻译成”抽象屏蔽了机器和OS细节“更合适？</em>）许多机器和操作系统的细节。</li>
+<li>因为精心设计的容器和容器镜像只包含一个应用，所以管理容器就是管理应用而非机器。这将管理API从面向机器转向面向应用，极大地改善了应用部署和自检（introspection）。</li>
+</ul>
+<h3 id="应用环境"><a href="#应用环境" class="headerlink" title="应用环境"></a>应用环境</h3><p>cgroup，chroot和namespace这些内核功能最初目的是保护应用程序受到嘈杂，混乱的邻居（其它应用）的干扰。这些结合容器镜像创造了一种抽象隔离了应用与它们运行所在的（异构的）操作系统。这解耦了镜像与操作系统，让为开发与生产环境提供相同的部署环境成为可能，进而改善了部署的可靠性和通过减少不一致性和磨合（friction）加速了部署。</p>
+<p>实现这种抽象的关键是有一种封闭的容器镜像，它封装了几乎所有应用所需的依赖到一个可以部署到容器的包中。如果正确的完成，仅有的本地外部依赖将会是linux系统调用接口。虽然这些有限的接口极大地改善了镜像的可移植性，但它并不完美：应用仍会暴露给混沌（churn）的操作系统接口，特别是通过套接字选项，&#x2F;proc，ioctl调用参数暴露的宽表面积（wide surface area）。我们希望正在进行的努力，比如开放容器计划<a target="_blank" rel="noopener" href="https://www.opencontainers.org/">OCI</a>会进一步阐明容器抽象的表面积（<em>译者：surface area实在不知道怎么翻译的好，直译为表面积</em>）。</p>
+<p>尽管如此，容器提供的隔离和依赖最小化在Google被证明非常有效，容器已经成为唯一被Google基础架构支持的运行实体。其中一个结果就是整个Google的机器集群在任何时候只有少量版本的操作系统，只需要少量的人员维护和推出新版本。</p>
+<p>有许多实现这种封闭镜像的方法。在Borg中，二进制程序在编译时被静态链接到公司范围托管的已知版本库中。尽管如此，Borg容器镜像并没有那么气密（airtight）：应用共享的所谓的基础镜像一次性安装在机器上，而不是打包到每个容器中。基础镜像中包含tar和libc库等设施，所以更新基础镜像会影响正在运行的应用，还会偶尔带来大麻烦。</p>
+<p>Docker和ACI这样的更现代的容器通过消除隐式主机操作系统依赖和必须使用显式用户命令在容器间共享镜像数据来进一步加强这种抽象，从而更接近封闭目标。</p>
+<h3 id="容器作为管理单元"><a href="#容器作为管理单元" class="headerlink" title="容器作为管理单元"></a>容器作为管理单元</h3><p>围绕容器而不是机器构建管理API，将数据中心的“主键”从机器转向应用。这有很多好处：[1]它消除了应用开发人员和运维团队对机器和操作系统特定细节的担忧；[2]它使得基础架构团队可以灵活的推出新的硬件和更新操作系统，同时给正在运行的应用及其的开发人员带来的影响最小；[3]它将管理系统收集的指标（telemetry，例如，CPU和内存使用率等指标）与应用而不是机器相关联，这极大改善了应用监控与自检，特别是在扩容，机器故障，或者维护造成应用实例迁移。</p>
+<p>容器提供了方便的指引用来注册通用API，使得管理系统与应用之间的信息流动不需要了解对方具体的实现。在Borg中，这种API是一系列附在容器上的HTTP endpoints。例如&#x2F;healthz endpoint报告应用的健康状况给编排系统。当应用不健康的时候，它会被自动终止和重启。这种自愈是可靠的分布式系统的关键组件。（Kubernetes也提供了类似的功能；它的健康检查是通过用户指定的HTTP endpoint或者运行在容器内部的可执行命令。）</p>
+<p>容器可以提供或者被提供额外的信息并通过不同的用户界面展现。例如，Borg应用可以提供一种简单的可动态更新的文本状态消息，Kubernetes提供存储在每个对象的元数据中key-value形式的注解，这些元数据也可以用来传达应用程序结构（<em>译者注：比如downwardAPI</em>）。这些注解可以被容器自己或者管理系统中其它参与者设置（例如，上线一个新版本的容器的进程）。</p>
+<p>在另一个方向上，容器管理系统可以向容器中传达资源限制和容器元数据等信息，以便传播到日志和监控系统中（例如，用户名，作业名，身份）和在节点维护之前提供优雅终止（graceful-termination）告警。</p>
+<p>容器还可以通过其他方式提供面向应用的监控：例如，通过Linux内核cgroups提供应用的资源利用数据，并且可以使用前面讲的HTTP API导出扩展这些数据生成的自定指标。这种数据使得可以在不了解每个应用特点的情况下开发通用管理工具，例如自动扩容或者<a target="_blank" rel="noopener" href="https://github.com/google/cadvisor">cAdvisor</a>，来记录和使用指标数据。因为容器就是应用，所以不需要对来自物理机或虚拟机上运行的多个应用进行解复用。与通过ssh到一台机器上运行top相比，这更简单，更健壮并允许更精细的报告和控制指标与日志。虽然开发人员可以ssh到容器中，但是他们极少需要这样做。</p>
+<p>监控只是一个例子。面向应用的转变对整个管理架构都有连锁反应。我们的负载均衡器不会在机器之间做负载均衡（<em>译者注：即使是公有云CLB+NodePort最终也是Pod之间均衡</em>）；它们在应用实例之间均衡。日志通过应用串联而不是机器，这样可以很容易的跨实例收集和聚合日志，而不会被多个应用或系统操作污染。我们可以探测应用故障和更迅速的定位故障原因，而不需要将它们从机器级别信号中区分开。本质上，因为一个被容器管理器管理的实例的身份与应用开发者期望的身份完全一致（<em>译者注：这里表达的是隔离和开发与生产环境一致的好处？</em>），所以更容易构建，管理和调试应用。</p>
+<p>最后，尽管到目前为止，我们只关注应用与容器按1:1的场景，但实际上我们使用在同一台机器上共同调度的嵌套容器：最外面的提供了资源池； 内部的提供了部署隔离。在Borg中，最外面的容器被称为资源分配或alloc；在Kubernetes中被成为pod。Borg还允许顶层应用容器运行在alloc之外；这带来诸多不便，所以Kubernetes规范化了，并且始终在顶层pod中运行应用容器，即使这个pod只包含一个容器。</p>
+<p>一种常见的使用模式是一个pod中运行一个复杂的应用的实例。应用的主要部分在其中一个子容器中，其它子容器运行支撑功能，比如，日志回转或者下发（offloading）点击日志到分布式文件系统中。与将所有功能整合到一个二进制文件中相比，这种方式使得更容易让不同的组开发不同的功能，还提升了健壮性（即使主应用卡住了，下发依然会继续），可组合性（容易添加小的支撑服务，因为它运行在它自己所在的容器提供的私有执行环境中），以及细粒度的资源隔离（各自运行在自己的资源中，所以日志系统不会饿死主应用，反之亦然）。</p>
+<h3 id="编排只是开始，不是结束"><a href="#编排只是开始，不是结束" class="headerlink" title="编排只是开始，不是结束"></a>编排只是开始，不是结束</h3><p>最初的Borg系统使得不同的工作负载运行在相同的机器上成为可能，从而改善了资源利用率。然而，Borg生态系统支撑服务的快速演进表明，容器管理本身只是开发和管理可靠的分布式系统的环境的开始。在Borg之中，之上和周边建立了许多不同的系统，以改进Borg提供的基本容器管理服务。下面部分列表给出了他们的范围与多样性：</p>
+<ul>
+<li>命名和服务发现（Borg命名服务，即BNS）</li>
+<li>使用Chubby选主</li>
+<li>应用感知负载均衡</li>
+<li>水平（实例数量）和垂直（实例大小）自动扩缩容</li>
+<li>推出工具精细管理新的二进制（版本）的部署和配置数据</li>
+<li>工作流工具（例如，允许运行有依赖关系的多作业分析流）（<em>译者注：DAG工作流最常见</em>）</li>
+<li>监控工具收集和聚合容器相关信息，展现在Dashboard上，并用来触发告警</li>
+</ul>
+<p>这些服务被有机的构建和组合在一起旨在解决开发组遇到的问题。有用的服务被广泛采用，让其他开发人员生活更轻松。不幸的是，这些工具往往选择了特定的API和规范（例如，文件位置）并与Borg深度集成。一个意想不到的副作用是增加了Borg生态中应用部署的复杂度。</p>
+<p>Kubernetes尝试通过对其API采用一致的方法来避免这种情况带来的复杂度。例如，每个Kubernetes对象在它的描述中有3个基本字段：ObjectMetadata, Specification (Spec)和Status.</p>
+<p>所有对象的Object Metadata都类似；它包含对象名，唯一ID（unique identifier），对象版本号（并发控制优化）和标签（键值对，如下所示，<em>译者注：并没有看到</em>）等信息。Spec和Status的内容在不同类型的对象中有所不同，但是他们的概念是一致的：Spec是被用来描述对象期望状态，而Status是提供对象当前状态的只读信息。</p>
+<p>统一的API带来很多好处。学习这个系统更简单了：类似的信息适用于所有对象，编写跨所有对象的通用工具更简单了，这反过来促进了一致用户体验的开发。从Borg和Omega中学习了经验，Kubernetes是一组可组合的基础组件构建的，并且方便用户扩展。通用的API和object-metadata结构让这变的更简单。例如，pod API可以被用户，Kubernetes内部组件和外部自动化工具使用。为了进一步提高一致性，Kubernetes被扩展让用户可以动态添加API和核心Kubernetes功能。</p>
+<p>一致性可通过解耦Kubernetes API实现。划分API组件的功能点（concerns）意味着上层的服务可以共享相同的通用基础组件。一个不错的例子是Kubernetes副本控制器（replication controller）和它的水平自动扩缩容系统分离。副本控制器保证某种角色的pod数量符合期望（例如，前端）。反过来，自动扩缩容器（autoscaler）是依赖这种能力，简单地调整期望的pod数量，而不需要关心这些pod如何创建或删除。自动扩缩容器实现可以专注在需求和使用情况的预测上，可以忽略如何实现它的决定（<em>译者注：比如，决定增加1个副本，通过replica controller即可，不需要自己实现，只关注实现“何时需要增加1个副本这个决定本身”</em>）。</p>
+<p>解耦确保多个相关但是不同的组件开起来很像。例如，Kubernetes有3中不同形式的多副本pods：</p>
+<ul>
+<li><code>ReplicationController</code>：持续运行的多副本容器（比如，web服务）</li>
+<li><code>DaemonSet</code>：确保每个节点上有且仅有一个实例（比如，日志代理器）</li>
+<li><code>Job</code>：一种运行至完成（run-to-completion）的控制器，它是控制一个批处理作业（batch job，可能是并行的）从开始到结束</li>
+</ul>
+<p>尽管策略不同，这3中控制器都是依赖通用的pod对象让容器按照它们的意愿运行。</p>
+<p>一致性还可以通过在不同的Kubernetes组件中通用的设计模式来实现。调和控制器循环的思想被Borg，Omega和Kubernetes共享来改善系统弹性：它对比期望状态（例如，多少pods应该匹配一个标签选择器的查询）和观察的状态（这样的pods有多少个），并采取行动收敛观察的和期望的状态。因为所有行动是基于观察而不是状态图表，调和循环有更健壮的容错性和抗干扰能力：当一个控制器出错了或重启了，它只需简单的继续未完成的工作。</p>
+<p>将Kubernetes设计成一种微服务和小型控制循环的组合是一种通过编排进行控制的例子，即通过协调与组合各个独立，自动实体的功能来实现期望出现的状态（desired emergent behavior）。与中心化的编排系统相比这是一种合理（conscious）的设计选择，中心化系统一开始也许会更容易构造，但是随着时间推移会变得脆弱和僵化，特别是在出现意外错误或者状态变化时。</p>
+<h2 id="要避免的事情"><a href="#要避免的事情" class="headerlink" title="要避免的事情"></a>要避免的事情</h2><p>在开发这些系统的过程中，我们学习到的不要去做的事几乎和值得做的事一样多。我们在这里介绍一些，希望其他人能专注于犯新的错误而不是重复我们的错误。</p>
+<h3 id="不要让容器管理系统管理端口号"><a href="#不要让容器管理系统管理端口号" class="headerlink" title="不要让容器管理系统管理端口号"></a>不要让容器管理系统管理端口号</h3><p>所有运行在Borg机器上的容器都共享主机的IP地址，所以Borg给每个容器分配了唯一的端口号作为调度过程的一部分。当容器移到另一个机器和在本机重启时会获得一个新的端口号。这意味着传统网络服务，例如DNS（Domain Name System）必须被自制版本替换；服务的客户端事先不知道分配给服务的端口号所以必须被告知；端口号不能嵌入到URL中，需要基于命名的重定向机制；依赖简单IP地址的工具需要被重写去处理IP:port对。</p>
+<p>吸取了Borg的经验（教训），我们决定Kubernetes会为每个pod分配IP地址，从而使网络身份（IP地址）与应用身份一致。这让在Kubernetes上运行现有软件更容易：应用可以自由使用静态标准（well-known）端口（比如，HTTP流量的80端口），和现有的，熟悉的可用于网络分段，带宽限制，和管理的工具。所有流行的云平台都提供了支持IP-per-pod的网络底层；在裸机上，可以用SDN（Software Define Network）覆盖或配置3层路由来处理单机多IP。</p>
+<h3 id="不要只对容器编号：给它们打标签"><a href="#不要只对容器编号：给它们打标签" class="headerlink" title="不要只对容器编号：给它们打标签"></a>不要只对容器编号：给它们打标签</h3><p>如果你允许用户轻松创建容器，他们往往会创建很多，并且很快需要一种将它们分组和组织的方法。Borg提供作业（jobs）来组织相同的任务（它的容器名）。作业是一个或多个相同任务的紧凑向量，从零开始按顺序索引。 这提供了强大的功能，并且简单明了，但是随着时间推移，我们开始因为它的死板而后悔。例如，当一个任务终止并且必须在另一台计算机上重新启动时，任务向量中的同一槽位必须承担双重责任：识别新副本并指向旧副本，以备调试之需。当向量中间的任务退出了，这个向量最终会有空洞。向量使得很难在Borg上层支持跨集群作业。Borg的作业更新语义之间还存在隐秘的，不可预测的相互影响（例如，跨任务对数据集进行分片或分区）：如果应用使用基于任务索引的范围分片，Borg的重启策略会导致数据不可用，因为它会取消相邻的任务。Borg还很难给一个作业添加应用相关的元数据，比如角色（例如，“前端”）或推出状态（例如，“canary”），因此人们将这些信息编码（正则表达式）到作业名中，使用正则表达式解码。</p>
+<p>相反，Kubernetes主要使用标签来识别容器组。标签是一种包含帮助识别对象信息的键值对。一种pod可能包含标签<code>role=frontend</code>和<code>stage=production</code>，表明这个容器是生产环境的前端实例。标签可以被自动化工具或者用户动态添加，移除，和修改，而且不同的组可以很大程度上独立管理自己的标签。对象集合由标签选择器定义（例如，<code>stage==production &amp;&amp; role==frontend</code>）。集合之间可以有交集，一个对象可以属于多个集合，所以标签从根本上比显示对象列表或静态属性更灵活。因为一个集合是由一次动态查询定义的，所以任何时候都可以创建一个新的。标签选择器是Kubernetes的分组机制，并定义了可以跨多个实体的所有管理操作的范围。</p>
+<p>即使在那些知道一个集合中任务身份有帮助的场景中（例如，对于静态角色分配和工作分区或分片），合适的per-pod标签也可以有静态任务索引一样的效果，虽然是应用负责提供这些标签（或一些其它的Kubernetes的外部管理系统）。标签和标签选择器提供了一种通用的，可同时兼顾两个方面的机制。</p>
+<h3 id="小心所有权"><a href="#小心所有权" class="headerlink" title="小心所有权"></a>小心所有权</h3><p>在Borg中，任务并不独立于作业而存在。创建作业就要创建它的任务；这些任务将永远与该特定作业相关，删除该作业也会删除这些任务。这很方便，但是它有一个重大缺陷：因为只有一种分组机制，所以它需要处理所有用例。例如，作业必须存储仅对服务或批处理作业有意义且对两者都没有意义的参数，并且当作业抽象无法处理用例时，用户必须想办法绕开（例如，DaemonSet，在所有节点只运行一个副本）。</p>
+<p>在Kubernetes中，pod生命周期管理组件，比如副本控制器使用标签选择器来决定它们管理那些pods，因此多个控制器可能都会认为它们对某个容器有管辖权。通过适当的配置选择来防止此类冲突很重要。但是，标签的灵活性有补偿性的优势——例如，控制器和容器的分离意味着可以“遗弃”和“收养”容器。考虑一种负载均衡服务，该服务使用标签选择器来标识要发送流量过去的Pod集。如果这些Pod中有一个开始出现异常，则可以通过一个或多个让它作为Kubernetes服务负载均衡器目标的标签来隔离它。该pod不再提供服务，但它将保持运行并且可以进行现场调试。同时，管理实现该服务的pod的复制控制器会自动为行为异常的pod创建一个替换的pod。</p>
+<h3 id="不要暴露原始状态"><a href="#不要暴露原始状态" class="headerlink" title="不要暴露原始状态"></a>不要暴露原始状态</h3><p>Borg，Omega和Kubernetes之间的关键区别在于它们的API架构。Borgmaster是一个单体组件，它知道每个API操作的语义。它包含集群管理逻辑，例如作业，任务和机器的状态机；它运行基于Paxos的副本存储系统来记录master的状态。 相比之下，Omega除了存储之外没有中心化组件，仅存储被动状态信息并实行乐观并发控制：所有逻辑和语义都被推送到存储的客户端中，直接读取和写入存储的内容。实际上，每个Omega组件都使用相同的存储客户端库，该库负责打包&#x2F;解压缩数据结构，重试和保证语义一致性。</p>
+<p>Kubernetes选择了一个中间立场，提供了Omega组件化体系结构的灵活性和可扩展性，同时实行了系统范围的不变式，策略和数据转换。它通过强制所有对存储的访问都要通过一个中心化的API服务器来做到这一点，该服务器隐藏了存储实现细节，并提供用于对象验证，默认设置和版本控制的服务。与在Omega中一样，客户端组件彼此解耦，可以独立演进或替换（这在开源环境中尤为重要），但是集中化使其易于实施常见的语义，不变式和策略。</p>
+<h2 id="一些开放，困难的问题"><a href="#一些开放，困难的问题" class="headerlink" title="一些开放，困难的问题"></a>一些开放，困难的问题</h2><p>即使有多年的容器管理经验，我们感觉对一些问题仍然没有好多答案。本节描述了几个特别棘手的问题，以期能促进讨论和解决方案。</p>
+<h3 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h3><p>我们遇到的所有问题中，最耗费脑力，体力和代码量的是配置管理相关的——提供给应用的一组值，而不是hard-code到应用中。实际上，我们就算用整篇文章来讨论这个主题也不够。下面列出一些要点。</p>
+<p>首先，应用配置成为所有容器管理系统尚未完成的工作的全部所在了。Borg历史中，这包括</p>
+<ul>
+<li>减少样板（例如，根据工作负载的默认任务重启策略，例如服务或批处理作业）</li>
+<li>调整和验证应用参数和命令行标志</li>
+<li>实现缺少API抽象时，例如包（镜像）管理，的绕开方法</li>
+<li>应用配置模板库</li>
+<li>发布管理工具</li>
+<li>镜像版本规范</li>
+</ul>
+<p>为了满足这些类型的需求，配置管理系统倾向于发明一种特定领域配置语言，该语言（最终）会变得图灵完备，从对配置中的数据执行计算的需求开始（例如，根据某个服务分片数量来调整服务器的内存）。结果就是难以理解的“配置即代码”，它是人们试图通过消除应用源代码中的硬编码参数来避免的。他没有减少运维的复杂度或者让配置变得容易调试或变更；它只是将计算从实际的编程语言转向一种领域特定语言，该语言通常只有很弱的开发工具，比如调试器和单测框架。</p>
+<p>我们认为，最有效的方法是接受此需求，拥抱程序化配置的必然性，并保持计算与数据之间的清晰的分离。表示数据的语言应为简单，纯数据格式，例如JSON或YAML，并且这种数据应该由真实的，具有非常好理解的语义和好工具的编程语言对数据进行程序化修改。有趣的是，相同的计算和数据分离可以在使用诸如Angular之类的框架进行前端开发时看到，该框架在标记（数据）世界与JavaScript（计算）世界之间保持了清晰的分离。</p>
+<h3 id="依赖管理"><a href="#依赖管理" class="headerlink" title="依赖管理"></a>依赖管理</h3><p>起一个服务通常还意味着起一系列相关的服务（监视，存储，持续集成&#x2F;持续部署（CI&#x2F;CD）等）。如果一个应用依赖于其他应用程序，那么由集群管理系统自动实例化这些依赖关系（以及它们可能具有的任何传递依赖关系）岂不是更好？</p>
+<p>对于复杂系统，实例化依赖关系很难像只是开启新副本那样简单——例如，它可能需要注册为现有服务（例如Bigtable即服务）的使用者，并跨那些传递依赖项传递认证，授权和计费信息。但是，几乎没有系统可以捕获，维护或公开这种依赖信息，因此，几乎不可能在基础架构级别实现自动化。对于用户而言，打开一个新应用仍然很复杂，会使开发人员更难以构建新服务，并且经常导致不遵循最新的最佳实践，从而影响了这样产生的服务的可靠性。</p>
+<p>一个标准的问题是，如果手动提供依赖项信息，则很难使其保持最新状态，并且同时试图自动确定它（例如，通过跟踪访问）未能捕获理解结果所需的语义信息。（访问权限是否必须赋给该实例，或者任何其它满足条件的实例？）一种可能有用的方法是，要求应用枚举其依赖的服务，并让基础组件拒绝访问任何其他应用。（我们这样做是为了在构建系统中导入编译器。）这样做的动机是使基础架构能做一些有用的事情，例如自动设置，验证和连接。</p>
+<p>不幸的是，表达，分析和使用系统依赖项的系统的感知复杂性（<em>译者注：perceived complexity，不知道这是什么</em>）过高，因此尚未将其添加到主流的容器管理系统中。我们仍然希望Kubernetes可以成为可以构建此类工具的平台，但是这样做仍然有一个开放的挑战。</p>
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>十年来构建容器管理系统的经验教会了我们很多，并且我们将其中许多经验嵌入到Google最新的容器管理系统Kubernetes中。它的目标是利用容器的功能来大幅提高程序员的生产率，并简化手动和自动系统管理。 希望您能和我们一起扩展和改进它。</p>
+
+  </div>
+</article>
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/categories/technology">Technology</a></li>
+         
+          <li><a href="/categories/life">Life</a></li>
+         
+          <li><a href="/archives/">Archives</a></li>
+         
+          <li><a href="/tags/">Tags</a></li>
+         
+          <li><a href="/about">About</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%B9%E5%99%A8"><span class="toc-number">1.</span> <span class="toc-text">容器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%9D%A2%E5%90%91%E5%BA%94%E7%94%A8%E7%9A%84%E6%9E%B6%E6%9E%84"><span class="toc-number">2.</span> <span class="toc-text">面向应用的架构</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BA%94%E7%94%A8%E7%8E%AF%E5%A2%83"><span class="toc-number">2.1.</span> <span class="toc-text">应用环境</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%B9%E5%99%A8%E4%BD%9C%E4%B8%BA%E7%AE%A1%E7%90%86%E5%8D%95%E5%85%83"><span class="toc-number">2.2.</span> <span class="toc-text">容器作为管理单元</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BC%96%E6%8E%92%E5%8F%AA%E6%98%AF%E5%BC%80%E5%A7%8B%EF%BC%8C%E4%B8%8D%E6%98%AF%E7%BB%93%E6%9D%9F"><span class="toc-number">2.3.</span> <span class="toc-text">编排只是开始，不是结束</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%A6%81%E9%81%BF%E5%85%8D%E7%9A%84%E4%BA%8B%E6%83%85"><span class="toc-number">3.</span> <span class="toc-text">要避免的事情</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8D%E8%A6%81%E8%AE%A9%E5%AE%B9%E5%99%A8%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F%E7%AE%A1%E7%90%86%E7%AB%AF%E5%8F%A3%E5%8F%B7"><span class="toc-number">3.1.</span> <span class="toc-text">不要让容器管理系统管理端口号</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8D%E8%A6%81%E5%8F%AA%E5%AF%B9%E5%AE%B9%E5%99%A8%E7%BC%96%E5%8F%B7%EF%BC%9A%E7%BB%99%E5%AE%83%E4%BB%AC%E6%89%93%E6%A0%87%E7%AD%BE"><span class="toc-number">3.2.</span> <span class="toc-text">不要只对容器编号：给它们打标签</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%8F%E5%BF%83%E6%89%80%E6%9C%89%E6%9D%83"><span class="toc-number">3.3.</span> <span class="toc-text">小心所有权</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8D%E8%A6%81%E6%9A%B4%E9%9C%B2%E5%8E%9F%E5%A7%8B%E7%8A%B6%E6%80%81"><span class="toc-number">3.4.</span> <span class="toc-text">不要暴露原始状态</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E4%BA%9B%E5%BC%80%E6%94%BE%EF%BC%8C%E5%9B%B0%E9%9A%BE%E7%9A%84%E9%97%AE%E9%A2%98"><span class="toc-number">4.</span> <span class="toc-text">一些开放，困难的问题</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE"><span class="toc-number">4.1.</span> <span class="toc-text">配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86"><span class="toc-number">4.2.</span> <span class="toc-text">依赖管理</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%93%E8%AE%BA"><span class="toc-number">5.</span> <span class="toc-text">结论</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2019/01/18/borg-omega-kubernetes/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2019/01/18/borg-omega-kubernetes/&text=[译] Borg, Omega and Kubernetes"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2019/01/18/borg-omega-kubernetes/&title=[译] Borg, Omega and Kubernetes"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2019/01/18/borg-omega-kubernetes/&is_video=false&description=[译] Borg, Omega and Kubernetes"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=[译] Borg, Omega and Kubernetes&body=Check out this article: http://example.com/2019/01/18/borg-omega-kubernetes/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2019/01/18/borg-omega-kubernetes/&title=[译] Borg, Omega and Kubernetes"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2019/01/18/borg-omega-kubernetes/&title=[译] Borg, Omega and Kubernetes"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2019/01/18/borg-omega-kubernetes/&title=[译] Borg, Omega and Kubernetes"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2019/01/18/borg-omega-kubernetes/&title=[译] Borg, Omega and Kubernetes"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2019/01/18/borg-omega-kubernetes/&name=[译] Borg, Omega and Kubernetes&description=&lt;p&gt;Borg, Omega and Kubernetes – 过去十年从三个容器管理系统中吸取的经验教训"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2019/01/18/borg-omega-kubernetes/&t=[译] Borg, Omega and Kubernetes"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2023
+    duanmeng
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/categories/technology">Technology</a></li><!--
+     --><!--
+       --><li><a href="/categories/life">Life</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Archives</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tags</a></li><!--
+     --><!--
+       --><li><a href="/about">About</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+
+  <script src='https://unpkg.com/mermaid@9.0.0/dist/mermaid.min.js'></script>
+  <script>
+    if (window.mermaid) {
+      mermaid.initialize({theme: 'forest'});
+    }
+  </script>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

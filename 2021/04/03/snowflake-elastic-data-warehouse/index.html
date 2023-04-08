@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="What is SnowflakeSnowflake是一个多租户、事务性、安全、高度可扩展和弹性的系统，具有完整的SQL支持和针对半结构化和schema-less数据的内置扩展的云上数据仓库。Snowflake是部署在公有云上（比如，Amazon AWS）按使用付款（pay-as-you-go）的SaaS（Software-as-a-Service）产品。Snowflake有以下关键特性：  Pu">
+<meta property="og:type" content="article">
+<meta property="og:title" content="The Snowflake Elastic Data Warehouse">
+<meta property="og:url" content="http://example.com/2021/04/03/snowflake-elastic-data-warehouse/index.html">
+<meta property="og:site_name" content="Macduan Notes">
+<meta property="og:description" content="What is SnowflakeSnowflake是一个多租户、事务性、安全、高度可扩展和弹性的系统，具有完整的SQL支持和针对半结构化和schema-less数据的内置扩展的云上数据仓库。Snowflake是部署在公有云上（比如，Amazon AWS）按使用付款（pay-as-you-go）的SaaS（Software-as-a-Service）产品。Snowflake有以下关键特性：  Pu">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://live.staticflickr.com/65535/52604660081_892cde5d9e_c.jpg">
+<meta property="article:published_time" content="2021-04-03T14:08:01.000Z">
+<meta property="article:modified_time" content="2023-04-01T01:17:30.445Z">
+<meta property="article:author" content="duanmeng">
+<meta property="article:tag" content="paper">
+<meta property="article:tag" content="SIMD">
+<meta property="article:tag" content="vectorized">
+<meta property="article:tag" content="DataWarehouse">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://live.staticflickr.com/65535/52604660081_892cde5d9e_c.jpg">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>The Snowflake Elastic Data Warehouse</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/categories/technology">Technology</a></li><!--
+     --><!--
+       --><li><a href="/categories/life">Life</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Archives</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tags</a></li><!--
+     --><!--
+       --><li><a href="/about">About</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2021/07/14/presto-sql/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2021/02/11/spark-sql-paper/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2021/04/03/snowflake-elastic-data-warehouse/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2021/04/03/snowflake-elastic-data-warehouse/&text=The Snowflake Elastic Data Warehouse"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2021/04/03/snowflake-elastic-data-warehouse/&title=The Snowflake Elastic Data Warehouse"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2021/04/03/snowflake-elastic-data-warehouse/&is_video=false&description=The Snowflake Elastic Data Warehouse"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=The Snowflake Elastic Data Warehouse&body=Check out this article: http://example.com/2021/04/03/snowflake-elastic-data-warehouse/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2021/04/03/snowflake-elastic-data-warehouse/&title=The Snowflake Elastic Data Warehouse"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2021/04/03/snowflake-elastic-data-warehouse/&title=The Snowflake Elastic Data Warehouse"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2021/04/03/snowflake-elastic-data-warehouse/&title=The Snowflake Elastic Data Warehouse"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2021/04/03/snowflake-elastic-data-warehouse/&title=The Snowflake Elastic Data Warehouse"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2021/04/03/snowflake-elastic-data-warehouse/&name=The Snowflake Elastic Data Warehouse&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2021/04/03/snowflake-elastic-data-warehouse/&t=The Snowflake Elastic Data Warehouse"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#What-is-Snowflake"><span class="toc-number">1.</span> <span class="toc-text">What is Snowflake</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Why-Snowflake"><span class="toc-number">2.</span> <span class="toc-text">Why Snowflake</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Snowflake-Architecture"><span class="toc-number">3.</span> <span class="toc-text">Snowflake Architecture</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Data-Storage"><span class="toc-number">3.1.</span> <span class="toc-text">Data Storage</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Virtual-Warehouse"><span class="toc-number">3.2.</span> <span class="toc-text">Virtual Warehouse</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Cloud-Services"><span class="toc-number">3.3.</span> <span class="toc-text">Cloud Services</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number">4.</span> <span class="toc-text">Reference</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        The Snowflake Elastic Data Warehouse
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">duanmeng</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2021-04-03T14:08:01.000Z" itemprop="datePublished">2021-04-03</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/DataWarehouse/" rel="tag">DataWarehouse</a>, <a class="tag-link-link" href="/tags/SIMD/" rel="tag">SIMD</a>, <a class="tag-link-link" href="/tags/paper/" rel="tag">paper</a>, <a class="tag-link-link" href="/tags/vectorized/" rel="tag">vectorized</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="What-is-Snowflake"><a href="#What-is-Snowflake" class="headerlink" title="What is Snowflake"></a>What is Snowflake</h2><p>Snowflake是一个多租户、事务性、安全、高度可扩展和弹性的系统，具有完整的SQL支持和针对半结构化和schema-less数据的内置扩展的云上数据仓库。Snowflake是部署在公有云上（比如，Amazon AWS）按使用付款（pay-as-you-go）的SaaS（Software-as-a-Service）产品。Snowflake有以下关键特性：</p>
+<ul>
+<li><p><strong>Pure Software-as-a-Service (SaaS) Experience</strong>，用户不需要购买机器，雇佣数据库管理员，或者安装软件，也不需要做调优或者物理上的设计，只要用户已有云上数据，或者上传数据到云上就可以使用Snowflake操作和查询他们的数据</p>
+</li>
+<li><p><strong>Relational</strong>，支持ANSI SQL和ACID事务</p>
+</li>
+<li><p><strong>Semi-Structured</strong>，Snowflake提供了内置函数和SQL扩展，用于对半结构化数据的遍历、展平和嵌套，支持JSON和Avro等流行格式。 自动schema发现和列式存储使得对schema-less、半结构化数据的操作几乎与对普通关系数据的操作一样快，而且无需任何用户操作。</p>
+</li>
+<li><p><strong>Elastic</strong>，存储与计算可以独立和无缝地的扩展（因为存储计算分离），且不影响数据可用性或并发查询性能。</p>
+</li>
+<li><p><strong>Highly Available</strong>，高可用，无论是节点，集群，甚至数据中心故障，还是软件与硬件升级</p>
+</li>
+<li><p><strong>Durable</strong>，持久性，跨区域数据备份</p>
+</li>
+<li><p><strong>Cost-efficient</strong>，计算高效，所有数据都是压缩的，用户只需按照实际使用的存储与计算收费</p>
+</li>
+<li><p><strong>Secure</strong>，所有数据，包括临时文件，网络传输都是端到端加密，SQL level的role-based的细粒度access control（RBAC）。</p>
+</li>
+</ul>
+<p><a><img src="https://live.staticflickr.com/65535/52604660081_892cde5d9e_c.jpg" width="1024" height="501" alt="snowflake"></a></p>
+<h2 id="Why-Snowflake"><a href="#Why-Snowflake" class="headerlink" title="Why Snowflake"></a>Why Snowflake</h2><p>公有云平台（AWS，Azure，GCP）现在可以按需提供几乎无限的计算和存储资源，软件即服务 (SaaS) 模型为以前因成本和复杂性而无法购买此类系统的用户带来了企业级系统。传统数据仓库为固定资源而设计，需要复杂的ETL管道，物理调优来适配这种新的云环境和越来越多的半结构化数据和极速增长的工作负载。<br>Shared-nothing是高性能数仓领域主导的架构，它的每个节点都有本地盘，既是计算节点也是存储节点，表水平分片在各个节点上，每个节点都是相同的功能和硬件，这种存储计算耦合的架构带来如下缺点：</p>
+<ul>
+<li>Heterogeneous Workload，同构的硬件为了适配异构的工作负载需要做硬件配置上的trade-off，I&#x2F;O vs Compute</li>
+<li>Membership Changes，node变更，比如node failures，扩所容，都需要做reshuffle，影响性能和可用性</li>
+<li>Online Upgrade，在不停服的情况下做软硬件升级特别困难</li>
+</ul>
+<p>以上这些在on-premise环境中，这些可以忍受，节点升级，系统容量调整不频繁。但是在云环境中，比如AWS EC2节点类型各不相同，节点故障，membership change都比较频繁。</p>
+<p>有大量的用户案例与工作负载可以获得公有云带来的弹性，经济性和服务上好处，但是没法被传统的数仓或者大数据平台服务好，所以需要重新设计一个云上，企业级新型数据仓库，也就是Snowflake。</p>
+<h2 id="Snowflake-Architecture"><a href="#Snowflake-Architecture" class="headerlink" title="Snowflake Architecture"></a>Snowflake Architecture</h2><p>Snowflake是存储计算分离，计算是通过Snowflake拥有的share-nothing引擎，存储是由AWS S3（原则上Azure Blob Storage，Google Cloud Storage）提供，每个计算节点上的local disk只用于存储临时数据和缓存数据这样的热数据（建议使用高性能SSD），这种架构就是multi-cluster，shared-data架构。Snowflake 是一种面向服务的架构，由高度容错和可独立扩展的服务组成。 这些服务通过 RESTful 接口进行通信，分为三个架构层</p>
+<ul>
+<li>Cloud Services</li>
+<li>Virtual Warehouse</li>
+<li>Data Storage</li>
+</ul>
+<h3 id="Data-Storage"><a href="#Data-Storage" class="headerlink" title="Data Storage"></a>Data Storage</h3><p>由于AWS是最成熟的云平台，提供了最大潜在用户池（技术选型有时候不只技术因素），加上S3高可用，低成本，强持久保证，Snowflake选择S3作为其存储服务。S3提供HTTP(S)-based的PUT&#x2F;GET&#x2F;DELETE接口，文件只能被完全重写，不支持append，但是支持按范围GET文件的一部分，这些影响了Snowflake的表文件格式和并发控制的设计。Snowflake的表由水平分区的，immutable的table file组成，使用一种叫PAX的行列混合的文件格式（类似Parquet），每个table file的头部存储包括列偏移等元数据，查询只需要使用GET请求，获取table file头部和需要计算的列即可。Snowflake不仅使用S3存储表数据，还存储算子的临时spill的数据，使用tiered storage即<code>Memory -&gt; Local Disk -&gt; S3</code>，防止OOM或者OOD。</p>
+<p>元数据包括catalog对象，table files列表，统计数据，锁，事务日志等存储在Cloud Services层的一个可伸缩的事务性KV存储中。</p>
+<h3 id="Virtual-Warehouse"><a href="#Virtual-Warehouse" class="headerlink" title="Virtual Warehouse"></a>Virtual Warehouse</h3><p>Virtual Warehouse是有一些AWS EC2的实例组成，每个EC2实例就是一个woker node，用户不直接与worker nodes交互，也不用关心哪些或者多少worker nodes组成一个VW，取而代之的是抽血的“T-Shirt sizes”，从X-Small到XX-large，这种抽象使得Snowflake可以独立于底层云平台来演进服务与定价。</p>
+<p><strong>弹性与隔离性</strong></p>
+<p>VWs只是单纯的计算资源，它们可以在任何时候按需被创建，调整大小或者被销毁，且不影响数据库的状态。这种弹性使得用户独立于数据量动态调整计算资源，甚至在没有查询时关闭所有VWs。每个用户在任何时候可以拥有多个VWs，每个VW可以运行多个并发查询，每个VW都可以访问共享的数据表，而不需要物理复制数据。共享，无限的存储意味着用户可以共享和集成他们所有的数据，这是数据仓库的核心原则之一。同时，用户利用私有计算资源，可以实现不同的工作负载，不同的部门之间的计算的隔离（运行在不同的VWs上）；比较常见的是用户有若干个持续运行的VWs（比如，交互查询），和周期性拉起的VWs用于批量加载。</p>
+<p><strong>缓存和File Stealing</strong></p>
+<p>每个Worker node维护了一个在本地盘的表数据缓存，准确的说是缓存的文件头和列。缓存的生命周期与Worker node一致，可以被同节点上的查询共享，使用LRU（least-recently-used）替换策略。为了提高cache命中率，查询优化器使用基于表名的一致性哈希分配输入文件集给worker nodes。Snowflake使用惰性一致性哈希，发生节点数量变化时不做数据迁移（虽然一致性哈希本身会减少数据迁移），通过LRU替换策略最终替换缓存内容（需要迁移的部分不会被命中，最终被淘汰），均摊替换成本到多个查询上，这样相对于eager cache或者纯shared-nothing系统没有降级模式，可用性更好。</p>
+<p>除了缓存，倾斜处理在云数据仓库中也特别重要，一些节点可能由于网络等原因处理速度比其它节点慢很多，当快节点处理完分配给它的文件集后，它可以从对等节点（特别是慢节点）中请求更多文件，也就是file stealing技术。File stealing只是获取文件的ownership，然后直接从S3中下载，而不是从对等节点获取，这样不会给本来就慢的节点增加更多压力。</p>
+<p><strong>执行引擎</strong></p>
+<p>单节点执行性能也非常重要，为了提升单节点性能，Snowflake使用了自研的，高性能的，列式向量化，push-based（pipeline model）执行引擎（参考MonetDB&#x2F;X100），对于分析型工作负载，列式存储与向量化更有优势，能更高效的利用CPU cache，SIMD指令，更高的压缩率，push-based执行比code-gen的紧凑循环的cache效率更高。</p>
+<p><em>本论文没有对Snowflake向量化引擎做过多介绍，包括表达式，算子实现，pipeline模型，SIMD，adaptive等技术</em></p>
+<h3 id="Cloud-Services"><a href="#Cloud-Services" class="headerlink" title="Cloud Services"></a>Cloud Services</h3><p>Cloud services层是整个Snowflake的”大脑“，由于一组long-lived的多租户服务组成，包括访问控制，查询优化器，事务管理器等，所有的服务都是高可用，可伸缩的。</p>
+<p><strong>Query Management and Optimization</strong></p>
+<p>所有用户发起的查询都是通过Cloud services层，这里处理了一次查询生命周期的早期阶段：解析，对象解析，访问控制和计划优化。Snowflake的查询优化遵循了典型的Cascades-style方法，自顶向下cost-based优化，所有用于优化的统计数据都是在数据加载和更新时自动维护。Snowflake把许多决定推迟到执行阶段，比如join类型选择，也减少了优化器错误决定的次数，以牺牲少量的峰值性能的代价提升了鲁棒性。优化完成之后将生成的执行计划（物理计划）分发到所有查询使用的工作节点上，查询执行的过程中，Cloud services层持续追踪和收集性能指标，统计数据，节点失败等信息，并将这些信息用于审计，性能分析，用户可以通过一个可视化界面监控和分析正在进行和完成的查询。</p>
+<p><strong>Concurrency Control</strong></p>
+<p>Snowflake是为分析型工作负载设计的，主要是大数据量读，批量插入或者更新，所以通过<a target="_blank" rel="noopener" href="https://courses.cs.washington.edu/courses/cse444/08au/544M/READING-LIST/fekete-sigmod2008.pdf">Snapshot Isolation</a>来实现ACID事务。按惯例，SI是在MVCC（multi-version concurrency control）的基础上实现的，这意味着每次数据库对象变更的副本都会被保留一段时间。MVCC也是自然的选择，考虑到表文件都是不可变的，写操作（insert，update，delete，merge）是增加和删除整个与先前表版本相关的表文件。此外，Snowflake还可以利用SI实现Time Travel和高效的数据库clone。</p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://event.cwi.nl/lsde/papers/p215-dageville-snowflake.pdf">https://event.cwi.nl/lsde/papers/p215-dageville-snowflake.pdf</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=xnuv6vr8USE&amp;t=1527s">https://www.youtube.com/watch?v=xnuv6vr8USE&amp;t=1527s</a></li>
+<li><a target="_blank" rel="noopener" href="https://15721.courses.cs.cmu.edu/spring2018/slides/25-snowflake.pdf">https://15721.courses.cs.cmu.edu/spring2018/slides/25-snowflake.pdf</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=xnuv6vr8USE&amp;t=1408s">https://www.youtube.com/watch?v=xnuv6vr8USE&amp;t=1408s</a></li>
+<li><a target="_blank" rel="noopener" href="https://courses.cs.washington.edu/courses/cse444/08au/544M/READING-LIST/fekete-sigmod2008.pdf">https://courses.cs.washington.edu/courses/cse444/08au/544M/READING-LIST/fekete-sigmod2008.pdf</a></li>
+</ul>
+
+  </div>
+</article>
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/categories/technology">Technology</a></li>
+         
+          <li><a href="/categories/life">Life</a></li>
+         
+          <li><a href="/archives/">Archives</a></li>
+         
+          <li><a href="/tags/">Tags</a></li>
+         
+          <li><a href="/about">About</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#What-is-Snowflake"><span class="toc-number">1.</span> <span class="toc-text">What is Snowflake</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Why-Snowflake"><span class="toc-number">2.</span> <span class="toc-text">Why Snowflake</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Snowflake-Architecture"><span class="toc-number">3.</span> <span class="toc-text">Snowflake Architecture</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Data-Storage"><span class="toc-number">3.1.</span> <span class="toc-text">Data Storage</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Virtual-Warehouse"><span class="toc-number">3.2.</span> <span class="toc-text">Virtual Warehouse</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Cloud-Services"><span class="toc-number">3.3.</span> <span class="toc-text">Cloud Services</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number">4.</span> <span class="toc-text">Reference</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2021/04/03/snowflake-elastic-data-warehouse/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2021/04/03/snowflake-elastic-data-warehouse/&text=The Snowflake Elastic Data Warehouse"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2021/04/03/snowflake-elastic-data-warehouse/&title=The Snowflake Elastic Data Warehouse"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2021/04/03/snowflake-elastic-data-warehouse/&is_video=false&description=The Snowflake Elastic Data Warehouse"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=The Snowflake Elastic Data Warehouse&body=Check out this article: http://example.com/2021/04/03/snowflake-elastic-data-warehouse/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2021/04/03/snowflake-elastic-data-warehouse/&title=The Snowflake Elastic Data Warehouse"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2021/04/03/snowflake-elastic-data-warehouse/&title=The Snowflake Elastic Data Warehouse"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2021/04/03/snowflake-elastic-data-warehouse/&title=The Snowflake Elastic Data Warehouse"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2021/04/03/snowflake-elastic-data-warehouse/&title=The Snowflake Elastic Data Warehouse"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2021/04/03/snowflake-elastic-data-warehouse/&name=The Snowflake Elastic Data Warehouse&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2021/04/03/snowflake-elastic-data-warehouse/&t=The Snowflake Elastic Data Warehouse"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2023
+    duanmeng
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/categories/technology">Technology</a></li><!--
+     --><!--
+       --><li><a href="/categories/life">Life</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Archives</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tags</a></li><!--
+     --><!--
+       --><li><a href="/about">About</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+
+  <script src='https://unpkg.com/mermaid@9.0.0/dist/mermaid.min.js'></script>
+  <script>
+    if (window.mermaid) {
+      mermaid.initialize({theme: 'forest'});
+    }
+  </script>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

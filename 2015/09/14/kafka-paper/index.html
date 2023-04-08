@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="What is KafkaKafka是LinkedIn开发的一个先进的，日志处理的消息系统，它整合了传统日志聚合器和消息系统的优势。Kafka是分布式，可扩展和高吞吐，提供与消息系统类似的API，让应用程序可以实时消费日志事件。 Why Kafka在互联网公司，每天会产生大量的“log”数据，主要包含以下两类：  用户活动，登陆，pageviews，点击，“likes”，分享，评论和搜索查询 运营">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Kafka: a Distributed Messaging System for Log Processing">
+<meta property="og:url" content="http://example.com/2015/09/14/kafka-paper/index.html">
+<meta property="og:site_name" content="Macduan Notes">
+<meta property="og:description" content="What is KafkaKafka是LinkedIn开发的一个先进的，日志处理的消息系统，它整合了传统日志聚合器和消息系统的优势。Kafka是分布式，可扩展和高吞吐，提供与消息系统类似的API，让应用程序可以实时消费日志事件。 Why Kafka在互联网公司，每天会产生大量的“log”数据，主要包含以下两类：  用户活动，登陆，pageviews，点击，“likes”，分享，评论和搜索查询 运营">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://live.staticflickr.com/65535/52700967705_79b2e7252e.jpg">
+<meta property="article:published_time" content="2015-09-14T07:20:33.000Z">
+<meta property="article:modified_time" content="2023-04-01T01:17:30.444Z">
+<meta property="article:author" content="duanmeng">
+<meta property="article:tag" content="data">
+<meta property="article:tag" content="paper">
+<meta property="article:tag" content="storage">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://live.staticflickr.com/65535/52700967705_79b2e7252e.jpg">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Kafka: a Distributed Messaging System for Log Processing</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/categories/technology">Technology</a></li><!--
+     --><!--
+       --><li><a href="/categories/life">Life</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Archives</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tags</a></li><!--
+     --><!--
+       --><li><a href="/about">About</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2015/10/14/hive-warehouse/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2015/09/14/kafka-paper/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2015/09/14/kafka-paper/&text=Kafka: a Distributed Messaging System for Log Processing"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2015/09/14/kafka-paper/&title=Kafka: a Distributed Messaging System for Log Processing"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2015/09/14/kafka-paper/&is_video=false&description=Kafka: a Distributed Messaging System for Log Processing"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Kafka: a Distributed Messaging System for Log Processing&body=Check out this article: http://example.com/2015/09/14/kafka-paper/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2015/09/14/kafka-paper/&title=Kafka: a Distributed Messaging System for Log Processing"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2015/09/14/kafka-paper/&title=Kafka: a Distributed Messaging System for Log Processing"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2015/09/14/kafka-paper/&title=Kafka: a Distributed Messaging System for Log Processing"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2015/09/14/kafka-paper/&title=Kafka: a Distributed Messaging System for Log Processing"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2015/09/14/kafka-paper/&name=Kafka: a Distributed Messaging System for Log Processing&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2015/09/14/kafka-paper/&t=Kafka: a Distributed Messaging System for Log Processing"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#What-is-Kafka"><span class="toc-number">1.</span> <span class="toc-text">What is Kafka</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Why-Kafka"><span class="toc-number">2.</span> <span class="toc-text">Why Kafka</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Kafka-Architecture-amp-Design-Principles"><span class="toc-number">3.</span> <span class="toc-text">Kafka Architecture &amp; Design Principles</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="toc-number">3.1.</span> <span class="toc-text">基本概念</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AD%98%E5%82%A8"><span class="toc-number">3.2.</span> <span class="toc-text">存储</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BC%A0%E8%BE%93"><span class="toc-number">3.3.</span> <span class="toc-text">传输</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%97%A0%E7%8A%B6%E6%80%81Broker"><span class="toc-number">3.4.</span> <span class="toc-text">无状态Broker</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%86%E5%B8%83%E5%BC%8F%E5%8D%8F%E8%B0%83"><span class="toc-number">3.5.</span> <span class="toc-text">分布式协调</span></a></li></ol></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Kafka: a Distributed Messaging System for Log Processing
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">duanmeng</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2015-09-14T07:20:33.000Z" itemprop="datePublished">2015-09-14</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/technology/">technology</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/data/" rel="tag">data</a>, <a class="tag-link-link" href="/tags/paper/" rel="tag">paper</a>, <a class="tag-link-link" href="/tags/storage/" rel="tag">storage</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="What-is-Kafka"><a href="#What-is-Kafka" class="headerlink" title="What is Kafka"></a>What is Kafka</h2><p>Kafka是LinkedIn开发的一个先进的，日志处理的消息系统，它整合了传统日志聚合器和消息系统的优势。Kafka是分布式，可扩展和高吞吐，提供与消息系统类似的API，让应用程序可以实时消费日志事件。</p>
+<h2 id="Why-Kafka"><a href="#Why-Kafka" class="headerlink" title="Why Kafka"></a>Why Kafka</h2><p>在互联网公司，每天会产生大量的“log”数据，主要包含以下两类：</p>
+<ul>
+<li><strong>用户活动</strong>，登陆，pageviews，点击，“likes”，分享，评论和搜索查询</li>
+<li><strong>运营指标</strong>，服务调用栈，调用延迟，错误，系统指标（CPU，内存，网络，磁盘使用率）</li>
+</ul>
+<p>长期以来，日志数据一直是用于跟踪用户参与度、系统使用率和其他指标的分析的组成部分。然而，最新趋势是互联网应用程序将活动数据作为直接用在在站点功能中的生产数据管道的一部分：</p>
+<ul>
+<li>搜索相关性</li>
+<li>推荐系统</li>
+<li>广告定位和报告</li>
+<li>安全应用</li>
+<li>信息流（newsfeed）</li>
+</ul>
+<p>这种生产上，实时使用log数据给数据系统带来了新的挑战。许多处理此类数据的早期系统都依赖于从生产服务器上物理抓取日志文件进行分析。近年来，已经建立了几个专门的分布式日志聚合器，包括 Facebook的Scribe、Yahoo的Data Highway和Cloudera的Flume。这些系统主要设计用于收集日志数据并将其加载到数据仓库或Hadoop中以供离线使用。在LinkedIn，除了传统的离线分析之外，还需要支持上面提到的大多数实时应用程序，延迟不超过几秒钟。</p>
+<p>传统的企业消息系统存在时间长，经常作为事件发挥关键作用用于处理异步数据流的总线。然而，它们不适合日志处理：</p>
+<ul>
+<li>提供的功能不匹配需求，这些系统通常专注于提供丰富的交付保证，比如事务支持（IBM Websphere），单个消息确认（JMS），支持乱序等，往往会增加这些系统的API和底层实现的复杂性</li>
+<li>不是关注高吞吐而设计的，比如JMS不支持批量发送，每条消息都需要完整的TCP&#x2F;IP往返，这对吞吐量要求是不可行的</li>
+<li>分布式支持弱，不方便在多个机器上分区存储消息数据</li>
+<li>许多消息传递系统假设近实时消费消息，所以未消费的队列消息总是相当小</li>
+</ul>
+<h2 id="Kafka-Architecture-amp-Design-Principles"><a href="#Kafka-Architecture-amp-Design-Principles" class="headerlink" title="Kafka Architecture &amp; Design Principles"></a>Kafka Architecture &amp; Design Principles</h2><h3 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h3><p><strong>Producer</strong>（生产者）可以向<strong>Topic</strong>发布消息。然后将发布的消息存储在一组称为<strong>Brokers</strong>的服务器上。<strong>Consumer</strong>（消费者）可以从<strong>Brokers</strong>中订阅一个或多个<strong>Topic</strong>，并通过从brokers中pull数据来消费订阅的消息。Kafka的整体架构如下图所示，由于Kafka是分布式的，一个Kafka集群通常包括多个brokers。为了负载均衡，一个主题被划分为多个<strong>Partition</strong>（分区），每个broker存储一个或多个分区。每个<strong>Producer</strong>可以发送消息到随机选择的分区或者分区键和分区函数决定的分区。<strong>Consumer groups</strong>是由一个或多个<strong>Consumer</strong>组成的，一起消费一组订阅的<em>topics</em>，每条消息只会传递给其中一个<em>Consuermr</em>，同一<strong>Consumer Group</strong>中的consumer可以在不同的进程或者机器上。</p>
+<p><a><image src="https://live.staticflickr.com/65535/52700987563_b2a840da7b.jpg" width="500" height="320" alt="kf"></a></p>
+<h3 id="存储"><a href="#存储" class="headerlink" title="存储"></a>存储</h3><p>一个Topic的每个分区对应一个逻辑log，物理上一个log被实现为一组分片文件（segment files），每个分片大小解决（比如，都是1G）。为了更好的性能，只有当可配置的数量的消息被发布或者超过了可配置的时间，分片文件才被刷入存储盘，然后对消费者可见。</p>
+<p>每条消息都是由其在日志中的逻辑偏移量（offset）寻址，消息ID不是连续增加对，要计算下一条消息的ID，必须将当前消息的长度加上它的ID。消费者总是按顺序消费来自特定分区的消息，如果消费者确认了一个特定的消息偏移量，则意味着消费者已收到分区中该偏移量之前的所有消息。Kafka日志和内存索引的布局如下所示。</p>
+<ul>
+<li>每个拉取请求都包含消费开始的消息偏移量和可接受的要提取的字节数</li>
+<li>每个broker在内存中保存一个排序的offset列表，包括每个段文件中第一条消息的offset</li>
+<li>Broker通过查找offset列表定位到请求消息所在的segment文件，并将数据发回给consumer</li>
+<li>消费者收到一条消息后，它会计算下一条要消费的消息的偏移量，并在下一个拉取请求中使用它</li>
+</ul>
+<p><a><img src="https://live.staticflickr.com/65535/52700967705_79b2e7252e.jpg" width="500" height="426" alt="kfk-seg"></a></p>
+<h3 id="传输"><a href="#传输" class="headerlink" title="传输"></a>传输</h3><p>为了提升传输效率，Kafka的生产者可以按batch发送数据，消费者可以每次请求多个特定大小的消息，通常为几百KB。另一个设计选择就是依赖底层文件系统的page cache，不在进程中缓存消息，因此垃圾回收方面的开销非常小，由于生产者和消费者都按顺序访问段文件，消费者通常会稍微落后于生产者，因此正常的操作系统缓存启发式算法非常有效（特别是write-through缓存和read-ahead），生产和消费都具有与数据大小呈线性关系的一致性能。</p>
+<p>常规的发送本地数据到远端socket的流程是：</p>
+<ol>
+<li><strong><code>read()</code></strong> 该系统调用导致从用户模式到内核模式的上下文切换。在内部发出<code>sys_read()</code>（或等效函数）以从文件中读取数据。第一个副本由直接内存访问 (DMA) 引擎执行，该引擎从磁盘读取文件内容并将它们存储到内核地址空间缓冲区中（Read buffer）。</li>
+<li>请求的数据量从读取缓冲区复制到用户缓冲区（<code>Application buffer</code>），然后 <code>read()</code> 调用返回。调用的返回导致另一个上下文从内核切换回用户模式。现在数据存储在用户地址空间缓冲区中。</li>
+<li><strong><code>send()</code></strong> 套接字调用导致上下文从用户模式切换到内核模式。执行第三次复制，将数据再次放入内核地址空间缓冲区。不过这一次，数据被放入另一个缓冲区（Socket buffer），该缓冲区与目标套接字相关联。</li>
+<li><strong><code>send()</code></strong> 系统调用返回，创建第四次上下文切换。独立且异步地，当DMA引擎将数据从内核缓冲区传递到协议引擎时（NIC buffer），会发生第四次复制。</li>
+</ol>
+<p>Kafka使用<a href="/2018/05/19/zero-copy">Zero-copy</a>优化传输后到传输流程是：</p>
+<ol>
+<li><code>transferTo</code>&#x2F;<code>sendFile</code>方法让文件内容被DMA引擎复制到读取缓冲区中。然后数据被内核复制到与输出套接字关联的内核缓冲区中</li>
+<li>没有数据被复制到套接字缓冲区中。相反，只有包含有关数据位置和长度信息的描述符才会附加到套接字缓冲区。DMA引擎将数据直接从内核缓冲区传递到协议引擎，从而消除了剩余的最终CPU拷贝</li>
+</ol>
+<p><strong>常规流程需要4次拷贝，2次系统调用（read，send），使用zero-copy后只需要2次拷贝（DMA），1次系统调用。</strong></p>
+<h3 id="无状态Broker"><a href="#无状态Broker" class="headerlink" title="无状态Broker"></a>无状态Broker</h3><p>Broker不维护每个消费者消费了多少的信息的状态信息，这样的设计大大降低了代理的复杂性和开销，然而，Broker不知道是否所有订阅者都使用了该消息，Kafka使用一个简单的基于时间的SLA保留策略来解决这个问题，性能不会随着数据量的增加而降低，这一事实使得这种长期保留（通常为7天）成为可能。这种设计有一个重要的附带好处，消费者可以故意回退到旧的偏移量并重新消费数据，消费着可以checkpoint最小未处理的offset，错误恢复时可以从这个offset重新消费数据。值得注意的是，pull模型的消费者更容易支持这种设计。</p>
+<h3 id="分布式协调"><a href="#分布式协调" class="headerlink" title="分布式协调"></a>分布式协调</h3><p>为了在不引入过多的协调负担的前提下，把消息均匀分布存储在brokers，Kafka做了两个设计上的选择，</p>
+<ol>
+<li>让分区作为一个<em>topic</em>的最小并行单位（与大多数的分布式计算类似，比如spark，presto），这意味着在任何时候同一个分区的所有消息只会被每个消费者组的一个消费者消费，避免维护同一消费者组内的消费者之间的协调的锁与状态。只有在做rebalance的时候才需要协调工作，但这个是低频事件。</li>
+<li>消费者们使用去中心化的方式协调，不引入一个中心主节点，其实就是借助Zookeeper（更新：现在Confluent已经移除ZK了）。</li>
+</ol>
+<p>Zookeeper是一个高可用一致性服务，提供了易用的类文件系统API，支持创建，删除，list一个path的children，设置path的value，它可以做一些有意思的事情：</p>
+<ul>
+<li>对一个path注册一个watcher，在这个path的value或者children变更时收到通知</li>
+<li>一个path可以被创建为临时节点，在创建它的client连接断开时会被ZK移除</li>
+<li>ZK把数据副本存储在多个server上，保证高可靠和高可用</li>
+</ul>
+<p>Kafka对ZK的使用包括如下场景：</p>
+<ol>
+<li>检测brokers和consumers的增加和衣橱</li>
+<li>触发每个consumer的rebalance，当1中的事件发生时</li>
+<li>维护消费关系和每个分区的消费的offset</li>
+</ol>
+<p>Zookeeper中保存几种registry，</p>
+<ul>
+<li>Broker registry，brokers的host和port，存储的topics和分区。</li>
+<li>Consumer registry，所属的consumer group和订阅的所有topics</li>
+<li>每个consumer group与一个onwership registry，offset registry</li>
+<li>Ownership registry，每个订阅的分区有一个path，id是拥有该分区的consumers的id</li>
+<li>Offset registry，每个分区的最后消费的offset</li>
+</ul>
+
+  </div>
+</article>
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/categories/technology">Technology</a></li>
+         
+          <li><a href="/categories/life">Life</a></li>
+         
+          <li><a href="/archives/">Archives</a></li>
+         
+          <li><a href="/tags/">Tags</a></li>
+         
+          <li><a href="/about">About</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#What-is-Kafka"><span class="toc-number">1.</span> <span class="toc-text">What is Kafka</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Why-Kafka"><span class="toc-number">2.</span> <span class="toc-text">Why Kafka</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Kafka-Architecture-amp-Design-Principles"><span class="toc-number">3.</span> <span class="toc-text">Kafka Architecture &amp; Design Principles</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="toc-number">3.1.</span> <span class="toc-text">基本概念</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AD%98%E5%82%A8"><span class="toc-number">3.2.</span> <span class="toc-text">存储</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BC%A0%E8%BE%93"><span class="toc-number">3.3.</span> <span class="toc-text">传输</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%97%A0%E7%8A%B6%E6%80%81Broker"><span class="toc-number">3.4.</span> <span class="toc-text">无状态Broker</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%86%E5%B8%83%E5%BC%8F%E5%8D%8F%E8%B0%83"><span class="toc-number">3.5.</span> <span class="toc-text">分布式协调</span></a></li></ol></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2015/09/14/kafka-paper/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2015/09/14/kafka-paper/&text=Kafka: a Distributed Messaging System for Log Processing"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2015/09/14/kafka-paper/&title=Kafka: a Distributed Messaging System for Log Processing"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2015/09/14/kafka-paper/&is_video=false&description=Kafka: a Distributed Messaging System for Log Processing"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Kafka: a Distributed Messaging System for Log Processing&body=Check out this article: http://example.com/2015/09/14/kafka-paper/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2015/09/14/kafka-paper/&title=Kafka: a Distributed Messaging System for Log Processing"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2015/09/14/kafka-paper/&title=Kafka: a Distributed Messaging System for Log Processing"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2015/09/14/kafka-paper/&title=Kafka: a Distributed Messaging System for Log Processing"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2015/09/14/kafka-paper/&title=Kafka: a Distributed Messaging System for Log Processing"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2015/09/14/kafka-paper/&name=Kafka: a Distributed Messaging System for Log Processing&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2015/09/14/kafka-paper/&t=Kafka: a Distributed Messaging System for Log Processing"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2023
+    duanmeng
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/categories/technology">Technology</a></li><!--
+     --><!--
+       --><li><a href="/categories/life">Life</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Archives</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tags</a></li><!--
+     --><!--
+       --><li><a href="/about">About</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+
+  <script src='https://unpkg.com/mermaid@9.0.0/dist/mermaid.min.js'></script>
+  <script>
+    if (window.mermaid) {
+      mermaid.initialize({theme: 'forest'});
+    }
+  </script>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

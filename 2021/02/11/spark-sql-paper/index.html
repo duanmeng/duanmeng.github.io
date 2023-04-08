@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="What Is Spark SQLSpark SQL是Apache Spark的一个新的模块，为其提供了原生的SQL支持。Spark SQL主要通过一下两方面的贡献弥合了关系与过程这两类处理模型之间的差异，  Spark SQL提供了DataFrame API，可以在外部数据源和Spark内置的分布式集合（RDD）上进行查询 Spark SQL提供了一个全新的可扩展的优化器，Catalyst，使其">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spark SQL: Relational Data Processing in Spark">
+<meta property="og:url" content="http://example.com/2021/02/11/spark-sql-paper/index.html">
+<meta property="og:site_name" content="Macduan Notes">
+<meta property="og:description" content="What Is Spark SQLSpark SQL是Apache Spark的一个新的模块，为其提供了原生的SQL支持。Spark SQL主要通过一下两方面的贡献弥合了关系与过程这两类处理模型之间的差异，  Spark SQL提供了DataFrame API，可以在外部数据源和Spark内置的分布式集合（RDD）上进行查询 Spark SQL提供了一个全新的可扩展的优化器，Catalyst，使其">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://live.staticflickr.com/65535/52692649074_67df2c946a_o.png">
+<meta property="og:image" content="https://www.databricks.com/wp-content/uploads/2015/04/Screen-Shot-2015-04-12-at-8.11.11-AM-300x174.png">
+<meta property="og:image" content="https://www.databricks.com/wp-content/uploads/2018/05/Catalyst-Optimizer-diagram.png">
+<meta property="article:published_time" content="2021-02-11T12:54:10.000Z">
+<meta property="article:modified_time" content="2023-04-01T01:17:30.445Z">
+<meta property="article:author" content="duanmeng">
+<meta property="article:tag" content="spark">
+<meta property="article:tag" content="data">
+<meta property="article:tag" content="paper">
+<meta property="article:tag" content="execution">
+<meta property="article:tag" content="optimizer">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://live.staticflickr.com/65535/52692649074_67df2c946a_o.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Spark SQL: Relational Data Processing in Spark</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/categories/technology">Technology</a></li><!--
+     --><!--
+       --><li><a href="/categories/life">Life</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Archives</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tags</a></li><!--
+     --><!--
+       --><li><a href="/about">About</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2021/04/03/snowflake-elastic-data-warehouse/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2020/07/19/spark-shuffle-rdd/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2021/02/11/spark-sql-paper/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2021/02/11/spark-sql-paper/&text=Spark SQL: Relational Data Processing in Spark"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2021/02/11/spark-sql-paper/&title=Spark SQL: Relational Data Processing in Spark"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2021/02/11/spark-sql-paper/&is_video=false&description=Spark SQL: Relational Data Processing in Spark"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Spark SQL: Relational Data Processing in Spark&body=Check out this article: http://example.com/2021/02/11/spark-sql-paper/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2021/02/11/spark-sql-paper/&title=Spark SQL: Relational Data Processing in Spark"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2021/02/11/spark-sql-paper/&title=Spark SQL: Relational Data Processing in Spark"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2021/02/11/spark-sql-paper/&title=Spark SQL: Relational Data Processing in Spark"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2021/02/11/spark-sql-paper/&title=Spark SQL: Relational Data Processing in Spark"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2021/02/11/spark-sql-paper/&name=Spark SQL: Relational Data Processing in Spark&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2021/02/11/spark-sql-paper/&t=Spark SQL: Relational Data Processing in Spark"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#What-Is-Spark-SQL"><span class="toc-number">1.</span> <span class="toc-text">What Is Spark SQL</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Why-Spark-SQL"><span class="toc-number">2.</span> <span class="toc-text">Why Spark SQL</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Spark-SQL-Deep-Dive"><span class="toc-number">3.</span> <span class="toc-text">Spark SQL Deep Dive</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Background-and-Goals"><span class="toc-number">3.1.</span> <span class="toc-text">Background and Goals</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Programming-Interface"><span class="toc-number">3.2.</span> <span class="toc-text">Programming Interface</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Catalyst"><span class="toc-number">3.3.</span> <span class="toc-text">Catalyst</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Using-Catalyst-in-Spark-SQL"><span class="toc-number">3.3.1.</span> <span class="toc-text">Using Catalyst in Spark SQL</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#Analysis"><span class="toc-number">3.3.1.1.</span> <span class="toc-text">Analysis</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#Logical-Optimization"><span class="toc-number">3.3.1.1.1.</span> <span class="toc-text">Logical Optimization</span></a></li></ol></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Physical-Planning"><span class="toc-number">3.3.1.2.</span> <span class="toc-text">Physical Planning</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Extension-Point"><span class="toc-number">3.3.2.</span> <span class="toc-text">Extension Point</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#Data-Sources"><span class="toc-number">3.3.2.1.</span> <span class="toc-text">Data Sources</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#User-Defined-Types"><span class="toc-number">3.3.2.2.</span> <span class="toc-text">User-Defined Types</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number">4.</span> <span class="toc-text">Reference</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Spark SQL: Relational Data Processing in Spark
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">duanmeng</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2021-02-11T12:54:10.000Z" itemprop="datePublished">2021-02-11</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/data/" rel="tag">data</a>, <a class="tag-link-link" href="/tags/execution/" rel="tag">execution</a>, <a class="tag-link-link" href="/tags/optimizer/" rel="tag">optimizer</a>, <a class="tag-link-link" href="/tags/paper/" rel="tag">paper</a>, <a class="tag-link-link" href="/tags/spark/" rel="tag">spark</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="What-Is-Spark-SQL"><a href="#What-Is-Spark-SQL" class="headerlink" title="What Is Spark SQL"></a>What Is Spark SQL</h2><p>Spark SQL是Apache Spark的一个新的模块，<a target="_blank" rel="noopener" href="https://www.databricks.com/glossary/what-is-spark-sql">为其提供了原生的SQL支持</a>。Spark SQL主要通过一下两方面的贡献弥合了关系与过程这两类处理模型之间的差异，</p>
+<ol>
+<li>Spark SQL提供了DataFrame API，可以在外部数据源和Spark内置的分布式集合（RDD）上进行查询</li>
+<li>Spark SQL提供了一个全新的可扩展的优化器，Catalyst，使其支持广泛的数据源和算法，方便增加数据源，优化规则和数据类型</li>
+</ol>
+<p><strong>DataFrame</strong></p>
+<p>DataFrame是结构数据的集合，可以被Spark的过程式API，或新的关系型API（允许更丰富的优化）操作，DataFrame API提供了丰富的关系&#x2F;过程集成。DataFrame可以被直接从spark内置的分布式Java&#x2F;Python对象集合创建，在现有的Spark程序中使用关系型处理。在大多数场景下，DataFrame比使用Spark的过程式API（传统RDD方式）更方便和高效，比如，它可以通过一条SQL语句实现多个聚合，然后DataFrame自动使用列格式存储数据，比Java&#x2F;Python对象更精凑，最后，与R和Python的DataFrame不同的是Spark SQL的DataFrame的操作会经过关系型优化器，Catalyst。</p>
+<p><strong>Catalyst</strong></p>
+<p>Spark SQL为了支持更广泛的数据源和分析负载，设计了一个可扩展的查询优化器，Catalyst，提供了一个通用的transforming trees框架，用来进行分析，规划，运行时代码生成。Catalyst还支持新数据源扩展，包括半结构化数据，支持filters下推的数据源， 支持UDF，支持机器学习领域的UDT（user defined types）。</p>
+<h2 id="Why-Spark-SQL"><a href="#Why-Spark-SQL" class="headerlink" title="Why Spark SQL"></a>Why Spark SQL</h2><p>早期的大数据系统，比如MapReduce，只提供了low-level，过程式编程接口，需要用户进行繁重的手动优化来达到高性能。许多新的系统，比如Hive，Dremel和Shark，都利用声明式查询来提供更丰富的自动优化。在许多数据管道任务中，用户既想使用声明式查询关系型系统（比如，Hive，MySQL），又想使用过程式进行复杂处理（比如，处理飞结构化数据，机器学习）。不幸的是，关系型与过程式，这两类系统直到现在还基本上保持脱节，迫使用户只能选择其中一种范式。</p>
+<h2 id="Spark-SQL-Deep-Dive"><a href="#Spark-SQL-Deep-Dive" class="headerlink" title="Spark SQL Deep Dive"></a>Spark SQL Deep Dive</h2><h3 id="Background-and-Goals"><a href="#Background-and-Goals" class="headerlink" title="Background and Goals"></a>Background and Goals</h3><p><strong>Spark &amp; RDD Overview</strong></p>
+<p>Apache Spark是一个通用的分布式计算引擎，提供了函数式编程API让用户操作分布式弹性数据集（RDD，Resilient Distributed Datasets），比如，map，filter，reduce等。RDD使用lineage支持容错，即通过lineage重建“缺失”的分区。RDD是lazy的，通过action触发计算，虽然RDD可以提供一些非常有用的优化（比如，pipelining operations），但是是非常有限的，因为引擎不能理解RDDs中数据的结构（任意的Java&#x2F;Python对象），或者用户函数的语义（任意的代码）。</p>
+<p><strong>Design Goals</strong></p>
+<ol>
+<li>支持关系型处理的程序员友好的API，在使用RDD是Spark程序和外部数据源</li>
+<li>使用数据库管理系统中已有的技术提供更高的性能</li>
+<li>更容易支持新的数据源，包括半结构数据，外部数据源，能更好的支持联邦查询</li>
+<li>支持扩展高级的分析算法，比如机器学习，图处理</li>
+</ol>
+<h3 id="Programming-Interface"><a href="#Programming-Interface" class="headerlink" title="Programming Interface"></a>Programming Interface</h3><p>Spark SQL作为一个库运行在Spark上，提供了SQL接口（通过JDBC&#x2F;ODBC，Console连接）和DataFrame API（与Spark支持的编程语言集成，Scala&#x2F;Java&#x2F;Python）。</p>
+<img src="https://live.staticflickr.com/65535/52692649074_67df2c946a_o.png" width="420" height="256">
+
+<p><strong>DataFrame API</strong></p>
+<p>DataFrame是一个相同schema的分布式的行集，相当于关系数据库中的一个表。用户在DataFrame上使用类似R data frames和Python Pandas的DSL进行关系型操作，它支持所有常见的关系算子，包括project（select），filter（where），join和aggregation（groupBy），这些运算符都接受受限的DSL的表达式对象，让 Spark捕获表达式的结构。下面是一段是从hive表定义一个部门，雇员的DataFrame，并且计算每个部门女性雇员数量的代码，</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> ctx = <span class="keyword">new</span> <span class="type">HiveContext</span>()</span><br><span class="line"><span class="keyword">val</span> employees = ctx.table(<span class="string">&quot;employee&quot;</span>)</span><br><span class="line"><span class="keyword">val</span> dept = ctx.table(<span class="string">&quot;dept&quot;</span>)</span><br><span class="line">employees.</span><br><span class="line">	join(dept, employees(<span class="string">&quot;deptId&quot;</span>) === dept(<span class="string">&quot;id&quot;</span>))</span><br><span class="line">	.where(employees(<span class="string">&quot;gender&quot;</span>) === <span class="string">&quot;female&quot;</span>)</span><br><span class="line">	.groupBy(dept(<span class="string">&quot;id&quot;</span>), dept(<span class="string">&quot;name&quot;</span>))</span><br><span class="line">	.agg(count(<span class="string">&quot;name&quot;</span>))</span><br></pre></td></tr></table></figure>
+<p>上面计算部门女性雇员数量的代码片段中所有的算子会建立一个抽象语法树（AST），传递给Catalyst框架优化。除了关系型DSL，DataFrame还支持在系统Catalog中注册为一个临时表和使用SQL查询，</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">users.where(users(<span class="string">&quot;age&quot;</span>) &lt; <span class="number">21</span>).registerTempTable(<span class="string">&quot;young&quot;</span>)</span><br><span class="line">ctx.sql(<span class="string">&quot;SELECT count(*), avg(age) FROM young&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p><strong>Data Model</strong></p>
+<p>Spark SQL使用基于<a target="_blank" rel="noopener" href="https://cwiki.apache.org/confluence/display/hive/languagemanual+ddl">Hive</a>的嵌套数据模型，它支持所有主要的SQL数据类型，包括boolean，integer，double，decimal，string，date，timestamp，以及复杂（non-aotmic）数据类型：struct，arrays，maps和unions。复杂数据类型也可以被嵌套到一起创建一个更强大的类型。Spark SQL对复杂类型查询提供了非常好的支持，并且UDT（user-defined type）。使用这种类型系统，我们可以准确的从各种源和格式中建模数据，包括Hive，关系数据库，JSON和Java&#x2F;Scala&#x2F;Python中的原生对象。</p>
+<p>为了与过程式Spark代码交互，Spark SQL允许用户直接对编程语言原生对象的RDD构建DataFrame，使用反射自动推导这些对象的schema。对于Scala和Java，这些类型信息是从其类型系统中提取（从JavaBeans和Scala case class中），对于Python（动态类型系统），则是通过采样数据集来推导schema。</p>
+<p><strong>User-Defined Functions</strong></p>
+<p>User Defined-Functions（UDFs）是数据库系统的一个重要扩展，比如MySQL依赖UDFs支持JSON数据，Postgres等使用<a target="_blank" rel="noopener" href="https://dl.acm.org/doi/10.14778/1687553.1687576">MADLib</a>的UDFs实现机器学习算法，但是这些都需要在单独环境中定义UDFs，与primary的查询接口不同。然而，Spark SQL的DataFrame API对UDF的支持不需要复杂打包和注册过程，可以通过传递Scala&#x2F;Java&#x2F;Python函数来支持内联UDFs定义，这些函数还可以在内部使用Spark API。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> model: <span class="type">LogisticRegression</span> = ...</span><br><span class="line">ctx.udf.register(<span class="string">&quot;predict&quot;</span>,</span><br><span class="line">	(x: <span class="type">Float</span>, y: <span class="type">Float</span>) =&gt; model.predict(<span class="type">Vector</span>(x, y)))</span><br><span class="line">ctx.sql(<span class="string">&quot;SELECT predict(age, weight) FROM users&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="Catalyst"><a href="#Catalyst" class="headerlink" title="Catalyst"></a>Catalyst</h3><p>Catalyst优化器是Spark SQL的核心，它是基于Scala函数式编程特性（例如，模式匹配和偏函数）来构建的可扩展的查询优化器，有两个关键的设计：</p>
+<ul>
+<li>便于在Spark SQL中增加新的优化功能</li>
+<li>允许外部开发人员扩展优化器，添加数据源特定规则、支持新数据类型等</li>
+</ul>
+<p>Catalyst的核心包括一个通用的表达<em>trees</em>的库和操作它们的<em>rules</em>，在此框架之上它构建了关系查询特有的处理库（例如，表达式、逻辑查询计划），以及处理查询执行不同阶段的几组规则：分析、逻辑优化、物理规划和编译代码生成。Catalyst支持基于规则和基于成本的优化（RBO &amp; CBO），还提供了几个公共扩展点，包括外部数据源和用户定义的类型。</p>
+<p><strong>Trees</strong></p>
+<p><a><img src="https://www.databricks.com/wp-content/uploads/2015/04/Screen-Shot-2015-04-12-at-8.11.11-AM-300x174.png" width="420" height="224"></a></p>
+<p>Catalyst中的主要数据类型是由节点对象组成的树。每个节点都有一个节点类型和零个或多个子节点。新节点类型在Scala中定义为TreeNode 类的子类。 这些对象是不可变的，可以使用函数转换来操作，作为一个简单的例子，假设我们有以下三个用于非常简单的表达式语言的节点类：</p>
+<ul>
+<li>**<code>Literal(value: Int)</code>**，一个常量</li>
+<li>**<code>Attribute(name: String)**</code>，一个输入行的属性</li>
+<li>**<code>Add(left: TreeNode, right: TreeNode)</code>**，两个表达式的和</li>
+</ul>
+<p><strong>Rules</strong></p>
+<p><em>Rules</em>是操作<em>Trees</em>的函数，一个rule是将一个tree转换成另一个tree的函数，最常见的方法就是使用一组<em>pattern matching</em>函数查找和替换子树为新的结构。在Catalyst中，<em>trees</em>提供一个transform方法，在树的所有节点上递归应用<em>pattern matching</em>函数，比如下面的规则应用到<code>x+(1+2)</code>的表达式树上，会产出一个新的<code>x+3</code>的树。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">tree.transform &#123;</span><br><span class="line">	<span class="keyword">case</span> <span class="type">Add</span>(<span class="type">Literal</span>(c1), <span class="type">Literal</span>(c2)) =&gt; <span class="type">Literal</span>(c1+c2)</span><br><span class="line">	<span class="keyword">case</span> <span class="type">Add</span>(left , <span class="type">Literal</span>(<span class="number">0</span>)) =&gt; left</span><br><span class="line">	<span class="keyword">case</span> <span class="type">Add</span>(<span class="type">Literal</span>(<span class="number">0</span>), right) =&gt; right</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Catalyst把rules分组到batches，每个batch做一类优化，一个batch会一直执行到一个<em>fixed point</em>（比如，到达最大循环次数），rule的conditions和bodies可以是任意的scala代码，这使得Catalyst更容易实现各种rules。</p>
+<p><a><img src="https://www.databricks.com/wp-content/uploads/2018/05/Catalyst-Optimizer-diagram.png" width="1024" height="501" alt="snowflake"></a></p>
+<p>从上图可以看到，Catalyst框架包含4个阶段（与关系数据库类似），</p>
+<ol>
+<li>分析一个逻辑计划，解析起引用</li>
+<li>逻辑优化</li>
+<li>物理规划</li>
+<li>代码生成，编译部分代码为Java bytecode</li>
+</ol>
+<h4 id="Using-Catalyst-in-Spark-SQL"><a href="#Using-Catalyst-in-Spark-SQL" class="headerlink" title="Using Catalyst in Spark SQL"></a>Using Catalyst in Spark SQL</h4><h5 id="Analysis"><a href="#Analysis" class="headerlink" title="Analysis"></a>Analysis</h5><p>Spark SQL开始于一个要被计算的relation，它来自SQL解析器返回的抽象语法树 (AST)，或者从使用API构造的DataFrame对象。 在这两种情况下，relation可能包含未解析的属性引用或关系，例如，在SQL查询<code>SELECT col FROM sales</code>中，我们无法知道col的类型，甚至不知道它是否是一个有效的列名，直到我们查找sales表。 </p>
+<p>如果我们不知道它的类型或没有将它与输入表（或别名）匹配，则称为未解析的属性（Attributes）。 Spark SQL使用Catalyst rules和一个Catalog对象来跟踪所有数据源中的表来解析这些属性。 它首先构建一个具有未绑定属性和数据类型的“未解决的逻辑计划”树，然后应用执行以下操作的规则：</p>
+<ul>
+<li>从<code>catalog</code>中查找<code>relations</code></li>
+<li>将命名属性（例如，<code>col</code>）映射到给定运算符的子项提供的输入</li>
+<li>确定哪些属性引用相同的值，赋予一个唯一的ID（稍后允许优化表达式如，<code>col = col</code>)</li>
+<li>通过表达式传播和强制类型：例如，在解析<code>col</code>之前我们无法知道<code>1 + col</code> 的类型，并可能将其子表达式转换为兼容类型</li>
+</ul>
+<h6 id="Logical-Optimization"><a href="#Logical-Optimization" class="headerlink" title="Logical Optimization"></a>Logical Optimization</h6><p>逻辑优化阶段将基于标准规则的优化应用于逻辑计划。这些包括常量折叠、谓词下推、投影裁剪、空值传播、布尔表达式简化和其他规则。 总而言之，为各种情况添加规则非常简单。</p>
+<h5 id="Physical-Planning"><a href="#Physical-Planning" class="headerlink" title="Physical Planning"></a>Physical Planning</h5><p>在物理规划阶段，Spark SQL将一个逻辑计划生成一个或多个使用与Spark执行引擎相匹配的物理算子组成的物理计划（比如join算子选择）。物理规划还可以执行基于规则的物理优化，例如将投影或过滤器流水线化到一个 Spark的map操作中。 此外，它可以将操作从逻辑计划推送到支持谓词或投影下推的数据源。</p>
+<h4 id="Extension-Point"><a href="#Extension-Point" class="headerlink" title="Extension Point"></a>Extension Point</h4><p>Catalyst还定义了两个更窄的公共扩展点：数据来源和用户定义的类型。 这些仍然依赖于设施核心引擎与优化器的其余部分进行交互。</p>
+<h5 id="Data-Sources"><a href="#Data-Sources" class="headerlink" title="Data Sources"></a>Data Sources</h5><p>开发人员可以使用多个API为Spark SQL定义一个新的数据源，这些API暴露了不同程度的优化可能性。 所有数据源都必须实现一个<code>createRelation</code>函数，该函数采用一组键值参数并返回该关系的<code>BaseRelation</code>对象（如果可以成功加载的话）。 每个<code>BaseRelation</code>包含一个schema和一个可选的大小估值（以字节为单位）。例如，表示 MySQL的数据源可能将表名作为参数，并要求MySQL提供表大小的估值。 为了让Spark SQL读取数据，<code>BaseRelation</code>可以实现多个接口之一，让它们暴露不同程度的复杂性。最简单的 <code>TableScan</code>需要关系返回表中所有数据的Row对象的RDD。更高级的<code>PrunedScan</code>需要一个列名数组来读取，并且应该返回仅包含这些列的行。第三个接口<code>PrunedFilteredScan</code>接受所需的列名和<code>Filter</code>对象数组，它们是Catalyst表达式语法的子集，允许谓词下推。过滤器是建议性的，即数据源应尝试仅返回通过每个过滤器的行，但在无法评估的过滤器的情况下，允许返回false positive。 最后，为<code>CatalystScan</code>接口提供了完整的Catalyst表达式树序列，以用于谓词下推，尽管它们再次是建议性的。Spark SQL已经使用这些接口实现了以下数据源：</p>
+<ul>
+<li><strong>CSV文件</strong>，简单的扫描整个文件，但是允许用户指定一个schema</li>
+<li><strong>Avro</strong>，一种自描述的嵌套数据的二进制格式</li>
+<li><strong>Parquet</strong>，一种列式存储格式，支持列裁剪与过滤</li>
+<li><strong>JDBC</strong>，可以并行扫描RDBMS表的一部分，支持过滤下推</li>
+</ul>
+<h5 id="User-Defined-Types"><a href="#User-Defined-Types" class="headerlink" title="User-Defined Types"></a>User-Defined Types</h5><p>数据类型遍及执行引擎的各个方面，例如，在Spark SQL中机器学习应用程序可能需要向量类型，图形算法可能需要表示图形的类型。然而，Spark SQL中增加新类型具有挑战性，例如，在Spark SQL中，内置数据类型以列式压缩格式存储在内存缓存中，在数据源API中，需要将所有可能的数据类型暴露给数据源作者。Catalyst通过关联user-defined types到Catalyst的内置类型组成的structures来解决这些问题。要将Scala类型注册为UDT，用户需要提供从其类的对象到内置类型的Catalyst Row的映射，以及反向映射。这样可以在使用 Spark SQL查询的对象中使用Scala类型，并且它会在后台转换为内置类型。同样，他们可以注册直接在其类型上运行的UDF。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">PointUDT</span> <span class="keyword">extends</span> <span class="title">UserDefinedType</span>[<span class="type">Point</span>] </span>&#123;</span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">dataType</span> </span>= <span class="type">StructType</span>(<span class="type">Seq</span>( <span class="comment">// Our native structure</span></span><br><span class="line">		<span class="type">StructField</span>(<span class="string">&quot;x&quot;</span>, <span class="type">DoubleType</span>),</span><br><span class="line">		<span class="type">StructField</span>(<span class="string">&quot;y&quot;</span>, <span class="type">DoubleType</span>)</span><br><span class="line">	))</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">serialize</span></span>(p: <span class="type">Point</span>) = <span class="type">Row</span>(p.x, p.y)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">deserialize</span></span>(r: <span class="type">Row</span>) =</span><br><span class="line">	<span class="type">Point</span>(r.getDouble(<span class="number">0</span>), r.getDouble(<span class="number">1</span>))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注册此类型后，<code>Points</code>将在要求Spark SQL转换为DataFrames的原生对象中被识别，并将传递给在<code>Points</code>上定义的UDF。此外，Spark SQL在缓存数据时会将<code>Points</code>以列格式存储（将x和y压缩为单独的列），<code>Points</code>将可写到Spark SQL的所有数据源，这些数据源会将它们视为成对的<code>DOUBLE</code>。</p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://www.databricks.com/glossary/what-is-spark-sql">https://www.databricks.com/glossary/what-is-spark-sql</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.databricks.com/research/spark-sql-relational-data-processing-in-spark">https://www.databricks.com/research/spark-sql-relational-data-processing-in-spark</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.databricks.com/session/catalyst-a-query-optimization-framework-for-spark-and-shark">https://www.databricks.com/session/catalyst-a-query-optimization-framework-for-spark-and-shark</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.databricks.com/blog/2015/04/13/deep-dive-into-spark-sqls-catalyst-optimizer.html">https://www.databricks.com/blog/2015/04/13/deep-dive-into-spark-sqls-catalyst-optimizer.html</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.databricks.com/blog/2016/07/14/a-tale-of-three-apache-spark-apis-rdds-dataframes-and-datasets.html">https://www.databricks.com/blog/2016/07/14/a-tale-of-three-apache-spark-apis-rdds-dataframes-and-datasets.html</a></li>
+<li><a target="_blank" rel="noopener" href="https://cwiki.apache.org/confluence/display/hive/languagemanual+ddl">https://cwiki.apache.org/confluence/display/hive/languagemanual+ddl</a></li>
+<li><a target="_blank" rel="noopener" href="https://dl.acm.org/doi/10.14778/1687553.1687576">https://dl.acm.org/doi/10.14778/1687553.1687576</a></li>
+</ul>
+
+  </div>
+</article>
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/categories/technology">Technology</a></li>
+         
+          <li><a href="/categories/life">Life</a></li>
+         
+          <li><a href="/archives/">Archives</a></li>
+         
+          <li><a href="/tags/">Tags</a></li>
+         
+          <li><a href="/about">About</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#What-Is-Spark-SQL"><span class="toc-number">1.</span> <span class="toc-text">What Is Spark SQL</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Why-Spark-SQL"><span class="toc-number">2.</span> <span class="toc-text">Why Spark SQL</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Spark-SQL-Deep-Dive"><span class="toc-number">3.</span> <span class="toc-text">Spark SQL Deep Dive</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Background-and-Goals"><span class="toc-number">3.1.</span> <span class="toc-text">Background and Goals</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Programming-Interface"><span class="toc-number">3.2.</span> <span class="toc-text">Programming Interface</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Catalyst"><span class="toc-number">3.3.</span> <span class="toc-text">Catalyst</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Using-Catalyst-in-Spark-SQL"><span class="toc-number">3.3.1.</span> <span class="toc-text">Using Catalyst in Spark SQL</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#Analysis"><span class="toc-number">3.3.1.1.</span> <span class="toc-text">Analysis</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#Logical-Optimization"><span class="toc-number">3.3.1.1.1.</span> <span class="toc-text">Logical Optimization</span></a></li></ol></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Physical-Planning"><span class="toc-number">3.3.1.2.</span> <span class="toc-text">Physical Planning</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Extension-Point"><span class="toc-number">3.3.2.</span> <span class="toc-text">Extension Point</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#Data-Sources"><span class="toc-number">3.3.2.1.</span> <span class="toc-text">Data Sources</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#User-Defined-Types"><span class="toc-number">3.3.2.2.</span> <span class="toc-text">User-Defined Types</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number">4.</span> <span class="toc-text">Reference</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2021/02/11/spark-sql-paper/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2021/02/11/spark-sql-paper/&text=Spark SQL: Relational Data Processing in Spark"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2021/02/11/spark-sql-paper/&title=Spark SQL: Relational Data Processing in Spark"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2021/02/11/spark-sql-paper/&is_video=false&description=Spark SQL: Relational Data Processing in Spark"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Spark SQL: Relational Data Processing in Spark&body=Check out this article: http://example.com/2021/02/11/spark-sql-paper/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2021/02/11/spark-sql-paper/&title=Spark SQL: Relational Data Processing in Spark"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2021/02/11/spark-sql-paper/&title=Spark SQL: Relational Data Processing in Spark"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2021/02/11/spark-sql-paper/&title=Spark SQL: Relational Data Processing in Spark"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2021/02/11/spark-sql-paper/&title=Spark SQL: Relational Data Processing in Spark"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2021/02/11/spark-sql-paper/&name=Spark SQL: Relational Data Processing in Spark&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2021/02/11/spark-sql-paper/&t=Spark SQL: Relational Data Processing in Spark"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2023
+    duanmeng
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/categories/technology">Technology</a></li><!--
+     --><!--
+       --><li><a href="/categories/life">Life</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Archives</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tags</a></li><!--
+     --><!--
+       --><li><a href="/about">About</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+
+  <script src='https://unpkg.com/mermaid@9.0.0/dist/mermaid.min.js'></script>
+  <script>
+    if (window.mermaid) {
+      mermaid.initialize({theme: 'forest'});
+    }
+  </script>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

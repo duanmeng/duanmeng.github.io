@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="What id Delta Lake Delta Lake是一个基于云对象存储的开源的，ACID表存储层（表格式），它最初是由Databricks开发。Delta Lake表可以被Spark，Hive，Presto，Redshift，Trino等计算引擎读写，它每天处理Databricks客户们的EB级的数据，数十亿个对象（对象存储系统）。Delta Lake使用WAL，以ACID的方式维护哪些对">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Delta Lake: HighPerformance ACID Table Storage over Cloud Object Stores">
+<meta property="og:url" content="http://example.com/2020/05/11/delta-lake/index.html">
+<meta property="og:site_name" content="Macduan Notes">
+<meta property="og:description" content="What id Delta Lake Delta Lake是一个基于云对象存储的开源的，ACID表存储层（表格式），它最初是由Databricks开发。Delta Lake表可以被Spark，Hive，Presto，Redshift，Trino等计算引擎读写，它每天处理Databricks客户们的EB级的数据，数十亿个对象（对象存储系统）。Delta Lake使用WAL，以ACID的方式维护哪些对">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://delta.io/static/delta-hp-hero-bottom-46084c40468376aaecdedc066291e2d8.png">
+<meta property="og:image" content="https://www.databricks.com/wp-content/uploads/2019/08/image6-1.png">
+<meta property="og:image" content="https://www.databricks.com/wp-content/uploads/2019/08/image3-6.png">
+<meta property="article:published_time" content="2020-05-11T13:09:24.000Z">
+<meta property="article:modified_time" content="2023-04-05T05:26:02.724Z">
+<meta property="article:author" content="duanmeng">
+<meta property="article:tag" content="lakehouse">
+<meta property="article:tag" content="spark">
+<meta property="article:tag" content="datalake">
+<meta property="article:tag" content="data">
+<meta property="article:tag" content="paper">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://delta.io/static/delta-hp-hero-bottom-46084c40468376aaecdedc066291e2d8.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Delta Lake: HighPerformance ACID Table Storage over Cloud Object Stores</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/categories/technology">Technology</a></li><!--
+     --><!--
+       --><li><a href="/categories/life">Life</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Archives</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tags</a></li><!--
+     --><!--
+       --><li><a href="/about">About</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2020/07/19/spark-shuffle-rdd/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2020/03/19/spark-app-lifecycle/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2020/05/11/delta-lake/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2020/05/11/delta-lake/&text=Delta Lake: HighPerformance ACID Table Storage over Cloud Object Stores"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2020/05/11/delta-lake/&title=Delta Lake: HighPerformance ACID Table Storage over Cloud Object Stores"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2020/05/11/delta-lake/&is_video=false&description=Delta Lake: HighPerformance ACID Table Storage over Cloud Object Stores"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Delta Lake: HighPerformance ACID Table Storage over Cloud Object Stores&body=Check out this article: http://example.com/2020/05/11/delta-lake/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2020/05/11/delta-lake/&title=Delta Lake: HighPerformance ACID Table Storage over Cloud Object Stores"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2020/05/11/delta-lake/&title=Delta Lake: HighPerformance ACID Table Storage over Cloud Object Stores"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2020/05/11/delta-lake/&title=Delta Lake: HighPerformance ACID Table Storage over Cloud Object Stores"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2020/05/11/delta-lake/&title=Delta Lake: HighPerformance ACID Table Storage over Cloud Object Stores"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2020/05/11/delta-lake/&name=Delta Lake: HighPerformance ACID Table Storage over Cloud Object Stores&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2020/05/11/delta-lake/&t=Delta Lake: HighPerformance ACID Table Storage over Cloud Object Stores"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#What-id-Delta-Lake"><span class="toc-number">1.</span> <span class="toc-text">What id Delta Lake</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Why-Delta-Lake"><span class="toc-number">2.</span> <span class="toc-text">Why Delta Lake</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Delta-Lake-Design-Consideration"><span class="toc-number">3.</span> <span class="toc-text">Delta Lake Design Consideration</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AF%B9%E8%B1%A1%E5%AD%98%E5%82%A8%E7%9A%84%E7%89%B9%E5%BE%81%E4%B8%8E%E6%8C%91%E6%88%98"><span class="toc-number">3.1.</span> <span class="toc-text">对象存储的特征与挑战</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A1%A8%E5%AD%98%E5%82%A8%E7%9A%84%E4%B8%9A%E7%95%8C%E6%96%B9%E6%A1%88"><span class="toc-number">3.2.</span> <span class="toc-text">表存储的业界方案</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Delta-Lake-Deep-Dive"><span class="toc-number">4.</span> <span class="toc-text">Delta Lake Deep Dive</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Storage-Format"><span class="toc-number">4.1.</span> <span class="toc-text">Storage Format</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Access-Protocols"><span class="toc-number">4.2.</span> <span class="toc-text">Access Protocols</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number">5.</span> <span class="toc-text">Reference</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Delta Lake: HighPerformance ACID Table Storage over Cloud Object Stores
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">duanmeng</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2020-05-11T13:09:24.000Z" itemprop="datePublished">2020-05-11</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/technology/">technology</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/data/" rel="tag">data</a>, <a class="tag-link-link" href="/tags/datalake/" rel="tag">datalake</a>, <a class="tag-link-link" href="/tags/lakehouse/" rel="tag">lakehouse</a>, <a class="tag-link-link" href="/tags/paper/" rel="tag">paper</a>, <a class="tag-link-link" href="/tags/spark/" rel="tag">spark</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="What-id-Delta-Lake"><a href="#What-id-Delta-Lake" class="headerlink" title="What id Delta Lake"></a>What id Delta Lake</h2><p><a><img src="https://delta.io/static/delta-hp-hero-bottom-46084c40468376aaecdedc066291e2d8.png" width="1024" height="912" alt="lakehouse-detail"></a></p>
+<p><a target="_blank" rel="noopener" href="https://delta.io/">Delta Lake</a>是一个基于云对象存储的开源的，ACID表存储层（表格式），它最初是由Databricks开发。Delta Lake表可以被Spark，Hive，Presto，Redshift，Trino等计算引擎读写，它每天处理Databricks客户们的EB级的数据，数十亿个对象（对象存储系统）。Delta Lake使用<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Write-ahead_logging">WAL</a>，以<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/ACID">ACID</a>的方式维护哪些对象是Delta表的一部分的信息，表数据使用Parquet编码存储在对象存储中，其元数据以transaction log的形式存储在底层的对象存储中，并借助对象存储系统实现了<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Optimistic_concurrency_control">OCC</a>，这样就不需要一个服务（比如，HiveMetaStore）来维护Delta表的状态，用户只需在运行查询时拉起服务实例，即可享受单独扩展计算和存储的好处。</p>
+<p>除了ACID事务，Delta Lake还提供了如下传统数据湖没有的特性：</p>
+<ul>
+<li><strong>ACID</strong> 读写Delta表时提供ACID事务保障</li>
+<li><strong>Time travel</strong> 用户可以查询某个时间点的快照，或者回滚对齐数据错误的更新</li>
+<li><strong>UPSERT, DELETE and MERGE operations</strong> 有效地更新相关对象以实现更新归档数据和合规工作流（比如，<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/General_Data_Protection_Regulation">GDPR</a>）</li>
+<li><strong>Efficient streaming I&#x2F;O</strong> 流式作业低延迟地写入小对象到表中，然后事务性合并它们为更大的对象来提供性能。快速“tailing”新读入表中新增数据，这样作业可以将一个Delta表作为一个消息队列</li>
+<li><strong>Caching</strong> Delta表的数据和log都是immutable的，可以缓存在计算节点的local SSD Cache中</li>
+<li><strong>Data layout optimization</strong> 自动优化服务做compaction，clustering（比如，<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Z-order_curve">Z-order</a>）提升查询性能</li>
+<li><strong>Schema evolution</strong> 当Schema发送变更时，依然可以读取老的Parquet文件</li>
+<li><strong>Audit logging</strong> 基于其transaction log来实现审计日志</li>
+</ul>
+<h2 id="Why-Delta-Lake"><a href="#Why-Delta-Lake" class="headerlink" title="Why Delta Lake"></a>Why Delta Lake</h2><p>云对象存储系统，比如AWS S3和Azure Storage，除了具有云服务的传统优势，如按需付费、规模经济、专家管理等，还让用户可以单独扩展存储与计算资源；所以现在越来越多的组织使用云对象存储系统，存储和管理在其数据仓库和数据湖中的大量结构化数据集。一些开源和商业的大数据系统（Apache Spark，Presto，Redshift，BigQuery）支持读写在云对象存储系统中的这样的开放，列式数据格式文件（比如，Parquet，ORC），在云对象存储上存储关系型数据集最常见的形式也是Parquet&#x2F;ORC这样的列式文件，每一个表都是被存储为一个Parquet&#x2F;ORC文件集合（大量，甚至海量的对象）。虽然可以通过分区保证性能，但是对于大的数据集和复杂的workload，也带来了正确性和性能上的挑战：</p>
+<ul>
+<li>多对象的更新是非原子的，查询之间没有隔离，一个query正在更新多个对象，它只能单独更新每个对象，让另一个query可能会读到部分更新，而且回滚困难，因为如果更新query崩溃，表将处于损坏状态。</li>
+<li>对有大量对象的大表的元数据操作开销大，读取对象存储系统中每个Parquet文件到footer到统计数据（比如，min&#x2F;max）造成在查询规划阶段data skipping check的时间比实际的查询时间执行的时间还长</li>
+<li>大部分企业的数据集会持续更新，还要满足<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/General_Data_Protection_Regulation">GPDR</a>合规需求，以及内部错误数据修正，所以需要支持原子写和全表更新</li>
+<li>对象存储是基于KV Store，cross key一致性没有保证，其性能特征也与传统的分布式文件系统不同</li>
+</ul>
+<p><font color='red'><b>所以Databricks开发了Delta Lake，在享受云对象存储的弹性，高可用和低价的同时，提供统一的Table语义，ACID支持，支持多种计算引擎读写，比如，Spark，Presto，BigQuery</b></font></p>
+<h2 id="Delta-Lake-Design-Consideration"><a href="#Delta-Lake-Design-Consideration" class="headerlink" title="Delta Lake Design Consideration"></a>Delta Lake Design Consideration</h2><h3 id="对象存储的特征与挑战"><a href="#对象存储的特征与挑战" class="headerlink" title="对象存储的特征与挑战"></a>对象存储的特征与挑战</h3><p><strong>对象存储API</strong></p>
+<p>对象存储系统让用户创建若干个桶（bucket）来存储数据，每个桶可以存多个对象，最大可以存储TB级的数据（S3是5TB），每个对象都是用一个字符串key来标识。对象存储API有如下特征：</p>
+<ul>
+<li>key通常使用文件系统路径来建模（比如，warehouse&#x2F;table1&#x2F;part1.parquet），但是与文件系统不同的是云对象存储的rename操作要重很多</li>
+<li>云对象存储也提供元数据API，以S3的LIST为例，它会按照字典序list一个bucket中的对象，进而可以list某个字符串前缀，比如warehouse&#x2F;table1&#x2F;，来list某个“目录”的对象，但是每次调用只能返回1000个keys，且需要几十到几百毫秒</li>
+<li>支持按照byte范围读取数据，比如读取一个大对象的10,000 - 20,000的数据</li>
+<li>更新一个对象需要立即rewrite整个对象，不过是原子的</li>
+</ul>
+<p><strong>对象存储一致性特点</strong></p>
+<p>对象存储没有across-keys一致性保证，以最流行的对象存储S3为例，S3只保证最终一致性，客户端在写操作时上传一个对象，其它客户端不保证立即能list或者读到该对象，更新一个对象亦如此，甚至这个客户端本身不保证能看到新的对象。S3的客户端提供read-after-write一致性保证，PUT之后的GET会返回新的对象，但是如果在PUT某个新key之前发起过对该key的GET请求，那后续的GET请求会在一段时间内无法读取到新的对象。S3的PUT之后的LIST也无法保证能返回新的对象。虽然Azure Storage，GCS有强一致性保证，但是也缺乏across-keys原子操作。</p>
+<p><strong>对象存储的性能特征</strong></p>
+<p>每次读需要少5-10ms的基础延迟，然后读取速率约为50-100MB&#x2F;s，所以每次最好读取250KB到1MB来获得峰值到吞吐（5ms * 50MB&#x2F;s，10ms * 100MB&#x2F;s），同时可以增加读的并行获充分利用网络带宽，比如10Gbps的带宽，并行可以为8-10。对象存储的性能特征给表存储带来了一些启示：</p>
+<ol>
+<li>让经常访问的数据按顺序放置在一起，这通常会导致选择列式数据格式</li>
+<li>对象大小要适中，因为对象的更新需要完全重写</li>
+<li>尽量避免LIST操作，让这些操作按照字母序执行</li>
+</ol>
+<h3 id="表存储的业界方案"><a href="#表存储的业界方案" class="headerlink" title="表存储的业界方案"></a>表存储的业界方案</h3><ol>
+<li><strong>Directories of Files</strong></li>
+</ol>
+<p>按照“目录”（与文件系统不同，对象存储中没有实际的目录，只是通过类似目录路径的字符串keys来建模）存放表数据，对于分区表可以按照分区“目录”存放。比如，mytable&#x2F;date&#x3D;2020-01-01&#x2F;obj1，mytable&#x2F;date&#x3D;2020-01-01&#x2F;obj2是分区2020-01-01的数据，mytable&#x2F;date&#x3D;2020-01-02&#x2F;obj1存放分区2020-01-02的数据。这种将表建模成一堆对象的方案最初源自Apache Hive on HDFS，表可以被多种工具访问不需要额外的数据存储或系统，但是在云对象存储系统上有一致性和性能挑战：</p>
+<ul>
+<li>没有跨多个对象的一致性，需要写或更新多个对象的事务有部分写被其它客户端读到的风险，事务失败数据可能处于损坏状态</li>
+<li>最终一致性，即使事务成功了，有的客户端可能只看到部分更新的对象</li>
+<li>低性能，查询规划时需要LIST相关分区的目录，然后读取每个文件的统计信息（比如，读取Parquet文件的footer）</li>
+<li>没有管理功能，没有表版本，审计日志等数仓管理功能</li>
+</ul>
+<ol start="2">
+<li><strong>定制存储引擎</strong></li>
+</ol>
+<p>以<a href="/2021/02/03/snowflake-elastic-data-warehouse/">Snowflake</a>为代表的云数据仓库在一个单独的，强一致的服务中管理元数据，实现了元数据高效的元数据存储，搜索，更新等。但是这种方案的缺点时：</p>
+<ul>
+<li>所有的I&#x2F;O操作需要与元数据服务交互，增加了资源开销，降低了性能和可用性</li>
+<li>不是类似Parquet一样开放的数据格式，开发外部引擎connectors时需要更多的工作量</li>
+<li>专有元数据服务将用户与特定vendor绑定，无法像直接访问对象存储的方案一样可以一直使用不同的技术<br>Hive ACID借助HiveMetastore，在HDFS或对象存储上也实现了类似方案，但是也会遇到性能问题。</li>
+</ul>
+<p><em>这里我觉得是Databricks有些夹带私货，元数据放在一个高可用，高性能和可扩展的元数据服务中（比如，Snowflake的cloud service层）性能比放在云对象存储系统中反而有优势，而且S3不支持put-if-absent，也需要外部服务提供lock支持。</em></p>
+<ol start="3">
+<li><strong>元数据存储在对象存储中</strong></li>
+</ol>
+<p>Delta Lake直接在云对象存储中存储一个事物日志和元数据，使用对象存储上的一组协议来实现串行化，表中的数据用Parquet格式存储，与之类似的还有Apache Iceberg和Apache Hudi。</p>
+<h2 id="Delta-Lake-Deep-Dive"><a href="#Delta-Lake-Deep-Dive" class="headerlink" title="Delta Lake Deep Dive"></a>Delta Lake Deep Dive</h2><h3 id="Storage-Format"><a href="#Storage-Format" class="headerlink" title="Storage Format"></a>Storage Format</h3><p><a><img src="https://www.databricks.com/wp-content/uploads/2019/08/image6-1.png" width="1024" height="912" alt="lakehouse-detail"></a></p>
+<p>从上图可以看出，一个Delta Lake表主要由三部分组成：数据文件，事物日志，Checkpoint文件。</p>
+<ul>
+<li>数据文件，可以按照分区存储在不同的分区目录中，Parquet格式</li>
+<li>事物日志，在_delta_log目录中json文件</li>
+<li>Checkpoint文件，也在日志目录中，parquet格式</li>
+</ul>
+<p><strong>事务日志</strong></p>
+<p>Delta Lake事务日志（aka DeltaLog）是从Delta Lake表创建以来在其上执行的每次事务操作的有序记录，作为single source of truth跟踪所有对表的变更对用户始终提供正确的数据视图。<a target="_blank" rel="noopener" href="https://www.databricks.com/blog/2019/08/21/diving-into-delta-lake-unpacking-the-transaction-log.html">事务日志是Delta Lake的关键，是最重要功能的基础，包括 ACID 事务、可扩展的元数据处理、时间旅行等</a>。如上图所示，在_delta_log目录中的一系列的JSON对象，每次事务提交都会创建一个JSON文件，按照递增的zero-padded的数字IDs的命名规范，从<code>000000.json</code>开始，下一次提交为<code>000001.json</code>，随后为<code>000002.json</code>，依此类推。</p>
+<p><a><img src="https://www.databricks.com/wp-content/uploads/2019/08/image3-6.png" width="1024" height="912" alt="lakehouse-detail"></a></p>
+<p>当用户对表执行一个修改操作（比如，INSERT，UPDATE，或DELETE），Delta Lake把这个操作拆分成若干个应用到之前版本的<strong>action</strong>，写入日志中，如上图所示。这些action包括：</p>
+<ul>
+<li><strong>Change Metadata</strong>，<em>metaAction</em>是更改表的metadata，包括schema，分区，存储格式（Parquet等），是否append-only</li>
+<li><strong>Add or Remove Files</strong>，<em>add action</em>除了为数据对象增加的records，还包括统计数据，比如records count，每列的min&#x2F;max和null数量，remove action包含一个时间戳标示remove什么时候发生的，真正物理删除数据是发生超过用户指定的阈值（retention configuration）之后，在这之前remove action作为一个墓碑（tombstone）保留在log中</li>
+<li><strong>dataChange flag</strong>，标示数据是否发生变更（add&#x2F;remove action时），比如流式查询会tailing事务日志，这个flag可以用来忽略不会影响结果的action（比如，改变之前的数据文件的排序）</li>
+<li><strong>Protocol Evolution</strong>，<em>protocol action</em>增加读写Delta表的协议版本，在增加新功能的同时标示哪个版本的client会兼容</li>
+<li><strong>Add Provenance Information</strong>，每个log条目也可以包含治理信息在一个commitInfo action中，比如，某个commit是哪个用户在什么时间做了什么操作</li>
+<li><strong>Update Application Transaction IDs</strong>，Delta Lake为applications提供了方法在log条目中写入<em>txn action</em>，携带appId和version字段，记录application-specific信息（比如，输入流的offset），这些信息与其相关的add&#x2F;remove action在同一条log record中，它们用来辅助实现端到端的事务应用</li>
+</ul>
+<p><strong>Log Checkpoint</strong></p>
+<p>为了提升性能，需要周期性的合并日志，去除冗余actions，通过checkpoint将到某个日志记录ID的所有的non-redundant actions记录到一个Parquet文件中，包括：</p>
+<ul>
+<li>对相同数据对象的add action之后的remove action合并成一个remove action的tombstone</li>
+<li>对同一对象的多次add action可以被替换成最近一个</li>
+<li>相同的appId的txn action可以被替换最近一个，它包含最近的版本字段</li>
+<li>changeMetadata和protocol actions可以被coalesce，只保留最新的metadata</li>
+</ul>
+<p>Checkpoint的最终结果就是生成一个Parquet文件，比如<code>000003.parquet</code>，这个checkpoint文件代表到<code>000003.json</code>（包含它自己）的log文件的合并。客户端默认是10次事务做一次checkpoint，并且更新其checkpoint ID到<code>_delta_log/_last_checkpoint</code> 对象中，客户端每次从<code>_delta_log/_last_checkpoint</code>中的ID开始LIST<code>_delta_log</code>目录，找到最新的checkpoint文件和后续的log文件，所以即使<code>_delta_log/_last_checkpoint</code>由于对象存储（AWS S3）最终一致性造成读到的ID落后也不会有影响。</p>
+<h3 id="Access-Protocols"><a href="#Access-Protocols" class="headerlink" title="Access Protocols"></a>Access Protocols</h3><p><strong>读流程</strong></p>
+<ol>
+<li>从<code>_last_checkpoint</code>对象中获取last checkpoint ID，默认为0</li>
+<li>用last checkpoint ID作为start key去做LIST操作，找出最新的checkpoint的parquet文件与其之后所有新的json log文件，用这些文件重新构造出表的状态（aka 快照），即数据对象（COW）与相关统计数据，可以通过一个Spark Job来并行执行</li>
+<li>使用统计数据在查询规划时（在Driver侧）识别出与查询相关的数据对象集（比如Predicate Filters）</li>
+<li>读取相关的数据对象（发生在Executor上的task执行阶段）</li>
+</ol>
+<p><em>步骤2与4会因为最终一致性遇到某些log文件缺失（比如，000004.json与000006.json之间的000005.json暂时缺失）或者某个步骤3中规划出的数据对象找不到，只需简单的等待或者重试即可</em></p>
+<p><strong>写流程</strong></p>
+<ol>
+<li>使用读流程的步骤1与2找出最新的log ID，比如说r，这次事务读版本r（快照版本）的表数据，并会尝试写入log记录r+1</li>
+<li>在正确的目录写入新的数据对象，使用GUIDs生成对象名，最后这些对象会被新的日志记录引用</li>
+<li>原子地尝试写入日志对象r+1.json，如果失败事务将会重试，根据查询的语义，客户端可能可以复用步骤2中写入的新数据对象，然后只需要简单的更新log版本号比如r+2.json即可</li>
+<li>每隔10次（默认）会做一次checkpoint，写入checkpoint parquet文件和更新<code>_last_checkpoint</code></li>
+</ol>
+<p><em>步骤4只会影响性能，失败或者部分失败不会影响正确性，所以如果第3步成功，这次写事务将自动提交。</em></p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=nWwQMlrjhy0">https://www.youtube.com/watch?v=nWwQMlrjhy0</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=LJtShrQqYZY&amp;list=RDCMUC3q8O3Bh2Le8Rj1-Q-_UUbA&amp;index=2">https://www.youtube.com/watch?v=LJtShrQqYZY&amp;list=RDCMUC3q8O3Bh2Le8Rj1-Q-_UUbA&amp;index=2</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=de-6a6Bfw6E">https://www.youtube.com/watch?v=de-6a6Bfw6E</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.databricks.com/lakehouse/acid.html">https://docs.databricks.com/lakehouse/acid.html</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.databricks.com/optimizations/isolation-level.html#isolation-levels">https://docs.databricks.com/optimizations/isolation-level.html#isolation-levels</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.starburst.io/blog/tag/iceberg/">https://www.starburst.io/blog/tag/iceberg/</a></li>
+<li><a target="_blank" rel="noopener" href="https://iceberg.apache.org/javadoc/0.11.0/org/apache/iceberg/IsolationLevel.html">https://iceberg.apache.org/javadoc/0.11.0/org/apache/iceberg/IsolationLevel.html</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.databricks.com/blog/2019/08/21/diving-into-delta-lake-unpacking-the-transaction-log.html">https://www.databricks.com/blog/2019/08/21/diving-into-delta-lake-unpacking-the-transaction-log.html</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.databricks.com/blog/2019/09/24/diving-into-delta-lake-schema-enforcement-evolution.html">https://www.databricks.com/blog/2019/09/24/diving-into-delta-lake-schema-enforcement-evolution.html</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.databricks.com/blog/2020/09/29/diving-into-delta-lake-dml-internals-update-delete-merge.html">https://www.databricks.com/blog/2020/09/29/diving-into-delta-lake-dml-internals-update-delete-merge.html</a></li>
+</ul>
+
+  </div>
+</article>
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/categories/technology">Technology</a></li>
+         
+          <li><a href="/categories/life">Life</a></li>
+         
+          <li><a href="/archives/">Archives</a></li>
+         
+          <li><a href="/tags/">Tags</a></li>
+         
+          <li><a href="/about">About</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#What-id-Delta-Lake"><span class="toc-number">1.</span> <span class="toc-text">What id Delta Lake</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Why-Delta-Lake"><span class="toc-number">2.</span> <span class="toc-text">Why Delta Lake</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Delta-Lake-Design-Consideration"><span class="toc-number">3.</span> <span class="toc-text">Delta Lake Design Consideration</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AF%B9%E8%B1%A1%E5%AD%98%E5%82%A8%E7%9A%84%E7%89%B9%E5%BE%81%E4%B8%8E%E6%8C%91%E6%88%98"><span class="toc-number">3.1.</span> <span class="toc-text">对象存储的特征与挑战</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A1%A8%E5%AD%98%E5%82%A8%E7%9A%84%E4%B8%9A%E7%95%8C%E6%96%B9%E6%A1%88"><span class="toc-number">3.2.</span> <span class="toc-text">表存储的业界方案</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Delta-Lake-Deep-Dive"><span class="toc-number">4.</span> <span class="toc-text">Delta Lake Deep Dive</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Storage-Format"><span class="toc-number">4.1.</span> <span class="toc-text">Storage Format</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Access-Protocols"><span class="toc-number">4.2.</span> <span class="toc-text">Access Protocols</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number">5.</span> <span class="toc-text">Reference</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2020/05/11/delta-lake/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2020/05/11/delta-lake/&text=Delta Lake: HighPerformance ACID Table Storage over Cloud Object Stores"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2020/05/11/delta-lake/&title=Delta Lake: HighPerformance ACID Table Storage over Cloud Object Stores"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2020/05/11/delta-lake/&is_video=false&description=Delta Lake: HighPerformance ACID Table Storage over Cloud Object Stores"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Delta Lake: HighPerformance ACID Table Storage over Cloud Object Stores&body=Check out this article: http://example.com/2020/05/11/delta-lake/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2020/05/11/delta-lake/&title=Delta Lake: HighPerformance ACID Table Storage over Cloud Object Stores"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2020/05/11/delta-lake/&title=Delta Lake: HighPerformance ACID Table Storage over Cloud Object Stores"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2020/05/11/delta-lake/&title=Delta Lake: HighPerformance ACID Table Storage over Cloud Object Stores"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2020/05/11/delta-lake/&title=Delta Lake: HighPerformance ACID Table Storage over Cloud Object Stores"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2020/05/11/delta-lake/&name=Delta Lake: HighPerformance ACID Table Storage over Cloud Object Stores&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2020/05/11/delta-lake/&t=Delta Lake: HighPerformance ACID Table Storage over Cloud Object Stores"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2023
+    duanmeng
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/categories/technology">Technology</a></li><!--
+     --><!--
+       --><li><a href="/categories/life">Life</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Archives</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tags</a></li><!--
+     --><!--
+       --><li><a href="/about">About</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+
+  <script src='https://unpkg.com/mermaid@9.0.0/dist/mermaid.min.js'></script>
+  <script>
+    if (window.mermaid) {
+      mermaid.initialize({theme: 'forest'});
+    }
+  </script>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

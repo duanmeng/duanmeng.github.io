@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="背景What Is A LakehouseLakehouse是基于开放格式的数据管理系统，它运行在低成本存储上，提供丰富的管理功能，比如事务，数据版本控制，审计和索引等功能，同时可提供多个计算引擎访问。Lakehouse架构不仅被Databricks，还被各大公司（Meta，Uber，Netflix等）和云厂商（Redshift，EMR，Dataproc，Synapse）广泛采用。与Data La">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Analyzing and Comparing Lakehouse Storage Systems">
+<meta property="og:url" content="http://example.com/2023/03/05/analyzing-compare-lakehouse/index.html">
+<meta property="og:site_name" content="Macduan Notes">
+<meta property="og:description" content="背景What Is A LakehouseLakehouse是基于开放格式的数据管理系统，它运行在低成本存储上，提供丰富的管理功能，比如事务，数据版本控制，审计和索引等功能，同时可提供多个计算引擎访问。Lakehouse架构不仅被Databricks，还被各大公司（Meta，Uber，Netflix等）和云厂商（Redshift，EMR，Dataproc，Synapse）广泛采用。与Data La">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://iceberg.apache.org/img/iceberg-metadata.png">
+<meta property="article:published_time" content="2023-03-05T05:24:45.000Z">
+<meta property="article:modified_time" content="2023-04-08T05:13:40.669Z">
+<meta property="article:author" content="duanmeng">
+<meta property="article:tag" content="lakehouse">
+<meta property="article:tag" content="spark">
+<meta property="article:tag" content="datalake">
+<meta property="article:tag" content="data">
+<meta property="article:tag" content="paper">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://iceberg.apache.org/img/iceberg-metadata.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Analyzing and Comparing Lakehouse Storage Systems</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/categories/technology">Technology</a></li><!--
+     --><!--
+       --><li><a href="/categories/life">Life</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Archives</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tags</a></li><!--
+     --><!--
+       --><li><a href="/about">About</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2023/02/07/velox-types/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/03/05/analyzing-compare-lakehouse/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/03/05/analyzing-compare-lakehouse/&text=Analyzing and Comparing Lakehouse Storage Systems"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/03/05/analyzing-compare-lakehouse/&title=Analyzing and Comparing Lakehouse Storage Systems"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/03/05/analyzing-compare-lakehouse/&is_video=false&description=Analyzing and Comparing Lakehouse Storage Systems"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Analyzing and Comparing Lakehouse Storage Systems&body=Check out this article: http://example.com/2023/03/05/analyzing-compare-lakehouse/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/03/05/analyzing-compare-lakehouse/&title=Analyzing and Comparing Lakehouse Storage Systems"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/03/05/analyzing-compare-lakehouse/&title=Analyzing and Comparing Lakehouse Storage Systems"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/03/05/analyzing-compare-lakehouse/&title=Analyzing and Comparing Lakehouse Storage Systems"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/03/05/analyzing-compare-lakehouse/&title=Analyzing and Comparing Lakehouse Storage Systems"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/03/05/analyzing-compare-lakehouse/&name=Analyzing and Comparing Lakehouse Storage Systems&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/03/05/analyzing-compare-lakehouse/&t=Analyzing and Comparing Lakehouse Storage Systems"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%83%8C%E6%99%AF"><span class="toc-number">1.</span> <span class="toc-text">背景</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#What-Is-A-Lakehouse"><span class="toc-number">1.1.</span> <span class="toc-text">What Is A Lakehouse</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Lakehouse%E7%B3%BB%E7%BB%9F%E9%9D%A2%E4%B8%B4%E7%9A%84%E6%8C%91%E6%88%98"><span class="toc-number">1.2.</span> <span class="toc-text">Lakehouse系统面临的挑战</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Lakehouse-Systems-Design"><span class="toc-number">2.</span> <span class="toc-text">Lakehouse Systems Design</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Transaction-Coordination"><span class="toc-number">2.1.</span> <span class="toc-text">Transaction Coordination</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Metadata-Management"><span class="toc-number">2.2.</span> <span class="toc-text">Metadata Management</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Data-Update-Strategies"><span class="toc-number">2.3.</span> <span class="toc-text">Data Update Strategies</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Benchmarking-Lakehouse-Systems"><span class="toc-number">2.4.</span> <span class="toc-text">Benchmarking Lakehouse Systems</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">3.</span> <span class="toc-text">References</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Analyzing and Comparing Lakehouse Storage Systems
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">duanmeng</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-03-05T05:24:45.000Z" itemprop="datePublished">2023-03-05</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/technology/">technology</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/data/" rel="tag">data</a>, <a class="tag-link-link" href="/tags/datalake/" rel="tag">datalake</a>, <a class="tag-link-link" href="/tags/lakehouse/" rel="tag">lakehouse</a>, <a class="tag-link-link" href="/tags/paper/" rel="tag">paper</a>, <a class="tag-link-link" href="/tags/spark/" rel="tag">spark</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><h3 id="What-Is-A-Lakehouse"><a href="#What-Is-A-Lakehouse" class="headerlink" title="What Is A Lakehouse"></a>What Is A Lakehouse</h3><p><strong>Lakehouse</strong>是基于开放格式的数据管理系统，它运行在低成本存储上，提供丰富的管理功能，比如事务，数据版本控制，审计和索引等功能，同时可提供多个计算引擎访问。Lakehouse架构不仅被Databricks，还被各大公司（Meta，Uber，Netflix等）和云厂商（Redshift，EMR，Dataproc，Synapse）广泛采用。<strong>与Data Lake相比</strong>，lakehouse提供了丰富的数据管理功能，比如事务和元数据管理，<strong>与传统Data Warehouse相比</strong>，lakehouse让数据可以被任何引擎直接使用，比如BI，ML或者DS工具。目前，业界的Lakehouse系统基本上都是基于Hudi，Iceberg和Delta Lake三种表格式来实现的。</p>
+<pre class="mermaid">graph TD
+L1-1(<big><b>Compute Tier</b></big> <p> <b>SQL Engine</b>: <i>Spark, Presto ... </i> <b>ML Engine</b>: <i>Tensorflow, Pytorch ... </i> <b>Others</b>: <i>BI, Data Science ...</i>) --> L2
+L2(<big><b>Lakehouse Data Management Tier</b></big> <p> <b>Table Format</b>: Apache Hudi, Apache Iceberg, Delta Lake </p> <i>Providing Transactions, Metadata, Indexing, etc</i>)
+L2 --> L3
+L3(<big><b>Storage Tier</b></big> <p> <b>Open Format</b>: Parquet, ORC, AVRO </p> <b>Data Lake</b>: AWS S3, Microsoft Azure Storage, Google Cloud Storage)</pre>
+
+<h3 id="Lakehouse系统面临的挑战"><a href="#Lakehouse系统面临的挑战" class="headerlink" title="Lakehouse系统面临的挑战"></a>Lakehouse系统面临的挑战</h3><p>如上所述，首先，Lakehouse系统运行在低成本的data lake上，与传统的数据仓库相比，有相对较高的延迟，弱事务保证；然后，Lakehouse系统旨在支持更广泛的工作负载，从PB级大规模的ELT工作负载到亚秒级延迟的小表查询；最后，Lakehouse系统旨在提供开放接口给各个计算引擎使用。这些挑战给上述三种Lakehouse系统带来设计上的权衡，关键的挑战与设计问题包括：</p>
+<ul>
+<li><strong>How to coordinate transactions</strong></li>
+<li><strong>Where to store metadata &amp; how to query metadata</strong></li>
+<li><strong>How to efficiently handle updates</strong></li>
+</ul>
+<h2 id="Lakehouse-Systems-Design"><a href="#Lakehouse-Systems-Design" class="headerlink" title="Lakehouse Systems Design"></a>Lakehouse Systems Design</h2><p>上文提到，业界的Lakehouse Systems基本上都是基于Hudi，Iceberg和Delta Lake三种表格式来实现的，他们面临基本相同的挑战，在设计上有类似和不同的选择，按照事务协调，元数据管理和更新策略来对比他们设计上的选择。</p>
+<h3 id="Transaction-Coordination"><a href="#Transaction-Coordination" class="headerlink" title="Transaction Coordination"></a>Transaction Coordination</h3><p>三种系统都宣称对单表的读写提供ACID保证，但是每个系统的事务实现与保证都不相同，如下表所示。</p>
+<table>
+<thead>
+<tr>
+<th align="left"></th>
+<th align="left">Table Metadata</th>
+<th align="left">Transaction Atomicity</th>
+<th align="left">Isolation Levels</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><b>Delta Lake</td>
+<td align="left">Transaction Log + Metadata Checkpoints</td>
+<td align="left">Atomic Log Appendes</td>
+<td align="left">Write serializable, Serializable</td>
+</tr>
+<tr>
+<td align="left"><b>Hudi</td>
+<td align="left">Transaction Log + Metadata Table</td>
+<td align="left">Table-Level Lock</td>
+<td align="left">Snapshot Isolation</td>
+</tr>
+<tr>
+<td align="left"><b>Iceberg</td>
+<td align="left">Hierarchical Files</td>
+<td align="left">Table-Level Lock</td>
+<td align="left">Snapshot Isolation, Serializable</td>
+</tr>
+</tbody></table>
+<br>
+
+<p>Delta Lake，Hudi和Iceberg都是使用MVCC（Multi-Version Concurrency Control）实现事务。元数据结构定义了哪些文件版本属于该表。当事务开始时，它会读取此元数据结构以获得表的快照，然后从该快照执行所有读取。事务通过原子更新元数据结构来提交。Delta Lake依赖底层存储服务通过put-if-absent等操作提供原子性（通过 DynamoDB 协调不支持合适操作的存储层），而Hudi和Iceberg使用 ZooKeeper中实现的表级锁、Hive MetaStore或 DynamoDB（AWS CTO在其博客文章<a target="_blank" rel="noopener" href="https://www.allthingsdistributed.com/2021/04/s3-strong-consistency.html">Diving Deep on S3 Consistency</a>博客上提到，Netflix使用<a target="_blank" rel="noopener" href="https://netflixtechblog.com/s3mper-consistency-in-the-cloud-b6a1076aa4f8">S3mper</a>，通过DynamoDB as a consistent store做协调，也提到S3要支持强一致了）。</p>
+<p>为了提供事务之间的隔离，Delta Lake、Hudi 和 Iceberg都使用了乐观并发控制。Iceberg和Hudi都采用了<a target="_blank" rel="noopener" href="https://pmg.csail.mit.edu/papers/adya-phd.pdf">Adya术语快照隔离</a>：事务始终从在它们开始时有效的已提交数据的快照中读取数据，并且只有在提交时没有已提交事务写入它们打算写入的数据时才能提交。Delta Lake与Iceberg都提供了Serializable的隔离级别，<a target="_blank" rel="noopener" href="https://iceberg.apache.org/javadoc/0.11.0/org/apache/iceberg/IsolationLevel.html">Iceberg默认是Snapshot Isolation</a>，Delta Lake默认是其<a target="_blank" rel="noopener" href="https://docs.databricks.com/optimizations/isolation-level.html#isolation-levels">特有的Write serializable隔离级别</a>。</p>
+<h3 id="Metadata-Management"><a href="#Metadata-Management" class="headerlink" title="Metadata Management"></a>Metadata Management</h3><p>查询规划时需要访问表的元数据（比如，所有表文件的names，sizes，每个文件的列统计信息），对象存储速度限制了查询速度，比如，S3的LIST操作一次只返回1000个keys。三种Lakehouse系统都将元数据文件在与实际数据文件一起存储。Listing元数据文件（数量比数据文件少得多）并从中读取元数据比直接从S3 listing数据文件（传统数据湖元数据在数据文件中）可以缩短查询规划的时间。 使用了两种元数据组织格式：表格格式和分层格式。</p>
+<table>
+<thead>
+<tr>
+<th align="left"><big>Tabular Format</big></th>
+<th align="left"><big>Hierarchical Format</big></th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Delta Lake, Hudi</td>
+<td align="left">Iceberg</td>
+</tr>
+<tr>
+<td align="left"><br></td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">Each table’s metadata stored in<br>a separate Parquet&#x2F;Avro table.</td>
+<td align="left">Each table’s metadata stored in a tree<br>of manifest files (in Avro).</td>
+</tr>
+<tr>
+<td align="left"><br></td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">Query planning is distributed.</td>
+<td align="left">Queries planned on a single node.</td>
+</tr>
+<tr>
+<td align="left"><br></td>
+<td align="left"></td>
+</tr>
+</tbody></table>
+<p>Delta Lake和Hudi采用tabular format，lakehouse表的元数据存储在另一个特殊的表中：Hudi的元数据表和Delta Lake的transaction log checkpoint（Parquet和JSON格式的组合）。事务不直接写这种表，而是写日志记录，周期性的使用MOR（merge-on-read）策略将其合并到元数据表中。Iceberg采用hierarchical format，元数据分层存储在manifest文件中，底层中的每个文件存储一组数据文件的元数据，上层中的每个文件包含下层中一组清单文件的聚合元数据。这类似于表格格式，但上层充当表格索引。</p>
+<p><a><img src="https://iceberg.apache.org/img/iceberg-metadata.png" width="520" height="256" alt="ice"></a></p>
+<p><strong>批处理作业必须扫描元数据表以查找查询中涉及的所有文件，以便将它们用于查询规划。</strong>Delta Lake和Hudi采用分布式的方式进行查询规划，而Iceberg在单个节点上进行查询规划，该节点使用清单层次结构的上层作为索引，以最大限度地减少它必须对下层进行的读取次数</p>
+<h3 id="Data-Update-Strategies"><a href="#Data-Update-Strategies" class="headerlink" title="Data Update Strategies"></a>Data Update Strategies</h3><p>这三个系统都支持CoW策略，因为大多数lakehouse工作负载都支持高读取性能。Iceberg和Hudi目前支持MoR，<a target="_blank" rel="noopener" href="https://github.com/delta-io/delta/issues/1367">Delta也计划支持它</a>。<a target="_blank" rel="noopener" href="https://www.dremio.com/blog/row-level-changes-on-the-lakehouse-copy-on-write-vs-merge-on-read-in-apache-iceberg/">Iceberg（以及未来的 Delta）MoR</a> 实现使用辅助“墓碑”文件来标记Parquet&#x2F;ORC 数据文件中的记录。在查询时，这些逻辑删除记录被过滤掉。记录更新是通过对现有记录进行逻辑删除并将更新后的记录写入Parquet&#x2F;ORC 文件来实现的。相比之下，<a target="_blank" rel="noopener" href="https://hudi.apache.org/docs/concepts/#merge-on-read-table">MoR的Hudi</a>实现将所有记录级别的插入、删除和更新存储在基于行的 Avro 文件中。查询时Hudi在从Parquet文件读取数据时协调这些更改。值得一提的事，Hudi 默认情况下会通过键对摄取的数据进行重复数据删除和排序，因此即使在使用 MoR 时也会产生额外的写入延迟。</p>
+<table>
+<thead>
+<tr>
+<th align="left"><big>Copy On Write</big></th>
+<th align="left"><big>Merge On Read</big></th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Delta Lake, Iceberg, Hudi</td>
+<td align="left">Iceberg, Hude, Delta Lake (coming)</td>
+</tr>
+<tr>
+<td align="left"><br></td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">Identify files containing records that<br>need updates, then eagerly rewrite them.</td>
+<td align="left">Write changes to auxiliary files,<br>reconcile at query time.</td>
+</tr>
+<tr>
+<td align="left"><br></td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">High write amplification, no read amplification.</td>
+<td align="left">Low write amplification, high read amplification.</td>
+</tr>
+<tr>
+<td align="left"><br></td>
+<td align="left"></td>
+</tr>
+</tbody></table>
+<h3 id="Benchmarking-Lakehouse-Systems"><a href="#Benchmarking-Lakehouse-Systems" class="headerlink" title="Benchmarking Lakehouse Systems"></a>Benchmarking Lakehouse Systems</h3><p>Delta、Hudi和Iceberg在3TB TPC-DS上的端到端比较，将每个查询运行三次并报告运行时间中值。结果显示，Hudi的数据加载速度几乎慢了10倍。这是因为Hudi 针对<a target="_blank" rel="noopener" href="https://hudi.apache.org/docs/next/write_operations/">keyed upsert</a>更新插入进行了优化，而不是批量数据摄取，并且在数据加载期间进行了昂贵的预处理，包括密钥唯一性检查和密钥重新分配。 我们的查询运行表明，总体而言，TPC-DS 在 Delta Lake 上的运行速度比在 Hudi 上快 1.4 倍，在 Delta Lake 上比在 Iceberg 上快 1.7 倍。 我们重点介绍了一些明显存在差异的特定查询。 经过调查，我们发现查询执行时间的差异几乎完全可以用数据读取时间来解释。</p>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://iceberg.apache.org/javadoc/0.11.0/org/apache/iceberg/IsolationLevel.html">https://iceberg.apache.org/javadoc/0.11.0/org/apache/iceberg/IsolationLevel.html</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.databricks.com/optimizations/isolation-level.html#isolation-levels">https://docs.databricks.com/optimizations/isolation-level.html#isolation-levels</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.delta.io/latest/concurrency-control.html">https://docs.delta.io/latest/concurrency-control.html</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.databricks.com/lakehouse/acid.html">https://docs.databricks.com/lakehouse/acid.html</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/delta-io/delta/issues/1367">https://github.com/delta-io/delta/issues/1367</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.dremio.com/blog/row-level-changes-on-the-lakehouse-copy-on-write-vs-merge-on-read-in-apache-iceberg/">https://www.dremio.com/blog/row-level-changes-on-the-lakehouse-copy-on-write-vs-merge-on-read-in-apache-iceberg/</a></li>
+<li><a target="_blank" rel="noopener" href="https://hudi.apache.org/docs/concepts/#merge-on-read-table">https://hudi.apache.org/docs/concepts/#merge-on-read-table</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.google.com/document/d/1lv35ZPfioopBbzQ7zT82LOev7qV7x4YNLkMr2-L5E_M/edit#heading=h.dd2cc57oc5wk">https://docs.google.com/document/d/1lv35ZPfioopBbzQ7zT82LOev7qV7x4YNLkMr2-L5E_M/edit#heading=h.dd2cc57oc5wk</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/lhbench/lhbench">https://github.com/lhbench/lhbench</a></li>
+<li><a target="_blank" rel="noopener" href="https://hudi.apache.org/docs/next/write_operations/">https://hudi.apache.org/docs/next/write_operations/</a></li>
+</ul>
+
+  </div>
+</article>
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/categories/technology">Technology</a></li>
+         
+          <li><a href="/categories/life">Life</a></li>
+         
+          <li><a href="/archives/">Archives</a></li>
+         
+          <li><a href="/tags/">Tags</a></li>
+         
+          <li><a href="/about">About</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%83%8C%E6%99%AF"><span class="toc-number">1.</span> <span class="toc-text">背景</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#What-Is-A-Lakehouse"><span class="toc-number">1.1.</span> <span class="toc-text">What Is A Lakehouse</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Lakehouse%E7%B3%BB%E7%BB%9F%E9%9D%A2%E4%B8%B4%E7%9A%84%E6%8C%91%E6%88%98"><span class="toc-number">1.2.</span> <span class="toc-text">Lakehouse系统面临的挑战</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Lakehouse-Systems-Design"><span class="toc-number">2.</span> <span class="toc-text">Lakehouse Systems Design</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Transaction-Coordination"><span class="toc-number">2.1.</span> <span class="toc-text">Transaction Coordination</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Metadata-Management"><span class="toc-number">2.2.</span> <span class="toc-text">Metadata Management</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Data-Update-Strategies"><span class="toc-number">2.3.</span> <span class="toc-text">Data Update Strategies</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Benchmarking-Lakehouse-Systems"><span class="toc-number">2.4.</span> <span class="toc-text">Benchmarking Lakehouse Systems</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">3.</span> <span class="toc-text">References</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/03/05/analyzing-compare-lakehouse/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/03/05/analyzing-compare-lakehouse/&text=Analyzing and Comparing Lakehouse Storage Systems"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/03/05/analyzing-compare-lakehouse/&title=Analyzing and Comparing Lakehouse Storage Systems"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/03/05/analyzing-compare-lakehouse/&is_video=false&description=Analyzing and Comparing Lakehouse Storage Systems"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Analyzing and Comparing Lakehouse Storage Systems&body=Check out this article: http://example.com/2023/03/05/analyzing-compare-lakehouse/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/03/05/analyzing-compare-lakehouse/&title=Analyzing and Comparing Lakehouse Storage Systems"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/03/05/analyzing-compare-lakehouse/&title=Analyzing and Comparing Lakehouse Storage Systems"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/03/05/analyzing-compare-lakehouse/&title=Analyzing and Comparing Lakehouse Storage Systems"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/03/05/analyzing-compare-lakehouse/&title=Analyzing and Comparing Lakehouse Storage Systems"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/03/05/analyzing-compare-lakehouse/&name=Analyzing and Comparing Lakehouse Storage Systems&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/03/05/analyzing-compare-lakehouse/&t=Analyzing and Comparing Lakehouse Storage Systems"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2023
+    duanmeng
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/categories/technology">Technology</a></li><!--
+     --><!--
+       --><li><a href="/categories/life">Life</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Archives</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tags</a></li><!--
+     --><!--
+       --><li><a href="/about">About</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+
+  <script src='https://unpkg.com/mermaid@9.0.0/dist/mermaid.min.js'></script>
+  <script>
+    if (window.mermaid) {
+      mermaid.initialize({theme: 'forest'});
+    }
+  </script>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

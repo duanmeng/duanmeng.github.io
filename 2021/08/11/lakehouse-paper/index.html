@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="What is LakehouseLakehouse是一种基于低成本和可直接访问的存储的数据管理系统，它提高了传统分析型DBMS的管理功能与性能，如ACID事务，数据版本，审计，索引，缓存与查询优化。Lakehouse是开放架构，它结合了数据湖与数仓的关键优点：数据湖的低成本存储，开放格式特点，数仓的管理与优化功能。Lakehouse非常适合cloud环境，计算存储分离，计算节点可以弹性扩缩容，存">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Lakehouse : A New Generation of Open Platforms that Unify Data Warehousing and Advanced Analytics">
+<meta property="og:url" content="http://example.com/2021/08/11/lakehouse-paper/index.html">
+<meta property="og:site_name" content="Macduan Notes">
+<meta property="og:description" content="What is LakehouseLakehouse是一种基于低成本和可直接访问的存储的数据管理系统，它提高了传统分析型DBMS的管理功能与性能，如ACID事务，数据版本，审计，索引，缓存与查询优化。Lakehouse是开放架构，它结合了数据湖与数仓的关键优点：数据湖的低成本存储，开放格式特点，数仓的管理与优化功能。Lakehouse非常适合cloud环境，计算存储分离，计算节点可以弹性扩缩容，存">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://live.staticflickr.com/65535/52598832892_126a9f030c_b.jpg">
+<meta property="og:image" content="https://live.staticflickr.com/65535/52599584204_9c3a980210_z.jpg">
+<meta property="article:published_time" content="2021-08-11T04:09:24.000Z">
+<meta property="article:modified_time" content="2023-04-01T01:17:30.445Z">
+<meta property="article:author" content="duanmeng">
+<meta property="article:tag" content="lakehouse">
+<meta property="article:tag" content="spark">
+<meta property="article:tag" content="datalake">
+<meta property="article:tag" content="data">
+<meta property="article:tag" content="paper">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://live.staticflickr.com/65535/52598832892_126a9f030c_b.jpg">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Lakehouse : A New Generation of Open Platforms that Unify Data Warehousing and Advanced Analytics</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/categories/technology">Technology</a></li><!--
+     --><!--
+       --><li><a href="/categories/life">Life</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Archives</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tags</a></li><!--
+     --><!--
+       --><li><a href="/about">About</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2022/11/11/photon/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2021/07/14/presto-sql/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2021/08/11/lakehouse-paper/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2021/08/11/lakehouse-paper/&text=Lakehouse : A New Generation of Open Platforms that Unify Data Warehousing and Advanced Analytics"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2021/08/11/lakehouse-paper/&title=Lakehouse : A New Generation of Open Platforms that Unify Data Warehousing and Advanced Analytics"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2021/08/11/lakehouse-paper/&is_video=false&description=Lakehouse : A New Generation of Open Platforms that Unify Data Warehousing and Advanced Analytics"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Lakehouse : A New Generation of Open Platforms that Unify Data Warehousing and Advanced Analytics&body=Check out this article: http://example.com/2021/08/11/lakehouse-paper/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2021/08/11/lakehouse-paper/&title=Lakehouse : A New Generation of Open Platforms that Unify Data Warehousing and Advanced Analytics"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2021/08/11/lakehouse-paper/&title=Lakehouse : A New Generation of Open Platforms that Unify Data Warehousing and Advanced Analytics"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2021/08/11/lakehouse-paper/&title=Lakehouse : A New Generation of Open Platforms that Unify Data Warehousing and Advanced Analytics"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2021/08/11/lakehouse-paper/&title=Lakehouse : A New Generation of Open Platforms that Unify Data Warehousing and Advanced Analytics"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2021/08/11/lakehouse-paper/&name=Lakehouse : A New Generation of Open Platforms that Unify Data Warehousing and Advanced Analytics&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2021/08/11/lakehouse-paper/&t=Lakehouse : A New Generation of Open Platforms that Unify Data Warehousing and Advanced Analytics"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#What-is-Lakehouse"><span class="toc-number">1.</span> <span class="toc-text">What is Lakehouse</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Why-Lakehouse"><span class="toc-number">2.</span> <span class="toc-text">Why Lakehouse</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Lakehouse-Architecture"><span class="toc-number">3.</span> <span class="toc-text">Lakehouse Architecture</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Metadata-Layers-for-Data-Managment"><span class="toc-number">3.1.</span> <span class="toc-text">Metadata Layers for Data Managment</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SQL-Performance-in-a-Lakehouse"><span class="toc-number">3.2.</span> <span class="toc-text">SQL Performance in a Lakehouse</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Effective-Access-for-Advanced-Analytics"><span class="toc-number">3.3.</span> <span class="toc-text">Effective Access for Advanced Analytics</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number">4.</span> <span class="toc-text">Reference</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Lakehouse : A New Generation of Open Platforms that Unify Data Warehousing and Advanced Analytics
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">duanmeng</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2021-08-11T04:09:24.000Z" itemprop="datePublished">2021-08-11</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/technology/">technology</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/data/" rel="tag">data</a>, <a class="tag-link-link" href="/tags/datalake/" rel="tag">datalake</a>, <a class="tag-link-link" href="/tags/lakehouse/" rel="tag">lakehouse</a>, <a class="tag-link-link" href="/tags/paper/" rel="tag">paper</a>, <a class="tag-link-link" href="/tags/spark/" rel="tag">spark</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="What-is-Lakehouse"><a href="#What-is-Lakehouse" class="headerlink" title="What is Lakehouse"></a>What is Lakehouse</h2><p>Lakehouse是一种基于低成本和可直接访问的存储的数据管理系统，它提高了传统分析型DBMS的管理功能与性能，如ACID事务，数据版本，审计，索引，缓存与查询优化。Lakehouse是开放架构，它结合了数据湖与数仓的关键优点：数据湖的低成本存储，开放格式特点，数仓的管理与优化功能。Lakehouse非常适合cloud环境，计算存储分离，计算节点可以弹性扩缩容，存储使用S3，Azure Storage廉价的对象存储系统，但是它也适用on-premise环境，使用HDFS存储系统。Lakehouse有如下关键功能：</p>
+<ul>
+<li><strong>Transaction support</strong>，支持多个data pipeline并发读写</li>
+<li><strong>Schema enforcement &amp; governance</strong>，支持schema的约束和演进，支持数据治理与审计</li>
+<li><strong>BI support</strong>，支持BI工具直接操作源数据，改善数据延迟，降低了在湖和仓各自维护一份数据的成本</li>
+<li><strong>Disaggregate storage and compute</strong>，存储分离，一线现代化的数仓也有该特性</li>
+<li><strong>Openness</strong>，开放数据格式，比如Parquet，支持各种工具与引擎直接访问数据，包括ML，Python&#x2F;R库</li>
+<li><strong>Support for diverse data types ranging from unstructured to structured data</strong>，包括图片，视频，音频，半结构化和文本</li>
+<li><strong>Support for diverse workloads</strong>，包括数据科学、机器学习、SQL和分析等</li>
+<li><strong>End-to-end streaming</strong>，不需要单独的系统支持流式应用</li>
+</ul>
+<p><a><img src="https://live.staticflickr.com/65535/52598832892_126a9f030c_b.jpg" width="1024" height="408" alt="lakehouse_history"></a></p>
+<h2 id="Why-Lakehouse"><a href="#Why-Lakehouse" class="headerlink" title="Why Lakehouse"></a>Why Lakehouse</h2><p>第一代数仓架构的特点是存储计算耦合，on-premise部署，需要按峰值规划资源，成本高，扩容也不方便；同时，数据集增长迅速，且越来越多的数据集是非结构化的，比如图片，音视频等，数仓根本无法存储与查询。为了解决这些问题，第二代数据分析平台采用data lake + data warehouse的two-tier架构，data lake采用低成本的对象存储S3，Azure Storage或者HDFS，数据从data lake通过<a target="_blank" rel="noopener" href="https://aws.amazon.com/cn/blogs/big-data/etl-and-elt-design-patterns-for-lake-house-architecture-using-amazon-redshift-part-1/">ETL&#x2F;ELT</a>进入data warehouse（Redshift，Snowflake等）。这种two-tier架构存在如下问题：</p>
+<ul>
+<li><strong>Reliability</strong>，湖与仓中维护两份数据，保持一致性困难，湖与仓引擎微妙的不同，比如支持的数据类型，SQL方言不同，越来越多的ETL&#x2F;ELT任务带来更多的failures与bugs</li>
+<li><strong>Data staleness</strong>，数据通过ETL&#x2F;ELT从湖到仓会带来延迟，流式数据管道也不如批处理好维护，无法很好满足在业务运营支持，推荐系统场景中对数据新鲜度的要求</li>
+<li><strong>Limited support for advanced analytics</strong>，SQL数据仓库和其API不能很好支持图片，传感器数据，文档等非结构化的数据。类似Tensorflow，PyTorch这样的ML系统需要处理大量的数据集，在数仓中无法运行良好，虽然用户可以直接使用湖中的数据，但是缺乏数据质量，ACID事务，数据版本，索引等支持。</li>
+<li><strong>Total cost of onwership，ETL</strong>，存储两份数据都会带来成本提升</li>
+</ul>
+<p>该论文提出了一种基于开放数据格式（Parquet，ORC）和data lake的Lakehouse架构和方案，使用single-tier架构简化了数据治理，让用户可以使用统一的方式管理和查询所有数据，并且只需要管理更少的ETL和查询引擎。Lakehouse采用Delta Lake&#x2F;Apache Iceberg在数据湖上实现了许多数仓有的管理功能（比如，ACID Transactions，Time Travel），并且为优化存储访问提供了有用的工具，例如data clustering和data skipping indices等，除了优化存储层，还使用<a target="_blank" rel="noopener" href="https://www.databricks.com/blog/2020/06/24/introducing-delta-engine.html">Delta Engine</a>(也就是后来的<a href="/2022/11/11/photon/">Photon</a>)优化了查询引擎层。Lakehouse解决了如下关键挑战：</p>
+<ul>
+<li>Reliable data management on data lakes</li>
+<li>Support for machine learning and data science</li>
+<li>SQL performance</li>
+</ul>
+<h2 id="Lakehouse-Architecture"><a href="#Lakehouse-Architecture" class="headerlink" title="Lakehouse Architecture"></a>Lakehouse Architecture</h2><p><a><img src="https://live.staticflickr.com/65535/52599584204_9c3a980210_z.jpg" width="640" height="484" alt="lakehouse-detail"></a></p>
+<p>从上图可以看出，该Lakehouse系统回归到one-tier架构（天下大势，分久必合，合久必分），包含如下几个部分</p>
+<ul>
+<li><strong>Data Lake</strong>，采用廉价对象存储系统，比如Amamzon S3，Azure Storage，也可以使用HDFS。数据采用开放数据格式，文件的形式存储，比如Parquet，ORC</li>
+<li><strong>Metadata，Caching and Indexing Layer</strong>，metadata layer提供数据管理，包括ACID事务支持（比如，Delta Lake，Apache Iceberg），sql performance提供caching，indexing，statistics和data layout优化等</li>
+<li><strong>Query Engine</strong>，图中没有标识出来，Databricks的Delta Engine（也就是后来的Photon）采用vectorized，SIMD，adaptive等技术提升了查询性能，特别Lakehouse架构中存在的大量uncreated data，string data场景下的查询性能</li>
+<li><strong>API</strong>，包括SQL API，Declarative Dataframe API，后者给一些ML库（比如Spark MLlib）提供了更多的优化机会，比如Spark SQL的optimizer，caches，auxiliary data</li>
+</ul>
+<h3 id="Metadata-Layers-for-Data-Managment"><a href="#Metadata-Layers-for-Data-Managment" class="headerlink" title="Metadata Layers for Data Managment"></a>Metadata Layers for Data Managment</h3><p>Data lake存储系统，比如S3或者HDFS，只提供low-level的简单操作，对跨多个文件的表的操作是非原子。Delta Lake将table的metadata作为transaction log的parquet文件存储在data lake（Apache Iceberg也采用类似的设计），使其能够扩展到每个表数十亿个对象。Delta Lake &#x2F; Apache Iceberg在提供与raw data lake相似甚至更好的性能的基础上，提供了非常有用的管理功能，包括食物，zero-copy cloning和表的time travel。此外，它们还可以适配raw data lake的组织，Delta Lake可以将已存在的数据目录的parquet文件转换成一个Delta Lake Table，且不需要做任何数据拷贝，只是增加一个transaction log引用这些文件即可，这使得从第二代架构的raw data lake迁移到Lakehouse架构更加方便和迅速。<br>Metadata layer是天然的实现data quality enforcement功能的地方，Delta Lake实现了schema enforcement可以对摄入的数据做一些约束（比如，country列只接受固定列表的数据）。Metadata layer也是天然实现数据治理功能的地方，比如access control和审计日志。</p>
+<p>不过，由于transaction log存储在对象存储系统中，对象存储的延迟也限制了其TPS，目前也支持单表事务。</p>
+<h3 id="SQL-Performance-in-a-Lakehouse"><a href="#SQL-Performance-in-a-Lakehouse" class="headerlink" title="SQL Performance in a Lakehouse"></a>SQL Performance in a Lakehouse</h3><p>Lakehouse为了提供state-of-the-art的SQL性能，在Delta Lake和Delta Engine中实现了以下数据格式独立的优化，</p>
+<ul>
+<li>Caching，在更快的存储介质（SSD，RAM）中缓存云对象存储中的文件，此外cache还可以被转码成更有利于查询引擎使用的形式</li>
+<li>Auxiliary data，列的min-max统计，zone maps，bloom filter index</li>
+<li>Data layout，Delta Lake中提供了单个维度或空间填充曲线（例如，Z-order和希尔伯特曲线）对记录进行排序，以提供跨多个维度的局部性。</li>
+</ul>
+<h3 id="Effective-Access-for-Advanced-Analytics"><a href="#Effective-Access-for-Advanced-Analytics" class="headerlink" title="Effective Access for Advanced Analytics"></a>Effective Access for Advanced Analytics</h3><p>Advance Analytics库（Tensorflow，Spark MLlib）往往不是SQL形式，为了既能支持数据访问的灵活性（非SQL接口），又能享受到Lakehouse到优化，Lakehouse提供了Declaretive Dataframe APIs，它能把数据准备计算（data preparation computations）转换成Spark SQL到查询计划，享受到Delta Lake与Delta Engine的优化。</p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://www.databricks.com/research/lakehouse-a-new-generation-of-open-platforms-that-unify-data-warehousing-and-advanced-analytics">https://www.databricks.com/research/lakehouse-a-new-generation-of-open-platforms-that-unify-data-warehousing-and-advanced-analytics</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.databricks.com/blog/2020/01/30/what-is-a-data-lakehouse.html">https://www.databricks.com/blog/2020/01/30/what-is-a-data-lakehouse.html</a></li>
+<li><a target="_blank" rel="noopener" href="https://techcommunity.microsoft.com/t5/analytics-on-azure-blog/simplify-your-lakehouse-architecture-with-azure-databricks-delta/ba-p/2027272">https://techcommunity.microsoft.com/t5/analytics-on-azure-blog/simplify-your-lakehouse-architecture-with-azure-databricks-delta/ba-p/2027272</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.cloudera.com/HDPDocuments/HDP3/HDP-3.1.5/using-hiveql/content/hive_3_internals.html">https://docs.cloudera.com/HDPDocuments/HDP3/HDP-3.1.5/using-hiveql/content/hive_3_internals.html</a></li>
+<li><a target="_blank" rel="noopener" href="https://martinfowler.com/articles/data-monolith-to-mesh.html">https://martinfowler.com/articles/data-monolith-to-mesh.html</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.databricks.com/delta/data-skipping.html">https://docs.databricks.com/delta/data-skipping.html</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.databricks.com/blog/2020/06/24/introducing-delta-engine.html">https://www.databricks.com/blog/2020/06/24/introducing-delta-engine.html</a></li>
+<li><a target="_blank" rel="noopener" href="https://martinfowler.com/articles/data-monolith-to-mesh.html">https://martinfowler.com/articles/data-monolith-to-mesh.html</a></li>
+</ul>
+
+  </div>
+</article>
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/categories/technology">Technology</a></li>
+         
+          <li><a href="/categories/life">Life</a></li>
+         
+          <li><a href="/archives/">Archives</a></li>
+         
+          <li><a href="/tags/">Tags</a></li>
+         
+          <li><a href="/about">About</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#What-is-Lakehouse"><span class="toc-number">1.</span> <span class="toc-text">What is Lakehouse</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Why-Lakehouse"><span class="toc-number">2.</span> <span class="toc-text">Why Lakehouse</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Lakehouse-Architecture"><span class="toc-number">3.</span> <span class="toc-text">Lakehouse Architecture</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Metadata-Layers-for-Data-Managment"><span class="toc-number">3.1.</span> <span class="toc-text">Metadata Layers for Data Managment</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SQL-Performance-in-a-Lakehouse"><span class="toc-number">3.2.</span> <span class="toc-text">SQL Performance in a Lakehouse</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Effective-Access-for-Advanced-Analytics"><span class="toc-number">3.3.</span> <span class="toc-text">Effective Access for Advanced Analytics</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number">4.</span> <span class="toc-text">Reference</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2021/08/11/lakehouse-paper/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2021/08/11/lakehouse-paper/&text=Lakehouse : A New Generation of Open Platforms that Unify Data Warehousing and Advanced Analytics"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2021/08/11/lakehouse-paper/&title=Lakehouse : A New Generation of Open Platforms that Unify Data Warehousing and Advanced Analytics"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2021/08/11/lakehouse-paper/&is_video=false&description=Lakehouse : A New Generation of Open Platforms that Unify Data Warehousing and Advanced Analytics"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Lakehouse : A New Generation of Open Platforms that Unify Data Warehousing and Advanced Analytics&body=Check out this article: http://example.com/2021/08/11/lakehouse-paper/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2021/08/11/lakehouse-paper/&title=Lakehouse : A New Generation of Open Platforms that Unify Data Warehousing and Advanced Analytics"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2021/08/11/lakehouse-paper/&title=Lakehouse : A New Generation of Open Platforms that Unify Data Warehousing and Advanced Analytics"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2021/08/11/lakehouse-paper/&title=Lakehouse : A New Generation of Open Platforms that Unify Data Warehousing and Advanced Analytics"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2021/08/11/lakehouse-paper/&title=Lakehouse : A New Generation of Open Platforms that Unify Data Warehousing and Advanced Analytics"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2021/08/11/lakehouse-paper/&name=Lakehouse : A New Generation of Open Platforms that Unify Data Warehousing and Advanced Analytics&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2021/08/11/lakehouse-paper/&t=Lakehouse : A New Generation of Open Platforms that Unify Data Warehousing and Advanced Analytics"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2023
+    duanmeng
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/categories/technology">Technology</a></li><!--
+     --><!--
+       --><li><a href="/categories/life">Life</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Archives</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tags</a></li><!--
+     --><!--
+       --><li><a href="/about">About</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+
+  <script src='https://unpkg.com/mermaid@9.0.0/dist/mermaid.min.js'></script>
+  <script>
+    if (window.mermaid) {
+      mermaid.initialize({theme: 'forest'});
+    }
+  </script>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
