@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="作为一个C++爱好者同时也是vi爱好者，我个人觉得vi就是写代码工具不是IDE所以只用少数几个插件，其中YouCompleteMe是我极力推荐的插件，YouCompleteMe主要是自动补全，还有跳转，类型显示等功能，与之前的基于规则补全插件不同的是YouCompleteMe是基于语义，从安装过程就可以看出来。我用vundle安装和管理插件，YCM的官方安装文档也是推荐vundle，但是我配置好v">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Macduan&#39;s Vim的vimrc与YouCompleteMe配置">
+<meta property="og:url" content="http://example.com/2018/04/14/macduan-vim-cfg/index.html">
+<meta property="og:site_name" content="Macduan Notes">
+<meta property="og:description" content="作为一个C++爱好者同时也是vi爱好者，我个人觉得vi就是写代码工具不是IDE所以只用少数几个插件，其中YouCompleteMe是我极力推荐的插件，YouCompleteMe主要是自动补全，还有跳转，类型显示等功能，与之前的基于规则补全插件不同的是YouCompleteMe是基于语义，从安装过程就可以看出来。我用vundle安装和管理插件，YCM的官方安装文档也是推荐vundle，但是我配置好v">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2018-04-14T10:10:50.000Z">
+<meta property="article:modified_time" content="2023-04-10T02:22:01.920Z">
+<meta property="article:author" content="duanmeng">
+<meta property="article:tag" content="C++">
+<meta property="article:tag" content="vim">
+<meta property="article:tag" content="linux">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Macduan&#39;s Vim的vimrc与YouCompleteMe配置</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/categories/technology">Technology</a></li><!--
+     --><!--
+       --><li><a href="/categories/life">Life</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Archives</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tags</a></li><!--
+     --><!--
+       --><li><a href="/about">About</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2018/05/19/zero-copy/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2018/03/27/mac/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2018/04/14/macduan-vim-cfg/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2018/04/14/macduan-vim-cfg/&text=Macduan&#39;s Vim的vimrc与YouCompleteMe配置"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2018/04/14/macduan-vim-cfg/&title=Macduan&#39;s Vim的vimrc与YouCompleteMe配置"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2018/04/14/macduan-vim-cfg/&is_video=false&description=Macduan&#39;s Vim的vimrc与YouCompleteMe配置"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Macduan&#39;s Vim的vimrc与YouCompleteMe配置&body=Check out this article: http://example.com/2018/04/14/macduan-vim-cfg/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2018/04/14/macduan-vim-cfg/&title=Macduan&#39;s Vim的vimrc与YouCompleteMe配置"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2018/04/14/macduan-vim-cfg/&title=Macduan&#39;s Vim的vimrc与YouCompleteMe配置"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2018/04/14/macduan-vim-cfg/&title=Macduan&#39;s Vim的vimrc与YouCompleteMe配置"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2018/04/14/macduan-vim-cfg/&title=Macduan&#39;s Vim的vimrc与YouCompleteMe配置"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2018/04/14/macduan-vim-cfg/&name=Macduan&#39;s Vim的vimrc与YouCompleteMe配置&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2018/04/14/macduan-vim-cfg/&t=Macduan&#39;s Vim的vimrc与YouCompleteMe配置"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Vundle%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E9%85%8D%E7%BD%AE"><span class="toc-number">1.</span> <span class="toc-text">Vundle的安装与配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#YouCompleteMe%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AE"><span class="toc-number">2.</span> <span class="toc-text">YouCompleteMe安装配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Macduan%E2%80%98s-vimrc"><span class="toc-number">3.</span> <span class="toc-text">Macduan‘s vimrc</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Macduan&#39;s Vim的vimrc与YouCompleteMe配置
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">duanmeng</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2018-04-14T10:10:50.000Z" itemprop="datePublished">2018-04-14</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/technology/">technology</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/C/" rel="tag">C++</a>, <a class="tag-link-link" href="/tags/linux/" rel="tag">linux</a>, <a class="tag-link-link" href="/tags/vim/" rel="tag">vim</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p>作为一个C++爱好者同时也是vi爱好者，我个人觉得vi就是写代码工具不是IDE所以只用少数几个插件，其中YouCompleteMe是我极力推荐的插件，YouCompleteMe主要是自动补全，还有跳转，类型显示等功能，与之前的基于规则补全插件不同的是YouCompleteMe是基于语义，从安装过程就可以看出来。我用vundle安装和管理插件，YCM的官方安装文档也是推荐vundle，但是我配置好vimrc之后用执行vundle的PlugInstall时发现速度巨慢，其实这个过程本质就是在.vim&#x2F;bundle中执行。</p>
+<h2 id="Vundle的安装与配置"><a href="#Vundle的安装与配置" class="headerlink" title="Vundle的安装与配置"></a>Vundle的安装与配置</h2><p>详细请参考<a target="_blank" rel="noopener" href="https://github.com/VundleVim/Vundle.vim">其github</a></p>
+<ul>
+<li>git clone <a target="_blank" rel="noopener" href="https://github.com/VundleVim/Vundle.vim.git">https://github.com/VundleVim/Vundle.vim.git</a> ~&#x2F;.vim&#x2F;bundle&#x2F;Vundle.vim</li>
+<li>配置vimrc</li>
+<li>打开vim，运行<code>:PluginInstall</code>，或者cmdline执行<code>vim +PluginInstall +qall</code></li>
+</ul>
+<h2 id="YouCompleteMe安装配置"><a href="#YouCompleteMe安装配置" class="headerlink" title="YouCompleteMe安装配置"></a>YouCompleteMe安装配置</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/Valloric/YouCompleteMe.git</span><br></pre></td></tr></table></figure>
+
+<p>之后可以在YouCompleteMe目录中执行</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git submodule update --init --recursive</span><br></pre></td></tr></table></figure>
+
+<p>后面的安装步骤非常简单，</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install build-essential cmake <span class="comment">#Install development tools and CMake</span></span><br><span class="line">sudo apt-get install python-dev python3-dev <span class="comment">#Make sure you have Python headers installed</span></span><br><span class="line">cd ~/.vim/bundle/YouCompleteMe</span><br><span class="line">./install.py --clang-completer <span class="comment">#Compiling YCM with semantic support for C-family languages</span></span><br></pre></td></tr></table></figure>
+
+<p>如果很懒在确认安装build-essential，cmake和python-dev之后，执行下面脚本：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">!/bin/bash</span></span><br><span class="line"></span><br><span class="line">log() &#123;</span><br><span class="line">    echo &quot;$(date +&#x27;%Y-%m-%dT%H:%M:%S%z&#x27;) INFO $0 | $@&quot;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">err() &#123;</span><br><span class="line">    echo &quot;$(date +&#x27;%Y-%m-%dT%H:%M:%S%z&#x27;) ERROR $0 | $@&quot; &gt;&amp;2</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">execute() &#123;</span><br><span class="line">    if (! $@); then</span><br><span class="line">        err &quot;Failt to $@&quot;</span><br><span class="line">        exit 1</span><br><span class="line">    fi</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">log &quot;Start to install YouCompleteMe&quot;</span><br><span class="line"></span><br><span class="line">execute &#x27;cd ~/.vim/bundle/&#x27;</span><br><span class="line">execute &#x27;rm -rf YouCompleteMe&#x27;</span><br><span class="line">execute &#x27;git clone https://github.com/Valloric/YouCompleteMe.git&#x27;</span><br><span class="line">execute &#x27;cd YouCompleteMe&#x27;</span><br><span class="line">execute &#x27;git submodule update --init --recursive&#x27;</span><br><span class="line">execute &#x27;./install.py --clang-completer&#x27;</span><br><span class="line"></span><br><span class="line">log &quot;Success to install YouCompleteMe&quot;</span><br><span class="line"></span><br><span class="line">exit 0</span><br></pre></td></tr></table></figure>
+
+
+<p>我的环境是ubuntu-64bit，详细参考<a target="_blank" rel="noopener" href="https://github.com/Valloric/YouCompleteMe#ubuntu-linux-x64">官方文档</a>。<br>需要注意的是YCM会默认往上级目录查找直到HOME目录去查找一个.ycm_extra_conf.py的文件（可以自己配置），在.vimrc中我指定了使用官方默认的，配置如下，</p>
+<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> <span class="variable">g:ycm_global_ycm_extra_conf</span>=<span class="string">&#x27;/home/macduan/.vim/bundle/YouCompleteMe/third_party/ycmd/cpp/ycm/.ycm_extra_conf.py&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>在具体的项目中，在项目的根目录中放一个.ycm_extra_conf.py，并且加上头文件目录的配置，比如，</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">flags = [</span><br><span class="line"><span class="string">&#x27;-Wall&#x27;</span>,</span><br><span class="line"><span class="string">&#x27;-Wextra&#x27;</span>,</span><br><span class="line"><span class="string">&#x27;-Werror&#x27;</span>,</span><br><span class="line"><span class="string">&#x27;-Wno-long-long&#x27;</span>,</span><br><span class="line"><span class="string">&#x27;-Wno-variadic-macros&#x27;</span>,</span><br><span class="line"><span class="string">&#x27;-fexceptions&#x27;</span>,</span><br><span class="line"><span class="string">&#x27;-DNDEBUG&#x27;</span>,</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"><span class="string">&#x27;-I&#x27;</span>,</span><br><span class="line"><span class="string">&#x27;/home/macduan/work/opensource/brpc/src&#x27;</span>,</span><br><span class="line"><span class="string">&#x27;-I&#x27;</span>,</span><br><span class="line"><span class="string">&#x27;/home/macduan/work/opensource/brpc/src/brpc&#x27;</span>,</span><br><span class="line"><span class="string">&#x27;-I&#x27;</span>,</span><br><span class="line"><span class="string">&#x27;/home/macduan/work/opensource/brpc/src/bthread&#x27;</span>,</span><br><span class="line"><span class="string">&#x27;-I&#x27;</span>,</span><br><span class="line"><span class="string">&#x27;/home/macduan/work/opensource/brpc/src/butil&#x27;</span>,</span><br><span class="line"><span class="string">&#x27;-I&#x27;</span>,</span><br><span class="line"><span class="string">&#x27;/home/macduan/work/opensource/brpc/src/bvar&#x27;</span>,</span><br><span class="line"><span class="string">&#x27;-I&#x27;</span>,</span><br><span class="line"><span class="string">&#x27;/home/macduan/work/opensource/brpc/src/json2pb&#x27;</span>,</span><br><span class="line"><span class="string">&#x27;-I&#x27;</span>,</span><br><span class="line"><span class="string">&#x27;/home/macduan/work/opensource/brpc/src/mcpack2pb&#x27;</span>]</span><br></pre></td></tr></table></figure>
+
+<h2 id="Macduan‘s-vimrc"><a href="#Macduan‘s-vimrc" class="headerlink" title="Macduan‘s vimrc"></a>Macduan‘s vimrc</h2><figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="comment">&quot;</span></span><br><span class="line"><span class="comment">&quot; =&gt; Vundle</span></span><br><span class="line"><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="comment">&quot;</span></span><br><span class="line"><span class="keyword">set</span> nocompatible              <span class="comment">&quot; be iMproved, required</span></span><br><span class="line"><span class="keyword">filetype</span> off                  <span class="comment">&quot; required</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&quot; set the runtime path to include Vundle and initialize</span></span><br><span class="line"><span class="keyword">set</span> rtp+=~/.<span class="keyword">vim</span>/bundle/Vundle.<span class="keyword">vim</span></span><br><span class="line"><span class="keyword">call</span> vundle#begin()</span><br><span class="line"><span class="comment">&quot; alternatively, pass a path where Vundle should install plugins</span></span><br><span class="line"><span class="comment">&quot;call vundle#begin(&#x27;~/some/path/here&#x27;)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&quot; let Vundle manage Vundle, required</span></span><br><span class="line">Plugin <span class="string">&#x27;VundleVim/Vundle.vim&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&quot; The following are examples of different formats supported.</span></span><br><span class="line"><span class="comment">&quot; Keep Plugin commands between vundle#begin/end.</span></span><br><span class="line"><span class="comment">&quot; plugin on GitHub repo</span></span><br><span class="line">Plugin <span class="string">&#x27;tpope/vim-fugitive&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&quot; Powerline</span></span><br><span class="line">Plugin <span class="string">&#x27;Lokaltog/vim-powerline&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&quot; plugin from http://vim-scripts.org/vim/scripts.html</span></span><br><span class="line"><span class="comment">&quot; Plugin &#x27;L9&#x27;</span></span><br><span class="line"><span class="comment">&quot; Git plugin not hosted on GitHub</span></span><br><span class="line">Plugin <span class="string">&#x27;git://git.wincent.com/command-t.git&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&quot; Powerline</span></span><br><span class="line"><span class="comment">&quot; Plugin &#x27;powerline/powerline&#x27;</span></span><br><span class="line">Plugin <span class="string">&#x27;vim-airline/vim-airline&#x27;</span></span><br><span class="line">Plugin <span class="string">&#x27;vim-airline/vim-airline-themes&#x27;</span></span><br><span class="line"></span><br><span class="line">Plugin <span class="string">&#x27;scrooloose/nerdtree&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&quot; color scheme</span></span><br><span class="line">Plugin <span class="string">&#x27;sickill/vim-monokai&#x27;</span></span><br><span class="line">Plugin <span class="string">&#x27;junegunn/seoul256.vim&#x27;</span></span><br><span class="line">Plugin <span class="string">&#x27;tomasr/molokai&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&quot;Cpp hight</span></span><br><span class="line">Plugin <span class="string">&#x27;octol/vim-cpp-enhanced-highlight&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&quot; Doxygen</span></span><br><span class="line">Plugin <span class="string">&#x27;vim-scripts/DoxygenToolkit.vim&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&quot; Taglist</span></span><br><span class="line">Plugin <span class="string">&#x27;vim-scripts/taglist.vim&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&quot; YouCompleteMe</span></span><br><span class="line">Plugin <span class="string">&#x27;Valloric/YouCompleteMe&#x27;</span> <span class="comment">&quot;git clone it from github is rather quicker than this</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&quot; git repos on your local machine (i.e. when working on your own plugin)</span></span><br><span class="line"><span class="comment">&quot; Plugin &#x27;file:///home/gmarik/path/to/plugin&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&quot; Install L9 and avoid a Naming conflict if you&#x27;ve already installed a</span></span><br><span class="line"><span class="comment">&quot; different version somewhere else.</span></span><br><span class="line"><span class="comment">&quot; Plugin &#x27;ascenator/L9&#x27;, &#123;&#x27;name&#x27;: &#x27;newL9&#x27;&#125;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&quot; All of your Plugins must be added before the following line</span></span><br><span class="line"><span class="keyword">call</span> vundle#end()            <span class="comment">&quot; required</span></span><br><span class="line"><span class="keyword">filetype</span> plugin <span class="built_in">indent</span> <span class="keyword">on</span>    <span class="comment">&quot; required</span></span><br><span class="line"><span class="comment">&quot; To ignore plugin indent changes, instead use:</span></span><br><span class="line"><span class="comment">&quot;filetype plugin on</span></span><br><span class="line"><span class="comment">&quot;</span></span><br><span class="line"><span class="comment">&quot; Brief help</span></span><br><span class="line"><span class="comment">&quot; :PluginList       - lists configured plugins</span></span><br><span class="line"><span class="comment">&quot; :PluginInstall    - installs plugins; append `!` to update or just :PluginUpdate</span></span><br><span class="line"><span class="comment">&quot; :PluginSearch foo - searches for foo; append `!` to refresh local cache</span></span><br><span class="line"><span class="comment">&quot; :PluginClean      - confirms removal of unused plugins; append `!` to auto-approve removal</span></span><br><span class="line"><span class="comment">&quot;</span></span><br><span class="line"><span class="comment">&quot; see :h vundle for more details or wiki for FAQ</span></span><br><span class="line"><span class="comment">&quot; Put your non-Plugin stuff after this line</span></span><br><span class="line"></span><br><span class="line"><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="comment">&quot;</span></span><br><span class="line"><span class="comment">&quot;       Basic Configuration</span></span><br><span class="line"><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="comment">&quot;</span></span><br><span class="line"><span class="keyword">set</span> <span class="keyword">history</span>=<span class="number">500</span> <span class="comment">&quot; Sets how many lines of history VIM has to remember</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">syntax</span> <span class="keyword">on</span> <span class="comment">&quot; Enable filetype plugins</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&quot; Colorcolumn</span></span><br><span class="line"><span class="keyword">set</span> <span class="keyword">cc</span>=<span class="number">100</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">hi</span> Search guibg=peru guifg=wheat</span><br><span class="line"></span><br><span class="line"><span class="comment">&quot; Set to auto read when a file is changed from the outside</span></span><br><span class="line"><span class="keyword">set</span> autoread</span><br><span class="line"></span><br><span class="line"><span class="comment">&quot; With a map leader it&#x27;s possible to do extra key combinations</span></span><br><span class="line"><span class="comment">&quot; like &lt;leader&gt;w saves the current file</span></span><br><span class="line"><span class="keyword">let</span> mapleader = <span class="string">&quot;,&quot;</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">g:mapleader</span> = <span class="string">&quot;,&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&quot; Smart way to move between windows</span></span><br><span class="line"><span class="keyword">map</span> <span class="symbol">&lt;C-j&gt;</span> <span class="symbol">&lt;C-W&gt;</span><span class="keyword">j</span></span><br><span class="line"><span class="keyword">map</span> <span class="symbol">&lt;C-k&gt;</span> <span class="symbol">&lt;C-W&gt;</span><span class="keyword">k</span></span><br><span class="line"><span class="keyword">map</span> <span class="symbol">&lt;C-h&gt;</span> <span class="symbol">&lt;C-W&gt;</span>h</span><br><span class="line"><span class="keyword">map</span> <span class="symbol">&lt;C-l&gt;</span> <span class="symbol">&lt;C-W&gt;</span><span class="keyword">l</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&quot; color scheme</span></span><br><span class="line"><span class="keyword">syntax</span> enable</span><br><span class="line"><span class="comment">&quot; colorscheme monokai</span></span><br><span class="line"><span class="comment">&quot; colo seoul256</span></span><br><span class="line"><span class="comment">&quot; let g:seoul256_srgb = 1</span></span><br><span class="line"><span class="keyword">colorscheme</span> molokai</span><br><span class="line"><span class="comment">&quot; let g:rehash256 = 1</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">g:molokai_original</span> = <span class="number">1</span> <span class="comment">&quot; use original monokai</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&quot; these part refer http://harttle.land/2013/11/08/vim-config.html</span></span><br><span class="line"><span class="keyword">set</span> tabstop=<span class="number">4</span>       <span class="comment">&quot; Number of spaces that a &lt;Tab&gt; in the file counts for.</span></span><br><span class="line"> </span><br><span class="line"><span class="keyword">set</span> <span class="built_in">shiftwidth</span>=<span class="number">4</span>    <span class="comment">&quot; Number of spaces to use for each step of (auto)indent.</span></span><br><span class="line"> </span><br><span class="line"><span class="keyword">set</span> expandtab       <span class="comment">&quot; Use the appropriate number of spaces to insert a &lt;Tab&gt;.</span></span><br><span class="line">                    <span class="comment">&quot; Spaces are used in indents with the &#x27;&gt;&#x27; and &#x27;&lt;&#x27; commands</span></span><br><span class="line">                    <span class="comment">&quot; and when &#x27;autoindent&#x27; is on. To insert a real tab when</span></span><br><span class="line">                    <span class="comment">&quot; &#x27;expandtab&#x27; is on, use CTRL-V &lt;Tab&gt;.</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">set</span> softtabstop=<span class="number">4</span></span><br><span class="line"> </span><br><span class="line"><span class="keyword">set</span> smarttab        <span class="comment">&quot; When on, a &lt;Tab&gt; in front of a line inserts blanks</span></span><br><span class="line">                    <span class="comment">&quot; according to &#x27;shiftwidth&#x27;. &#x27;tabstop&#x27; is used in other</span></span><br><span class="line">                    <span class="comment">&quot; places. A &lt;BS&gt; will delete a &#x27;shiftwidth&#x27; worth of space</span></span><br><span class="line">                    <span class="comment">&quot; at the start of the line.</span></span><br><span class="line"> </span><br><span class="line"><span class="keyword">set</span> showcmd         <span class="comment">&quot; Show (partial) command in status line.</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">set</span> <span class="keyword">number</span>          <span class="comment">&quot; Show line numbers.</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">set</span> showmatch       <span class="comment">&quot; When a bracket is inserted, briefly jump to the matching</span></span><br><span class="line">                    <span class="comment">&quot; one. The jump is only done if the match can be seen on the</span></span><br><span class="line">                    <span class="comment">&quot; screen. The time to show the match can be set with</span></span><br><span class="line">                    <span class="comment">&quot; &#x27;matchtime&#x27;.</span></span><br><span class="line"> </span><br><span class="line"><span class="keyword">set</span> hlsearch        <span class="comment">&quot; When there is a previous search pattern, highlight all</span></span><br><span class="line">                    <span class="comment">&quot; its matches.</span></span><br><span class="line"> </span><br><span class="line"><span class="keyword">set</span> incsearch       <span class="comment">&quot; While typing a search command, show immediately where the</span></span><br><span class="line">                    <span class="comment">&quot; so far typed pattern matches.</span></span><br><span class="line"> </span><br><span class="line"><span class="keyword">set</span> ignorecase      <span class="comment">&quot; Ignore case in search patterns.</span></span><br><span class="line"> </span><br><span class="line"><span class="keyword">set</span> smartcase       <span class="comment">&quot; Override the &#x27;ignorecase&#x27; option if the search pattern</span></span><br><span class="line">                    <span class="comment">&quot; contains upper case characters.</span></span><br><span class="line"> </span><br><span class="line"><span class="keyword">set</span> backspace=<span class="number">2</span>     <span class="comment">&quot; Influences the working of &lt;BS&gt;, &lt;Del&gt;, CTRL-W</span></span><br><span class="line">                    <span class="comment">&quot; and CTRL-U in Insert mode. This is a list of items,</span></span><br><span class="line">                    <span class="comment">&quot; separated by commas. Each item allows a way to backspace</span></span><br><span class="line">                    <span class="comment">&quot; over something.</span></span><br><span class="line"> </span><br><span class="line"><span class="keyword">set</span> autoindent      <span class="comment">&quot; Copy indent from current line when starting a new line</span></span><br><span class="line">                    <span class="string">&quot; (typing &lt;CR&gt; in Insert mode or when using the &quot;</span><span class="keyword">o</span><span class="string">&quot; or &quot;</span>O<span class="comment">&quot;</span></span><br><span class="line">                    <span class="comment">&quot; command).</span></span><br><span class="line"> </span><br><span class="line"><span class="keyword">set</span> textwidth=<span class="number">100</span>   <span class="comment">&quot; Maximum width of text that is being inserted. A longer</span></span><br><span class="line">                    <span class="comment">&quot; line will be broken after white space to get this width.</span></span><br><span class="line"> </span><br><span class="line"><span class="keyword">set</span> formatoptions=<span class="keyword">c</span>,q,r,t <span class="comment">&quot; This is a sequence of letters which describes how</span></span><br><span class="line">                    <span class="comment">&quot; automatic formatting is to be done.</span></span><br><span class="line">                    <span class="comment">&quot;</span></span><br><span class="line">                    <span class="comment">&quot; letter    meaning when present in &#x27;formatoptions&#x27;</span></span><br><span class="line">                    <span class="comment">&quot; ------    ---------------------------------------</span></span><br><span class="line">                    <span class="comment">&quot; c         Auto-wrap comments using textwidth, inserting</span></span><br><span class="line">                    <span class="comment">&quot;           the current comment leader automatically.</span></span><br><span class="line">                    <span class="string">&quot; q         Allow formatting of comments with &quot;</span>gq<span class="comment">&quot;.</span></span><br><span class="line">                    <span class="comment">&quot; r         Automatically insert the current comment leader</span></span><br><span class="line">                    <span class="comment">&quot;           after hitting &lt;Enter&gt; in Insert mode. </span></span><br><span class="line">                    <span class="comment">&quot; t         Auto-wrap text using textwidth (does not apply</span></span><br><span class="line">                    <span class="comment">&quot;           to comments)</span></span><br><span class="line"> </span><br><span class="line"><span class="keyword">set</span> ruler           <span class="comment">&quot; Show the line and column number of the cursor position,</span></span><br><span class="line">                    <span class="comment">&quot; separated by a comma.</span></span><br><span class="line"> </span><br><span class="line"><span class="keyword">set</span> background=dark <span class="string">&quot; When set to &quot;</span>dark<span class="comment">&quot;, Vim will try to use colors that look</span></span><br><span class="line">                    <span class="string">&quot; good on a dark background. When set to &quot;</span>light<span class="comment">&quot;, Vim will</span></span><br><span class="line">                    <span class="comment">&quot; try to use colors that look good on a light background.</span></span><br><span class="line">                    <span class="comment">&quot; Any other value is illegal.</span></span><br><span class="line"> </span><br><span class="line"><span class="keyword">set</span> mouse=<span class="keyword">a</span>         <span class="comment">&quot; Enable the use of the mouse.</span></span><br><span class="line"> </span><br><span class="line"><span class="keyword">filetype</span> plugin <span class="built_in">indent</span> <span class="keyword">on</span></span><br><span class="line"><span class="keyword">syntax</span> <span class="keyword">on</span></span><br><span class="line"></span><br><span class="line"><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="comment">&quot; </span></span><br><span class="line"><span class="comment">&quot;       vim-airline/vim-airline</span></span><br><span class="line"><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="comment">&quot; </span></span><br><span class="line"><span class="comment">&quot;</span></span><br><span class="line"><span class="comment">&quot; These lines setup the environment to show graphics and colors correctly.</span></span><br><span class="line"><span class="keyword">set</span> nocompatible</span><br><span class="line"><span class="keyword">set</span> t_Co=<span class="number">256</span></span><br><span class="line"><span class="comment">&quot; Always show the status line</span></span><br><span class="line"><span class="keyword">set</span> laststatus=<span class="number">2</span></span><br><span class="line"><span class="comment">&quot; Format the status line</span></span><br><span class="line"><span class="comment">&quot; set statusline=%F%m%r%h\ %w\ \ CWD:\ %r%&#123;getcwd()&#125;%h\ \ \ Line:\ %l\ \ Column:\ %c</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">g:airline</span>#extensions#tabline#enabled = <span class="number">1</span></span><br><span class="line"><span class="comment">&quot; let g:airline#extensions#tabline#left_sep = &#x27; &#x27;</span></span><br><span class="line"><span class="comment">&quot; let g:airline#extensions#tabline#left_alt_sep = &#x27;&gt;&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> <span class="variable">g:cpp_class_scope_highlight</span> = <span class="number">1</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">g:cpp_member_variable_highlight</span> = <span class="number">1</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">g:cpp_class_decl_highlight</span> = <span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&quot; NERDTree</span></span><br><span class="line"><span class="keyword">map</span> <span class="symbol">&lt;C-n&gt;</span> :NERDTreeToggle<span class="symbol">&lt;CR&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="comment">&quot;</span></span><br><span class="line"><span class="comment">&quot;       doxygen</span></span><br><span class="line"><span class="comment">&quot; Dox DoxAuthor DoxLic DoxUndoc</span></span><br><span class="line"><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="string">&quot;&quot;</span><span class="comment">&quot;</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">g:DoxygenToolkit_briefTag_pre</span>=<span class="string">&quot;@brief&quot;</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">g:DoxygenToolkit_paramTag_pre</span>=<span class="string">&quot;@Param &quot;</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">g:DoxygenToolkit_returnTag</span>=<span class="string">&quot;@Returns   &quot;</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">g:DoxygenToolkit_authorName</span>=<span class="string">&quot;duanmeng@outlook.com&quot;</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">g:DoxygenToolkit_licenseTag</span>=<span class="string">&quot;@License I don&#x27;t care&quot;</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">g:DoxygenToolkit_commentType</span> = <span class="string">&quot;C++&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> <span class="variable">g:ycm_global_ycm_extra_conf</span>=<span class="string">&#x27;/home/macduan/.vim/bundle/YouCompleteMe/third_party/ycmd/cpp/ycm/.ycm_extra_conf.py&#x27;</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">g:ycm_collect_identifiers_from_tag_files</span>=<span class="number">1</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">g:ycm_seed_identifiers_with_syntax</span>=<span class="number">1</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">g:ycm_confirm_extra_conf</span>=<span class="number">0</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">g:ycm_key_invoke_completion</span>=<span class="string">&#x27;&lt;C-/&gt;&#x27;</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">g:ycm_goto_buffer_command</span>=<span class="string">&#x27;new-or-existing-tab&#x27;</span> <span class="comment">&quot;open new tabe when jump to definition</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">g:ycm_autoclose_preview_window_after_completion</span>=<span class="number">1</span> <span class="comment">&quot; auto-close preview window after select a completion string</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">g:ycm_autoclose_preview_window_after_insertion</span>=<span class="number">1</span> <span class="comment">&quot; close preview window after leaving insert mode</span></span><br><span class="line"><span class="keyword">nnoremap</span> <span class="symbol">&lt;leader&gt;</span>jd :YcmCompleter GoToDefinitionElseDeclaration<span class="symbol">&lt;CR&gt;</span></span><br><span class="line"><span class="keyword">nnoremap</span> <span class="symbol">&lt;leader&gt;</span>jdf :YcmCompleter GoToDefinition<span class="symbol">&lt;CR&gt;</span></span><br><span class="line"><span class="keyword">nnoremap</span> <span class="symbol">&lt;leader&gt;</span>jdc :YcmCompleter GoToDeclaration<span class="symbol">&lt;CR&gt;</span></span><br><span class="line"><span class="keyword">nnoremap</span> <span class="symbol">&lt;leader&gt;</span><span class="keyword">st</span> :YcmCompleter GetType<span class="symbol">&lt;CR&gt;</span></span><br><span class="line"><span class="keyword">nnoremap</span> <span class="symbol">&lt;F5&gt;</span> :YcmForceCompileAndDiagnostics<span class="symbol">&lt;CR&gt;</span></span><br></pre></td></tr></table></figure>
+
+  </div>
+</article>
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/categories/technology">Technology</a></li>
+         
+          <li><a href="/categories/life">Life</a></li>
+         
+          <li><a href="/archives/">Archives</a></li>
+         
+          <li><a href="/tags/">Tags</a></li>
+         
+          <li><a href="/about">About</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Vundle%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E9%85%8D%E7%BD%AE"><span class="toc-number">1.</span> <span class="toc-text">Vundle的安装与配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#YouCompleteMe%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AE"><span class="toc-number">2.</span> <span class="toc-text">YouCompleteMe安装配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Macduan%E2%80%98s-vimrc"><span class="toc-number">3.</span> <span class="toc-text">Macduan‘s vimrc</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2018/04/14/macduan-vim-cfg/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2018/04/14/macduan-vim-cfg/&text=Macduan&#39;s Vim的vimrc与YouCompleteMe配置"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2018/04/14/macduan-vim-cfg/&title=Macduan&#39;s Vim的vimrc与YouCompleteMe配置"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2018/04/14/macduan-vim-cfg/&is_video=false&description=Macduan&#39;s Vim的vimrc与YouCompleteMe配置"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Macduan&#39;s Vim的vimrc与YouCompleteMe配置&body=Check out this article: http://example.com/2018/04/14/macduan-vim-cfg/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2018/04/14/macduan-vim-cfg/&title=Macduan&#39;s Vim的vimrc与YouCompleteMe配置"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2018/04/14/macduan-vim-cfg/&title=Macduan&#39;s Vim的vimrc与YouCompleteMe配置"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2018/04/14/macduan-vim-cfg/&title=Macduan&#39;s Vim的vimrc与YouCompleteMe配置"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2018/04/14/macduan-vim-cfg/&title=Macduan&#39;s Vim的vimrc与YouCompleteMe配置"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2018/04/14/macduan-vim-cfg/&name=Macduan&#39;s Vim的vimrc与YouCompleteMe配置&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2018/04/14/macduan-vim-cfg/&t=Macduan&#39;s Vim的vimrc与YouCompleteMe配置"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2023
+    duanmeng
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/categories/technology">Technology</a></li><!--
+     --><!--
+       --><li><a href="/categories/life">Life</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Archives</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tags</a></li><!--
+     --><!--
+       --><li><a href="/about">About</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+
+  <script src='https://unpkg.com/mermaid@9.0.0/dist/mermaid.min.js'></script>
+  <script>
+    if (window.mermaid) {
+      mermaid.initialize({theme: 'forest'});
+    }
+  </script>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
