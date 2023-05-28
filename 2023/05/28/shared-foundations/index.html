@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="What Is Shared FoundationsShared Foundations（共享基础设施）是Meta的一个跨组织的工程，涉及数十个工程团队，推广基于可重用组件、整合引擎、通用API和一致标准原则的组合方法。通过整合计算引擎、汇聚存储库和元数据，以及统一SQL方言和执行引擎，创造了一个更现代化的数据架构；从而提供更好性能、更丰富功能、更高工程速度和更一致用户体验的架构。最终，这使得Me">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Shared Foundations: Modernizing Meta’s Data Lakehouse">
+<meta property="og:url" content="http://example.com/2023/05/28/shared-foundations/index.html">
+<meta property="og:site_name" content="Macduan Notes">
+<meta property="og:description" content="What Is Shared FoundationsShared Foundations（共享基础设施）是Meta的一个跨组织的工程，涉及数十个工程团队，推广基于可重用组件、整合引擎、通用API和一致标准原则的组合方法。通过整合计算引擎、汇聚存储库和元数据，以及统一SQL方言和执行引擎，创造了一个更现代化的数据架构；从而提供更好性能、更丰富功能、更高工程速度和更一致用户体验的架构。最终，这使得Me">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://live.staticflickr.com/65535/52930682527_f7f04274f8_c.jpg">
+<meta property="article:published_time" content="2023-05-28T07:31:28.000Z">
+<meta property="article:modified_time" content="2023-05-28T13:50:06.301Z">
+<meta property="article:author" content="duanmeng">
+<meta property="article:tag" content="data">
+<meta property="article:tag" content="paper">
+<meta property="article:tag" content="vectorized">
+<meta property="article:tag" content="DataWarehouse">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://live.staticflickr.com/65535/52930682527_f7f04274f8_c.jpg">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Shared Foundations: Modernizing Meta’s Data Lakehouse</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/categories/technology">Technology</a></li><!--
+     --><!--
+       --><li><a href="/categories/life">Life</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Archives</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tags</a></li><!--
+     --><!--
+       --><li><a href="/about">About</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2023/03/05/analyzing-compare-lakehouse/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/05/28/shared-foundations/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/05/28/shared-foundations/&text=Shared Foundations: Modernizing Meta’s Data Lakehouse"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/05/28/shared-foundations/&title=Shared Foundations: Modernizing Meta’s Data Lakehouse"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/05/28/shared-foundations/&is_video=false&description=Shared Foundations: Modernizing Meta’s Data Lakehouse"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Shared Foundations: Modernizing Meta’s Data Lakehouse&body=Check out this article: http://example.com/2023/05/28/shared-foundations/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/05/28/shared-foundations/&title=Shared Foundations: Modernizing Meta’s Data Lakehouse"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/05/28/shared-foundations/&title=Shared Foundations: Modernizing Meta’s Data Lakehouse"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/05/28/shared-foundations/&title=Shared Foundations: Modernizing Meta’s Data Lakehouse"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/05/28/shared-foundations/&title=Shared Foundations: Modernizing Meta’s Data Lakehouse"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/05/28/shared-foundations/&name=Shared Foundations: Modernizing Meta’s Data Lakehouse&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/05/28/shared-foundations/&t=Shared Foundations: Modernizing Meta’s Data Lakehouse"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#What-Is-Shared-Foundations"><span class="toc-number">1.</span> <span class="toc-text">What Is Shared Foundations</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Why-Shared-Foundations"><span class="toc-number">2.</span> <span class="toc-text">Why Shared Foundations</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%9A%E7%95%8C%E8%B6%8B%E5%8A%BF"><span class="toc-number">2.1.</span> <span class="toc-text">业界趋势</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Meta%E7%8E%B0%E7%8A%B6"><span class="toc-number">2.2.</span> <span class="toc-text">Meta现状</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#How-Shared-Foundations"><span class="toc-number">3.</span> <span class="toc-text">How Shared Foundations</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Compute-Engine-Convergence"><span class="toc-number">3.1.</span> <span class="toc-text">Compute Engine Convergence</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%A4%E4%BA%92%E5%BC%8F%E5%BC%95%E6%93%8E%E8%9E%8D%E5%90%88"><span class="toc-number">3.1.1.</span> <span class="toc-text">交互式引擎融合</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%89%B9%E5%A4%84%E7%90%86%E5%BC%95%E6%93%8E%E8%9E%8D%E5%90%88"><span class="toc-number">3.1.2.</span> <span class="toc-text">批处理引擎融合</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B5%81%E5%A4%84%E7%90%86%E5%BC%95%E6%93%8E%E8%9E%8D%E5%90%88"><span class="toc-number">3.1.3.</span> <span class="toc-text">流处理引擎融合</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SQL-Dialect-Convergence"><span class="toc-number">3.2.</span> <span class="toc-text">SQL Dialect Convergence</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Storage-Convergence"><span class="toc-number">3.3.</span> <span class="toc-text">Storage Convergence</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#ORC%E7%9A%84%E7%BC%96%E8%A7%A3%E7%A0%81%E6%94%B6%E6%95%9B"><span class="toc-number">3.3.1.</span> <span class="toc-text">ORC的编解码收敛</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%96%B0%E7%9A%84ML%E4%BC%98%E5%8C%96%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F%E3%80%82"><span class="toc-number">3.3.2.</span> <span class="toc-text">新的ML优化文件格式。</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Execution-Engine-Convergence"><span class="toc-number">3.4.</span> <span class="toc-text">Execution Engine Convergence</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B1%95%E6%9C%9B"><span class="toc-number">4.</span> <span class="toc-text">展望</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Shared Foundations: Modernizing Meta’s Data Lakehouse
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">duanmeng</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-05-28T07:31:28.000Z" itemprop="datePublished">2023-05-28</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/technology/">technology</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/DataWarehouse/" rel="tag">DataWarehouse</a>, <a class="tag-link-link" href="/tags/data/" rel="tag">data</a>, <a class="tag-link-link" href="/tags/paper/" rel="tag">paper</a>, <a class="tag-link-link" href="/tags/vectorized/" rel="tag">vectorized</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="What-Is-Shared-Foundations"><a href="#What-Is-Shared-Foundations" class="headerlink" title="What Is Shared Foundations"></a>What Is Shared Foundations</h2><p><strong>Shared Foundations</strong>（共享基础设施）是Meta的一个跨组织的工程，涉及数十个工程团队，推广基于可重用组件、整合引擎、通用<strong>API</strong>和一致标准原则的组合方法。通过整合计算引擎、汇聚存储库和元数据，以及统一SQL方言和执行引擎，创造了一个更现代化的数据架构；从而提供更好性能、更丰富功能、更高工程速度和更一致用户体验的架构。最终，这使得Meta的数据湖仓库技术栈更能适应当前和未来的趋势，促进了更快的创新。</p>
+<h2 id="Why-Shared-Foundations"><a href="#Why-Shared-Foundations" class="headerlink" title="Why Shared Foundations"></a>Why Shared Foundations</h2><h3 id="业界趋势"><a href="#业界趋势" class="headerlink" title="业界趋势"></a>业界趋势</h3><p>在过去的十年里，大规模数据湖仓库的需求发生了演变。除了由新产品、日益复杂的需求和纯粹的有机增长推动的指数级数据增长外，对更新鲜数据和更快查询的需求也在增加，这对降低洞察时间至关重要。数据模型变得更加复杂，导致大多数表包含诸如structs、maps和arrays等<strong>复杂数据类型</strong>。与此同时，查询复杂性也在增长；越来越常见的是具有大量阶段、迭代图查询、时间序列分析和复杂业务逻辑的查询，尤其是在数据管道中。</p>
+<p>硬件和软件的其他趋势也影响了现代数据湖仓库的架构，如利用SIMD指令、GPU和其他与软件协同优化的专用硬件进行本地代码优化。随着网络速度更快和存储单元更大，存储计算分离变得普遍，成为现代数据仓库的首选架构。最后，机器学习工作负载的最近出现引发了一系列新的趋势，包括数据量、复杂性和不寻常的访问模式。</p>
+<h3 id="Meta现状"><a href="#Meta现状" class="headerlink" title="Meta现状"></a>Meta现状</h3><p>Meta的数仓是基于Hive构建的，它的几个设计原则至今仍然大部分适用：</p>
+<ul>
+<li>数据，元数据和计算分离，允许独立扩缩容。</li>
+<li>数据存储在HDFS，现在是Meta的下一代分布式文件系统<a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2108.09373.pdf">Tectonic</a>中，可以独立于计算横向扩容。</li>
+<li>元数据存储在MySQL中，Hive Metastore提供分区机制以优化数据组织，并增加了对分片MySQL的存储支持。传统上，分片是基于每个命名空间进行的。</li>
+<li>数据格式是列式的。原始的列式格式RCFile被改进为ORC，如多种编码、NULL支持、灵活的压缩级别以及对arrays和maps等复杂类型的支持，现在使用ORC的内部变体DWRF，它具有更好地支持大型map和加密等附加功能。</li>
+<li>由于计算和存储是分离的，多个引擎可以在Hive仓库上运行，如Spark（取代了原始的Hive引擎）、Presto等。</li>
+</ul>
+<p>但是Meta的基于Hive的数仓架构也有其限制：</p>
+<ul>
+<li>没有流处理的支持。这导致了多年来建立了各种流处理系统，尤其是Puma，这些系统通常与Hive集成得不太好。</li>
+<li>Hive不支持实时数据摄入。这导致了像Scuba [1]这样的系统的出现，它最初是为了大规模日志分析而构建的，因此缺乏对准确结果或复杂查询的支持，被用于分析。Scuba用C++编写，有自己的SQL方言，并使用自己的文件格式和本地存储，而不是Hive。</li>
+<li>编程语言的分歧。大部分DI技术栈（Hive、运行在其上的引擎、Puma等）都是用Java编写的；然而，Meta的大部分使用C++，例如机器学习系统、Tectonic、RocksDB等。Java在Meta内部也不是主要支持的语言。这导致了新引擎如Scuba和Cubrick [20]需要用C++重建许多核心组件，如执行原语（例如函数和操作符）、用于读写ORC等数据格式的编解码器，甚至开发自己的文件格式。可重用组件和编程语言收敛的缺乏导致了重复实现和增加了维护负担。</li>
+<li>查询延迟高。Hive引擎对于交互式分析来说太慢了。这导致了多个新引擎如Presto、Scuba、Raptor和Cubrick试图解决交互式分析领域的问题。有些是用Java编写的，有些是用C++编写的，导致了碎片化。此外，即使是用相同语言编写的引擎（例如Scuba和Cubrick，或Presto和Spark），也由于各种历史原因而没有共享任何代码或组件。一个特别典型的例子是，Spark和Presto都读写存储在Hive上的相同ORC格式，但使用完全不同的库与文件系统和元数据存储进行交互，编码和解码ORC文件，甚至解压缩数据！类似的模式也出现在流处理和批处理领域。</li>
+<li>I&#x2F;O使用效率低。Hive数据传统上存储在HDFS（后来是Tectonic）存储节点的硬盘中。从硬盘上通过网络获取数据对于许多交互式分析场景来说太慢了。因此，许多交互式引擎（Raptor、Cubrick、Scuba）都设计为计算和存储共同定位，数据需要预先加载到本地SSD或内存中进行查询。这导致了进一步的存储碎片化和数据重复，以及资源闲置。</li>
+</ul>
+<blockquote>
+<p>Meta的数据技术栈在过去的十年里只是逐步演变。这导致了一个难以维护和发展的碎片化技术栈，由近十种SQL方言、针对类似工作负载的多个引擎（每个引擎都有自己的特点）以及不同位置和格式的相同数据的多个副本组成。缺乏标准化和可重用组件不仅增加了工程团队的操作负担，而且最终减缓了创新的速度。这也影响了Meta的用户，他们不得不与暴露不同SQL方言、不一致语义并呈现次优性能的引擎进行交互。</p>
+</blockquote>
+<h2 id="How-Shared-Foundations"><a href="#How-Shared-Foundations" class="headerlink" title="How Shared Foundations"></a>How Shared Foundations</h2><p><strong>Shared Foundations</strong>基于如下核心设计原则：</p>
+<ul>
+<li><strong>更少的系统</strong>，比如，交互式、批处理、流处理和机器学习领域应该只需要存在一个单一的计算引擎，提供比合并前的碎片化系统更多的功能。在此过程中，还应删除任何剩余数据或重复的管道。</li>
+<li><strong>共享组件</strong>，为了避免一刀切的问题，如果用例和需求确实不同（例如，批处理和交互式查询处理），仍可以提供不同的计算引擎。对于这些情况，可以更关注可组合性以及在不同层之间尽可能多地重用组件。例如，交互式和批处理引擎的存储编码或格式没有理由不同。</li>
+<li><strong>一致的APIs</strong>，用户通常需要与不同的引擎互动以完成工作。如果引擎公开一致的API，可以降低用户的学习曲线，使他们更加高效。同样，一致的API使组件集成更容易，从而促进模块化和可重用性。</li>
+</ul>
+<p>这些原则的优势有三个方面：</p>
+<ul>
+<li><strong>工程效率</strong>，更多的工程师可以在这些（较少数量）系统和组件上工作，防止我们重新发明轮子，将领域特定知识巩固在更少的专业团队中，更加高效，行动更快。</li>
+<li><strong>更快的创新</strong>， 维护更少的系统可以减少运营负担，并允许工程团队专注于新功能、优化和其他改进，有利于创新。</li>
+<li><strong>更好的用户体验</strong>，用户现在可以期望在这些系统之间具有一致的语法、语义和功能，减少他们的学习曲线并提高生产力。</li>
+</ul>
+<p>Shared Foundations的工作主要集中在几个主要的融合领域，即：计算引擎（交互式，批处理，流处理），SQL方言，存储（存储格式，元数据）、和执行引擎（Execution Engine）。下图说明了层与范围、挑战、期望的最终状态和项目之间的映射。</p>
+<p><a><img src="https://live.staticflickr.com/65535/52930682527_f7f04274f8_c.jpg" width="800" height="462" alt="shared-foundations"/></a></p>
+<h3 id="Compute-Engine-Convergence"><a href="#Compute-Engine-Convergence" class="headerlink" title="Compute Engine Convergence"></a>Compute Engine Convergence</h3><p>Compute Engine Convergence包含三个方面的工作，交互式，批处理，流处理引擎的统一。</p>
+<h4 id="交互式引擎融合"><a href="#交互式引擎融合" class="headerlink" title="交互式引擎融合"></a>交互式引擎融合</h4><p>对于交互式引擎融合引擎应该</p>
+<ul>
+<li>提供完整的SQL支持，包括复杂的查询和数据模型</li>
+<li>能够直接在湖仓库数据上运行，无需额外的副本</li>
+<li>提供低查询延迟，通过将大部分数据存储在内存或本地SSD中来实现</li>
+<li>支持实时数据。</li>
+</ul>
+<p>交互式引擎融合工作是基于Presto的，因为该系统提供了上述大部分属性，通过<a target="_blank" rel="noopener" href="https://prestodb.io/blog/2021/02/04/raptorx">亲和性和本地缓存</a>缩小了Presto和其他现有系统之间的性能差距。通过引入智能分层缓存，从而将最常用的数据和元数据保存在工作节点和协调器的本地内存和SSD中，我们实现了大部分常见查询模式的一个数量级的加速。这种加速达到或超过了现有系统在较少硬件上的性能。</p>
+<p><strong>Near Real Time Data</strong></p>
+<p>存储的另一个重要方面，尤其是对于交互式分析用例，是近实时数据的可用性。虽然实时摄入是大多数数据湖仓库（如BigQuery、Databricks和 Snowflake）的常见功能，但由于某些交互式分析引擎中缺乏离散存储和 Metastore 中必要的功能，Meta数据湖仓库仅限于批量数据。随着Presto支持直接在Hive 数据上进行交互式查询，将实时数据导入湖仓库后便可以进行查询。</p>
+<p>FBETL（Meta的摄入系统）已经支持日志数据的连续摄取。然而，查询引擎无法访问这些数据，因为只有在该分区的所有数据可用时，分区才会注册到Metastore 中，这往往是基于小时或每日边界。为了解决这个问题，在Metastore中引入了一个额外的分区状态（“open”），并在数据开始到达时立即注册分区。Presto现在能够在数据降落后立即查询数据，用于临时分析和仪表板，尽管批处理管道继续依赖“closed”分区信号，以确保它们始终在完整数据集上运行。这种设计允许相同的数据集被实时查询和批处理管道消费，避免了繁琐的迁移。最后，我们还加强了摄取提交协议，以确保实时数据的精确一次交付。</p>
+<p>接近实时摄取功能已经在湖仓库的许多数据集中启用，从记录到可查询，数据新鲜度在几分钟内。元数据改进：Presto 元数据演变的一个重要方面是关于性能和提高元数据的可缓存性。Hive Metastore已经利用 memcache来减少 MySQL 访问的延迟，但在更新事件中放宽一致性保证的情况下，客户端无法缓存此元数据。我们重建了元数据层和 API，为每个在更新事件中发生变化的元数据引入了版本概念。Presto利用这个版本信息引入了元数据缓存，大大提高了重复查询的元数据延迟。</p>
+<blockquote>
+<p>注：这里Near Real Time Data的元数据优化感觉是一个残次实现的类似Iceberg，Delta Lake，比如元数据version不就是Iceberg的Snapshot嘛</p>
+</blockquote>
+<h4 id="批处理引擎融合"><a href="#批处理引擎融合" class="headerlink" title="批处理引擎融合"></a>批处理引擎融合</h4><p>Meta面临的情况是，有两个引擎（Presto，Spark），两种不同&#x2F;不兼容的方言，没有一个引擎具备运行所有工作负载所需的功能集，</p>
+<ul>
+<li>Presto的流式架构在机器故障方面的恢复能力不足，大部分较大、运行时间较长的管道都倾向于使用Spark，因为它具有更好的恢复特性，包括更具可扩展性的<a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=O3z9jDsfnf4">shuffle实现</a>。</li>
+<li>更进一步复杂化的是，由于Spark和Presto具有不同的资源模型，机器之间没有互换性，必须为Presto和Spark分别提供批处理能力。</li>
+</ul>
+<p><a target="_blank" rel="noopener" href="https://prestodb.io/blog/2021/10/26/Scaling-with-Presto-on-Spark">Presto on Spark</a>项目通过重构Presto前端（解析器、分析器、优化器、规划器）和后端（表达式计算，算子和I&#x2F;O）库，并将它们分别嵌入到Spark驱动程序和工作节点中来实现这一点。通过在前端和后端运行完全相同的代码，Presto on Spark保证了与PrestoSQL 100%的兼容性，使用户可以在交互式、即席查询和批处理用例之间无缝切换，无需重写查询。同时，由于它运行在Spark RDD运行时上，并使用Meta的可扩展Cosco shuffle基础设施，Spark的可扩展性和恢复能力得到了充分利用（尤其是细粒度任务重试），使Presto on Spark能够使用与Spark相同的资源池运行大规模和长时间运行的管道。Presto on Spark的一个令人惊讶的附带好处是延迟优势；事实证明，许多管道实际上可以在Presto on Spark上运行得更快，<strong>主要原因是Presto on Spark能够为给定查询分配更多的shuffle分区</strong>。</p>
+<blockquote>
+<p>注：MPP的Push-based Pipeline模型在容错方面与Spark这种Stage-By-Stage的Pull-based的volcano模型比有天然的劣势，但是我对Presto On Spark的前景不看好。</p>
+</blockquote>
+<h4 id="流处理引擎融合"><a href="#流处理引擎融合" class="headerlink" title="流处理引擎融合"></a>流处理引擎融合</h4><p>Meta的流处理也因多种原因逐步演变，导致了一个<a target="_blank" rel="noopener" href="https://research.facebook.com/publications/realtime-data-processing-at-facebook/">碎片化的生态系统</a>，主要的两个主题是编程语言（C++ vs. Java vs. PHP）和抽象级别（低级过程式 vs. 高级类SQL声明式API）。传统的数据湖仓库栈由多个流处理引擎组成：Puma（Java，声明式），Stylus（C++，低级别），以及其他具有不同抽象级别（声明式，过程式）和实现语言（C++，Java，PHP）的组合。</p>
+<p>这种碎片化导致了多个挑战。对于终端用户，他们需要处理不一致的语言设计和实现细节，例如，一些解决方案是在至少一次语义下运行的，而另一些是在至多一次语义下运行的。对于开发人员，维护多个栈的负担很重，而且像数据管理（eg，lineage, schematization,<br>and privacy enforcement）这样的新功能需要多次实现。为了摆脱现有的技术债务，并继续支持实时机器学习等新兴需求，Meta构建了下一代流处理平台，称为<a target="_blank" rel="noopener" href="https://www.slideshare.net/aniketmokashi/xstream-stream-processing-platform-at-facebook">XStream</a>。</p>
+<p>在开发XStream的过程中，一开始的设计是提供一个基于Dataframe的声明式语言，底层使用生成的C++代码进行表达式求值，并将预定义的模板代码粘合以执行诸如连接和窗口聚合等常见转换。虽然Dataframe语言具有很高的表现力，但对于终端用户来说，学习曲线并不平缓，而且SQL支持一直在不断要求。用C++模板编译生成的代码耗时，而且编译错误很难让用户理解。因此，决定与CoreSQL集成，添加流处理扩展，并将SQL作为主要的语言体验。另一方面，用基于<a href="/2022/12/03/velox-depp-intro/">Velox</a>解释执行替换了代码生成，这不仅能够利用一个统一的库进行执行，还提供了性能优势。如今，XStream支持从SQL、机器学习、函数即服务和低级系统协调等多种用例。它使我们能够弃用Puma，从而消除另一种SQL方言（PQL）。</p>
+<h3 id="SQL-Dialect-Convergence"><a href="#SQL-Dialect-Convergence" class="headerlink" title="SQL Dialect Convergence"></a>SQL Dialect Convergence</h3><p>Meta有6种SQL方言正在被积极使用：Presto SQL、HiveQL（在 Spark 中）、PQL（Puma）、Scuba SQL、Cubrick SQL和MySQL。这给用户带来了非常陡峭的学习曲线，并且在为各种方言添加功能时浪费了大量的工程师精力，最后融合为两种MySQL和Presto SQL：</p>
+<ul>
+<li>MySQL是唯一用于OLTP应用程序的方言，在Meta中无处不在，因此放弃它是不切实际的。然而，它在类型系统和可扩展性方面存在局限性，使其不适合分析应用程序。</li>
+<li>在分析方言中，Presto的SQL方言是一个更好的选择，因为它已经广泛采用，具有干净的标准兼容设计，并支持复杂类型、丰富功能和可扩展性。我们将其用于所有分析应用程序，扩展用于流式处理、图形和其他用例，并在Meta内部将其命名为CoreSQL。</li>
+</ul>
+<p>然而，难点在于如何在不同的引擎之间实现兼容性（谷歌已经通过 ZetaSQL 实现了这一点），从高层次来看，需要两个组件：</p>
+<ol>
+<li>一个SQL解析器和分析器（前端），负责解析和分析查询，以及创建和验证查询计划。对于这个，我们已经有了一个Java实现（Presto）和一个Python 实现（用于开发者工具）。Meta决定将Python实现重写为 C++，以获得更好的性能和与C++引擎的更好集成。目前正在进行的工作是将其进一步简化为一个带有Java 绑定的单一 C++ 库。</li>
+<li>一个函数和操作符库（后端），提供语言的规范实现。同样，已经有了来自 Presto的Java 实现，还开始了一个雄心勃勃的努力，从头开始用C++重写执行引擎作为一个库（<a href="/2022/12/03/velox-depp-intro/">Velox</a>），以获得最大的性能和跨引擎的可移植性。<br>通过将前端和后端作为库提供，引擎采用CoreSQL作为跨引擎的标准方言变得更容易，新的整合引擎用于交互式分析、批处理（Presto on Spark）和流式处理（XStream）都支持CoreSQL作为唯一的SQL方言。</li>
+</ol>
+<h3 id="Storage-Convergence"><a href="#Storage-Convergence" class="headerlink" title="Storage Convergence"></a>Storage Convergence</h3><h4 id="ORC的编解码收敛"><a href="#ORC的编解码收敛" class="headerlink" title="ORC的编解码收敛"></a>ORC的编解码收敛</h4><p>Meta传统上使用ORC作为湖仓库的列式格式，内部的ORC变体，名为DWRF，具有更多的功能，如更好地支持大型映射和更细粒度的加密。在Meta内部使用此格式的计算引擎的有机增长导致了编解码器库的碎片化空间。这些编解码器的两个Java实现存在，一个用于Spark和DiGraph，一个用于Presto，还有一个名为DWIO的C++实现，主要用于ML应用程序。尽管这三个库遵循DWRF标准，但它们各自都有局限性。</p>
+<ul>
+<li>首先，将Java编解码器合并为一个，使用Presto编解码器作为基础，因为它的性能更高，而且已经开源，然后逐步将任何缺失的功能合并到其中。然后，我们将Spark、DiGraph和其他系统切换到新的编解码器。</li>
+<li>其次，将DWIO库重构为<a href="/2022/12/03/velox-depp-intro/">Velox</a>，并添加了所有进入Java的功能和优化。这现在作为Velox的一部分在开源中提供。</li>
+</ul>
+<h4 id="新的ML优化文件格式。"><a href="#新的ML优化文件格式。" class="headerlink" title="新的ML优化文件格式。"></a>新的ML优化文件格式。</h4><p>将分析和ML表一起存储在数据湖仓库中在管理和集成方面是有益的（例如，可以使用标准的分析查询引擎（如Presto和Spark）分析和处理ML表），但它也带来了一些独特的挑战。例如，ML表的增长速度越来越快，比分析表多一个数量级。ML表通常也更宽，往往有数万个特征，通常存储为大型映射。DWRF格式最紧迫的问题是元数据开销；我们的ML用例需要大量的特征（通常存储为巨大的映射），而DWRF映射格式，尽管经过优化，但元数据开销太大。除此之外，DWRF还有其他与编码和条纹结构相关的限制，这些限制在向后兼容的方式下非常难以修复。因此决定构建一个新的列式文件格式，以满足下一代数据堆栈的需求；具体来说，从一开始就针对ML用例，但不牺牲任何分析需求，即<strong>Alpha</strong>的新格式。</p>
+<p>Alpha具有几个显著特点，使其特别适用于混合分析和机器学习训练用例。它具有一种自定义的元数据序列化格式，解码速度明显更快，尤其是对于非常宽的表格和深度映射，此外还采用了更现代的压缩算法。它还提供了更丰富的编码集和一种自适应编码算法，可以根据历史数据模式智能地选择最佳编码，通过编码历史回环数据库。对于许多常见数据类型，Alpha每列需要的流数量较少，使得读取合并更容易，节省I&#x2F;O，尤其是对于HDD。Alpha是用现代C++从头开始编写的，可以方便地在未来进行扩展。Alpha已经在生产环境中部署，用于几个重要的机器学习训练应用，并在解码方面表现出比ORC高2-3倍的性能，同时具有可比的编码性能和文件大小。</p>
+<h3 id="Execution-Engine-Convergence"><a href="#Execution-Engine-Convergence" class="headerlink" title="Execution Engine Convergence"></a>Execution Engine Convergence</h3><p>Meta数据湖仓库的有机演变为执行引擎创造了一个碎片化的生态系统。这导致了几十个专门的实现，它们之间几乎没有共享，用不同的编程语言编写，由不同的工程团队维护，并且在很大程度上向用户提供不一致的语义。例如，一项非正式的内部调查发现，至少有12个不同的简单字符串操作函数substr()的实现，它们呈现出不同的参数语义（基于0或基于1的索引）、空值处理和异常行为。</p>
+<p>为了解决这些挑战，创建了<a href="/2022/12/03/velox-depp-intro/">Velox</a>，一种新颖的最先进的C++数据库加速库，提供高性能数据处理组件，旨在统一不同计算引擎之间的执行引擎。在常见的使用场景中，Velox将完全优化的查询计划作为输入，并使用本地主机中可用的资源执行所描述的计算。Velox将以前仅在单个引擎中找到的优化民主化，提供了一个可以实现跨引擎一致语义的框架。这减少了工作重复，促进了可重用性，并提高了整体效率和一致性。Velox正在积极开发中，但它已经在Meta的十几个数据系统中处于不同阶段的集成，包括Presto、Presto on Spark、XStream、FBETL（我们将数据摄取到仓库的系统）、Scribe 以及其他内部 ML 系统，用于特征工程和数据预处理，甚至还有事务系统。</p>
+<h2 id="展望"><a href="#展望" class="headerlink" title="展望"></a>展望</h2><p>虽然上述部分中的许多工作已经投入生产，但要充分利用基于共享基础设施的新型现代化架构的优势，仍然需要大量工作。一个正在进行的调查领域是为用户自定义函数提供统一支持，因为跨引擎的UDF支持API存在很大的不兼容性，并提供不一致的用户体验。为了扩展 SQL 的语言整合工作，还在探讨其他非SQL API（如数据框接口和其他 DSL，如TorchArrow、Spark Dataset API 和 Pandas）是否可以统一，因为随着ML和数据科学的普及，它们变得越来越普遍。</p>
+<p>组件化和可组合性是数据管理的未来。在技术栈的更深层次，已经开始研究查询优化器是否可以整合。虽然现有技术表明优化器与引擎的运行时和物理能力紧密相连，它们至少可以共享一个底层框架。Apache Calcite和Orca等项目为我们提供了先例，但这些组件可以整合的程度仍然是一个悬而未决的问题。最后，随着Velox 成为Meta内外执行的标准，正在探索如何增强Velox以利用硬件加速器，能够在硬件发展的同时调整所有引擎。</p>
+
+  </div>
+</article>
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/categories/technology">Technology</a></li>
+         
+          <li><a href="/categories/life">Life</a></li>
+         
+          <li><a href="/archives/">Archives</a></li>
+         
+          <li><a href="/tags/">Tags</a></li>
+         
+          <li><a href="/about">About</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#What-Is-Shared-Foundations"><span class="toc-number">1.</span> <span class="toc-text">What Is Shared Foundations</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Why-Shared-Foundations"><span class="toc-number">2.</span> <span class="toc-text">Why Shared Foundations</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%9A%E7%95%8C%E8%B6%8B%E5%8A%BF"><span class="toc-number">2.1.</span> <span class="toc-text">业界趋势</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Meta%E7%8E%B0%E7%8A%B6"><span class="toc-number">2.2.</span> <span class="toc-text">Meta现状</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#How-Shared-Foundations"><span class="toc-number">3.</span> <span class="toc-text">How Shared Foundations</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Compute-Engine-Convergence"><span class="toc-number">3.1.</span> <span class="toc-text">Compute Engine Convergence</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%A4%E4%BA%92%E5%BC%8F%E5%BC%95%E6%93%8E%E8%9E%8D%E5%90%88"><span class="toc-number">3.1.1.</span> <span class="toc-text">交互式引擎融合</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%89%B9%E5%A4%84%E7%90%86%E5%BC%95%E6%93%8E%E8%9E%8D%E5%90%88"><span class="toc-number">3.1.2.</span> <span class="toc-text">批处理引擎融合</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B5%81%E5%A4%84%E7%90%86%E5%BC%95%E6%93%8E%E8%9E%8D%E5%90%88"><span class="toc-number">3.1.3.</span> <span class="toc-text">流处理引擎融合</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SQL-Dialect-Convergence"><span class="toc-number">3.2.</span> <span class="toc-text">SQL Dialect Convergence</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Storage-Convergence"><span class="toc-number">3.3.</span> <span class="toc-text">Storage Convergence</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#ORC%E7%9A%84%E7%BC%96%E8%A7%A3%E7%A0%81%E6%94%B6%E6%95%9B"><span class="toc-number">3.3.1.</span> <span class="toc-text">ORC的编解码收敛</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%96%B0%E7%9A%84ML%E4%BC%98%E5%8C%96%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F%E3%80%82"><span class="toc-number">3.3.2.</span> <span class="toc-text">新的ML优化文件格式。</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Execution-Engine-Convergence"><span class="toc-number">3.4.</span> <span class="toc-text">Execution Engine Convergence</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B1%95%E6%9C%9B"><span class="toc-number">4.</span> <span class="toc-text">展望</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/05/28/shared-foundations/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/05/28/shared-foundations/&text=Shared Foundations: Modernizing Meta’s Data Lakehouse"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/05/28/shared-foundations/&title=Shared Foundations: Modernizing Meta’s Data Lakehouse"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/05/28/shared-foundations/&is_video=false&description=Shared Foundations: Modernizing Meta’s Data Lakehouse"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Shared Foundations: Modernizing Meta’s Data Lakehouse&body=Check out this article: http://example.com/2023/05/28/shared-foundations/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/05/28/shared-foundations/&title=Shared Foundations: Modernizing Meta’s Data Lakehouse"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/05/28/shared-foundations/&title=Shared Foundations: Modernizing Meta’s Data Lakehouse"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/05/28/shared-foundations/&title=Shared Foundations: Modernizing Meta’s Data Lakehouse"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/05/28/shared-foundations/&title=Shared Foundations: Modernizing Meta’s Data Lakehouse"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/05/28/shared-foundations/&name=Shared Foundations: Modernizing Meta’s Data Lakehouse&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/05/28/shared-foundations/&t=Shared Foundations: Modernizing Meta’s Data Lakehouse"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2023
+    duanmeng
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/categories/technology">Technology</a></li><!--
+     --><!--
+       --><li><a href="/categories/life">Life</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Archives</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tags</a></li><!--
+     --><!--
+       --><li><a href="/about">About</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+
+  <script src='https://unpkg.com/mermaid@9.0.0/dist/mermaid.min.js'></script>
+  <script>
+    if (window.mermaid) {
+      mermaid.initialize({theme: 'forest'});
+    }
+  </script>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
