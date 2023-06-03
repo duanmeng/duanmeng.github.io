@@ -15,7 +15,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://live.staticflickr.com/65535/52930682527_f7f04274f8_c.jpg">
 <meta property="article:published_time" content="2023-05-28T07:31:28.000Z">
-<meta property="article:modified_time" content="2023-05-28T13:50:06.301Z">
+<meta property="article:modified_time" content="2023-05-28T13:53:38.669Z">
 <meta property="article:author" content="duanmeng">
 <meta property="article:tag" content="data">
 <meta property="article:tag" content="paper">
@@ -210,7 +210,7 @@
 <p><strong>Near Real Time Data</strong></p>
 <p>存储的另一个重要方面，尤其是对于交互式分析用例，是近实时数据的可用性。虽然实时摄入是大多数数据湖仓库（如BigQuery、Databricks和 Snowflake）的常见功能，但由于某些交互式分析引擎中缺乏离散存储和 Metastore 中必要的功能，Meta数据湖仓库仅限于批量数据。随着Presto支持直接在Hive 数据上进行交互式查询，将实时数据导入湖仓库后便可以进行查询。</p>
 <p>FBETL（Meta的摄入系统）已经支持日志数据的连续摄取。然而，查询引擎无法访问这些数据，因为只有在该分区的所有数据可用时，分区才会注册到Metastore 中，这往往是基于小时或每日边界。为了解决这个问题，在Metastore中引入了一个额外的分区状态（“open”），并在数据开始到达时立即注册分区。Presto现在能够在数据降落后立即查询数据，用于临时分析和仪表板，尽管批处理管道继续依赖“closed”分区信号，以确保它们始终在完整数据集上运行。这种设计允许相同的数据集被实时查询和批处理管道消费，避免了繁琐的迁移。最后，我们还加强了摄取提交协议，以确保实时数据的精确一次交付。</p>
-<p>接近实时摄取功能已经在湖仓库的许多数据集中启用，从记录到可查询，数据新鲜度在几分钟内。元数据改进：Presto 元数据演变的一个重要方面是关于性能和提高元数据的可缓存性。Hive Metastore已经利用 memcache来减少 MySQL 访问的延迟，但在更新事件中放宽一致性保证的情况下，客户端无法缓存此元数据。我们重建了元数据层和 API，为每个在更新事件中发生变化的元数据引入了版本概念。Presto利用这个版本信息引入了元数据缓存，大大提高了重复查询的元数据延迟。</p>
+<p>接近实时摄取功能已经在湖仓库的许多数据集中启用，从记录到可查询，数据新鲜度在几分钟内。元数据改进：Presto 元数据演变的一个重要方面是关于性能和提高元数据的可缓存性。Hive Metastore已经利用 memcache来减少MySQL访问的延迟，但在更新事件中放宽一致性保证的情况下，客户端无法缓存此元数据。重建了元数据层和API，为每个在更新事件中发生变化的元数据引入了版本概念。Presto利用这个版本信息引入了元数据缓存，大大提高了重复查询的元数据延迟。</p>
 <blockquote>
 <p>注：这里Near Real Time Data的元数据优化感觉是一个残次实现的类似Iceberg，Delta Lake，比如元数据version不就是Iceberg的Snapshot嘛</p>
 </blockquote>
