@@ -6,18 +6,21 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
-    <meta name="description" content="What Is RedshiftAmazon Redshift是第一个完全托管的、PB级别的、企业级云数据仓库。Amazon Redshift使得使用现有商业智能工具高效分析大量数据变得简单且经济。这种云服务与传统的本地数据仓库解决方案相比具有显著的优势，后者昂贵、不具弹性，并且需要大量专业知识进行调优和操作。  Amazon Redshift通过分层存储、多集群自动扩展、跨集群数据共享和AQUA">
+    <meta name="description" content="AWS这篇论文太“干”了，都是功能点&#x2F;技术点的罗列与总结，每个点说一下，其实每个点展开讲都可以至少是一篇短文。所以本文基本都是把论文原本翻译过来，做了很少的调整和总结。  What Is RedshiftAmazon Redshift是第一个完全托管的、PB级别的、企业级云数据仓库。Amazon Redshift使得使用现有商业智能工具高效分析大量数据变得简单且经济。这种云服务与传统的">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Amazon Redshift Re-invented">
 <meta property="og:url" content="http://example.com/2022/10/02/redshift/index.html">
 <meta property="og:site_name" content="Macduan Notes">
-<meta property="og:description" content="What Is RedshiftAmazon Redshift是第一个完全托管的、PB级别的、企业级云数据仓库。Amazon Redshift使得使用现有商业智能工具高效分析大量数据变得简单且经济。这种云服务与传统的本地数据仓库解决方案相比具有显著的优势，后者昂贵、不具弹性，并且需要大量专业知识进行调优和操作。  Amazon Redshift通过分层存储、多集群自动扩展、跨集群数据共享和AQUA">
+<meta property="og:description" content="AWS这篇论文太“干”了，都是功能点&#x2F;技术点的罗列与总结，每个点说一下，其实每个点展开讲都可以至少是一篇短文。所以本文基本都是把论文原本翻译过来，做了很少的调整和总结。  What Is RedshiftAmazon Redshift是第一个完全托管的、PB级别的、企业级云数据仓库。Amazon Redshift使得使用现有商业智能工具高效分析大量数据变得简单且经济。这种云服务与传统的">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://live.staticflickr.com/65535/52932106644_50939a0a87_c.jpg">
 <meta property="og:image" content="https://live.staticflickr.com/65535/52935617222_342bafa7a2_b.jpg">
 <meta property="og:image" content="https://live.staticflickr.com/65535/52935617227_72407d3064_z.jpg">
+<meta property="og:image" content="https://live.staticflickr.com/65535/52948908019_0c15c10e85.jpg">
+<meta property="og:image" content="https://live.staticflickr.com/65535/52949249268_370e9c391e_z.jpg">
+<meta property="og:image" content="https://live.staticflickr.com/65535/52949223063_ebffd409fb_c.jpg">
 <meta property="article:published_time" content="2022-10-02T14:40:28.000Z">
-<meta property="article:modified_time" content="2023-06-03T16:51:04.451Z">
+<meta property="article:modified_time" content="2023-06-04T04:31:52.036Z">
 <meta property="article:author" content="duanmeng">
 <meta property="article:tag" content="data">
 <meta property="article:tag" content="paper">
@@ -166,7 +169,10 @@
   
 
   <div class="content" itemprop="articleBody">
-    <h2 id="What-Is-Redshift"><a href="#What-Is-Redshift" class="headerlink" title="What Is Redshift"></a>What Is Redshift</h2><p>Amazon Redshift是第一个完全托管的、PB级别的、企业级云数据仓库。Amazon Redshift使得使用现有商业智能工具高效分析大量数据变得简单且经济。这种云服务与传统的本地数据仓库解决方案相比具有显著的优势，后者昂贵、不具弹性，并且需要大量专业知识进行调优和操作。</p>
+    <blockquote>
+<p>AWS这篇论文太“干”了，都是功能点&#x2F;技术点的罗列与总结，每个点说一下，其实每个点展开讲都可以至少是一篇短文。所以本文基本都是把论文原本翻译过来，做了很少的调整和总结。</p>
+</blockquote>
+<h2 id="What-Is-Redshift"><a href="#What-Is-Redshift" class="headerlink" title="What Is Redshift"></a>What Is Redshift</h2><p>Amazon Redshift是第一个完全托管的、PB级别的、企业级云数据仓库。Amazon Redshift使得使用现有商业智能工具高效分析大量数据变得简单且经济。这种云服务与传统的本地数据仓库解决方案相比具有显著的优势，后者昂贵、不具弹性，并且需要大量专业知识进行调优和操作。</p>
 <ul>
 <li>Amazon Redshift通过分层存储、多集群自动扩展、跨集群数据共享和AQUA查询加速层等创新，提高了存储和计算的可扩展性。</li>
 <li>自主功能使Amazon Redshift更易于使用。亚马逊红移无服务器（Amazon Redshift Serverless）是自主功能的最终成果，使客户无需设置和管理数据仓库基础设施即可运行和扩展分析。</li>
@@ -229,11 +235,11 @@
 <p>编译服务使用超出Redshift集群的计算和内存资源，通过可扩展和安全的架构加速查询编译。编译服务将编译的对象缓存在集群外部的代码缓存中，以为可能需要相同查询段的多个计算集群提供服务。在查询处理期间，Redshift生成查询段，并利用外部编译服务的并行性来处理任何不在集群本地缓存或外部代码缓存中的段。随着编译服务缓存命中率从Amazon Redshift集群中的99.60％增加到99.95％。特别是，在87％的情况下，当集群本地代码缓存中不存在对象文件时，Redshift会在外部代码缓存中找到它。</p>
 <h4 id="CPU-Friendly-Encoding"><a href="#CPU-Friendly-Encoding" class="headerlink" title="CPU-Friendly Encoding"></a>CPU-Friendly Encoding</h4><p>性能与CPU和磁盘使用密切相关。自然地，Redshift使用压缩来存储磁盘上的列。Redshift支持通用的面向字节的压缩算法，如LZO和ZSTD，以及优化的类型特定算法。其中一种压缩方案是最近的AZ64算法，它涵盖了数字和日期&#x2F;时间数据类型。AZ64实现了与ZSTD相当的压缩率（比LZO更好的压缩率但稍微慢一些），但具有更快的解压缩速度。例如，当我们对AZ64支持的所有数据类型使用AZ64而不是LZO时，完整的3TB TPC-H运行可以提高42％。</p>
 <h4 id="Adaptive-Execution"><a href="#Adaptive-Execution" class="headerlink" title="Adaptive Execution"></a>Adaptive Execution</h4><p>Redshift的执行引擎根据执行统计信息动态地更改生成的代码或运行时属性，以提高性能。例如，Redshift中的Bloom Filter的实现展示了动态优化的重要性。当在大表进行复制查询时，<code>Join</code>处理可能会在计算节点上传输大量数据造成由于内存有限而溢出到磁盘。这可能会导致网络，I&#x2F;O瓶颈，从而影响查询性能。Redshift使用BF来提高此类<code>Join</code>的性能。BF可以有效地在源端过滤不符合<code>Join</code>关系的行，从而减少传输到网络或溢出到磁盘的数据量。</p>
-<p>在运行时，<code>Join</code>操作根据已处理的确切数据量决定将用于构建BF的内存量。例如，如果<code>Join</code>将数据溢出到磁盘，则<code>Join</code>运算符可以决定构建更大的BF以实现更低的false-positive rates。这个决策增加了BFs的裁剪能力，并可能减少探测阶段的溢出。类似地，引擎在运行时监视每个BF的有效性，并在拒绝比例低时禁用它，因为过滤器会影响性能。执行引擎可以定期重新启用BF，因为数据的时间模式可能使以前无效的BF变得有效。</p>
-<h4 id="AQUA-for-Amazon-Redshift"><a href="#AQUA-for-Amazon-Redshift" class="headerlink" title="AQUA for Amazon Redshift"></a>AQUA for Amazon Redshift</h4><p>高级查询加速器（AQUA）是一个多租户服务，作为Redshift托管存储的集群外缓存层和复杂扫描和聚合的推送加速器。AQUA在本地SSD上缓存热数据，避免从像Amazon S3这样的区域服务拉取数据的延迟，并减少了在Redshift计算节点中填充缓存存储的需求。为了避免引入网络瓶颈，该服务提供了一个功能接口，而不是存储接口。Redshift识别适用的扫描和聚合操作，并将它们推送到AQUA，AQUA根据缓存的数据处理它们并返回结果。实质上，AQUA是数据中心规模的计算存储。通过是多租户，AQUA有效地利用昂贵的资源，如SSD，并提供一个缓存服务，不受集群转换（如调整大小和暂停-恢复）的影响。</p>
+<p>在运行时，<code>Join</code>操作根据已处理的确切数据量决定将用于构建BF的内存量。例如，如果<code>Join</code>将数据溢出到磁盘，则<code>Join</code>运算符可以决定构建更大的BF以实现更低的false-positive rates。这个决策增加了BFs的裁剪能力，并可能减少探测阶段的溢出。类似地，引擎在运行时监视每个BF的有效性，并在拒绝比例低时禁用它，因为过滤器会影响性能。执行引擎可以周期性重新启用BF，因为数据的时间模式可能使以前无效的BF变得有效。</p>
+<h4 id="AQUA-for-Amazon-Redshift"><a href="#AQUA-for-Amazon-Redshift" class="headerlink" title="AQUA for Amazon Redshift"></a>AQUA for Amazon Redshift</h4><p>高级查询加速器（AQUA）是一个多租户服务，作为Redshift RMS的集群外缓存层和<code>complex scans</code>和<code>aggregations</code>的下推加速器。AQUA在本地SSD上缓存热数据，避免从像Amazon S3这样的区域服务拉取数据的延迟，并减少了在Redshift计算节点中填充缓存存储的需求。为了避免引入网络瓶颈，该服务提供了一个功能接口，而不是存储接口。Redshift识别适用的<code>scans</code>和<code>aggregations</code>操作，并将它们推送到AQUA，AQUA根据缓存的数据处理它们并返回结果。本质上，AQUA是数据中心规模的带计算的存储。通过是多租户，AQUA有效地利用昂贵的资源，如SSD，并提供一个缓存服务，不受集群转换（如调整大小和暂停-恢复）的影响。</p>
 <p>为了使AQUA尽可能快，我们设计了定制服务器，利用AWS的Nitro ASIC进行硬件加速压缩和加密，并利用FPGA进行高吞吐量的过滤和聚合操作执行。FPGA不是按查询编程的，而是用于实现包含数据库类型和操作的流水线原语的自定义多核VLIW处理器。服务的每个节点中的编译器将操作映射到本地CPU或加速器。这样做可以为可以在FPGA上高效执行的复杂操作提供显着的加速。</p>
 <h4 id="Query-Rewriting-Framework"><a href="#Query-Rewriting-Framework" class="headerlink" title="Query Rewriting Framework"></a>Query Rewriting Framework</h4><p>Redshift具有一种基于DSL的新型查询重写框架（QRF），它具有多种用途：首先，它可以快速引入新的重写和优化，以便Redshift可以快速响应客户需求。特别是，QRF已用于引入重写规则，以优化<code>Union</code>、<code>Join</code>和<code>Aggregate</code>之间的执行顺序。此外，在查询去相关性过程中使用它，这在Redshift中非常重要，其执行模型受益于大规模<code>Join</code>，而不是暴力地重复执行子查询。</p>
-<p>其次，QRF用于创建增量物化视图维护脚本并启用使用物化化视图回答查询。QRF背后的关键直觉是，重写可以轻松地表示为一对模式匹配器，它匹配并提取查询表示（AST或代数）的部分，以及一个生成器，它使用模式匹配器提取的部分创建新的查询表示。QRF的概念简单性使得即使是实习生也能在几天内开发出复杂的去相关性重写。此外，它使Redshift能够引入与嵌套和半结构化数据处理相关的重写，并加快了物化视图范围的扩展。</p>
+<p>其次，QRF用于创建<a href="#Materialized-Views">增量物化视图维护脚本</a>并启用使用物化视图加速查询。QRF背后的关键直觉是，重写可以轻松地表示为一对模式匹配器，它匹配并提取查询表示（AST或代数）的部分，以及一个生成器，它使用模式匹配器提取的部分创建新的查询表示。QRF的概念简单性使得即使是实习生也能在几天内开发出复杂的去相关性重写。此外，它使Redshift能够引入与嵌套和半结构化数据处理相关的重写，并加快了物化视图范围的扩展。</p>
 <h3 id="SCALING-STORAGE"><a href="#SCALING-STORAGE" class="headerlink" title="SCALING STORAGE"></a>SCALING STORAGE</h3><p>亚马逊Redshift的存储层从内存到本地存储，再到云对象存储（Amazon S3），涵盖了所有数据生命周期操作，即提交（commit）、缓存（caching）、预取（prefetching）、快照&#x2F;恢复（snapshot&#x2F;recovery）、复制（replication）和容灾（disaster-recovery）。存储经历了一种有条不紊且谨慎部署的转变，以确保：</p>
 <ul>
 <li><strong>可持久性（durability）</strong>和<strong>可用性（availability）</strong>，存储层基于Amazon S3，并在每次提交时将所有数据持久化到Amazon S3。基于Amazon S3使Redshift能够将数据与操作数据的计算集群解耦。这也使得数据具有持久性，并在其基础上构建架构以提高可用性。</li>
@@ -241,17 +247,23 @@
 <li><strong>性能（performance）</strong>，存储层扩展到内存和算法优化。它动态地预取和调整内存中的大小缓存，并将提交协议优化为增量。</li>
 </ul>
 <h4 id="Redshift-Managed-Storage"><a href="#Redshift-Managed-Storage" class="headerlink" title="Redshift Managed Storage"></a>Redshift Managed Storage</h4><p>RMS的设计目标是在多个可用区（AZs）中实现年度的99.999999999%的可持久性和99.99%的可用性。RMS既管理用户数据，也管理事务元数据。RMS建立在AWS Nitro系统之上，该系统具有高带宽网络和与物理机（bare metal）性能无差别的特点。计算节点使用大型高性能SSD作为本地缓存。Redshift利用工作负载模式和技术，如自动细粒度数据驱逐（eviction）和智能数据预取，实现本地SSD的性能，同时将存储自动扩展到Amazon S3。</p>
-<p>图5显示了从内存缓存到Amazon S3上已提交数据的RMS的关键组件。Amazon S3上的数据快照充当客户的逻辑还原点。Redshift支持从任何可用还原点恢复整个集群以及特定表。Amazon S3还是数据共享和机器学习的数据传输和真实来源。RMS通过使用预取方案将数据块拉入内存并将其缓存到本地SSD来加速从S3访问数据。RMS调整缓存替换以通过跟踪对每个块的访问来保持相关块在本地可用。此信息还用于帮助客户决定是否扩展其集群将是有益的。由于计算节点实际上是无状态的并且始终可以访问RMS中的数据块，因此RMS使原地集群调整大小成为纯元数据操作。由于数据可以直接摄取到Amazon S3，因此RMS具有元数据绑定和易于扩展的特点。RMS的分层特性使得SSD充当缓存，便于硬件更换。RMS支持的Redshift RA3实例今天可提供高达16PB的容量。可以动态更改内存磁盘缓存大小，以平衡查询的性能和内存需求。</p>
+<p><a><img src="https://live.staticflickr.com/65535/52948908019_0c15c10e85.jpg" width="500" height="337" alt="redshift-rms"/></a></p>
+<p>上图显示了从内存缓存到Amazon S3上已提交数据的RMS的关键组件。Amazon S3上的数据快照充当客户的逻辑还原点。Redshift支持从任何可用还原点恢复整个集群以及特定表。Amazon S3还是数据共享和机器学习的数据传输管道和真实源（source of truth）。RMS通过使用预取方案将数据块拉入内存并将其缓存到本地SSD来加速从S3访问数据。RMS调整缓存替换以通过跟踪对每个块的访问来保持相关块在本地可用。此信息还用于帮助客户决定扩展其集群是否有益。由于计算节点实际上是无状态的并且始终可以访问RMS中的数据块，因此RMS使原地集群调整大小成为纯元数据操作。由于数据可以直接摄入到Amazon S3，因此RMS具有元数据绑定和易于扩展的特点。RMS的分层特性使得SSD充当缓存，便于硬件更换。RMS支持的Redshift RA3实例今天可提供高达16PB的容量。可以动态更改内存磁盘缓存大小，以平衡查询的性能和内存需求。</p>
 <p>表的数据被分区为数据切片，并存储为逻辑块链。每个数据块由其块头描述（例如，标识、表所有权和切片信息），并通过内存构造索引，称为超级块。超级块是一种类似于许多文件系统的索引结构。通过使用区域映射扫描超级块，查询可以访问相关的数据块。超级块还包含由活动查询拥有的数据块的查询跟踪信息。</p>
-<p>RMS将事务同步提交到Amazon S3。这使得多个集群可以访问实时和事务一致的数据。通过批处理数据写入并在同步障碍下隐藏延迟，可以在不同的AZ之间写入Amazon S3。状态由一个集群拥有和管理，而并发读写器在RMS的顶部提供计算扩展。按需启动的并发集群依赖于快照隔离和按需获取数据的优先级，以满足查询请求。从主集群中删除的数据在所有读取器引用清除后从Amazon S3中进行垃圾回收。RMS使用生存时间和按需删除的组合来确保数据在事务回滚时不会泄漏。</p>
-<p>由于数据始终在Amazon S3中备份，因此可以容忍本地SSD的丢失，确保数据的耐久性。Redshift提供了RPO&#x3D;0的灾难恢复，其中在集群丢失或数据中心故障的情况下，可以将集群重新定位到相同或不同的AZ。</p>
-<h4 id="Decoupling-Metadata-from-Data"><a href="#Decoupling-Metadata-from-Data" class="headerlink" title="Decoupling Metadata from Data"></a>Decoupling Metadata from Data</h4><p>将元数据与数据分离可以实现弹性调整和跨实例还原。这两个功能将元数据从一个集群配置洗牌到另一个集群配置，因此将元数据与数据分离可以实现高效的实现。弹性调整允许客户通过添加节点来在几分钟内重新配置其集群，以获得更好的性能和更多的存储空间，以满足要求高的工作负载，或通过删除节点来节省成本。跨实例还原允许用户将从一个实例类型的集群中拍摄的快照还原到不同实例类型或不同节点数的集群中。</p>
+<p>RMS将事务同步提交到Amazon S3。这使得多个集群可以访问实时和事务一致的数据。通过数据批量写入并在同步屏障（synchronization barriers）下隐藏延迟，可以在不同的AZ之间写入Amazon S3。状态由一个集群拥有和管理，而并发读写在RMS之上提供了计算扩展。按需启动的并发集群依赖于快照隔离和按需获取数据的优先级，以满足查询请求。从主集群中删除的数据在所有读取引用清除后从Amazon S3中被垃圾回收。RMS使用TTL（time-to-live）和on-demand删除的组合来确保数据在事务回滚时不会泄漏。</p>
+<p>由于数据始终在Amazon S3中备份，因此可以容忍本地SSD的丢失，确保数据的可持久性。Redshift提供了RPO&#x3D;0的灾难恢复，其中在集群丢失或数据中心故障的情况下，可以将集群重新定位到相同或不同的AZ。</p>
+<h4 id="Decoupling-Metadata-from-Data"><a href="#Decoupling-Metadata-from-Data" class="headerlink" title="Decoupling Metadata from Data"></a>Decoupling Metadata from Data</h4><p>将元数据与数据分离可以实现弹性调整和跨实例还原。这两个功能将元数据从一个集群配置shuffle到另一个集群配置，因此将元数据与数据分离可以实现高效的实现。弹性调整允许客户通过添加节点来在几分钟内重新配置其集群，以获得更好的性能和更多的存储空间，以满足要求高的工作负载，或通过删除节点来节省成本。跨实例还原允许用户将从一个实例类型的集群中的快照还原到不同实例类型或不同节点数的集群中。</p>
 <p>Redshift实现了上述功能。首先，它确保数据的副本在Amazon S3中。这允许从真正罕见的事件（如多个硬件故障）中恢复。在任何重新配置之前，Redshift考虑集群中的数据，并生成一个计划，以最小化数据移动并产生平衡的集群。在重新配置之前，Redshift记录数据的计数和校验和，并在完成后验证正确性。在还原的情况下，Redshift记录表的数量、块的数量、行的数量、使用的字节数和数据分布，以及快照。它在接受新查询之前验证计数和校验和。</p>
 <p>跨实例还原和调整利用弹性调整技术，在几分钟内提供迁移。弹性调整和跨实例还原都是广泛使用的功能，客户每月使用它们进行重新配置超过15,000次。故障率低于0.0001%。</p>
-<h4 id="Expand-Beyond-Local-Capacity"><a href="#Expand-Beyond-Local-Capacity" class="headerlink" title="Expand Beyond Local Capacity"></a>Expand Beyond Local Capacity</h4><p>Redshift通过使用Amazon S3扩展集群的存储容量并利用本地内存和SSD作为缓存来增强可扩展性。为了实现这一转变，进行了许多更改：升级超级块以支持更大的容量，修改本地布局以支持更多的元数据，修改快照的获取方式，转换如何重新填充和驱逐数据等。由于空间限制，本节重点介绍两个组件：分层存储缓存和动态缓存缓存。</p>
-<p>分层存储缓存跟踪数据块的访问次数，以便每个集群在本地维护其工作集。它构建了一个基于时钟的两级缓存替换策略，以跟踪存储在每个计算节点本地磁盘中的数据块。缓存策略将冷数据块𝐵（即由客户查询首次访问）放置在低级时钟缓存中，并在每次访问时增加𝐵的引用计数。当𝐵变热（即被多次访问）时，缓存策略将其提升到高级时钟缓存中。在驱逐期间，时钟指针指向的每个块的引用计数都会减少。当𝐵的引用计数为零时，𝐵要么从高级时钟降级到低级时钟，要么从缓存中驱逐。</p>
+<h4 id="Expand-Beyond-Local-Capacity"><a href="#Expand-Beyond-Local-Capacity" class="headerlink" title="Expand Beyond Local Capacity"></a>Expand Beyond Local Capacity</h4><p>Redshift通过使用Amazon S3扩展集群的存储容量并利用本地内存和SSD作为缓存来增强可扩展性。为了实现这一转变，进行了许多更改：升级超级块以支持更大的容量，修改本地布局以支持更多的元数据，修改快照的获取方式，转换如何重新填充和驱逐数据等。</p>
+<ul>
+<li><strong>层级存储</strong></li>
+</ul>
+<p>层级跟踪数据块的访问次数，以便每个集群在本地维护其工作集。它构建了一个two-level clock-based缓存替换策略，以跟踪存储在每个计算节点本地磁盘中的数据块。缓存策略将冷数据块<strong>B</strong>（即由客户查询首次访问）放置在low-level-clock缓存中，并在每次访问时增加<strong>B</strong>的引用计数。当<strong>B</strong>变热（即被多次访问）时，缓存策略将其提升到high-level-clock缓存中。在驱逐期间，时钟指针指向的每个块的引用计数都会减少。当<strong>B</strong>的引用计数为零时，<strong>B</strong>要么从high-level-clock降级到low-level-clock，要么从缓存中驱逐。</p>
 <p>RMS使用分层存储缓存来驱动重新填充（即在本地SSD上缓存哪些数据）集群重新配置（例如，弹性调整、集群还原、硬件故障）后。在所有这些情况下，计算节点使用最有可能被客户查询访问的数据块来重新填充其本地磁盘。通过这种优化，客户的查询在20％重新填充完成时实现了超过80％的本地磁盘命中率。</p>
-<p>最后，为了提高性能，Redshift在分层存储缓存之上利用动态磁盘缓存来维护内存中最热门的块。此外，磁盘缓存还保留由查询创建的其他块，例如新数据块和特定查询的临时块。当有可用内存时，磁盘缓存会自动扩展，并在系统接近内存耗尽时主动缩小。这些变化导致基准测试和客户工作负载的性能提高了30％。</p>
+<ul>
+<li><strong>动态磁盘缓存</strong><br>最后，为了提高性能，Redshift在分层存储缓存之上利用动态磁盘缓存来维护内存中最热门的块。此外，磁盘缓存还保留由查询创建的其他块，例如新数据块和特定查询的临时块。当有可用内存时，磁盘缓存会自动扩展，并在系统接近内存耗尽时主动缩小。这些变化导致基准测试和客户工作负载的性能提高了30％。</li>
+</ul>
 <h4 id="Incremental-Commits"><a href="#Incremental-Commits" class="headerlink" title="Incremental Commits"></a>Incremental Commits</h4><p>要将Amazon S3用作主要存储，需要进行增量提交以减少数据占用和成本。 RMS仅捕获自上次提交以来的确切数据更改，并相应地更新提交日志。持久数据结构也是增量更新的。Redshift的基于日志的提交协议取代了早期的写入重定向协议，将内存结构与持久化结构分离，其中持久化的超级块仅记录更改日志。基于日志的提交通过将一系列随机I&#x2F;O转换为少量顺序日志附加，将提交性能提高了40％。由于RMS在多个AZ和区域提供持久且高可用的数据访问，因此元数据可以在全球分布式计算上共享和重放。这种基于日志的元数据降低了并发扩展和数据共享等功能的成本；这两个功能通过将日志应用于本地超级块来访问事务一致的数据。</p>
 <h4 id="Concurrency-Control"><a href="#Concurrency-Control" class="headerlink" title="Concurrency Control"></a>Concurrency Control</h4><p>Redshift实现了多版本并发控制（MVCC），其中读者既不阻塞也不被阻塞，而写者只能被其他并发写者阻塞。每个事务在其开始之前由所有已提交事务建立的数据库的一致快照中看到。Redshift强制执行可串行化隔离，从而避免数据异常，例如丢失更新和读写偏差[5,19]。因此，Redshift提供了业界领先的性能，而不会牺牲数据正确性，我们的客户无需分析工作负载是否应在较低的事务隔离级别上运行。</p>
 <p>我们的旧版实现使用基于图形的机制来跟踪事务之间的依赖关系，以避免循环并强制执行串行化。这需要跟踪每个事务的单个状态，直到所有其他并发事务也提交为止。我们最近采用了一种基于序列安全网（SSN）的新设计，作为快照隔离的认证器[23]。这种基于启发式的设计允许我们以更节省内存的方式保证严格的串行化，仅使用先前提交的事务的摘要信息。如[23]所分析的那样，SSN算法是比可串行化快照隔离（SSI）[19]等可比算法更好的改进。对基础SSN算法进行了优化和增强，主要是为了向后兼容我们的旧认证器。这些增强包括在执行操作时中止某些事务，而不是像原始SSN设计一样在提交时执行计算。与旧设计相比，资源利用率显著降低。特别是，这个组件的内存占用量根据工作负载的不同可以减少多达8GB。</p>
@@ -266,10 +278,11 @@
 <p>现在，Redshift通过自动表优化（ATO）完全自动化了分布和排序键的选择和应用过程。ATO分析集群工作负载以生成分布和排序键建议，并提供工具，以便在用户表上无缝应用它们。ATO定期收集查询执行元数据，如优化的查询计划、基数和谓词选择性，以生成建议。此外，它估计每个建议的预期收益，并仅提供高度有益的建议。</p>
 <p>分布键顾问专注于最小化给定工作负载的总网络成本。分布键不能孤立选择，而需要全面考虑参与工作负载的所有表。因此，ATO从工作负载中的所有联接构建加权联接图，然后选择最小化总网络分布成本的分布键[18]。类似地，排序键顾问专注于减少需要从磁盘检索的数据量。给定查询工作负载，ATO分析所有范围限制扫描操作的选择性，并推荐可以改善区域映射过滤（即数据块修剪）效果的排序键。</p>
 <p>为了应用这些建议，Redshift向客户提供两个选项。首先，通过控制台，用户可以通过简单的DDL检查和手动应用建议。其次，自动后台工作程序定期应用有益的建议，而不影响客户工作负载的性能；这些工作程序在集群不繁忙时运行，并逐步应用建议，每当集群负载增加时就会减少。</p>
-<p>图7(a)展示了ATO在一个5节点RA3.16xlarge实例上的有效性，该实例是从一个没有任何表中的分布或排序键的开箱即用的TPC-H 30TB数据集中派生出来的。TPC-H基准工作负载每30分钟在此实例上运行，我们测量端到端运行时间。随着时间的推移，越来越多的优化自动应用，减少了总的工作负载运行时间。在应用了所有建议之后，工作负载运行时间减少了23%（不包括由于编译而较高的第一次执行）。</p>
+<p><a><img src="https://live.staticflickr.com/65535/52949249268_370e9c391e_z.jpg" width="640" height="597" alt="redshift-tunning"/></a></p>
+<p>上图(a)展示了ATO在一个5节点RA3.16xlarge实例上的有效性，该实例是从一个没有任何表中的分布或排序键的开箱即用的TPC-H 30TB数据集中派生出来的。TPC-H基准工作负载每30分钟在此实例上运行，我们测量端到端运行时间。随着时间的推移，越来越多的优化自动应用，减少了总的工作负载运行时间。在应用了所有建议之后，工作负载运行时间减少了23%（不包括由于编译而较高的第一次执行）。</p>
 <h4 id="AutomaticWorkload-Management"><a href="#AutomaticWorkload-Management" class="headerlink" title="AutomaticWorkload Management"></a>AutomaticWorkload Management</h4><p>允许查询执行对于同时执行的查询有广泛的影响。允许的查询过少会导致排队查询的高延迟和执行查询的资源利用率（例如CPU、I&#x2F;O或内存）不佳。允许的查询过多会减少排队查询的数量，但会对资源利用率产生负面影响，因为资源过度饱和。例如，每个查询的内存过少会导致更多的查询溢出到磁盘，这对查询延迟产生负面影响。Redshift用于各种快速变化的工作负载，具有不同的资源需求。为了提高响应时间和吞吐量，Redshift采用机器学习技术来预测查询资源需求，并使用排队理论模型来调整同时执行的查询数量。</p>
 <p>Redshift的自动工作负载管理器（AutoWLM）负责准入控制、调度和资源分配。当一个查询到达时，AutoWLM将其执行计划和优化器导出的统计信息转换为特征向量，该向量根据机器学习模型进行评估，以估计执行时间、内存消耗和编译时间等指标。基于这些特征，查询在执行队列中找到其位置。Redshift使用执行时间预测来安排短查询在长查询之前执行。如果查询的预估内存占用可以从查询内存池中分配，查询就可以继续执行。随着更多的查询被允许执行，AutoWLM使用基于排队理论的反馈机制监视集群资源的利用率。当利用率过高时，AutoWLM会限制并发级别，以防止由于过度饱和的查询资源而导致查询延迟增加。</p>
-<p>图7(b)展示了AutoWLM在实际客户工作负载中的运行情况。AutoWLM能够根据查询到达的数量调整并发级别，从而实现最小排队和执行时间。在时间545，AutoWLM检测到当前并发级别的工作负载导致IO&#x2F;CPU饱和，因此它降低了并发级别。这导致排队增加，因为新到达的查询不允许执行。为了避免这种排队，客户可以选择并发扩展（第4.2节）或定义查询优先级，以允许更重要的查询优先处理。</p>
+<p>上图(b)展示了AutoWLM在实际客户工作负载中的运行情况。AutoWLM能够根据查询到达的数量调整并发级别，从而实现最小排队和执行时间。在时间545，AutoWLM检测到当前并发级别的工作负载导致IO&#x2F;CPU饱和，因此它降低了并发级别。这导致排队增加，因为新到达的查询不允许执行。为了避免这种排队，客户可以选择并发扩展（第4.2节）或定义查询优先级，以允许更重要的查询优先处理。</p>
 <p>在准入控制期间，AutoWLM采用加权轮询方案，更频繁地调度高优先级查询而不是低优先级查询。此外，高优先级查询获得更大的硬件资源份额。当具有不同优先级的查询同时运行时，Redshift将CPU和I&#x2F;O按指数递减的块进行划分，以降低优先级级别。这使得高优先级查询的加速程度呈指数级别，相对于低优先级查询而言。如果高优先级查询在低优先级查询开始执行后到达，AutoWLM会抢占（即中止和重新启动）低优先级查询以腾出空间。在存在多个低优先级查询的情况下，AutoWLM使用查询的预估执行时间抢占距离完成最远的查询。为了防止低优先级查询饥饿，每次抢占时降低查询被抢占的概率。即使如此，如果抢占太多查询，吞吐量也会受到影响。为了解决这个问题，如果浪费的工作比率（即由于抢占而失去的时间占总时间的比率）超过阈值，AutoWLM会防止抢占。由于查询优先级，当集群资源耗尽时，大多数低优先级查询将排队，以让更高优先级的工作负载满足其SLA。</p>
 <h4 id="Query-Predictor-Framework"><a href="#Query-Predictor-Framework" class="headerlink" title="Query Predictor Framework"></a>Query Predictor Framework</h4><p>AutoWLM依赖于机器学习模型来预测查询的内存消耗和执行时间。这些模型由Redshift的查询预测器框架维护。该框架在每个Redshift集群内运行。它收集训练数据，训练一个XGBOOST模型，并在需要时允许推理。这使得Redshift能够从工作负载中学习并自我调整以提高性能。在集群本身上拥有预测器有助于快速响应不断变化的工作负载，如果模型在集群外进行训练并仅在集群上用于推理，则不可能实现这一点。代码编译子系统也利用查询预测器框架在优化编译和调试编译之间进行选择，以提高整体查询响应时间。</p>
 <h4 id="Materialized-Views"><a href="#Materialized-Views" class="headerlink" title="Materialized Views"></a>Materialized Views</h4><p>在数据仓库环境中，应用程序通常需要在大型表上执行复杂查询。处理这些查询可能会消耗大量的系统资源，以及计算结果所需的时间。物化视图（MVs）特别适用于加速可预测和重复的查询。Redshift通过三种方式自动化高效维护和使用MVs。首先，它增量维护物化视图中的过滤、投影、分组和联接，以反映基表上的更改。由于Redshift擅长批量操作，因此MV以延迟的方式维护，以确保事务工作负载不会减慢。</p>
@@ -285,6 +298,7 @@
 <p>为了利用Spectrum，Redshift客户在Hive Metastore、AWS Glue或AWS Lake Formation目录中注册其外部表。在查询计划期间，Spectrum表被本地化为临时表，以内部表示外部表。随后，查询被重写并隔离到Spectrum子查询中，以推送过滤器和聚合。通过S3列表或属于分区的清单，领导节点生成扫描范围。随着序列化计划，扫描范围被发送到计算节点。使用预签名的S3 URL向Spectrum实例发出异步Thrift请求以检索S3对象。为了加速重复的Spectrum查询，Redshift外部化了结果缓存，并增加了对外部表的物化视图支持，以进行完全刷新。</p>
 <h4 id="Redshift-ML-with-Amazon-Sagemaker"><a href="#Redshift-ML-with-Amazon-Sagemaker" class="headerlink" title="Redshift ML with Amazon Sagemaker"></a>Redshift ML with Amazon Sagemaker</h4><p>Redshift ML使数据分析师可以使用SQL轻松训练机器学习模型并执行预测（推理）。例如，用户可以使用Redshift中存在的客户保留数据训练流失检测模型，然后使用该模型进行预测，以便营销团队可以向有流失风险的客户提供激励措施。在内部，Redshift ML使用Amazon SageMaker，这是一个完全托管的机器学习服务。在模型训练完成后，Redshift提供了一个执行推理的SQL函数，可以直接在SQL查询中使用。</p>
 <p>Redshift ML通过利用两个服务的优势来补充Sagemaker的提供。Redshift ML将模型带到数据而不是相反。这简化了机器学习流程，同时实现了大规模、成本效益高、基于数据库的预测。</p>
+<p><a><img src="https://live.staticflickr.com/65535/52949223063_ebffd409fb_c.jpg" width="800" height="304" alt="redshift-cm"/></a></p>
 <p>图8说明了在Redshift中创建ML模型的流程。当客户初始化该过程时，Redshift ML使用抽样从Redshift集群中卸载适当数量的数据到S3文件夹中。随后，在Redshift AUTO训练模式下，Sagemaker Autopilot作业在幕后启动。它发现了最佳的预处理器、模型和超参数组合。为了使用此模型在本地执行ML推理，Redshift调用Amazon Sagemaker Neo服务来编译模型。Neo将Scikit-Learn库中的经典机器学习模型转换为推理代码。</p>
 <h4 id="OLTP-Sources-with-Federated-Query-and-Glue-Elastic-Views"><a href="#OLTP-Sources-with-Federated-Query-and-Glue-Elastic-Views" class="headerlink" title="OLTP Sources with Federated Query and Glue Elastic Views"></a>OLTP Sources with Federated Query and Glue Elastic Views</h4><p>Neo将多个步骤（预处理器、推理算法和后处理器）抽象为一个管道，用于执行完整的序列。Redshift将编译后的工件本地化并注册与创建的模型相对应的推理函数。在调用推理函数时，Redshift生成C++代码，加载并调用本地化模型。所有这些活动（发现最佳的预处理器、算法和超参数调整以及推理本地化）都是自动完成的。因此，用户可以在Redshift中获得专为特定目的构建的ML工具的好处。Redshift ML还可以在AUTO OFF模式下运行，其中用户控制预处理和算法&#x2F;模型选择。首先，Redshift ML在AUTO OFF路径中引入了XGBoost和多层感知器。</p>
 <p>为了保持使用最佳工具的真实性，Redshift还可以将推理委托给Sagemaker。这种能力对于垂直AI（例如情感分析）是必要的，并在需要时打开了使用专用GPU硬件的大门。</p>
