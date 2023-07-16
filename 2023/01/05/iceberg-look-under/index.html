@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="Introduction数据湖的构建旨在实现数据的民主化，即允许越来越多的人、工具和应用程序利用越来越多的数据。实现这一目标所需的关键能力是将底层数据结构和物理数据存储的复杂性对用户隐藏起来。之前实现这一目标的事实上的标准是Hive表格式，但其在数据、用户和应用程序规模方面存在不足。那么答案是什么呢？答案是Apache Iceberg。 在本文中，我们将介绍以下内容：  表格格式的定义，因为传统上">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Apache Iceberg: An Architectural Look Under the Covers">
+<meta property="og:url" content="http://example.com/2023/01/05/iceberg-look-under/index.html">
+<meta property="og:site_name" content="Macduan Notes">
+<meta property="og:description" content="Introduction数据湖的构建旨在实现数据的民主化，即允许越来越多的人、工具和应用程序利用越来越多的数据。实现这一目标所需的关键能力是将底层数据结构和物理数据存储的复杂性对用户隐藏起来。之前实现这一目标的事实上的标准是Hive表格式，但其在数据、用户和应用程序规模方面存在不足。那么答案是什么呢？答案是Apache Iceberg。 在本文中，我们将介绍以下内容：  表格格式的定义，因为传统上">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://www.dremio.com/wp-content/uploads/2021/12/hive-table-format-high-level-arch-1.png%22">
+<meta property="og:image" content="https://www.dremio.com/wp-content/uploads/2023/03/iceberg-metadata.png">
+<meta property="og:image" content="https://www.dremio.com/wp-content/uploads/2023/04/catalog-2048x1042.png">
+<meta property="og:image" content="https://www.dremio.com/wp-content/uploads/2023/04/manifest-list-2048x1038.png">
+<meta property="og:image" content="https://www.dremio.com/wp-content/uploads/2023/04/manifest-file-2048x1006.png">
+<meta property="og:image" content="https://www.dremio.com/wp-content/uploads/2021/06/create-table-1-2048x1062.png">
+<meta property="og:image" content="https://www.dremio.com/wp-content/uploads/2021/06/insert-2048x1090.png">
+<meta property="og:image" content="https://www.dremio.com/wp-content/uploads/2023/04/merge-into-2048x1139.png">
+<meta property="og:image" content="https://www.dremio.com/wp-content/uploads/2023/04/select-2048x1010.png">
+<meta property="og:image" content="https://www.dremio.com/wp-content/uploads/2021/06/hidden-partitioning-2048x1018.png">
+<meta property="og:image" content="https://www.dremio.com/wp-content/uploads/2023/04/time-travel-2048x1014.png">
+<meta property="article:published_time" content="2023-01-05T11:24:45.000Z">
+<meta property="article:modified_time" content="2023-07-16T13:18:46.887Z">
+<meta property="article:author" content="duanmeng">
+<meta property="article:tag" content="lakehouse">
+<meta property="article:tag" content="spark">
+<meta property="article:tag" content="datalake">
+<meta property="article:tag" content="data">
+<meta property="article:tag" content="iceberg">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://www.dremio.com/wp-content/uploads/2021/12/hive-table-format-high-level-arch-1.png%22">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Apache Iceberg: An Architectural Look Under the Covers</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/archives/">Home</a></li><!--
+     --><!--
+       --><li><a href="/categories/technology">Technology</a></li><!--
+     --><!--
+       --><li><a href="/categories/life">Life</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tags</a></li><!--
+     --><!--
+       --><li><a href="/about">About</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2023/02/07/velox-types/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2022/12/06/macduan-velox-commits/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/01/05/iceberg-look-under/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/01/05/iceberg-look-under/&text=Apache Iceberg: An Architectural Look Under the Covers"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/01/05/iceberg-look-under/&title=Apache Iceberg: An Architectural Look Under the Covers"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/01/05/iceberg-look-under/&is_video=false&description=Apache Iceberg: An Architectural Look Under the Covers"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Apache Iceberg: An Architectural Look Under the Covers&body=Check out this article: http://example.com/2023/01/05/iceberg-look-under/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/01/05/iceberg-look-under/&title=Apache Iceberg: An Architectural Look Under the Covers"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/01/05/iceberg-look-under/&title=Apache Iceberg: An Architectural Look Under the Covers"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/01/05/iceberg-look-under/&title=Apache Iceberg: An Architectural Look Under the Covers"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/01/05/iceberg-look-under/&title=Apache Iceberg: An Architectural Look Under the Covers"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/01/05/iceberg-look-under/&name=Apache Iceberg: An Architectural Look Under the Covers&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/01/05/iceberg-look-under/&t=Apache Iceberg: An Architectural Look Under the Covers"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Introduction"><span class="toc-number">1.</span> <span class="toc-text">Introduction</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#What%E2%80%99s-a-Table-Format"><span class="toc-number">1.1.</span> <span class="toc-text">What’s a Table Format?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#A-Brief-History"><span class="toc-number">1.2.</span> <span class="toc-text">A Brief History</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#The-Hive-Table-Format"><span class="toc-number">2.</span> <span class="toc-text">The Hive Table Format</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Pros"><span class="toc-number">2.1.</span> <span class="toc-text">Pros</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Cons"><span class="toc-number">2.2.</span> <span class="toc-text">Cons</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E8%A7%A3%E5%86%B3%E8%BF%99%E4%BA%9B%E9%97%AE%E9%A2%98%E7%9A%84%E5%91%A2%EF%BC%9F"><span class="toc-number">2.3.</span> <span class="toc-text">如何解决这些问题的呢？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#The-Iceberg-Table-Format"><span class="toc-number">3.</span> <span class="toc-text">The Iceberg Table Format</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Iceberg%E8%A1%A8%E7%9A%84%E6%9E%B6%E6%9E%84"><span class="toc-number">3.1.</span> <span class="toc-text">Iceberg表的架构</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Iceberg%E7%BB%84%E4%BB%B6"><span class="toc-number">4.</span> <span class="toc-text">Iceberg组件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Iceberg-Catalog"><span class="toc-number">4.1.</span> <span class="toc-text">Iceberg Catalog</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Metadata-file"><span class="toc-number">4.2.</span> <span class="toc-text">Metadata file</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Manifest-list"><span class="toc-number">4.3.</span> <span class="toc-text">Manifest list</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Manifest-file"><span class="toc-number">4.4.</span> <span class="toc-text">Manifest file</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#A-Look-Under-the-Covers"><span class="toc-number">5.</span> <span class="toc-text">A Look Under the Covers</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#CREATE-TABLE"><span class="toc-number">5.1.</span> <span class="toc-text">CREATE TABLE</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#INSERT"><span class="toc-number">5.2.</span> <span class="toc-text">INSERT</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#MERGE-INTO-x2F-UPSERT"><span class="toc-number">5.2.1.</span> <span class="toc-text">MERGE INTO &#x2F; UPSERT</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#SELECT"><span class="toc-number">5.2.2.</span> <span class="toc-text">SELECT</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%9A%90%E8%97%8F%E5%88%86%E5%8C%BA"><span class="toc-number">5.2.3.</span> <span class="toc-text">隐藏分区</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%97%B6%E9%97%B4%E6%97%85%E8%A1%8C"><span class="toc-number">5.2.4.</span> <span class="toc-text">时间旅行</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Compaction"><span class="toc-number">5.3.</span> <span class="toc-text">Compaction</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Design-Benefits-of-the-Format"><span class="toc-number">6.</span> <span class="toc-text">Design Benefits of the Format</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">7.</span> <span class="toc-text">References</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Apache Iceberg: An Architectural Look Under the Covers
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">duanmeng</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-01-05T11:24:45.000Z" itemprop="datePublished">2023-01-05</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/technology/">technology</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/data/" rel="tag">data</a>, <a class="tag-link-link" href="/tags/datalake/" rel="tag">datalake</a>, <a class="tag-link-link" href="/tags/iceberg/" rel="tag">iceberg</a>, <a class="tag-link-link" href="/tags/lakehouse/" rel="tag">lakehouse</a>, <a class="tag-link-link" href="/tags/spark/" rel="tag">spark</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>数据湖的构建旨在实现数据的民主化，即允许越来越多的人、工具和应用程序利用越来越多的数据。实现这一目标所需的关键能力是将底层数据结构和物理数据存储的复杂性对用户隐藏起来。之前实现这一目标的事实上的标准是Hive表格式，但其在数据、用户和应用程序规模方面存在不足。那么答案是什么呢？答案是Apache Iceberg。</p>
+<p>在本文中，我们将介绍以下内容：</p>
+<ul>
+<li>表格格式的定义，因为传统上表格格式的概念被嵌入在“Hive”的范畴之下，是隐含的。</li>
+<li>长期以来事实上的标准——Hive表格格式的详细信息，包括其优点和缺点。我们将看到这些问题如何导致了对全新表格格式定义的需求。</li>
+<li>Apache Iceberg表格格式是如何应对这一需求而创建的。我们还将深入探讨Iceberg表格的架构结构，包括从规范的角度和逐步查看Iceberg表格中进行创建、读取、更新和删除（CRUD）操作时发生的情况。</li>
+<li>最后，我们将展示这种架构如何实现设计的结果所带来的好处。</li>
+</ul>
+<h3 id="What’s-a-Table-Format"><a href="#What’s-a-Table-Format" class="headerlink" title="What’s a Table Format?"></a>What’s a Table Format?</h3><p>一个定义表格格式的好方法是将数据集的文件组织起来，以将它们呈现为一个单一的“表格”。从用户的角度来看，另一个相对简单的定义是回答“这个表格中有什么数据？”这个问题的方式。对于这个问题的一个单一答案，允许多个人、团体和工具同时与表格中的数据进行交互，无论是向表格写入数据还是从表格读取数据。表格格式的主要目标是为人们和工具提供表格的抽象，并允许它们高效地与表格的底层数据进行交互。</p>
+<h3 id="A-Brief-History"><a href="#A-Brief-History" class="headerlink" title="A Brief History"></a>A Brief History</h3><p>在2009年，Facebook意识到虽然Hadoop解决了许多需求，如规模和成本效益，但在改善数据对非技术专家的民主化方面仍存在一些问题：</p>
+<ol>
+<li>任何想使用数据的用户都必须弄清楚如何将他们的问题适应MapReduce编程模型，然后编写Java代码来实现它。</li>
+<li>没有定义数据集的元数据，比如其模式。</li>
+</ol>
+<p>为了让更多用户使用数据并解决这些问题，他们构建了Hive。为了解决问题1，他们意识到需要提供更通用的编程模型和人们熟悉的语言来访问数据，即SQL。他们将构建Hive，将用户的SQL查询转换为MapReduce作业，以便他们能够获得答案。作为解决问题1的要求以及解决问题2的需求，需要定义数据集的schema以及如何在用户的SQL查询中以表格的形式引用该数据集。为了满足第二个需求，定义了Hive表格格式（通过<a target="_blank" rel="noopener" href="https://www.vldb.org/pvldb/vol2/vldb09-938.pdf">白皮书</a>中的3个要点和Java实现），并且自那时以来一直成为事实上的标准。</p>
+<h2 id="The-Hive-Table-Format"><a href="#The-Hive-Table-Format" class="headerlink" title="The Hive Table Format"></a>The Hive Table Format</h2><p>在Hive表格格式中，一个表格被定义为一个或多个目录的全部内容，实际上就是一个或多个目录的ls结果。对于非分区表格，这是一个单独的目录。对于分区表格，在实际世界中更常见，表格由许多目录组成，每个分区一个目录。组成表格的数据在目录级别进行跟踪，并且这种跟踪是在Hive元数据存储中完成的。分区值通过目录路径来定义，形式为<code>/path/to/table/partition_column=partition_value</code>。</p>
+<p>下面是一个按照列k1和k2进行分区的Hive表格的示例架构图。</p>
+<p><img src="https://www.dremio.com/wp-content/uploads/2021/12/hive-table-format-high-level-arch-1.png%22" alt="hive-table-format"></p>
+<h3 id="Pros"><a href="#Pros" class="headerlink" title="Pros"></a>Pros</h3><ul>
+<li><strong>它与几乎所有处理引擎兼容</strong>，因为它是当时唯一的表格格式——自从大数据的广泛采用以来，它一直是事实上的标准。</li>
+<li>多年来，它不断发展并提供了机制，使得Hive表格能够提供比每次查询都进行全表扫描更高效的访问模式，例如<strong>分区和桶</strong>。</li>
+<li><strong>它与文件格式无关</strong>，这使得公司和社区能够开发更适合分析的文件格式（例如Parquet、ORC），并且不需要在将数据放入Hive表格之前进行转换（例如Avro、CSV&#x2F;TSV）。</li>
+<li><strong>Hive metastore</strong>，存储以Hive表格式排列(layout<br>)的表为所有需要与表格进行交互的工具生态系统提供了一个单一的中心答案，即<strong>“这个表格中有什么数据？”</strong>无论是在读取方面还是写入方面。</li>
+<li>它提供了以整个<strong>分区为单位对表格中的数据进行原子级别更改的能力</strong>，通过Hive元数据存储库中的原子交换，从而实现了对外界的一致视图。</li>
+</ul>
+<h3 id="Cons"><a href="#Cons" class="headerlink" title="Cons"></a>Cons</h3><ol>
+<li>当在更大规模的数据、用户和应用程序中使用Hive表格式时，许多问题变得越来越严重<ul>
+<li>数据的更改效率低下：由于分区存储在事务性存储中（Hive元数据存储库，由关系型数据库支持），您可以以事务性的方式添加和删除分区。然而，由于文件的跟踪是在不提供事务性能力的文件系统中进行的，因此无法以事务性的方式在文件级别上添加和删除数据。</li>
+<li>一般的解决方法是在分区级别上解决这个问题，通过在后台将整个分区复制到新位置，同时在复制分区时进行更新&#x2F;删除操作，然后更新元数据存储库中分区的位置为新位置。</li>
+<li>这种方法效率低下，特别是当分区很大、在分区中更改的数据量相对较小和&#x2F;或频繁进行更改时。</li>
+</ul>
+</li>
+<li>没有一种安全的方法可以在一个操作中安全地更改多个分区中的数据<ul>
+<li>因为唯一具有事务一致性的操作是交换单个分区，所以无法以一致的方式同时更改多个分区中的数据。即使是像将文件添加到两个分区这样简单的操作也无法以事务一致的方式完成。因此，用户看到的是一个不一致的世界观，他们在做出正确决策时遇到问题，并且对数据的可信度也存在问题。</li>
+</ul>
+</li>
+<li>在实践中，多个作业同时修改同一数据集是不安全的操作<ul>
+<li>在表格格式中，没有一种被广泛采用的方法来处理多个进程&#x2F;人同时更新数据的情况。虽然有一种方法，但它非常限制，并且会引发问题，只有Hive才能遵守。这要么导致对谁可以何时写入数据进行严格控制，这需要组织自行定义和协调，要么导致多个进程同时更改数据，从而导致数据丢失，因为最后一次写入的数据会覆盖之前的写入。</li>
+</ul>
+</li>
+<li>对于大型表格，获取所有目录列表需要很长时间<ul>
+<li>因为您没有一个列出所有分区目录中文件的列表，所以需要在运行时获取这个列表。获取所需的所有目录列表的响应通常需要很长时间，比如查询规划的时候。</li>
+</ul>
+</li>
+<li>用户必须了解表格的物理布局<ul>
+<li>如果一个表格按事件发生的时间进行分区，通常会使用多级分区——首先是事件的年份，然后是事件的月份，然后是事件的日期，有时还会有更低的粒度。但是，当用户面对事件时，以获取某个时间点之后的事件的直观方式看起来像是 <code>WHERE event_ts &gt;= &#39;2021-05-10 12:00:00&#39;</code>。在这种情况下，查询引擎会进行全表扫描，这比使用可用的分区剪枝来限制数据的时间要长得多。</li>
+<li>这种全表扫描发生的原因是事件的时间戳（用户所知道的<code>2021-05-10 12:00:00</code>）与物理分区方案（年份&#x3D;2021，然后月份&#x3D;05，然后日期&#x3D;10）之间没有映射关系。</li>
+<li>相反，所有用户都需要了解分区方案，并将查询编写为 <code>WHERE event_ts &gt;= &#39;2021-05-10 12:00:00&#39; AND event_year &gt;= &#39;2021&#39; AND event_month &gt;= &#39;05&#39; AND (event_day &gt;= &#39;10&#39; OR event_month &gt;= &#39;06&#39;)</code>（如果要查看2020年5月之后的事件，这个分区剪枝查询会变得更加复杂）。</li>
+</ul>
+</li>
+<li>Hive表格的统计信息通常是过时的<ul>
+<li>因为表格统计信息是在异步周期性读取作业中收集的，所以统计信息经常是过时的。此外，由于收集这些统计信息需要昂贵的读取作业，需要大量的扫描和计算，这些作业很少运行，如果有的话。</li>
+<li>由于这两个方面，Hive中的表格统计信息通常是过时的，如果存在的话，这会导致优化器选择计划不佳，甚至有些引擎完全忽略Hive中的任何统计信息。</li>
+</ul>
+</li>
+<li>文件系统布局在云对象存储上的性能较差<ul>
+<li>每当您想要读取一些数据时，云对象存储（例如S3、GCS）的架构规定这些读取应该具有尽可能多的不同前缀，以便由云对象存储中的不同节点处理。然而，在Hive表格格式中，一个分区中的所有数据具有相同的前缀，通常您会读取一个分区中的所有数据（或者至少读取一个分区中的所有Parquet&#x2F;ORC页脚），这些都会命中同一个云对象存储节点，降低了读取操作的性能。</li>
+</ul>
+</li>
+</ol>
+<blockquote>
+<p>在Hive表格格式上再加上一些临时措施并不是解决方案，而是需要一种新的表格格式。</p>
+</blockquote>
+<h3 id="如何解决这些问题的呢？"><a href="#如何解决这些问题的呢？" class="headerlink" title="如何解决这些问题的呢？"></a>如何解决这些问题的呢？</h3><p>Hive表格式的大部分问题都源于一个看起来可能相当次要的方面，但最终产生了重大后果——<strong>表格中的数据是以文件夹级别进行跟踪的</strong>。解决Hive表格格式引发的主要问题的关键是改为以文件级别跟踪表格中的数据。他们不再将表格指向一个目录或一组目录，而是将表格定义为文件的规范列表。文件级别的跟踪不仅可以解决他们在Hive表格格式中遇到的问题，还可以为实现更广泛的分析目标奠定基础：</p>
+<ul>
+<li>提供始终正确和始终一致的表格视图</li>
+<li>实现更快的查询计划和执行</li>
+<li>为用户提供良好的响应时间，而无需他们了解数据的物理布局</li>
+<li>实现更好和更安全的表格演进</li>
+<li>在数据、用户和应用规模上实现上述所有目标</li>
+</ul>
+<h2 id="The-Iceberg-Table-Format"><a href="#The-Iceberg-Table-Format" class="headerlink" title="The Iceberg Table Format"></a>The Iceberg Table Format</h2><table>
+<thead>
+<tr>
+<th>What Iceberg is</th>
+<th>What Iceberg is not</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>- A table format specification<br> - A set of APIs and libraries for<br> engines to interact with tables<br> following that specification</td>
+<td>- A storage engine<br>- An execution engine<br>- A service</td>
+</tr>
+</tbody></table>
+<h3 id="Iceberg表的架构"><a href="#Iceberg表的架构" class="headerlink" title="Iceberg表的架构"></a>Iceberg表的架构</h3><p><img src="https://www.dremio.com/wp-content/uploads/2023/03/iceberg-metadata.png" alt="image-ice-arc"></p>
+<h2 id="Iceberg组件"><a href="#Iceberg组件" class="headerlink" title="Iceberg组件"></a>Iceberg组件</h2><p>现在，让我们逐个介绍上图中的每个组件。在介绍它们的同时，我们还将逐步介绍<code>SELECT</code>查询通过这些组件读取Iceberg表中的数据的过程。您将在下面用带有此图标标记的方框中看到这些步骤：</p>
+<p>Iceberg表的架构包括3个层级：</p>
+<ul>
+<li><strong>Iceberg Catalog</strong></li>
+<li><strong>Metadata Layer</strong>，包含元metadata file，manifest list和manifest file</li>
+<li><strong>Data Layer</strong></li>
+</ul>
+<p><img src="https://www.dremio.com/wp-content/uploads/2023/04/catalog-2048x1042.png" alt="image-ice-1"></p>
+<h3 id="Iceberg-Catalog"><a href="#Iceberg-Catalog" class="headerlink" title="Iceberg Catalog"></a>Iceberg Catalog</h3><p>读取表格第一步是找到当前元数据指针的位置，当前元数据指针在Iceberg Catalog。Iceberg Catalog的主要要求是必须支持原子操作来更新当前元数据指针（例如，HDFS、Hive Metastore、Nessie）。这就是允许Iceberg表上的事务具有原子性并提供正确性保证的原因。在Catalog中，对于每个表格，都有一个引用或指针指向该表格的当前元数据文件。例如，在上面显示的图表中，有2个元数据文件。目录中表格的当前元数据指针的值是右侧元数据文件的位置。这些数据的具体形式取决于使用的Iceberg目录是什么。以下是一些示例：</p>
+<ul>
+<li>使用HDFS Catalog时，表格的元数据文件夹中有一个名为version-hint.text的文件，其内容是当前元数据文件的版本号。</li>
+<li>使用Hive Metastore Catalog时，元数据存储中的表格条目具有一个表属性，用于存储当前元数据文件的位置。</li>
+<li>使用Nessie Catalog时，Nessie存储了表格的当前元数据文件的位置。</li>
+</ul>
+<blockquote>
+<p>是的，当一个SELECT查询读取一个Iceberg表时，查询引擎首先访问Iceberg目录，然后检索要读取的表格的当前元数据文件位置的条目，然后打开该文件。</p>
+</blockquote>
+<h3 id="Metadata-file"><a href="#Metadata-file" class="headerlink" title="Metadata file"></a>Metadata file</h3><p>正如名称所示，元数据文件存储有关表格的元数据。这包括表格的schema信息、分区信息、快照以及哪个快照是当前快照。虽然上面是一个简化的示例，用于说明目的，但以下是一个完整的元数据文件内容示例：</p>
+<p><code>v3.metadata.json</code></p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;format-version&quot;</span> <span class="punctuation">:</span> <span class="number">1</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;table-uuid&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;4b96b6e8-9838-48df-a111-ec1ff6422816&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;location&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;/home/hadoop/warehouse/db2/part_table2&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;last-updated-ms&quot;</span> <span class="punctuation">:</span> <span class="number">1611694436618</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;last-column-id&quot;</span> <span class="punctuation">:</span> <span class="number">3</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;schema&quot;</span> <span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;type&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;struct&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;fields&quot;</span> <span class="punctuation">:</span> <span class="punctuation">[</span> <span class="punctuation">&#123;</span></span><br><span class="line">            <span class="attr">&quot;id&quot;</span> <span class="punctuation">:</span> <span class="number">1</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;name&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;id&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;required&quot;</span> <span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;type&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;int&quot;</span></span><br><span class="line">        <span class="punctuation">&#125;</span><span class="punctuation">,</span> <span class="punctuation">&#123;</span></span><br><span class="line">            <span class="attr">&quot;id&quot;</span> <span class="punctuation">:</span> <span class="number">2</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;name&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;ts&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;required&quot;</span> <span class="punctuation">:</span> <span class="literal"><span class="keyword">false</span></span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;type&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;timestamptz&quot;</span></span><br><span class="line">        <span class="punctuation">&#125;</span><span class="punctuation">,</span> <span class="punctuation">&#123;</span></span><br><span class="line">            <span class="attr">&quot;id&quot;</span> <span class="punctuation">:</span> <span class="number">3</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;name&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;message&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;required&quot;</span> <span class="punctuation">:</span> <span class="literal"><span class="keyword">false</span></span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;type&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;string&quot;</span></span><br><span class="line">        <span class="punctuation">&#125;</span> <span class="punctuation">]</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;partition-spec&quot;</span> <span class="punctuation">:</span> <span class="punctuation">[</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;name&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;ts_hour&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;transform&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;hour&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;source-id&quot;</span> <span class="punctuation">:</span> <span class="number">2</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;field-id&quot;</span> <span class="punctuation">:</span> <span class="number">1000</span></span><br><span class="line">    <span class="punctuation">&#125;</span> <span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;default-spec-id&quot;</span> <span class="punctuation">:</span> <span class="number">0</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;partition-specs&quot;</span> <span class="punctuation">:</span> <span class="punctuation">[</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;spec-id&quot;</span> <span class="punctuation">:</span> <span class="number">0</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;fields&quot;</span> <span class="punctuation">:</span> <span class="punctuation">[</span> <span class="punctuation">&#123;</span></span><br><span class="line">            <span class="attr">&quot;name&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;ts_hour&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;transform&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;hour&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;source-id&quot;</span> <span class="punctuation">:</span> <span class="number">2</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;field-id&quot;</span> <span class="punctuation">:</span> <span class="number">1000</span></span><br><span class="line">        <span class="punctuation">&#125;</span> <span class="punctuation">]</span></span><br><span class="line">    <span class="punctuation">&#125;</span> <span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;default-sort-order-id&quot;</span> <span class="punctuation">:</span> <span class="number">0</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;sort-orders&quot;</span> <span class="punctuation">:</span> <span class="punctuation">[</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;order-id&quot;</span> <span class="punctuation">:</span> <span class="number">0</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;fields&quot;</span> <span class="punctuation">:</span> <span class="punctuation">[</span> <span class="punctuation">]</span></span><br><span class="line">    <span class="punctuation">&#125;</span> <span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;properties&quot;</span> <span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;owner&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;hadoop&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;current-snapshot-id&quot;</span> <span class="punctuation">:</span> <span class="number">1257424822184505371</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;snapshots&quot;</span> <span class="punctuation">:</span> <span class="punctuation">[</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;snapshot-id&quot;</span> <span class="punctuation">:</span> <span class="number">8271497753230544300</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;timestamp-ms&quot;</span> <span class="punctuation">:</span> <span class="number">1611694406483</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;summary&quot;</span> <span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">            <span class="attr">&quot;operation&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;append&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;spark.app.id&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;application_1611687743277_0002&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;added-data-files&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;1&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;added-records&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;1&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;added-files-size&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;960&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;changed-partition-count&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;1&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;total-records&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;1&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;total-data-files&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;1&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;total-delete-files&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;0&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;total-position-deletes&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;0&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;total-equality-deletes&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;0&quot;</span></span><br><span class="line">        <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;manifest-list&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;/home/hadoop/warehouse/db2/part_table2/metadata/snap-8271497753230544300-1-d8a778f9-ad19-4e9c-88ff-28f49ec939fa.avro&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span> </span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;snapshot-id&quot;</span> <span class="punctuation">:</span> <span class="number">1257424822184505371</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;parent-snapshot-id&quot;</span> <span class="punctuation">:</span> <span class="number">8271497753230544300</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;timestamp-ms&quot;</span> <span class="punctuation">:</span> <span class="number">1611694436618</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;summary&quot;</span> <span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">            <span class="attr">&quot;operation&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;append&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;spark.app.id&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;application_1611687743277_0002&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;added-data-files&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;1&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;added-records&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;1&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;added-files-size&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;973&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;changed-partition-count&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;1&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;total-records&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;2&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;total-data-files&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;2&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;total-delete-files&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;0&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;total-position-deletes&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;0&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;total-equality-deletes&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;0&quot;</span></span><br><span class="line">        <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;manifest-list&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;/home/hadoop/warehouse/db2/part_table2/metadata/snap-1257424822184505371-1-eab8490b-8d16-4eb1-ba9e-0dede788ff08.avro&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span> <span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;snapshot-log&quot;</span> <span class="punctuation">:</span> <span class="punctuation">[</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;timestamp-ms&quot;</span> <span class="punctuation">:</span> <span class="number">1611694406483</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;snapshot-id&quot;</span> <span class="punctuation">:</span> <span class="number">8271497753230544300</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span> </span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;timestamp-ms&quot;</span> <span class="punctuation">:</span> <span class="number">1611694436618</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;snapshot-id&quot;</span> <span class="punctuation">:</span> <span class="number">1257424822184505371</span></span><br><span class="line">    <span class="punctuation">&#125;</span> <span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;metadata-log&quot;</span> <span class="punctuation">:</span> <span class="punctuation">[</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;timestamp-ms&quot;</span> <span class="punctuation">:</span> <span class="number">1611694097253</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;metadata-file&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;/home/hadoop/warehouse/db2/part_table2/metadata/v1.metadata.json&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span> </span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;timestamp-ms&quot;</span> <span class="punctuation">:</span> <span class="number">1611694406483</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;metadata-file&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;/home/hadoop/warehouse/db2/part_table2/metadata/v2.metadata.json&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span> <span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>当一个SELECT查询读取一个Iceberg表，并在从catalog中的表格Catalog中获取其location后打开当前元数据文件时，查询引擎会读取<code>current-snapshot-id</code>的值。然后，它使用这个值在快照数组中找到该快照的条目，然后检索该快照的<code>manifest-list</code>条目的值，并打开该位置指向的清单列表。</p>
+</blockquote>
+<p><img src="https://www.dremio.com/wp-content/uploads/2023/04/manifest-list-2048x1038.png" alt="image"></p>
+<h3 id="Manifest-list"><a href="#Manifest-list" class="headerlink" title="Manifest list"></a>Manifest list</h3><p>另一个恰如其名的文件是清单列表（manifest list），它是一个清单文件的列表。清单列表包含了组成该快照的每个清单文件的信息，例如清单文件的位置、它作为一部分添加的快照，以及它所属的分区和数据文件跟踪的分区列的下限和上限信息。</p>
+<p>以下是一个清单列表文件的完整内容示例：<br><code>snap-1257424822184505371-1-eab8490b-8d16-4eb1-ba9e-0dede788ff08.avro</code>（转换为JSON格式）</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;manifest_path&quot;</span><span class="punctuation">:</span> <span class="string">&quot;/home/hadoop/warehouse/db2/part_table2/metadata/eab8490b-8d16-4eb1-ba9e-0dede788ff08-m0.avro&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;manifest_length&quot;</span><span class="punctuation">:</span> <span class="number">4884</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;partition_spec_id&quot;</span><span class="punctuation">:</span> <span class="number">0</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;added_snapshot_id&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;long&quot;</span><span class="punctuation">:</span> <span class="number">1257424822184505300</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;added_data_files_count&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;int&quot;</span><span class="punctuation">:</span> <span class="number">1</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;existing_data_files_count&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;int&quot;</span><span class="punctuation">:</span> <span class="number">0</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;deleted_data_files_count&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;int&quot;</span><span class="punctuation">:</span> <span class="number">0</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;partitions&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;array&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span> <span class="punctuation">&#123;</span></span><br><span class="line">            <span class="attr">&quot;contains_null&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">false</span></span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;lower_bound&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">                <span class="attr">&quot;bytes&quot;</span><span class="punctuation">:</span> <span class="string">&quot;¹Ô\\u0006\\u0000&quot;</span></span><br><span class="line">            <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;upper_bound&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">                <span class="attr">&quot;bytes&quot;</span><span class="punctuation">:</span> <span class="string">&quot;¹Ô\\u0006\\u0000&quot;</span></span><br><span class="line">            <span class="punctuation">&#125;</span></span><br><span class="line">        <span class="punctuation">&#125;</span> <span class="punctuation">]</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;added_rows_count&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;long&quot;</span><span class="punctuation">:</span> <span class="number">1</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;existing_rows_count&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;long&quot;</span><span class="punctuation">:</span> <span class="number">0</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;deleted_rows_count&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;long&quot;</span><span class="punctuation">:</span> <span class="number">0</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;manifest_path&quot;</span><span class="punctuation">:</span> <span class="string">&quot;/home/hadoop/warehouse/db2/part_table2/metadata/d8a778f9-ad19-4e9c-88ff-28f49ec939fa-m0.avro&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;manifest_length&quot;</span><span class="punctuation">:</span> <span class="number">4884</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;partition_spec_id&quot;</span><span class="punctuation">:</span> <span class="number">0</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;added_snapshot_id&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;long&quot;</span><span class="punctuation">:</span> <span class="number">8271497753230544000</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;added_data_files_count&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;int&quot;</span><span class="punctuation">:</span> <span class="number">1</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;existing_data_files_count&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;int&quot;</span><span class="punctuation">:</span> <span class="number">0</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;deleted_data_files_count&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;int&quot;</span><span class="punctuation">:</span> <span class="number">0</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;partitions&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;array&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span> <span class="punctuation">&#123;</span></span><br><span class="line">            <span class="attr">&quot;contains_null&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">false</span></span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;lower_bound&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">                <span class="attr">&quot;bytes&quot;</span><span class="punctuation">:</span> <span class="string">&quot;¸Ô\\u0006\\u0000&quot;</span></span><br><span class="line">            <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;upper_bound&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">                <span class="attr">&quot;bytes&quot;</span><span class="punctuation">:</span> <span class="string">&quot;¸Ô\\u0006\\u0000&quot;</span></span><br><span class="line">            <span class="punctuation">&#125;</span></span><br><span class="line">        <span class="punctuation">&#125;</span> <span class="punctuation">]</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;added_rows_count&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;long&quot;</span><span class="punctuation">:</span> <span class="number">1</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;existing_rows_count&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;long&quot;</span><span class="punctuation">:</span> <span class="number">0</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;deleted_rows_count&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;long&quot;</span><span class="punctuation">:</span> <span class="number">0</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>当一个SELECT查询读取一个Iceberg表，并在从元数据文件获取快照的位置后打开清单列表时，查询引擎会读取manifest-path条目的值，并打开清单文件。在这个阶段，它还可以进行一些优化，比如使用行计数或使用分区信息对数据进行过滤。</p>
+</blockquote>
+<p><img src="https://www.dremio.com/wp-content/uploads/2023/04/manifest-file-2048x1006.png" alt="image"></p>
+<h3 id="Manifest-file"><a href="#Manifest-file" class="headerlink" title="Manifest file"></a>Manifest file</h3><p>清单文件（Manifest file）用于跟踪数据文件以及每个文件的附加细节和统计信息。正如前面提到的，Iceberg能够解决Hive表格格式的问题的主要区别在于在文件级别跟踪数据 - 清单文件就是实现这一目标的关键。</p>
+<p>每个清单文件在规模化时跟踪一部分数据文件，以实现并行处理和重用效率。它们包含了大量有用的信息，用于在从这些数据文件读取数据时提高效率和性能，例如关于分区成员资格、记录计数以及列的下限和上限的详细信息。这些统计信息在写操作期间为每个清单的数据文件子集编写，并且比Hive中的统计信息更有可能存在、准确且最新。</p>
+<p>以下是一个清单文件的完整内容示例：<br><code>eab8490b-8d16-4eb1-ba9e-0dede788ff08-m0.avro</code>（转换为JSON格式）</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;status&quot;</span><span class="punctuation">:</span> <span class="number">1</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;snapshot_id&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;long&quot;</span><span class="punctuation">:</span> <span class="number">1257424822184505300</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;data_file&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;file_path&quot;</span><span class="punctuation">:</span> <span class="string">&quot;/home/hadoop/warehouse/db2/part_table2/data/ts_hour=2021-01-26-01/00000-6-7c6cf3c0-8090-4f15-a4cc-3a3a562eed7b-00001.parquet&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;file_format&quot;</span><span class="punctuation">:</span> <span class="string">&quot;PARQUET&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;partition&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">            <span class="attr">&quot;ts_hour&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">                <span class="attr">&quot;int&quot;</span><span class="punctuation">:</span> <span class="number">447673</span></span><br><span class="line">            <span class="punctuation">&#125;</span></span><br><span class="line">        <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;record_count&quot;</span><span class="punctuation">:</span> <span class="number">1</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;file_size_in_bytes&quot;</span><span class="punctuation">:</span> <span class="number">973</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;block_size_in_bytes&quot;</span><span class="punctuation">:</span> <span class="number">67108864</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;column_sizes&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">            <span class="attr">&quot;array&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span> <span class="punctuation">&#123;</span></span><br><span class="line">                <span class="attr">&quot;key&quot;</span><span class="punctuation">:</span> <span class="number">1</span><span class="punctuation">,</span></span><br><span class="line">                <span class="attr">&quot;value&quot;</span><span class="punctuation">:</span> <span class="number">47</span></span><br><span class="line">            <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="punctuation">&#123;</span></span><br><span class="line">                <span class="attr">&quot;key&quot;</span><span class="punctuation">:</span> <span class="number">2</span><span class="punctuation">,</span></span><br><span class="line">                <span class="attr">&quot;value&quot;</span><span class="punctuation">:</span> <span class="number">57</span></span><br><span class="line">            <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="punctuation">&#123;</span></span><br><span class="line">                <span class="attr">&quot;key&quot;</span><span class="punctuation">:</span> <span class="number">3</span><span class="punctuation">,</span></span><br><span class="line">                <span class="attr">&quot;value&quot;</span><span class="punctuation">:</span> <span class="number">60</span></span><br><span class="line">            <span class="punctuation">&#125;</span> <span class="punctuation">]</span></span><br><span class="line">        <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;value_counts&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">            <span class="attr">&quot;array&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span> <span class="punctuation">&#123;</span></span><br><span class="line">                <span class="attr">&quot;key&quot;</span><span class="punctuation">:</span> <span class="number">1</span><span class="punctuation">,</span></span><br><span class="line">                <span class="attr">&quot;value&quot;</span><span class="punctuation">:</span> <span class="number">1</span></span><br><span class="line">            <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="punctuation">&#123;</span></span><br><span class="line">                <span class="attr">&quot;key&quot;</span><span class="punctuation">:</span> <span class="number">2</span><span class="punctuation">,</span></span><br><span class="line">                <span class="attr">&quot;value&quot;</span><span class="punctuation">:</span> <span class="number">1</span></span><br><span class="line">            <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="punctuation">&#123;</span></span><br><span class="line">                <span class="attr">&quot;key&quot;</span><span class="punctuation">:</span> <span class="number">3</span><span class="punctuation">,</span></span><br><span class="line">                <span class="attr">&quot;value&quot;</span><span class="punctuation">:</span> <span class="number">1</span></span><br><span class="line">            <span class="punctuation">&#125;</span> <span class="punctuation">]</span></span><br><span class="line">        <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;null_value_counts&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">            <span class="attr">&quot;array&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span> <span class="punctuation">&#123;</span></span><br><span class="line">                <span class="attr">&quot;key&quot;</span><span class="punctuation">:</span> <span class="number">1</span><span class="punctuation">,</span></span><br><span class="line">                <span class="attr">&quot;value&quot;</span><span class="punctuation">:</span> <span class="number">0</span></span><br><span class="line">            <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="punctuation">&#123;</span></span><br><span class="line">                <span class="attr">&quot;key&quot;</span><span class="punctuation">:</span> <span class="number">2</span><span class="punctuation">,</span></span><br><span class="line">                <span class="attr">&quot;value&quot;</span><span class="punctuation">:</span> <span class="number">0</span></span><br><span class="line">            <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="punctuation">&#123;</span></span><br><span class="line">                <span class="attr">&quot;key&quot;</span><span class="punctuation">:</span> <span class="number">3</span><span class="punctuation">,</span></span><br><span class="line">                <span class="attr">&quot;value&quot;</span><span class="punctuation">:</span> <span class="number">0</span></span><br><span class="line">            <span class="punctuation">&#125;</span> <span class="punctuation">]</span></span><br><span class="line">        <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;lower_bounds&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">            <span class="attr">&quot;array&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span> <span class="punctuation">&#123;</span></span><br><span class="line">                <span class="attr">&quot;key&quot;</span><span class="punctuation">:</span> <span class="number">1</span><span class="punctuation">,</span></span><br><span class="line">                <span class="attr">&quot;value&quot;</span><span class="punctuation">:</span> <span class="string">&quot;\\u0002\\u0000\\u0000\\u0000&quot;</span></span><br><span class="line">            <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="punctuation">&#123;</span></span><br><span class="line">                <span class="attr">&quot;key&quot;</span><span class="punctuation">:</span> <span class="number">2</span><span class="punctuation">,</span></span><br><span class="line">                <span class="attr">&quot;value&quot;</span><span class="punctuation">:</span> <span class="string">&quot;\\u0000„ ,Ã¹\\u0005\\u0000&quot;</span></span><br><span class="line">            <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="punctuation">&#123;</span></span><br><span class="line">                <span class="attr">&quot;key&quot;</span><span class="punctuation">:</span> <span class="number">3</span><span class="punctuation">,</span></span><br><span class="line">                <span class="attr">&quot;value&quot;</span><span class="punctuation">:</span> <span class="string">&quot;test message 2&quot;</span></span><br><span class="line">            <span class="punctuation">&#125;</span> <span class="punctuation">]</span></span><br><span class="line">        <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;upper_bounds&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">            <span class="attr">&quot;array&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span> <span class="punctuation">&#123;</span></span><br><span class="line">                <span class="attr">&quot;key&quot;</span><span class="punctuation">:</span> <span class="number">1</span><span class="punctuation">,</span></span><br><span class="line">                <span class="attr">&quot;value&quot;</span><span class="punctuation">:</span> <span class="string">&quot;\\u0002\\u0000\\u0000\\u0000&quot;</span></span><br><span class="line">            <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="punctuation">&#123;</span></span><br><span class="line">                <span class="attr">&quot;key&quot;</span><span class="punctuation">:</span> <span class="number">2</span><span class="punctuation">,</span></span><br><span class="line">                <span class="attr">&quot;value&quot;</span><span class="punctuation">:</span> <span class="string">&quot;\\u0000„ ,Ã¹\\u0005\\u0000&quot;</span></span><br><span class="line">            <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="punctuation">&#123;</span></span><br><span class="line">                <span class="attr">&quot;key&quot;</span><span class="punctuation">:</span> <span class="number">3</span><span class="punctuation">,</span></span><br><span class="line">                <span class="attr">&quot;value&quot;</span><span class="punctuation">:</span> <span class="string">&quot;test message 2&quot;</span></span><br><span class="line">            <span class="punctuation">&#125;</span> <span class="punctuation">]</span></span><br><span class="line">        <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;key_metadata&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">null</span></span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;split_offsets&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">            <span class="attr">&quot;array&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">                <span class="number">4</span></span><br><span class="line">            <span class="punctuation">]</span></span><br><span class="line">        <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>当一个SELECT查询读取一个Iceberg表，并在从清单列表获取清单文件的位置后打开清单文件时，查询引擎会读取每个数据文件对象的file-path条目的值，并打开数据文件。在这个阶段，它还可以进行一些优化，比如使用行计数或使用分区或列统计信息对数据进行过滤。</p>
+</blockquote>
+<p>通过了解Iceberg表的不同组件以及任何访问Iceberg表中数据的引擎或工具所采取的路径，现在让我们更深入地了解在Iceberg表上执行CRUD操作时发生的内部过程。</p>
+<h2 id="A-Look-Under-the-Covers"><a href="#A-Look-Under-the-Covers" class="headerlink" title="A Look Under the Covers"></a>A Look Under the Covers</h2><h3 id="CREATE-TABLE"><a href="#CREATE-TABLE" class="headerlink" title="CREATE TABLE"></a>CREATE TABLE</h3><p>First, let’s create a table in our environment.</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> table1 (</span><br><span class="line">    order_id <span class="type">BIGINT</span>,</span><br><span class="line">    customer_id <span class="type">BIGINT</span>,</span><br><span class="line">    order_amount <span class="type">DECIMAL</span>(<span class="number">10</span>, <span class="number">2</span>),</span><br><span class="line">    order_ts <span class="type">TIMESTAMP</span></span><br><span class="line">)</span><br><span class="line"><span class="keyword">USING</span> iceberg</span><br><span class="line">PARTITIONED <span class="keyword">BY</span> ( <span class="keyword">HOUR</span>(order_ts) );</span><br></pre></td></tr></table></figure>
+<p>执行后如下图所示：<br><img src="https://www.dremio.com/wp-content/uploads/2021/06/create-table-1-2048x1062.png" alt="image"></p>
+<p>在上面的例子中，我们在数据库db1中创建了一个名为<code>table1</code>的表。该表有4个列，并以<code>order_ts</code>时间戳列的小时粒度进行分区（稍后会详细介绍）。</p>
+<p>当执行上述查询时，在元数据层创建了一个名为<code>s0</code>的快照的元数据文件（快照<code>s0</code>不指向任何清单列表，因为表中还没有数据）。然后，更新了<code>db1.table1</code>的当前元数据指针的目录条目，使其指向这个新元数据文件的路径。</p>
+<h3 id="INSERT"><a href="#INSERT" class="headerlink" title="INSERT"></a>INSERT</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> table1 <span class="keyword">VALUES</span> (</span><br><span class="line">    <span class="number">123</span>,</span><br><span class="line">    <span class="number">456</span>,</span><br><span class="line">    <span class="number">36.17</span>,</span><br><span class="line">    <span class="string">&#x27;2021-01-26 08:10:23&#x27;</span></span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://www.dremio.com/wp-content/uploads/2021/06/insert-2048x1090.png" alt="image"></p>
+<p>当我们执行这个INSERT语句时，会发生以下过程：</p>
+<ul>
+<li>首先，以Parquet文件的形式创建数据 - <code>table1/data/order_ts_hour=2021-01-26-08/00000-5-cae2d.parquet</code></li>
+<li>然后，创建一个指向该数据文件的清单文件（包括附加的细节和统计信息）- <code>table1/metadata/d8f9-ad19-4e.avro</code></li>
+<li>然后，创建一个指向该清单文件的清单列表（包括附加的细节和统计信息）- <code>table1/metadata/snap-2938-1-4103.avro</code></li>
+<li>然后，基于先前的当前元数据文件创建一个新的元数据文件，其中包含一个新的快照s1，并跟踪先前的快照s0，指向这个清单列表（包括附加的细节和统计信息）- <code>table1/metadata/v2.metadata.json</code></li>
+<li>最后，在目录中以原子方式更新<code>db1.table1</code>的当前元数据指针的值，使其指向这个新的元数据文件。</li>
+</ul>
+<p>在所有这些步骤中，任何读取该表的人都会继续读取第一个元数据文件，直到原子步骤#5完成，这意味着使用数据的任何人都不会看到表的状态和内容的不一致视图。</p>
+<h4 id="MERGE-INTO-x2F-UPSERT"><a href="#MERGE-INTO-x2F-UPSERT" class="headerlink" title="MERGE INTO &#x2F; UPSERT"></a>MERGE INTO &#x2F; UPSERT</h4><p>现在，让我们逐步介绍MERGE INTO &#x2F; UPSERT操作。</p>
+<p>假设我们已经将一些数据导入到我们在后台创建的暂存表中。在这个简单的例子中，每次订单发生变化时都会记录信息，我们希望保持该表显示每个订单的最新详细信息，因此如果订单ID已经存在于表中，我们会更新订单金额。如果我们还没有该订单的记录，我们希望插入一条新订单的记录。</p>
+<p>在这个例子中，暂存表包括对已经存在于表中的订单（order_id&#x3D;123）的更新，以及一个尚未存在于表中的新订单，该订单发生在2021年1月27日10:21:46。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">MERGE</span> <span class="keyword">INTO</span> table1</span><br><span class="line"><span class="keyword">USING</span> ( <span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> table1_stage ) s</span><br><span class="line">    <span class="keyword">ON</span> table1.order_id <span class="operator">=</span> s.order_id</span><br><span class="line"><span class="keyword">WHEN</span> MATCHED <span class="keyword">THEN</span></span><br><span class="line">    <span class="keyword">UPDATE</span> table1.order_amount <span class="operator">=</span> s.order_amount</span><br><span class="line"><span class="keyword">WHEN</span> <span class="keyword">NOT</span> MATCHED <span class="keyword">THEN</span></span><br><span class="line">    <span class="keyword">INSERT</span> <span class="operator">*</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://www.dremio.com/wp-content/uploads/2023/04/merge-into-2048x1139.png" alt="image"></p>
+<p>当我们执行这个MERGE INTO语句时，会发生以下过程：</p>
+<ol>
+<li>按照之前详细介绍的读取路径，确定<code>table1</code>和<code>table1_stage</code>中具有相同<code>order_id</code>的所有记录。</li>
+<li>从<code>table1</code>中读取包含<code>order_id=123</code>的记录的文件进入查询引擎的内存（<code>00000-5-cae2d.parquet</code>），然后将该内存副本中<code>order_id=123</code>的记录的<code>order_amount</code>字段更新为反映<code>table1_stage</code>中匹配记录的新<code>order_amount</code>。然后，将修改后的原始文件副本写入一个新的Parquet文件 - <code>table1/data/order_ts_hour=2021-01-26-08/00000-1-aef71.parquet</code>。即使文件中还有其他不符合order_id更新条件的记录，整个文件仍然会被复制，并且在复制时更新匹配的记录，并将新文件写出 - 这种策略被称为写时复制（<code>copy-on-write</code>）。Iceberg即将推出一种名为<code>merge-on-read</code>的新的数据更改策略，它在内部的行为方式不同，但仍提供相同的更新和删除功能。</li>
+<li>在<code>table1_stage</code>中没有与<code>table1</code>中的任何记录匹配的记录以新的Parquet文件的形式写入，因为它属于与匹配记录不同的分区 - <code>table1/data/order_ts_hour=2021-01-27-10/00000-3-0fa3a.parquet</code></li>
+<li>然后，创建一个指向这两个数据文件的新清单文件（包括附加的细节和统计信息）- <code>table1/metadata/0d9a-98fa-77.avro</code><br>在这种情况下，快照s1中唯一的数据文件中的唯一记录发生了更改，因此没有重用清单文件或数据文件。通常情况下，清单文件和数据文件会在快照之间进行重用。</li>
+<li>接着，创建一个指向这个清单文件的新清单列表（包括附加的细节和统计信息）- <code>table1/metadata/snap-9fa1-3-16c3.avro</code></li>
+<li>然后，基于先前的当前元数据文件创建一个新的元数据文件，其中包含一个新的快照s2，并跟踪先前的快照s0和s1，指向这个清单列表（包括附加的细节和统计信息）- <code>table1/metadata/v3.metadata.json</code></li>
+<li>最后，在目录中以原子方式更新db1.table1的当前元数据指针的值，使其指向这个新的元数据文件。</li>
+</ol>
+<p>虽然这个过程有多个步骤，但它发生得非常快速。例如，<a target="_blank" rel="noopener" href="https://blog.developer.adobe.com/iceberg-series-acid-transactions-at-scale-on-the-data-lake-in-adobe-experience-platform-f3e8fe0cef01">Adobe进行了一些基准测试</a>，发现他们每分钟可以实现15次提交。</p>
+<p>在上面的图表中，我们还展示了在执行此MERGE INTO之前，后台进行了垃圾回收作业以清理未使用的元数据文件 - 请注意，我们在创建表时的第一个快照s0的元数据文件已经不存在了。因为每个新的元数据文件也包含了来自先前文件的重要信息，所以可以安全地清理它们。未使用的清单列表、清单文件和数据文件也可以通过垃圾回收进行清理。</p>
+<h4 id="SELECT"><a href="#SELECT" class="headerlink" title="SELECT"></a>SELECT</h4><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span></span><br><span class="line"><span class="keyword">FROM</span> db1.table1</span><br></pre></td></tr></table></figure>
+<p><img src="https://www.dremio.com/wp-content/uploads/2023/04/select-2048x1010.png" alt="image"></p>
+<p>当执行这个SELECT语句时，会发生以下过程：</p>
+<ol>
+<li>查询引擎访问Iceberg目录。</li>
+<li>然后，检索<code>db1.table1</code>的当前元数据文件位置条目。</li>
+<li>然后，打开这个元数据文件，并检索当前快照s2的清单列表位置条目。</li>
+<li>然后，打开这个清单列表，并检索唯一的清单文件的位置。</li>
+<li>然后，打开这个清单文件，并检索两个数据文件的位置。</li>
+<li>然后，读取这些数据文件，并且由于是<code>SELECT *</code>，将数据返回给客户端。</li>
+</ol>
+<h4 id="隐藏分区"><a href="#隐藏分区" class="headerlink" title="隐藏分区"></a>隐藏分区</h4><p>Hive表格式的一个问题，即用户需要了解表的物理布局，以避免非常慢的查询。假设用户想要查看某一天的所有记录，比如2021年1月26日，他们发出以下查询：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span></span><br><span class="line"><span class="keyword">FROM</span> table1</span><br><span class="line"><span class="keyword">WHERE</span> order_ts <span class="operator">=</span> <span class="type">DATE</span> <span class="string">&#x27;2021-01-26&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>在Hive表中，将其按照订单首次发生的时间戳的小时级别进行了分区。在Hive中，这个查询通常会导致对整个表进行扫描。让我们来看看Iceberg如何解决这个问题，并为用户提供以直观方式与表进行交互的能力，同时仍然实现良好的性能，避免对整个表进行扫描。</p>
+<p><img src="https://www.dremio.com/wp-content/uploads/2021/06/hidden-partitioning-2048x1018.png" alt="image"></p>
+<p>当执行这个SELECT语句时，会发生以下过程：</p>
+<ol>
+<li>查询引擎访问Iceberg目录。</li>
+<li>然后，检索<code>db1.table1</code>的当前元数据文件位置条目。</li>
+<li>然后，打开这个元数据文件，并检索当前快照<code>s2</code>的清单列表位置条目。它还查找文件中的分区规范，并看到表是按照<code>order_ts</code>字段的小时级别进行分区的。</li>
+<li>然后，打开这个清单列表，并检索唯一的清单文件的位置。</li>
+<li>然后，打开这个清单文件，并查看每个数据文件的条目，将数据文件所属的分区值与用户查询请求的分区值进行比较。该文件中的值对应于自Unix纪元以来的小时数，查询引擎使用这个值确定只有一个数据文件中的事件发生在2021年1月26日（或者换句话说，在2021年1月26日的<code>00:00:00</code>到2021年1月26日的<code>23:59:59</code>之间）。<ul>
+<li>具体来说，唯一匹配的事件是我们插入的第一个事件，因为它发生在2021年1月26日的<code>08:10:23</code>。另一个数据文件的订单时间戳是2021年1月27日的<code>10:21:46</code>，即不是在2021年1月26日，所以它不符合过滤条件。</li>
+</ul>
+</li>
+<li>然后，只读取匹配的数据文件，并且由于是<code>SELECT *</code>，将数据返回给客户端。</li>
+</ol>
+<h4 id="时间旅行"><a href="#时间旅行" class="headerlink" title="时间旅行"></a>时间旅行</h4><p>Iceberg表格式提供的另一个关键功能是所谓的“时间旅行”。为了追踪表在时间上的状态，以满足合规性、报告或可重现性的需求，传统上需要编写和管理作业，在特定时间点创建和管理表的副本。相反，Iceberg提供了开箱即用的功能，可以查看过去不同时间点的表的状态。</p>
+<p>例如，假设今天用户需要查看我们的表在2021年1月28日的内容，由于这是一篇静态的文本文章，假设在这之前插入了2021年1月27日的订单，并且在我们上面进行的UPSERT操作中，2021年1月26日的订单金额已经更新。他们的查询将如下所示：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span></span><br><span class="line"><span class="keyword">FROM</span> table1 <span class="keyword">AS</span> <span class="keyword">OF</span> <span class="string">&#x27;2021-01-28 00:00:00&#x27;</span></span><br><span class="line"><span class="comment">-- (timestamp is from before UPSERT operation)</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://www.dremio.com/wp-content/uploads/2023/04/time-travel-2048x1014.png" alt="image"></p>
+<p>当执行这个SELECT语句时，会发生以下过程：</p>
+<ol>
+<li>查询引擎访问Iceberg目录。</li>
+<li>然后，检索<code>db1.table1</code>的当前元数据文件位置条目。</li>
+<li>然后，打开这个元数据文件，并查看快照数组中的条目（其中包含快照创建时的毫秒级Unix纪元时间，因此成为最新的快照），确定在请求的时间点（2021年1月28日午夜）时活动的快照，并检索该快照的清单列表位置条目，即s1。</li>
+<li>然后，打开这个清单列表，并检索唯一的清单文件的位置。</li>
+<li>然后，打开这个清单文件，并检索两个数据文件的位置。</li>
+<li>然后，读取这些数据文件，并且由于是<code>SELECT *</code>，将数据返回给客户端。</li>
+</ol>
+<p>请注意，在上面的图表中的文件结构中，虽然旧的清单列表、清单文件和数据文件在表的当前状态下没有使用，但它们仍然存在于数据湖中，并可供使用。</p>
+<p>当然，保留旧的元数据和数据文件在这些用例中提供了价值，但在某个时候，您将拥有不再访问的元数据和数据文件，或者允许人们访问它们的价值超过保留它们的成本。因此，有一个异步的后台进程来清理旧文件，称为垃圾回收。垃圾回收策略可以根据业务需求进行配置，并且是在存储旧文件所需的存储空间和提供多长时间以及以何种粒度进行权衡的结果。</p>
+<h3 id="Compaction"><a href="#Compaction" class="headerlink" title="Compaction"></a>Compaction</h3><p>Iceberg设计的另一个关键功能是压缩，它有助于平衡写入和读取之间的权衡。</p>
+<p>在Iceberg中，压缩是一个异步的后台进程，将一组小文件压缩成更少的大文件。由于它是异步的并在后台进行，对用户没有负面影响。实际上，它基本上是一个特定类型的普通Iceberg写入作业，其输入和输出具有相同的记录，但在写入作业提交事务后，文件大小和属性在分析方面得到了显著改善。</p>
+<p>在处理数据时，总会有权衡需要考虑，而一般来说，写入和读取方面的激励是相互矛盾的。</p>
+<ul>
+<li>在写入方面，通常希望低延迟 - 尽快使数据可用，这意味着在获得记录后可能立即写入，甚至不需要将其转换为列格式。但是，如果对每条记录都这样做，最终会得到每个文件一个记录的情况（小文件问题的最极端形式）。</li>
+<li>在读取方面，通常希望高吞吐量 - 在单个文件中有许多记录，并且以列格式存储，这样数据相关的可变成本（读取数据）超过了固定成本（记录保留的开销，打开每个文件等）。通常也希望使用最新的数据，但这会增加读取操作的成本。</li>
+</ul>
+<p>压缩有助于平衡写入和读取之间的权衡 - 您可以在获得数据后几乎立即写入数据，极端情况下每个文件中有1条以行格式存储的记录，读取器可以立即查看和使用，同时后台压缩进程定期将所有这些小文件合并为更少、更大、以列格式存储的文件。</p>
+<p>通过压缩，读取器始终以他们想要的高吞吐量形式持续拥有99%的数据，但仍以低延迟低吞吐量形式查看最新的1%数据。</p>
+<p>对于这种用例，还需要注意压缩作业的输入文件格式和输出文件格式可以是不同的文件类型。一个很好的例子是从流式写入中写入Avro格式，然后将其压缩成用于分析的更大的Parquet文件。</p>
+<p>另一个重要的注意事项是，由于Iceberg不是一个引擎或工具，调度&#x2F;触发和实际的压缩工作是由与Iceberg集成的其他工具和引擎完成的。</p>
+<h2 id="Design-Benefits-of-the-Format"><a href="#Design-Benefits-of-the-Format" class="headerlink" title="Design Benefits of the Format"></a>Design Benefits of the Format</h2><p>现在，让我们将我们之前讨论的内容应用到架构和设计提供的更高级价值上。</p>
+<ul>
+<li><p>事务的快照隔离</p>
+<ul>
+<li>Iceberg表上的读取和写入不会相互干扰。</li>
+<li>Iceberg通过乐观并发控制提供了并发写入的能力。</li>
+<li>所有写入都是原子性的。</li>
+</ul>
+</li>
+<li><p>更快的规划和执行</p>
+<ul>
+<li>这两个好处都源于在写入路径上记录了关于写入内容的详细信息，而不是在读取路径上获取这些信息。</li>
+<li>因为文件列表是在对表进行更改时写入的，所以在运行时不需要进行昂贵的文件系统列表操作，这意味着运行时的工作量和等待时间大大减少。</li>
+<li>因为关于文件中数据的统计信息是在写入方面进行的，所以统计信息不会缺失、错误或过时，这意味着基于成本的优化器可以在决定哪个查询计划提供最快响应时间时做出更好的决策。</li>
+<li>因为关于文件中数据的统计信息是在文件级别进行跟踪的，所以统计信息不是粗粒度的，这意味着引擎可以进行更多的数据修剪，处理更少的数据，从而实现更快的响应时间。</li>
+<li>在本文早期提到的Ryan Blue的演示中，他分享了Netflix的一个示例用例的结果：<ul>
+<li>对于一个Hive表的查询，仅规划查询就需要9.6分钟。</li>
+<li>对于相同的Iceberg表的查询，仅需要42秒来规划和执行查询。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>抽象物理层，暴露逻辑视图</p>
+<ul>
+<li>在本文早些时候，我们看到使用Hive表时，用户通常需要了解表的潜在不直观的物理布局，以实现良好的性能。</li>
+<li>Iceberg提供了持续向用户提供逻辑视图的能力，将逻辑交互点与数据的物理布局解耦。我们看到了隐藏分区和压缩等功能是如何极其有用的。</li>
+<li>Iceberg通过模式演化、分区演化和排序顺序演化的能力，提供了透明地随时间演化表的能力。关于这些能力的更多详细信息可以在Iceberg文档网站上找到。</li>
+<li>对于数据工程师来说，更容易在幕后尝试不同的、潜在更好的表布局。一旦提交，更改将立即生效，而无需用户更改其应用程序代码或查询。如果实验结果变得更糟，可以回滚事务，用户将返回到之前的体验。使实验更安全可以进行更多的实验，从而找到更好的做事方式。</li>
+</ul>
+</li>
+<li><p>所有引擎立即看到更改<br>因为组成表内容的文件是在写入方面定义的，一旦文件列表发生变化，所有新的读取器都会指向这个新的列表（通过从目录开始的读取流程），所以当写入者对表进行更改时，所有使用该表的新查询立即看到新的数据。</p>
+</li>
+<li><p>事件监听器<br>Iceberg具有一个框架，允许其他服务在Iceberg表上发生事件时收到通知。目前，这个功能处于早期阶段，只能在扫描表时触发事件。然而，这个框架为未来的功能提供了可能性，比如保持缓存、物化视图和索引与原始数据同步。</p>
+</li>
+<li><p>高效地进行较小的更新<br>因为数据是在文件级别进行跟踪的，所以可以更高效地对数据集进行较小的更新。</p>
+</li>
+</ul>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://www.dremio.com/resources/guides/apache-iceberg-an-architectural-look-under-the-covers/#toc_item_Iceberg%20catalog">https://www.dremio.com/resources/guides/apache-iceberg-an-architectural-look-under-the-covers/#toc_item_Iceberg%20catalog</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=8rZOc-HnRoQ">https://www.youtube.com/watch?v=8rZOc-HnRoQ</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.vldb.org/pvldb/vol2/vldb09-938.pdf">https://www.vldb.org/pvldb/vol2/vldb09-938.pdf</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.developer.adobe.com/iceberg-series-acid-transactions-at-scale-on-the-data-lake-in-adobe-experience-platform-f3e8fe0cef01">https://blog.developer.adobe.com/iceberg-series-acid-transactions-at-scale-on-the-data-lake-in-adobe-experience-platform-f3e8fe0cef01</a></li>
+</ul>
+
+  </div>
+</article>
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/archives/">Home</a></li>
+         
+          <li><a href="/categories/technology">Technology</a></li>
+         
+          <li><a href="/categories/life">Life</a></li>
+         
+          <li><a href="/tags/">Tags</a></li>
+         
+          <li><a href="/about">About</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Introduction"><span class="toc-number">1.</span> <span class="toc-text">Introduction</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#What%E2%80%99s-a-Table-Format"><span class="toc-number">1.1.</span> <span class="toc-text">What’s a Table Format?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#A-Brief-History"><span class="toc-number">1.2.</span> <span class="toc-text">A Brief History</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#The-Hive-Table-Format"><span class="toc-number">2.</span> <span class="toc-text">The Hive Table Format</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Pros"><span class="toc-number">2.1.</span> <span class="toc-text">Pros</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Cons"><span class="toc-number">2.2.</span> <span class="toc-text">Cons</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E8%A7%A3%E5%86%B3%E8%BF%99%E4%BA%9B%E9%97%AE%E9%A2%98%E7%9A%84%E5%91%A2%EF%BC%9F"><span class="toc-number">2.3.</span> <span class="toc-text">如何解决这些问题的呢？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#The-Iceberg-Table-Format"><span class="toc-number">3.</span> <span class="toc-text">The Iceberg Table Format</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Iceberg%E8%A1%A8%E7%9A%84%E6%9E%B6%E6%9E%84"><span class="toc-number">3.1.</span> <span class="toc-text">Iceberg表的架构</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Iceberg%E7%BB%84%E4%BB%B6"><span class="toc-number">4.</span> <span class="toc-text">Iceberg组件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Iceberg-Catalog"><span class="toc-number">4.1.</span> <span class="toc-text">Iceberg Catalog</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Metadata-file"><span class="toc-number">4.2.</span> <span class="toc-text">Metadata file</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Manifest-list"><span class="toc-number">4.3.</span> <span class="toc-text">Manifest list</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Manifest-file"><span class="toc-number">4.4.</span> <span class="toc-text">Manifest file</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#A-Look-Under-the-Covers"><span class="toc-number">5.</span> <span class="toc-text">A Look Under the Covers</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#CREATE-TABLE"><span class="toc-number">5.1.</span> <span class="toc-text">CREATE TABLE</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#INSERT"><span class="toc-number">5.2.</span> <span class="toc-text">INSERT</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#MERGE-INTO-x2F-UPSERT"><span class="toc-number">5.2.1.</span> <span class="toc-text">MERGE INTO &#x2F; UPSERT</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#SELECT"><span class="toc-number">5.2.2.</span> <span class="toc-text">SELECT</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%9A%90%E8%97%8F%E5%88%86%E5%8C%BA"><span class="toc-number">5.2.3.</span> <span class="toc-text">隐藏分区</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%97%B6%E9%97%B4%E6%97%85%E8%A1%8C"><span class="toc-number">5.2.4.</span> <span class="toc-text">时间旅行</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Compaction"><span class="toc-number">5.3.</span> <span class="toc-text">Compaction</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Design-Benefits-of-the-Format"><span class="toc-number">6.</span> <span class="toc-text">Design Benefits of the Format</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">7.</span> <span class="toc-text">References</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/01/05/iceberg-look-under/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/01/05/iceberg-look-under/&text=Apache Iceberg: An Architectural Look Under the Covers"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/01/05/iceberg-look-under/&title=Apache Iceberg: An Architectural Look Under the Covers"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/01/05/iceberg-look-under/&is_video=false&description=Apache Iceberg: An Architectural Look Under the Covers"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Apache Iceberg: An Architectural Look Under the Covers&body=Check out this article: http://example.com/2023/01/05/iceberg-look-under/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/01/05/iceberg-look-under/&title=Apache Iceberg: An Architectural Look Under the Covers"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/01/05/iceberg-look-under/&title=Apache Iceberg: An Architectural Look Under the Covers"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/01/05/iceberg-look-under/&title=Apache Iceberg: An Architectural Look Under the Covers"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/01/05/iceberg-look-under/&title=Apache Iceberg: An Architectural Look Under the Covers"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/01/05/iceberg-look-under/&name=Apache Iceberg: An Architectural Look Under the Covers&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/01/05/iceberg-look-under/&t=Apache Iceberg: An Architectural Look Under the Covers"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2023
+    duanmeng
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/archives/">Home</a></li><!--
+     --><!--
+       --><li><a href="/categories/technology">Technology</a></li><!--
+     --><!--
+       --><li><a href="/categories/life">Life</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tags</a></li><!--
+     --><!--
+       --><li><a href="/about">About</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+
+  <script src='https://unpkg.com/mermaid@9.0.0/dist/mermaid.min.js'></script>
+  <script>
+    if (window.mermaid) {
+      mermaid.initialize({theme: 'forest'});
+    }
+  </script>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
