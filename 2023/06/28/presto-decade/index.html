@@ -13,8 +13,13 @@
 <meta property="og:site_name" content="Macduan Notes">
 <meta property="og:description" content="What Is Presto &amp; Why New Presto ArchitecturePresto是一个开源的分布式SQL查询引擎，详细请参考Presto: SQL on Everything。在过去的十年中，随着Meta数据量的超级增长以及新的SQL分析需求，Presto在保持查询延迟和可扩展性方面面临了巨大的挑战：  确保查询的可靠性不会随着向更灵活和弹性的资源管理模型过渡，使用更小">
 <meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://live.staticflickr.com/65535/53059228688_170b21312c_z.jpg">
+<meta property="og:image" content="https://live.staticflickr.com/65535/53059132210_db965a1589_z.jpg">
+<meta property="og:image" content="https://live.staticflickr.com/65535/53058181937_82fa012455_z.jpg">
+<meta property="og:image" content="https://live.staticflickr.com/65535/53059150500_38926e5c68_z.jpg">
+<meta property="og:image" content="https://live.staticflickr.com/65535/53058181932_dce9afd72b_z.jpg">
 <meta property="article:published_time" content="2023-06-28T01:23:48.000Z">
-<meta property="article:modified_time" content="2023-07-20T09:17:08.152Z">
+<meta property="article:modified_time" content="2023-07-20T11:40:13.600Z">
 <meta property="article:author" content="duanmeng">
 <meta property="article:tag" content="spark">
 <meta property="article:tag" content="data">
@@ -24,6 +29,7 @@
 <meta property="article:tag" content="vectorized">
 <meta property="article:tag" content="presto">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://live.staticflickr.com/65535/53059228688_170b21312c_z.jpg">
     
     
       
@@ -184,6 +190,16 @@
 <li><strong>向量化执行引擎</strong></li>
 <li><strong>物化视图</strong></li>
 </ul>
+<div align=center><a><img src="https://live.staticflickr.com/65535/53059228688_170b21312c_z.jpg" width="640" height="251" alt="old-presto"/></a></div>
+<p>
+<center><big><b>旧Presto架构</b></big></center>
+<p>
+<div align=center><a><img src="https://live.staticflickr.com/65535/53059132210_db965a1589_z.jpg" width="640" height="306" alt="new-presto"/></a></div>
+<p>
+<center><big><b>新Presto架构</b></big></center>
+<p>
+
+
 <h2 id="LATENCY-IMPROVEMENTS"><a href="#LATENCY-IMPROVEMENTS" class="headerlink" title="LATENCY IMPROVEMENTS"></a>LATENCY IMPROVEMENTS</h2><h3 id="Caching"><a href="#Caching" class="headerlink" title="Caching"></a>Caching</h3><p>存储计算分离使独立扩展成为可能，但是也引入了新的查询延迟挑战，因为当网络饱和时，通过网络扫描大量数据甚至元数据可能会受到IO限制。为了解决这个问题，需要在各个层面引入了缓存。</p>
 <p><strong>原始数据缓存</strong>：工作节点上的本地的数据缓存（SSD）可以减少从远程存储节点读取数据的IO时间。Presto工作节点在读取时将远程数据以原始形式（压缩和可能加密）缓存在本地。缓存单元的大小是对齐的，以避免碎片化。例如，如果一个读取请求覆盖了范围[2.3MB, 4.5MB)，Presto将发出一个远程读取范围为[2MB, 5MB)的请求，并缓存和索引[2MB, 3MB)、[3MB, 4MB)和[4MB, 5MB)的数据块，这些缓存单元的驱逐策略是LRU。</p>
 <p><strong>结果片段缓存</strong>：此外，运行叶子阶段的任务（负责从远程存储中获取数据的任务）可以决定在本地闪存上缓存部分计算结果，以防止在多个查询中进行重复计算。一种典型的方法是在具有一级扫描、过滤、投影和&#x2F;或聚合的叶子阶段缓存计划片段的结果。例如，用户可能决定查询过去1天的报表聚合结果。然后，他们可以调整仪表盘以查看过去3天的聚合结果。对于第二个查询，我们可以通过缓存来防止对第一个查询的重复计算。只需要扫描和部分聚合剩余2天的数据。</p>
@@ -203,6 +219,8 @@
 <p>物化视图的另一个用例是子查询优化。给定一个查询，Presto检索与查询的表相关联的所有物化视图。Presto尝试匹配是否存在一个物化视图是接收到的查询的子查询。如果存在匹配，接收到的查询将被重写，以利用物化视图而不是从基本表中获取数据。当前支持的查询模式只允许扫描、过滤、投影和聚合。支持一些聚合函数，如<code>SUM、MIN、MAX、AVG、COUNT</code>等。</p>
 <h2 id="SCALABILITY-IMPROVEMENTS"><a href="#SCALABILITY-IMPROVEMENTS" class="headerlink" title="SCALABILITY IMPROVEMENTS"></a>SCALABILITY IMPROVEMENTS</h2><p>Presto越来越多地被用于支持大规模的ETL作业。当进入运行时间为几小时且PB级别的扫描时，原始的Presto架构无法满足足够的扩展性。为了处理单点故障、工作节点崩溃、数据倾斜和内存限制，Presto已经集成了各种改进和重新架构。</p>
 <h3 id="Multiple-coordinators"><a href="#Multiple-coordinators" class="headerlink" title="Multiple coordinators"></a>Multiple coordinators</h3><p>对于Presto来说，协调器一直是单点故障。这对于长时间运行的查询尤其是一个挑战，在高峰时段，可能会有数千个查询在协调器中排队。协调器崩溃意味着所有查询都将失败。从可扩展性的角度来看，由于查询调度需要大量的内存和CPU，协调器的水平扩展在并行运行更多查询时会达到限制。此外，Meta基础架构设计趋向于使用内存较少的容器，目前所有的查询排队、查询调度和集群管理都无法在较小的内存中实现。</p>
+<p><a><img src="https://live.staticflickr.com/65535/53058181937_82fa012455_z.jpg" width="640" height="174" alt="presto-coor"/></a></p>
+<p><a><img src="https://live.staticflickr.com/65535/53059150500_38926e5c68_z.jpg" width="640" height="319" alt="prest-coor2"/></a></p>
 <p>Presto通过将<a target="_blank" rel="noopener" href="https://prestodb.io/blog/2022/04/15/disggregated-coordinator">查询和集群的生命周期分离</a>来解决这个问题。协调器仅控制查询的生命周期，而新引入的资源管理器负责集群的排队和资源利用监控。下图展示了多个协调器和多个资源管理器架构的拓扑结构，这些组件最初都位于单个协调器中。查询首先会被发送到任意一个协调器。协调器彼此独立，没有相互通信。然后，查询可以选择被发送到资源管理器进行排队。资源管理器具有高可用性。排队的查询和集群控制面信息在所有实例之间进行复制。使用类似Raft的共识协议，以确保资源管理器崩溃不会导致任何排队查询的丢失。协调器定期从资源管理器获取排队信息，以决定执行哪些查询。通过定期获取信息，如果协调器发现资源管理器中没有查询排队，或者队列中的查询优先级较低，它可以决定执行新提交的查询，以避免排队开销或网络延迟。引入多个协调器不仅消除了单点故障，还解决了弹性容量和Meta基础架构追求较小容器的问题。现在，协调器或资源管理器可以更频繁地被释放，而无需保留排队状态数小时。</p>
 <h3 id="Recoverable-grouped-execution"><a href="#Recoverable-grouped-execution" class="headerlink" title="Recoverable grouped execution"></a>Recoverable grouped execution</h3><p>Presto的架构采用了流式RPC Shuffle和内存数据处理，以优化延迟。然而，当运行PB级别的扫描或运行时间为几小时的ETL查询时，它既无法在内存限制方面进行扩展，也无法保证没有工作节点会崩溃。为了支持任意大的查询，开发了可恢复的<a target="_blank" rel="noopener" href="https://prestodb.io/blog/2019/08/05/presto-unlimited-mpp-database-at-scale">分组执行</a>。</p>
 <p>在数据仓库中，数据通常被分区。例如，数据可以按天进行分区，因此“天”是一个自然的分区。这也可以扩展到其他类型的分区，如模块哈希或<code>z-ordering</code>。具有相同分区键（由表列表示）的行属于同一个分区。下表展示了一个哈希分区的示例，其中表按列<code>col1</code>进行分区，使用哈希函数<code>mod(3)</code>得到3个分区。</p>
@@ -279,6 +297,7 @@
 <p>在Presto中，如果表扫描后的第一个聚合、连接或窗口函数键是数据分区键的超集，查询可以以“分组”的方式执行。在这种情况下，引擎不会扫描整个数据集并基于聚合、连接或窗口函数键进行Shuffle。它只会逐个分区进行扫描，因为键在分区之间是不相交的。如果执行整个查询所需的内存超过了集群可以提供的内存，分组执行将优先选择以降低峰值内存消耗。假设用户有一个查询<code>SELECT COUNT() from table1 GROUP BY col1</code>。普通扫描将并行读取所有3个分区，并根据聚合键col1进行洗牌。然后，聚合阶段将在内存中接收所有7个不同的值，然后发出最终的聚合结果。相反，分组执行将逐个分区进行扫描。因为分区键col1与查询中的聚合键col1相同，它将首先扫描分区1中的所有内容，并在内存中构建只有3个不同值（1、4和7）的哈希表，然后发出这3个值的最终结果。然后，它将继续处理分区2和分区3，每个分区只有两个值。在这种情况下，峰值内存使用量将小于并行扫描所有内容。</p>
 <p>分组执行可以扩展到第一个洗牌之后，或者当数据不是按照聚合、JOIN或窗口函数键进行分区时。实现这一点的方法是通过注入一个Shuffle阶段，以基于下游键以分区方式实现源数据的具体化。好处是允许分组执行适用于任意查询和任意源数据。缺点是中间数据具体化的开销。</p>
 <p>通过具体化中间数据，我们进一步构建了对分组执行在洗牌点边界处的故障恢复的支持。如果一个工作节点崩溃，调度器将直接从具体化的中间数据而不是源数据重新运行失败的执行。从架构的角度来看，还可以通过容错的本地磁盘或分布式分解Shuffle服务（例如，Cosco）来支持更细粒度的Shuffle恢复。</p>
+<p><a><img src="https://live.staticflickr.com/65535/53058181932_dce9afd72b_z.jpg" width="640" height="276" alt="presto-um"/></a></p>
 <p>例如，查询为<code>SELECT COUNT() FROM table1 GROUP BY col1</code>，其中table1包含了无法放入整个集群内存的col1的数万亿个不同值。为了克服内存限制，第一个洗牌将基于col1进行。而不是直接将洗牌后的键传送到COUNT聚合中，写入者将持久化数据。然后，聚合阶段可以在洗牌后的数据上进行分组执行（显示在灰色框中），以降低峰值内存消耗。每个分组执行都是可恢复的，因为col1上的中间数据已经持久化。</p>
 <h3 id="Spilling"><a href="#Spilling" class="headerlink" title="Spilling"></a>Spilling</h3><p>尽管Presto有前面提到的两种可扩展选项来克服集群范围内的内存限制，但数据倾斜仍然可能发生，导致单个工作节点超出本地工作节点内存限制。随着Meta朝着更小内存容量的容器迈进，这一问题变得尤为严重，以获得更好的弹性性能。Presto实现了溢出功能，将内存中的哈希表（用于聚合、JOIN、窗口函数和TopN操作）持久化到磁盘上。通过应用级别的溢出而不是依赖操作系统将内存页面交换到磁盘，有助于更精细地控制查询执行。交互式和即席工作负载将数据溢出到本地SSD以获得低延迟，而ETL工作负载将数据溢出到远程存储以实现可扩展性。</p>
 <p>当构建查询的哈希表时达到内存限制时，每个哈希表将根据哈希键进行排序并序列化到磁盘上。然后，查询将继续处理，就好像哈希表为空一样。一旦哈希表再次增长到限制，相同的过程将重复，直到所有数据都被处理完毕。然后，对这些排序的哈希表进行外部合并，以在发出结果时限制内存使用。</p>
