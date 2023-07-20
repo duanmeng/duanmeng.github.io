@@ -14,7 +14,7 @@
 <meta property="og:description" content="What Is Presto &amp; Why New Presto ArchitecturePresto是一个开源的分布式SQL查询引擎，详细请参考Presto: SQL on Everything。在过去的十年中，随着Meta数据量的超级增长以及新的SQL分析需求，Presto在保持查询延迟和可扩展性方面面临了巨大的挑战：  确保查询的可靠性不会随着向更灵活和弹性的资源管理模型过渡，使用更小">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-06-28T01:23:48.000Z">
-<meta property="article:modified_time" content="2023-07-20T08:49:32.990Z">
+<meta property="article:modified_time" content="2023-07-20T09:17:08.152Z">
 <meta property="article:author" content="duanmeng">
 <meta property="article:tag" content="spark">
 <meta property="article:tag" content="data">
@@ -187,9 +187,7 @@
 <h2 id="LATENCY-IMPROVEMENTS"><a href="#LATENCY-IMPROVEMENTS" class="headerlink" title="LATENCY IMPROVEMENTS"></a>LATENCY IMPROVEMENTS</h2><h3 id="Caching"><a href="#Caching" class="headerlink" title="Caching"></a>Caching</h3><p>存储计算分离使独立扩展成为可能，但是也引入了新的查询延迟挑战，因为当网络饱和时，通过网络扫描大量数据甚至元数据可能会受到IO限制。为了解决这个问题，需要在各个层面引入了缓存。</p>
 <p><strong>原始数据缓存</strong>：工作节点上的本地的数据缓存（SSD）可以减少从远程存储节点读取数据的IO时间。Presto工作节点在读取时将远程数据以原始形式（压缩和可能加密）缓存在本地。缓存单元的大小是对齐的，以避免碎片化。例如，如果一个读取请求覆盖了范围[2.3MB, 4.5MB)，Presto将发出一个远程读取范围为[2MB, 5MB)的请求，并缓存和索引[2MB, 3MB)、[3MB, 4MB)和[4MB, 5MB)的数据块，这些缓存单元的驱逐策略是LRU。</p>
 <p><strong>结果片段缓存</strong>：此外，运行叶子阶段的任务（负责从远程存储中获取数据的任务）可以决定在本地闪存上缓存部分计算结果，以防止在多个查询中进行重复计算。一种典型的方法是在具有一级扫描、过滤、投影和&#x2F;或聚合的叶子阶段缓存计划片段的结果。例如，用户可能决定查询过去1天的报表聚合结果。然后，他们可以调整仪表盘以查看过去3天的聚合结果。对于第二个查询，我们可以通过缓存来防止对第一个查询的重复计算。只需要扫描和部分聚合剩余2天的数据。</p>
-<blockquote>
-<p>请注意，片段结果是基于叶子查询片段的，用户可以调整过滤器或投影，因此可能会有很大的变化。为了在用户频繁更改过滤器或投影时最大化缓存命中率，我们依赖基于统计的规范化。规范化首先对不同变量名进行同构映射，将其映射为固定的变量名，以使具有相同含义的不同别名的查询最终得到相同的计划。然后，它对表达式进行排序，以使类似𝑎 &gt; 𝑏和𝑏 &lt; 𝑎的表达式具有相同的格式。最后，它修剪过滤器中的谓词。给定一个以谓词的合取形式表示的过滤器𝜙，谓词修剪通过删除𝜙中所有满足的谓词生成一个新的过滤器。请注意，这种方法不仅限于conjunctions，其他一般的表示形式如disjunctions也适用。因为每个工作节点只读取部分数据，所以它可以在运行时比协调器在计划时更多地修剪过滤器的谓词。对于工作节点读取的文件，工作节点使用文件的统计信息（通常是最小值和最大值）来检查统计范围是否满足某些谓词。工作节点将删除过满足的谓词或者如果有任何不满足的谓词，则将整个过滤器评估为False。</p>
-</blockquote>
+<p>片段结果是基于叶子查询片段的，用户可以调整过滤器或投影，因此可能会有很大的变化。为了在用户频繁更改过滤器或投影时最大化缓存命中率，我们依赖基于统计的规范化。规范化首先对不同变量名进行同构映射，将其映射为固定的变量名，以使具有相同含义的不同别名的查询最终得到相同的计划。然后，它对表达式进行排序，以使类似𝑎 &gt; 𝑏和𝑏 &lt; 𝑎的表达式具有相同的格式。最后，它修剪过滤器中的谓词。给定一个以谓词的合取形式表示的过滤器𝜙，谓词修剪通过删除𝜙中所有满足的谓词生成一个新的过滤器。请注意，这种方法不仅限于conjunctions，其他一般的表示形式如disjunctions也适用。因为每个工作节点只读取部分数据，所以它可以在运行时比协调器在计划时更多地修剪过滤器的谓词。对于工作节点读取的文件，工作节点使用文件的统计信息（通常是最小值和最大值）来检查统计范围是否满足某些谓词。工作节点将删除过满足的谓词或者如果有任何不满足的谓词，则将整个过滤器评估为False。</p>
 <p><strong>元数据缓存和Catalog服务器</strong>：在协调器和工作节点上还引入了各种元数据级别的缓存。像文件索引（在其他上下文中也称为“footers”或“headers”）这样的热数据被缓存在内存中。可变的元数据，如表schema或文件路径，通过在协调器中进行版本控制进行缓存。还可以选择将元数据缓存托管在目录服务器中以进一步扩展缓存。</p>
 <p><strong>缓存本地性</strong>：为了最大化工作节点（无论是内存还是本地SSD）上的缓存命中率，协调器需要使用哈希函数将相同文件的读取请求调度到同一个工作节点。为了避免热点工作节点，调度器会在必要时将缓存回退到其次选的工作节点，或者在必要时跳过缓存。可以使用各种哈希策略，如简单模块哈希或一致性哈希。相同的逻辑也适用于查询路由。由于Presto在全球范围内部署在多个数据中心，路由器将将查询重定向到具有缓存数据的集群，并作为备用方案防止热点。</p>
 <h3 id="Native-Vectorized-Execution"><a href="#Native-Vectorized-Execution" class="headerlink" title="Native Vectorized Execution"></a>Native Vectorized Execution</h3><p>Presto是Java开发的，这不仅阻止了精确的内存管理，还使我们无法利用现代的向量化CPU执行，如SIMD。<a href="/2022/12/03/velox-depp-intro/">Velox</a>是Meta最初从Presto孵化出来的项目，用于支持C++向量化执行。后来它成为了一个通用的向量化执行库。</p>
