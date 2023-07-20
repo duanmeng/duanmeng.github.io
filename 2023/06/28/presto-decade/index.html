@@ -14,7 +14,7 @@
 <meta property="og:description" content="What Is Presto &amp; Why New Presto ArchitecturePresto是一个开源的分布式SQL查询引擎，详细请参考Presto: SQL on Everything。在过去的十年中，随着Meta数据量的超级增长以及新的SQL分析需求，Presto在保持查询延迟和可扩展性方面面临了巨大的挑战：  确保查询的可靠性不会随着向更灵活和弹性的资源管理模型过渡，使用更小">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-06-28T01:23:48.000Z">
-<meta property="article:modified_time" content="2023-07-09T09:21:07.058Z">
+<meta property="article:modified_time" content="2023-07-20T08:49:32.990Z">
 <meta property="article:author" content="duanmeng">
 <meta property="article:tag" content="spark">
 <meta property="article:tag" content="data">
@@ -114,7 +114,7 @@
 
     </div>
     <div id="toc">
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#What-Is-Presto-amp-Why-New-Presto-Architecture"><span class="toc-number">1.</span> <span class="toc-text">What Is Presto &amp; Why New Presto Architecture</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">2.</span> <span class="toc-text">References</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#What-Is-Presto-amp-Why-New-Presto-Architecture"><span class="toc-number">1.</span> <span class="toc-text">What Is Presto &amp; Why New Presto Architecture</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#LATENCY-IMPROVEMENTS"><span class="toc-number">2.</span> <span class="toc-text">LATENCY IMPROVEMENTS</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Caching"><span class="toc-number">2.1.</span> <span class="toc-text">Caching</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Native-Vectorized-Execution"><span class="toc-number">2.2.</span> <span class="toc-text">Native Vectorized Execution</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Adaptive-filtering"><span class="toc-number">2.3.</span> <span class="toc-text">Adaptive filtering</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Materialized-views-and-near-real-time-data"><span class="toc-number">2.4.</span> <span class="toc-text">Materialized views and near real-time data</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SCALABILITY-IMPROVEMENTS"><span class="toc-number">3.</span> <span class="toc-text">SCALABILITY IMPROVEMENTS</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Multiple-coordinators"><span class="toc-number">3.1.</span> <span class="toc-text">Multiple coordinators</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Recoverable-grouped-execution"><span class="toc-number">3.2.</span> <span class="toc-text">Recoverable grouped execution</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Spilling"><span class="toc-number">3.3.</span> <span class="toc-text">Spilling</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#EFFICIENCY-IMPROVEMENTS"><span class="toc-number">4.</span> <span class="toc-text">EFFICIENCY IMPROVEMENTS</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Cost-Based-Optimizer"><span class="toc-number">4.1.</span> <span class="toc-text">Cost-Based Optimizer</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#History-Based-Optimizer"><span class="toc-number">4.2.</span> <span class="toc-text">History-Based Optimizer</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Adaptive-execution"><span class="toc-number">4.3.</span> <span class="toc-text">Adaptive execution</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ENABLING-RICHER-ANALYTICS"><span class="toc-number">5.</span> <span class="toc-text">ENABLING RICHER ANALYTICS</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Handling-mutability"><span class="toc-number">5.1.</span> <span class="toc-text">Handling mutability</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#User-defined-types"><span class="toc-number">5.2.</span> <span class="toc-text">User-defined types</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#User-defined-functions"><span class="toc-number">5.3.</span> <span class="toc-text">User-defined functions</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">6.</span> <span class="toc-text">References</span></a></li></ol>
     </div>
   </span>
 </div>
@@ -183,10 +183,132 @@
 <li><strong>层级存储</strong></li>
 <li><strong>向量化执行引擎</strong></li>
 <li><strong>物化视图</strong></li>
-<li><strong>Presto On Spark</strong></li>
 </ul>
+<h2 id="LATENCY-IMPROVEMENTS"><a href="#LATENCY-IMPROVEMENTS" class="headerlink" title="LATENCY IMPROVEMENTS"></a>LATENCY IMPROVEMENTS</h2><h3 id="Caching"><a href="#Caching" class="headerlink" title="Caching"></a>Caching</h3><p>存储计算分离使独立扩展成为可能，但是也引入了新的查询延迟挑战，因为当网络饱和时，通过网络扫描大量数据甚至元数据可能会受到IO限制。为了解决这个问题，需要在各个层面引入了缓存。</p>
+<p><strong>原始数据缓存</strong>：工作节点上的本地的数据缓存（SSD）可以减少从远程存储节点读取数据的IO时间。Presto工作节点在读取时将远程数据以原始形式（压缩和可能加密）缓存在本地。缓存单元的大小是对齐的，以避免碎片化。例如，如果一个读取请求覆盖了范围[2.3MB, 4.5MB)，Presto将发出一个远程读取范围为[2MB, 5MB)的请求，并缓存和索引[2MB, 3MB)、[3MB, 4MB)和[4MB, 5MB)的数据块，这些缓存单元的驱逐策略是LRU。</p>
+<p><strong>结果片段缓存</strong>：此外，运行叶子阶段的任务（负责从远程存储中获取数据的任务）可以决定在本地闪存上缓存部分计算结果，以防止在多个查询中进行重复计算。一种典型的方法是在具有一级扫描、过滤、投影和&#x2F;或聚合的叶子阶段缓存计划片段的结果。例如，用户可能决定查询过去1天的报表聚合结果。然后，他们可以调整仪表盘以查看过去3天的聚合结果。对于第二个查询，我们可以通过缓存来防止对第一个查询的重复计算。只需要扫描和部分聚合剩余2天的数据。</p>
+<blockquote>
+<p>请注意，片段结果是基于叶子查询片段的，用户可以调整过滤器或投影，因此可能会有很大的变化。为了在用户频繁更改过滤器或投影时最大化缓存命中率，我们依赖基于统计的规范化。规范化首先对不同变量名进行同构映射，将其映射为固定的变量名，以使具有相同含义的不同别名的查询最终得到相同的计划。然后，它对表达式进行排序，以使类似𝑎 &gt; 𝑏和𝑏 &lt; 𝑎的表达式具有相同的格式。最后，它修剪过滤器中的谓词。给定一个以谓词的合取形式表示的过滤器𝜙，谓词修剪通过删除𝜙中所有满足的谓词生成一个新的过滤器。请注意，这种方法不仅限于conjunctions，其他一般的表示形式如disjunctions也适用。因为每个工作节点只读取部分数据，所以它可以在运行时比协调器在计划时更多地修剪过滤器的谓词。对于工作节点读取的文件，工作节点使用文件的统计信息（通常是最小值和最大值）来检查统计范围是否满足某些谓词。工作节点将删除过满足的谓词或者如果有任何不满足的谓词，则将整个过滤器评估为False。</p>
+</blockquote>
+<p><strong>元数据缓存和Catalog服务器</strong>：在协调器和工作节点上还引入了各种元数据级别的缓存。像文件索引（在其他上下文中也称为“footers”或“headers”）这样的热数据被缓存在内存中。可变的元数据，如表schema或文件路径，通过在协调器中进行版本控制进行缓存。还可以选择将元数据缓存托管在目录服务器中以进一步扩展缓存。</p>
+<p><strong>缓存本地性</strong>：为了最大化工作节点（无论是内存还是本地SSD）上的缓存命中率，协调器需要使用哈希函数将相同文件的读取请求调度到同一个工作节点。为了避免热点工作节点，调度器会在必要时将缓存回退到其次选的工作节点，或者在必要时跳过缓存。可以使用各种哈希策略，如简单模块哈希或一致性哈希。相同的逻辑也适用于查询路由。由于Presto在全球范围内部署在多个数据中心，路由器将将查询重定向到具有缓存数据的集群，并作为备用方案防止热点。</p>
+<h3 id="Native-Vectorized-Execution"><a href="#Native-Vectorized-Execution" class="headerlink" title="Native Vectorized Execution"></a>Native Vectorized Execution</h3><p>Presto是Java开发的，这不仅阻止了精确的内存管理，还使我们无法利用现代的向量化CPU执行，如SIMD。<a href="/2022/12/03/velox-depp-intro/">Velox</a>是Meta最初从Presto孵化出来的项目，用于支持C++向量化执行。后来它成为了一个通用的向量化执行库。</p>
+<p>Presto与Velox紧密集成，以利用向量化执行，构建了本地C++工作节点，直接与协调器进行通信。Shuffle和IO采用本地Velox格式，因此不需要额外的复制来转换为Presto格式。当查询开始时，协调器将查询计划片段调度给C++工作节点。工作节点接收计划片段并将其转换为Velox计划。在C++工作节点内部，接收Velox计划时会生成一个本地线程，以充分利用内存的可互换性。</p>
+<p>在Velox的执行线程中，函数、表达式和IO以向量化的方式执行。简单的表达式通过SIMD一次计算多个值。Velox具有与Presto兼容的类型和函数语义，因此相同的函数可以在Java和C++执行中产生相同的结果。延迟和CPU方面的整体改进大约在2-3倍左右。</p>
+<h3 id="Adaptive-filtering"><a href="#Adaptive-filtering" class="headerlink" title="Adaptive filtering"></a>Adaptive filtering</h3><p><strong>子字段裁剪</strong>：在现代数据仓库中，复杂类型如映射、数组和结构体被广泛使用。例如，机器学习工作负载通常会生成包含数千个嵌入特征的大型映射，并将其存储在表列中。复杂类型实例的子字段，表示为<code>𝜏</code>，指的是𝜏内的嵌套元素。举个例子，如果𝜏是一个数组类型实例，<code>𝜏[2]</code>表示𝜏的第二个子字段。需要注意的是，子字段可以根据所涉及的类型进行递归嵌套。为了提高CPU效率，需要有效地提取子字段，而无需读取整个复杂对象。Presto通过向读取器传递复杂对象所需的索引或键来支持子字段修剪。读取器将根据列式格式（如ORC或Parquet）跳过未使用的子字段，以避免读取它们。在前面的数组类型实例𝜏的示例中，只有<code>𝜏[2]</code>从磁盘中读取；<code>𝜏</code>的所有其他索引都被跳过。修剪是递归的，以支持任意层次的嵌套。</p>
+<p><strong>过滤器重新排序</strong>：除了子字段修剪之外，过滤器下推是一种常见的策略，通过在扫描过程中应用过滤器来减少扫描的大小，即使在查询计划中明确要求某些列或行，也不必将它们实例化。在各种情况下，某些过滤器比其他过滤器更有效；它们在较少的CPU周期内删除更多的行。在运行时，Presto会自动重新排序过滤器，以便先评估更具选择性的过滤器，然后再评估选择性较低的过滤器。在读取任何数据之前，过滤器中的每个函数都会初始化为（1）“CPU周期估计”，该估计是基于函数的元数和输入类型计算得出的，以及（2）固定的选择性。当读取器开始扫描和过滤数据时，会对每个函数的选择性进行分析，并调整CPU周期估计以反映实际的CPU周期。在运行时，根据选择性和平均CPU周期的乘积，动态重新排序过滤器中的函数顺序。随着扫描过程中数据的变化，选择性和CPU周期会不断调整，以自适应地重新排序过滤器。</p>
+<p><strong>基于过滤器的延迟物化</strong>：在为一批行应用一组按顺序排列的过滤器时，Presto会跟踪满足过滤器谓词的行。对于在该批次中未通过早期过滤器的行，无需评估或甚至实例化其他过滤器所需的列的行。例如，如果我们要在列<code>col1</code>和<code>col2</code>上应用过滤器<code>col1 &gt; 10 AND col2 = 5</code>，扫描将首先对<code>col1</code>中的所有行评估<code>col1 &gt; 10</code>，这些行必须被实例化。然而，只有在<code>col2</code>中通过<code>col1 &gt; 10</code>的行需要被实例化，以评估<code>col2 = 5</code>。这是大多数现代数据库中实现的一种技术。</p>
+<p><strong>动态JOIN过滤</strong>：在Presto中，过滤器下推可以进一步增强以与“动态连接过滤”一起使用。对于内连接，构建侧可以提供一个以布隆过滤器、范围或唯一值格式的“摘要”，作为探测侧的过滤器。摘要可以通过上述框架作为额外的过滤器在扫描过程中下推，以便探测侧的读取器不会实例化与join key不匹配的数据。摘要的格式取决于构建侧的唯一值数量，因此摘要的大小应该小而相对有效，用于过滤但不是“过度拟合”。</p>
+<h3 id="Materialized-views-and-near-real-time-data"><a href="#Materialized-views-and-near-real-time-data" class="headerlink" title="Materialized views and near real-time data"></a>Materialized views and near real-time data</h3><p>数据仓库通常以逐小时或逐日的增量方式写入列式格式的表数据。经过时间增量后，写入的数据变为不可变。之前Presto只能读取不可变的数据，现在扩展了能力，可以读取实时写入数据仓库的数据，以提供近实时（NRT）支持。NRT支持在数据创建后的几十秒内可用，可以构建更多的NRT仪表板，以反映更频繁的指标变化。</p>
+<p>预计算表格更适合提前减少基数。然而，这种方法不适用于NRT用例，因为数据是连续到达的。为了满足低延迟要求和数据新鲜度，Presto内置了物化视图功能。物化视图是由存储其结果的查询表示的视图。</p>
+<p>当Presto创建物化视图时，将创建一个自动作业来实例化视图的数据。只要基本表的某些单位（通常是小时或天）变为不可变，自动作业将运行视图查询以实例化视图数据。另一方面，连续到达的NRT数据在变为不可变之前不会被实例化为视图。当用户查询物化视图时，Presto会识别哪些部分的视图已经被实例化，哪些部分没有。然后，Presto将查询分解为一个UNION ALL查询，将实例化的数据与基本表中的非实例化新鲜数据组合在一起。这样可以同时提供数据新鲜度和低</p>
+<p>物化视图的另一个用例是子查询优化。给定一个查询，Presto检索与查询的表相关联的所有物化视图。Presto尝试匹配是否存在一个物化视图是接收到的查询的子查询。如果存在匹配，接收到的查询将被重写，以利用物化视图而不是从基本表中获取数据。当前支持的查询模式只允许扫描、过滤、投影和聚合。支持一些聚合函数，如<code>SUM、MIN、MAX、AVG、COUNT</code>等。</p>
+<h2 id="SCALABILITY-IMPROVEMENTS"><a href="#SCALABILITY-IMPROVEMENTS" class="headerlink" title="SCALABILITY IMPROVEMENTS"></a>SCALABILITY IMPROVEMENTS</h2><p>Presto越来越多地被用于支持大规模的ETL作业。当进入运行时间为几小时且PB级别的扫描时，原始的Presto架构无法满足足够的扩展性。为了处理单点故障、工作节点崩溃、数据倾斜和内存限制，Presto已经集成了各种改进和重新架构。</p>
+<h3 id="Multiple-coordinators"><a href="#Multiple-coordinators" class="headerlink" title="Multiple coordinators"></a>Multiple coordinators</h3><p>对于Presto来说，协调器一直是单点故障。这对于长时间运行的查询尤其是一个挑战，在高峰时段，可能会有数千个查询在协调器中排队。协调器崩溃意味着所有查询都将失败。从可扩展性的角度来看，由于查询调度需要大量的内存和CPU，协调器的水平扩展在并行运行更多查询时会达到限制。此外，Meta基础架构设计趋向于使用内存较少的容器，目前所有的查询排队、查询调度和集群管理都无法在较小的内存中实现。</p>
+<p>Presto通过将<a target="_blank" rel="noopener" href="https://prestodb.io/blog/2022/04/15/disggregated-coordinator">查询和集群的生命周期分离</a>来解决这个问题。协调器仅控制查询的生命周期，而新引入的资源管理器负责集群的排队和资源利用监控。下图展示了多个协调器和多个资源管理器架构的拓扑结构，这些组件最初都位于单个协调器中。查询首先会被发送到任意一个协调器。协调器彼此独立，没有相互通信。然后，查询可以选择被发送到资源管理器进行排队。资源管理器具有高可用性。排队的查询和集群控制面信息在所有实例之间进行复制。使用类似Raft的共识协议，以确保资源管理器崩溃不会导致任何排队查询的丢失。协调器定期从资源管理器获取排队信息，以决定执行哪些查询。通过定期获取信息，如果协调器发现资源管理器中没有查询排队，或者队列中的查询优先级较低，它可以决定执行新提交的查询，以避免排队开销或网络延迟。引入多个协调器不仅消除了单点故障，还解决了弹性容量和Meta基础架构追求较小容器的问题。现在，协调器或资源管理器可以更频繁地被释放，而无需保留排队状态数小时。</p>
+<h3 id="Recoverable-grouped-execution"><a href="#Recoverable-grouped-execution" class="headerlink" title="Recoverable grouped execution"></a>Recoverable grouped execution</h3><p>Presto的架构采用了流式RPC Shuffle和内存数据处理，以优化延迟。然而，当运行PB级别的扫描或运行时间为几小时的ETL查询时，它既无法在内存限制方面进行扩展，也无法保证没有工作节点会崩溃。为了支持任意大的查询，开发了可恢复的<a target="_blank" rel="noopener" href="https://prestodb.io/blog/2019/08/05/presto-unlimited-mpp-database-at-scale">分组执行</a>。</p>
+<p>在数据仓库中，数据通常被分区。例如，数据可以按天进行分区，因此“天”是一个自然的分区。这也可以扩展到其他类型的分区，如模块哈希或<code>z-ordering</code>。具有相同分区键（由表列表示）的行属于同一个分区。下表展示了一个哈希分区的示例，其中表按列<code>col1</code>进行分区，使用哈希函数<code>mod(3)</code>得到3个分区。</p>
+<table>
+<thead>
+<tr>
+<th>partition-1</th>
+<th>col1</th>
+<th>col2</th>
+<th>partition-2</th>
+<th>col1</th>
+<th>col2</th>
+<th>partition-3</th>
+<th>col1</th>
+<th>col2</th>
+</tr>
+</thead>
+<tbody><tr>
+<td></td>
+<td>1</td>
+<td>a</td>
+<td></td>
+<td>5</td>
+<td>b</td>
+<td></td>
+<td>6</td>
+<td>a</td>
+</tr>
+<tr>
+<td></td>
+<td>4</td>
+<td>b</td>
+<td></td>
+<td>2</td>
+<td>b</td>
+<td></td>
+<td>6</td>
+<td>a</td>
+</tr>
+<tr>
+<td></td>
+<td>1</td>
+<td>a</td>
+<td></td>
+<td>2</td>
+<td>b</td>
+<td></td>
+<td>3</td>
+<td>c</td>
+</tr>
+<tr>
+<td></td>
+<td>7</td>
+<td>d</td>
+<td></td>
+<td>5</td>
+<td>e</td>
+<td></td>
+<td>3</td>
+<td>d</td>
+</tr>
+<tr>
+<td></td>
+<td>7</td>
+<td>b</td>
+<td></td>
+<td>2</td>
+<td>a</td>
+<td></td>
+<td>3</td>
+<td>c</td>
+</tr>
+</tbody></table>
+<p>在Presto中，如果表扫描后的第一个聚合、连接或窗口函数键是数据分区键的超集，查询可以以“分组”的方式执行。在这种情况下，引擎不会扫描整个数据集并基于聚合、连接或窗口函数键进行Shuffle。它只会逐个分区进行扫描，因为键在分区之间是不相交的。如果执行整个查询所需的内存超过了集群可以提供的内存，分组执行将优先选择以降低峰值内存消耗。假设用户有一个查询<code>SELECT COUNT() from table1 GROUP BY col1</code>。普通扫描将并行读取所有3个分区，并根据聚合键col1进行洗牌。然后，聚合阶段将在内存中接收所有7个不同的值，然后发出最终的聚合结果。相反，分组执行将逐个分区进行扫描。因为分区键col1与查询中的聚合键col1相同，它将首先扫描分区1中的所有内容，并在内存中构建只有3个不同值（1、4和7）的哈希表，然后发出这3个值的最终结果。然后，它将继续处理分区2和分区3，每个分区只有两个值。在这种情况下，峰值内存使用量将小于并行扫描所有内容。</p>
+<p>分组执行可以扩展到第一个洗牌之后，或者当数据不是按照聚合、JOIN或窗口函数键进行分区时。实现这一点的方法是通过注入一个Shuffle阶段，以基于下游键以分区方式实现源数据的具体化。好处是允许分组执行适用于任意查询和任意源数据。缺点是中间数据具体化的开销。</p>
+<p>通过具体化中间数据，我们进一步构建了对分组执行在洗牌点边界处的故障恢复的支持。如果一个工作节点崩溃，调度器将直接从具体化的中间数据而不是源数据重新运行失败的执行。从架构的角度来看，还可以通过容错的本地磁盘或分布式分解Shuffle服务（例如，Cosco）来支持更细粒度的Shuffle恢复。</p>
+<p>例如，查询为<code>SELECT COUNT() FROM table1 GROUP BY col1</code>，其中table1包含了无法放入整个集群内存的col1的数万亿个不同值。为了克服内存限制，第一个洗牌将基于col1进行。而不是直接将洗牌后的键传送到COUNT聚合中，写入者将持久化数据。然后，聚合阶段可以在洗牌后的数据上进行分组执行（显示在灰色框中），以降低峰值内存消耗。每个分组执行都是可恢复的，因为col1上的中间数据已经持久化。</p>
+<h3 id="Spilling"><a href="#Spilling" class="headerlink" title="Spilling"></a>Spilling</h3><p>尽管Presto有前面提到的两种可扩展选项来克服集群范围内的内存限制，但数据倾斜仍然可能发生，导致单个工作节点超出本地工作节点内存限制。随着Meta朝着更小内存容量的容器迈进，这一问题变得尤为严重，以获得更好的弹性性能。Presto实现了溢出功能，将内存中的哈希表（用于聚合、JOIN、窗口函数和TopN操作）持久化到磁盘上。通过应用级别的溢出而不是依赖操作系统将内存页面交换到磁盘，有助于更精细地控制查询执行。交互式和即席工作负载将数据溢出到本地SSD以获得低延迟，而ETL工作负载将数据溢出到远程存储以实现可扩展性。</p>
+<p>当构建查询的哈希表时达到内存限制时，每个哈希表将根据哈希键进行排序并序列化到磁盘上。然后，查询将继续处理，就好像哈希表为空一样。一旦哈希表再次增长到限制，相同的过程将重复，直到所有数据都被处理完毕。然后，对这些排序的哈希表进行外部合并，以在发出结果时限制内存使用。</p>
+<h2 id="EFFICIENCY-IMPROVEMENTS"><a href="#EFFICIENCY-IMPROVEMENTS" class="headerlink" title="EFFICIENCY IMPROVEMENTS"></a>EFFICIENCY IMPROVEMENTS</h2><p>除了改善延迟和可扩展性之外，效率对于查询性能也非常重要。本节将介绍我们为提高效率所做的几项改进。</p>
+<h3 id="Cost-Based-Optimizer"><a href="#Cost-Based-Optimizer" class="headerlink" title="Cost-Based Optimizer"></a>Cost-Based Optimizer</h3><p>优化器对于查询引擎至关重要。一个合适的计划可以充分利用集群中的资源。Presto拥有一个基于成本的优化器，可以为CPU、IO和内存分配成本，以平衡这些因素并生成优化的计划。具体而言，基于成本的优化用于做出以下决策：（1）选择连接类型，包括广播连接和重新分发连接；（2）连接重排序，以最小化整体内存使用。希望能够充分利用内存，同时在不超过内存限制的情况下提供高效的CPU性能。然而，对于广播连接来说，它还可以提供更低的延迟和更少的CPU周期。因此，权衡的目标是将内存使用最小化到一个限制范围，以提供优化的CPU性能。过滤器重排序的用例不包含在基于成本的优化器中，因为它是在运行时决定的，详见第3.3节。</p>
+<p>为了做出正确的决策，需要外部信息来估计成本，为每个表分区存储统计信息以描述数据分布。这些统计信息在删除相应的分区时被删除。常见的统计信息包括直方图、总值计数、不同值计数、空值计数、最小值、最大值等。这些统计信息可以帮助估计过滤器的选择性，以估计过滤器后输入表的基数。它还有助于估计连接表的大小以进行内存估算。在规划阶段，基于成本的优化器将获取输入表的统计信息，并从计划的叶子节点到根节点填充成本估计，并相应地调整计划以生成最小成本。对于过滤器或连接选择性，将应用简单的启发式方法来估计计划上部分数据的基数和大小。</p>
+<h3 id="History-Based-Optimizer"><a href="#History-Based-Optimizer" class="headerlink" title="History-Based Optimizer"></a>History-Based Optimizer</h3><p>在大多数情况下，表统计信息可以为计划成本估算提供足够的信息。然而，估算可能会有误差。此外，过滤器或连接的选择性事先是未知的，因此随着查询中嵌入更多过滤器，估算可能变得越来越不精确。因此，Presto还支持基于历史的优化器。ETL作业的查询具有高度的重复性和可预测性。基于历史的优化器的思想是利用先前完成的重复查询的精确执行统计信息来指导未来重复查询的规划。基于历史的优化器还可以更精细地控制计划，包括（1）调整Shuffle分发大小和（2）部分或中间聚合的消除。</p>
+<p>当生成查询计划时，将应用与前面提到的caching的相同的规范化方法。（请注意，caching的谓词修剪是在工作节点的文件级别进行的。对于优化器，只有表级别的统计信息可用）。然后，计划中的常量将被替换为符号。”符号计划”将与查询完成后的实际执行统计信息一起作为外部统计信息存储的键和值。当调度具有相同结构但不同常量的查询时，成本估算将直接从具有相同符号计划的外部统计信息存储中获取。由于ETL查询只会每天更改”日期”常量，因此先前生成的符号计划提供的统计信息可以精确地用于最新的ETL处理。</p>
+<h3 id="Adaptive-execution"><a href="#Adaptive-execution" class="headerlink" title="Adaptive execution"></a>Adaptive execution</h3><p>统计信息对于规划者做出决策非常有帮助。Presto的优化器努力使用数据统计信息来静态选择最佳计划，正如前面的章节中所讨论的那样。然而，不完整的统计信息、对数据的假设（均匀性假设、缺乏关于数据相关性和偏斜的信息）以及复杂的查询（例如，复杂的函数或多路连接）会导致次优的计划。因此，如果在运行时计划不是最优的，就需要自适应执行来动态调整查询计划。</p>
+<p>自适应执行利用已完成的任务将统计信息报告给协调器，以便协调器可以使用这些信息重新优化下游任务的计划。优化的类型是基于历史的优化器支持的类型的超集；自适应执行还提供了用于JOIN和聚合的倾斜处理。这主要是因为在运行时检测到倾斜键不需要任何外部知识，因为许多元数据存储不具备为表或列提供倾斜值的适当支持。</p>
+<p>为了利用运行时统计信息，调度器以分阶段的方式从扫描任务一直到根节点进行任务调度。一旦上游任务完成，优化器将根据新收集的统计信息重新运行，并根据新计划调度下游任务。由于原始的Presto架构以流式方式进行数据洗牌，自适应执行仅适用于支持分阶段执行和disaggregated shuffle的Presto on Spark模式。</p>
+<h2 id="ENABLING-RICHER-ANALYTICS"><a href="#ENABLING-RICHER-ANALYTICS" class="headerlink" title="ENABLING RICHER ANALYTICS"></a>ENABLING RICHER ANALYTICS</h2><h3 id="Handling-mutability"><a href="#Handling-mutability" class="headerlink" title="Handling mutability"></a>Handling mutability</h3><p>传统上，数据仓库只支持不可变数据。近年来，我们看到了对可变数据支持的增加趋势，包括版本控制。例如，<a href="/2020/05/11/delta-lake/"><code>Delta Lake</code></a>、<a href="/2023/01/05/iceberg-look-under/"><code>Iceberg</code></a>。</p>
+<p>可变性有两个主要的用例：（1）机器学习特征工程和（2）用于隐私的逐行删除。对于（1），特征工程是利用领域知识从原始数据中提取有用信息的过程，以生成机器学习算法可以使用的特征。在Meta，可以通过Presto等分析引擎或具有声明性语言（例如SQL）的流式引擎来进行此类过程，从原始数据生成特征。机器学习工程师将不断探索数据，以找到改进机器学习模型的合适特征。在为模型选择特征之前，候选特征将被记录并与主表关联。根据训练结果，候选特征可以合并到主表中或被丢弃。同时可能会开发数百个探索性候选特征。频繁更改主表结构并不理想。因此，需要一种更灵活的方式来变更列。</p>
+<p>对于（2），Meta用户（包括Facebook、Instagram和WhatsApp）可以选择不收集他们的个人数据用于内容推荐或其他用途。Meta需要有能力根据用户的决定删除用户数据。数据仓库表的规模达到了EB级别。无法以高频率反复重写这些表。因此，需要一种可变的解决方案来处理这些不可变数据。</p>
+<p>为了解决上述问题，Presto内部集成了<code>Delta</code>。<code>Delta</code>是Meta内部的一种解决方案，允许对表进行变更，具有添加或移动列或行的灵活性。<code>Delta</code>将一个或多个“delta文件”关联到单个主文件。Delta文件作为对主文件的更改日志，指示主文件中新增或删除的列或新增或删除的行。主文件和Delta文件都与相同的逻辑行数对齐，以从物理表示中恢复逻辑数据。当Presto读取主文件时，它将启动额外的读取器来合并这些Delta文件以反映变更。Delta文件的关联和顺序保存在带有版本控制的元数据存储中。Delta文件实现了对数据仓库的逻辑删除，以满足隐私要求。这些Delta文件定期合并到主文件中，以避免读取开销。该过程确保所有相应的物理位被删除。</p>
+<p>在这种情况下，机器学习候选特征可以被建模为额外的Delta列，用户数据删除可以被建模为要删除的Delta行。添加新的候选特征或某些用户删除个人数据将导致新的Delta文件按顺序与主文件关联。需要注意的是，由于个人数据删除活动频繁发生，需要对这些行删除进行批处理，以避免创建过多的Delta文件。</p>
+<h3 id="User-defined-types"><a href="#User-defined-types" class="headerlink" title="User-defined types"></a>User-defined types</h3><p>Presto允许使用用户定义的类型来丰富语义。类型可以按层次结构进行定义，并支持继承。例如，可以基于<code>Long</code>类型定义一个<code>ProfileId</code>类型，其中包括<code>UserId</code>和<code>PageId</code>类型作为其子类型。用户定义的类型定义存储在远程元数据存储中。除了存储类型定义本身外，还可以与用户定义的类型关联额外的信息。例如，可以使用SQL表达式表示约束条件。这允许在运行时进行数据质量检查。例如，不希望<code>UserId</code>是负整数或超过一定长度。另一个例子是策略规范，与对隐私的不断增长的要求相关。近年来，围绕用户数据保护、匿名化和删除出现了共同的要求。为了实现这个目标，首先需要在数据仓库中识别用户数据。用户定义的类型允许业务领域专家对其数据进行建模，以反映表中的用户数据，并将隐私策略与其关联。例如，表的所有者可以定义一个Email类型，在数据落地时应立即进行匿名化，并在7天后删除。数据仓库可以在后台应用这些策略，以满足隐私要求。</p>
+<h3 id="User-defined-functions"><a href="#User-defined-functions" class="headerlink" title="User-defined functions"></a>User-defined functions</h3><p>用户定义函数（UDF）允许将自定义逻辑嵌入到SQL中。在Presto中，有多种方式支持UDF。</p>
+<p>内部UDF：基本支持是内部UDF。函数以库的形式编写和发布。Presto在运行时加载库，并在与主要评估引擎相同的进程中执行它们。这种模式可以高效，因为没有上下文切换。然而，这种模式只在Presto on Spark中受支持，因为函数库包含的任意代码在多租户模式下运行时不安全。</p>
+<p>UDF服务：为了在多租户模式或不同的编程语言中支持UDF，Presto构建了UDF服务器。函数通过Presto集群的RPC调用在远程服务器上调用。UDF服务器频繁更新函数（以分钟到小时为单位），因此函数发布速度可以比Presto引擎快得多。因为一个表达式可以包含本地可执行函数和远程UDF，所以在编译时，表达式将被分解为本地可执行和远程可执行，并在计划中具有不同的投影阶段。本地可执行表达式被编译成字节码以进行快速执行，而远程可执行表达式在UDF服务器上执行。</p>
+<p>SQL函数：尽管UDF提供了灵活性，但出于审计和隐私的目的，查询应该能够在没有执行黑盒的情况下进行“推理”。为了在表达能力和可理解性之间取得平衡，引入了SQL函数。当一个函数的逻辑可以用SQL表达时，我们允许用户定义SQL函数，通过避免编写冗长且难以阅读的SQL语句来简化查询逻辑。SQL函数是一段具有明确定义的输入和输出类型的SQL代码。SQL函数定义也存储在远程元数据存储中。在执行过程中，<a target="_blank" rel="noopener" href="https://dzone.com/articles/tutorial-how-to-define-sql-functions-with-presto-a">SQL函数</a>将自动编译并可选择进行内联。</p>
 <h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ul>
 <li><a target="_blank" rel="noopener" href="https://research.facebook.com/publications/presto-a-decade-of-sql-analytics-at-meta/">https://research.facebook.com/publications/presto-a-decade-of-sql-analytics-at-meta/</a></li>
+<li><a target="_blank" rel="noopener" href="https://prestodb.io/blog/2021/02/04/raptorx">https://prestodb.io/blog/2021/02/04/raptorx</a></li>
+<li><a target="_blank" rel="noopener" href="https://prestodb.io/blog/2022/01/28/avoid-data-silos-in-presto-in-meta">https://prestodb.io/blog/2022/01/28/avoid-data-silos-in-presto-in-meta</a></li>
+<li><a target="_blank" rel="noopener" href="https://prestodb.io/blog/2022/04/15/disggregated-coordinator">https://prestodb.io/blog/2022/04/15/disggregated-coordinator</a></li>
+<li><a target="_blank" rel="noopener" href="https://prestodb.io/blog/2019/08/05/presto-unlimited-mpp-database-at-scale">https://prestodb.io/blog/2019/08/05/presto-unlimited-mpp-database-at-scale</a></li>
+<li><a target="_blank" rel="noopener" href="https://dzone.com/articles/tutorial-how-to-define-sql-functions-with-presto-a">https://dzone.com/articles/tutorial-how-to-define-sql-functions-with-presto-a</a></li>
 </ul>
 
   </div>
@@ -215,7 +337,7 @@
     </div>
 
     <div id="toc-footer" style="display: none">
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#What-Is-Presto-amp-Why-New-Presto-Architecture"><span class="toc-number">1.</span> <span class="toc-text">What Is Presto &amp; Why New Presto Architecture</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">2.</span> <span class="toc-text">References</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#What-Is-Presto-amp-Why-New-Presto-Architecture"><span class="toc-number">1.</span> <span class="toc-text">What Is Presto &amp; Why New Presto Architecture</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#LATENCY-IMPROVEMENTS"><span class="toc-number">2.</span> <span class="toc-text">LATENCY IMPROVEMENTS</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Caching"><span class="toc-number">2.1.</span> <span class="toc-text">Caching</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Native-Vectorized-Execution"><span class="toc-number">2.2.</span> <span class="toc-text">Native Vectorized Execution</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Adaptive-filtering"><span class="toc-number">2.3.</span> <span class="toc-text">Adaptive filtering</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Materialized-views-and-near-real-time-data"><span class="toc-number">2.4.</span> <span class="toc-text">Materialized views and near real-time data</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SCALABILITY-IMPROVEMENTS"><span class="toc-number">3.</span> <span class="toc-text">SCALABILITY IMPROVEMENTS</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Multiple-coordinators"><span class="toc-number">3.1.</span> <span class="toc-text">Multiple coordinators</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Recoverable-grouped-execution"><span class="toc-number">3.2.</span> <span class="toc-text">Recoverable grouped execution</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Spilling"><span class="toc-number">3.3.</span> <span class="toc-text">Spilling</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#EFFICIENCY-IMPROVEMENTS"><span class="toc-number">4.</span> <span class="toc-text">EFFICIENCY IMPROVEMENTS</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Cost-Based-Optimizer"><span class="toc-number">4.1.</span> <span class="toc-text">Cost-Based Optimizer</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#History-Based-Optimizer"><span class="toc-number">4.2.</span> <span class="toc-text">History-Based Optimizer</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Adaptive-execution"><span class="toc-number">4.3.</span> <span class="toc-text">Adaptive execution</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ENABLING-RICHER-ANALYTICS"><span class="toc-number">5.</span> <span class="toc-text">ENABLING RICHER ANALYTICS</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Handling-mutability"><span class="toc-number">5.1.</span> <span class="toc-text">Handling mutability</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#User-defined-types"><span class="toc-number">5.2.</span> <span class="toc-text">User-defined types</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#User-defined-functions"><span class="toc-number">5.3.</span> <span class="toc-text">User-defined functions</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">6.</span> <span class="toc-text">References</span></a></li></ol>
     </div>
 
     <div id="share-footer" style="display: none">
