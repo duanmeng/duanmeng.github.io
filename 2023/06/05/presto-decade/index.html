@@ -9,7 +9,7 @@
     <meta name="description" content="What Is Presto &amp; Why New Presto ArchitecturePresto是一个开源的分布式SQL查询引擎，详细请参考Presto: SQL on Everything。在过去的十年中，随着Meta数据量的超级增长以及新的SQL分析需求，Presto在保持查询延迟和可扩展性方面面临了巨大的挑战：  确保查询的可靠性不会随着向更灵活和弹性的资源管理模型过渡，使用更小">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Presto: A Decade of SQL Analytics at Meta">
-<meta property="og:url" content="http://example.com/2023/06/28/presto-decade/index.html">
+<meta property="og:url" content="http://example.com/2023/06/05/presto-decade/index.html">
 <meta property="og:site_name" content="Macduan Notes">
 <meta property="og:description" content="What Is Presto &amp; Why New Presto ArchitecturePresto是一个开源的分布式SQL查询引擎，详细请参考Presto: SQL on Everything。在过去的十年中，随着Meta数据量的超级增长以及新的SQL分析需求，Presto在保持查询延迟和可扩展性方面面临了巨大的挑战：  确保查询的可靠性不会随着向更灵活和弹性的资源管理模型过渡，使用更小">
 <meta property="og:locale" content="en_US">
@@ -18,8 +18,8 @@
 <meta property="og:image" content="https://live.staticflickr.com/65535/53058181937_82fa012455_z.jpg">
 <meta property="og:image" content="https://live.staticflickr.com/65535/53059150500_38926e5c68_z.jpg">
 <meta property="og:image" content="https://live.staticflickr.com/65535/53058181932_dce9afd72b_z.jpg">
-<meta property="article:published_time" content="2023-06-28T01:23:48.000Z">
-<meta property="article:modified_time" content="2023-07-20T11:40:13.600Z">
+<meta property="article:published_time" content="2023-06-05T14:00:14.000Z">
+<meta property="article:modified_time" content="2023-07-23T16:33:36.217Z">
 <meta property="article:author" content="duanmeng">
 <meta property="article:tag" content="spark">
 <meta property="article:tag" content="data">
@@ -105,17 +105,17 @@
     <br/>
     <div id="share" style="display: none">
       <ul>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/06/28/presto-decade/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/06/28/presto-decade/&text=Presto: A Decade of SQL Analytics at Meta"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/06/28/presto-decade/&title=Presto: A Decade of SQL Analytics at Meta"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/06/28/presto-decade/&is_video=false&description=Presto: A Decade of SQL Analytics at Meta"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="mailto:?subject=Presto: A Decade of SQL Analytics at Meta&body=Check out this article: http://example.com/2023/06/28/presto-decade/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/06/28/presto-decade/&title=Presto: A Decade of SQL Analytics at Meta"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/06/28/presto-decade/&title=Presto: A Decade of SQL Analytics at Meta"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/06/28/presto-decade/&title=Presto: A Decade of SQL Analytics at Meta"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/06/28/presto-decade/&title=Presto: A Decade of SQL Analytics at Meta"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/06/28/presto-decade/&name=Presto: A Decade of SQL Analytics at Meta&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/06/28/presto-decade/&t=Presto: A Decade of SQL Analytics at Meta"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/06/05/presto-decade/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/06/05/presto-decade/&text=Presto: A Decade of SQL Analytics at Meta"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/06/05/presto-decade/&title=Presto: A Decade of SQL Analytics at Meta"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/06/05/presto-decade/&is_video=false&description=Presto: A Decade of SQL Analytics at Meta"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Presto: A Decade of SQL Analytics at Meta&body=Check out this article: http://example.com/2023/06/05/presto-decade/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/06/05/presto-decade/&title=Presto: A Decade of SQL Analytics at Meta"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/06/05/presto-decade/&title=Presto: A Decade of SQL Analytics at Meta"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/06/05/presto-decade/&title=Presto: A Decade of SQL Analytics at Meta"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/06/05/presto-decade/&title=Presto: A Decade of SQL Analytics at Meta"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/06/05/presto-decade/&name=Presto: A Decade of SQL Analytics at Meta&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/06/05/presto-decade/&t=Presto: A Decade of SQL Analytics at Meta"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
 </ul>
 
     </div>
@@ -144,7 +144,7 @@
       
     <div class="postdate">
       
-        <time datetime="2023-06-28T01:23:48.000Z" itemprop="datePublished">2023-06-28</time>
+        <time datetime="2023-06-05T14:00:14.000Z" itemprop="datePublished">2023-06-05</time>
         
       
     </div>
@@ -359,17 +359,17 @@
 
     <div id="share-footer" style="display: none">
       <ul>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/06/28/presto-decade/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/06/28/presto-decade/&text=Presto: A Decade of SQL Analytics at Meta"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/06/28/presto-decade/&title=Presto: A Decade of SQL Analytics at Meta"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/06/28/presto-decade/&is_video=false&description=Presto: A Decade of SQL Analytics at Meta"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="mailto:?subject=Presto: A Decade of SQL Analytics at Meta&body=Check out this article: http://example.com/2023/06/28/presto-decade/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/06/28/presto-decade/&title=Presto: A Decade of SQL Analytics at Meta"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/06/28/presto-decade/&title=Presto: A Decade of SQL Analytics at Meta"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/06/28/presto-decade/&title=Presto: A Decade of SQL Analytics at Meta"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/06/28/presto-decade/&title=Presto: A Decade of SQL Analytics at Meta"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/06/28/presto-decade/&name=Presto: A Decade of SQL Analytics at Meta&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/06/28/presto-decade/&t=Presto: A Decade of SQL Analytics at Meta"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/06/05/presto-decade/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/06/05/presto-decade/&text=Presto: A Decade of SQL Analytics at Meta"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/06/05/presto-decade/&title=Presto: A Decade of SQL Analytics at Meta"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/06/05/presto-decade/&is_video=false&description=Presto: A Decade of SQL Analytics at Meta"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Presto: A Decade of SQL Analytics at Meta&body=Check out this article: http://example.com/2023/06/05/presto-decade/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/06/05/presto-decade/&title=Presto: A Decade of SQL Analytics at Meta"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/06/05/presto-decade/&title=Presto: A Decade of SQL Analytics at Meta"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/06/05/presto-decade/&title=Presto: A Decade of SQL Analytics at Meta"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/06/05/presto-decade/&title=Presto: A Decade of SQL Analytics at Meta"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/06/05/presto-decade/&name=Presto: A Decade of SQL Analytics at Meta&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/06/05/presto-decade/&t=Presto: A Decade of SQL Analytics at Meta"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
 </ul>
 
     </div>

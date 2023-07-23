@@ -22,7 +22,7 @@
 <meta property="og:image" content="https://velox-lib.io/img/simple1_1.png">
 <meta property="og:image" content="https://facebookincubator.github.io/velox/_images/task-join-plan.png">
 <meta property="article:published_time" content="2022-12-03T07:47:49.000Z">
-<meta property="article:modified_time" content="2023-07-23T14:26:37.113Z">
+<meta property="article:modified_time" content="2023-07-23T15:10:32.655Z">
 <meta property="article:author" content="duanmeng">
 <meta property="article:tag" content="data">
 <meta property="article:tag" content="paper">
@@ -124,7 +124,7 @@
 
     </div>
     <div id="toc">
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#What-is-Velox"><span class="toc-number">1.</span> <span class="toc-text">What is Velox</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Why-Velox"><span class="toc-number">2.</span> <span class="toc-text">Why Velox</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Velox-Structure"><span class="toc-number">3.</span> <span class="toc-text">Velox Structure</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Velox-Deep-Dive"><span class="toc-number">4.</span> <span class="toc-text">Velox Deep Dive</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Type"><span class="toc-number">4.1.</span> <span class="toc-text">Type</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Scalar-Type"><span class="toc-number">4.1.1.</span> <span class="toc-text">Scalar Type</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Complex-Type"><span class="toc-number">4.1.2.</span> <span class="toc-text">Complex Type</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Vector"><span class="toc-number">4.2.</span> <span class="toc-text">Vector</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Expression"><span class="toc-number">4.3.</span> <span class="toc-text">Expression</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Compilation"><span class="toc-number">4.3.1.</span> <span class="toc-text">Compilation</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Evaluation"><span class="toc-number">4.3.2.</span> <span class="toc-text">Evaluation</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Code-Generation"><span class="toc-number">4.3.3.</span> <span class="toc-text">Code Generation</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Function"><span class="toc-number">4.4.</span> <span class="toc-text">Function</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Operators"><span class="toc-number">4.5.</span> <span class="toc-text">Operators</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Table-Scans-Filter-and-Project"><span class="toc-number">4.5.1.</span> <span class="toc-text">Table Scans, Filter, and Project</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Aggregate-and-Hash-Joins"><span class="toc-number">4.5.2.</span> <span class="toc-text">Aggregate and Hash Joins</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Memory-Management"><span class="toc-number">4.6.</span> <span class="toc-text">Memory Management</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Caching"><span class="toc-number">4.6.1.</span> <span class="toc-text">Caching</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#EXPERIMENTAL-RESULTS"><span class="toc-number">5.</span> <span class="toc-text">EXPERIMENTAL RESULTS</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83"><span class="toc-number">6.</span> <span class="toc-text">参考</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#What-is-Velox"><span class="toc-number">1.</span> <span class="toc-text">What is Velox</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Why-Velox"><span class="toc-number">2.</span> <span class="toc-text">Why Velox</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Velox-Structure"><span class="toc-number">3.</span> <span class="toc-text">Velox Structure</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Velox-Deep-Dive"><span class="toc-number">4.</span> <span class="toc-text">Velox Deep Dive</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Type"><span class="toc-number">4.1.</span> <span class="toc-text">Type</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Scalar-Type"><span class="toc-number">4.1.1.</span> <span class="toc-text">Scalar Type</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Complex-Type"><span class="toc-number">4.1.2.</span> <span class="toc-text">Complex Type</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Vector"><span class="toc-number">4.2.</span> <span class="toc-text">Vector</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Expression"><span class="toc-number">4.3.</span> <span class="toc-text">Expression</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Expression-Trees"><span class="toc-number">4.3.1.</span> <span class="toc-text">Expression Trees</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Compilation"><span class="toc-number">4.3.2.</span> <span class="toc-text">Compilation</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Evaluation"><span class="toc-number">4.3.3.</span> <span class="toc-text">Evaluation</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Code-Generation"><span class="toc-number">4.3.4.</span> <span class="toc-text">Code Generation</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Function"><span class="toc-number">4.4.</span> <span class="toc-text">Function</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Operators"><span class="toc-number">4.5.</span> <span class="toc-text">Operators</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Table-Scans-Filter-and-Project"><span class="toc-number">4.5.1.</span> <span class="toc-text">Table Scans, Filter, and Project</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Aggregate-and-Hash-Joins"><span class="toc-number">4.5.2.</span> <span class="toc-text">Aggregate and Hash Joins</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Memory-Management"><span class="toc-number">4.6.</span> <span class="toc-text">Memory Management</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Caching"><span class="toc-number">4.6.1.</span> <span class="toc-text">Caching</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#EXPERIMENTAL-RESULTS"><span class="toc-number">5.</span> <span class="toc-text">EXPERIMENTAL RESULTS</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83"><span class="toc-number">6.</span> <span class="toc-text">参考</span></a></li></ol>
     </div>
   </span>
 </div>
@@ -316,7 +316,7 @@
 <h3 id="Expression"><a href="#Expression" class="headerlink" title="Expression"></a>Expression</h3><p>Velox的expression evaluation引擎可以被用在3种场景：</p>
 <ol>
 <li>FilterProject算子中过滤（filter）与投影（project）的表达式求值</li>
-<li>TableScan算子和IO connectors一致性求值谓词下推（consistently evaluate predicate<br>pushdown，<strong>这里的consistently我理解是指下推不影响计算结果</strong>）</li>
+<li>TableScan算子和IO connectors一致性求值谓词下推</li>
 <li>独立的组件给只需要表达式求值功能的引擎，比如实时计算，ML场景的数据预处理</li>
 </ol>
 <p>表达式求值的输入表达式树，有以下几种节点：</p>
@@ -332,22 +332,68 @@
 <li>子表达式是否具有确定性，即相同的输入产出相同的结果</li>
 <li>null传播，任何一个输入列的value为null是否总是让该表达式结果为null</li>
 </ul>
+<h4 id="Expression-Trees"><a href="#Expression-Trees" class="headerlink" title="Expression Trees"></a>Expression Trees</h4><p>表达式求值以表达式树作为输入。树中的每个节点都是core::ITypedExpr的子类，它指定了返回类型和零个或多个输入表达式（树中的子节点）。每个表达式可以是以下之一：</p>
+<ul>
+<li>FieldAccessTypedExpr（字段访问表达式）</li>
+<li>ConstantTypedExpr（常量表达式）</li>
+<li>CallTypedExpr（函数调用表达式）</li>
+<li>CastTypedExpr（类型转换表达式）</li>
+<li>LambdaTypedExpr（Lambda表达式）</li>
+</ul>
+<p><strong>FieldAccessTypedExpr</strong>表示输入RowVector的一列。该列由名称标识。这始终是树中的叶节点。<br><strong>ConstantTypedExpr</strong>表示一个常量值（或字面值）。这始终是树中的叶节点。<br><strong>CallTypedExpr</strong>表示一个函数调用。函数由名称标识。输入表达式指定函数的参数数量和类型，从而可以明确地识别特定的函数实现。该函数可以是简单函数或矢量化函数。<br><strong>CallTypedExpr</strong>还可以通过指定预定义名称来表示特殊形式。这些名称不能被简单函数或矢量函数使用。</p>
 <h4 id="Compilation"><a href="#Compilation" class="headerlink" title="Compilation"></a>Compilation</h4><p>将expression tree作为输入，编译成可执行的expression（Compiled Expression &#x2F; Executable Expression）</p>
 <ul>
 <li>表达式消除（Common Subexpression Elimination）<br>比如<code>strpos(upper (a), ‘FOO’) &gt; 0 OR strpos(upper(a), ‘BAR’) &gt; 0</code>中的<code>upper(a)</code>只计算一次即可</li>
 <li>常量折叠（Constant Folding）<br>比如<code>upper(a) &gt; upper(‘Foo’)</code>中<code>upper(‘Foo’)</code>是确定的，不依赖任何输入列，可以直接转成<code>‘FOO’</code></li>
 <li>自适应重排（Adaptive Conjunct Reordering）<br>在求值<code>AND</code>或<code>OR</code>表达式时，引擎动态跟踪各个合取式的性能，并选择先评估最有效的合取式，即在最短时间内丢弃最多值的合取式，按照<code>𝑡𝑖𝑚𝑒/(1 + 𝑛_𝑖𝑛 − 𝑛_𝑜𝑢𝑡)</code>计算得分，得分越低越好。为了在执行过程中最大化自适应合取式重排序的效果，表达式编译还会将相邻的<code>AND/OR</code>表达式展平。例如，输入表达式<code>AND(AND(AND(a, b), c), AND(d, e))</code>在编译过程中被展平为单个<code>AND(a, b, c, d, e)</code>节点。</li>
 </ul>
-<h4 id="Evaluation"><a href="#Evaluation" class="headerlink" title="Evaluation"></a>Evaluation</h4><p>求值过程接受一个编译的表达式和一个输入数据集（使用Velox向量表示），在计算结果后返回一个输出数据集。该过程包括对表达式树进行递归下降，传递一个行掩码，用于标识活动的（非空且未被条件掩码屏蔽）元素。在每个步骤中，可以避免评估两种情况：（a）如果当前节点是一个常见的子表达式并且结果已经计算过，或者（b）如果表达式被标记为传播空值，并且其任何输入为空。后一步可以通过简单地组合所有输入的空值位掩码并使用SIMD操作更新活动行掩码来高效实现。</p>
+<p>要编译一个表达式，需要创建一个exec::ExprSet的实例。<code>ExprSet</code>的构造函数接受一个表达式列表（<code>core::ITypedExpr</code>指向表达式树的根节点）和一个上下文（<code>core::ExecCtx</code>）。构造函数处理这些表达式，并创建<code>exec::Expr</code>类实例的树。<code>ExprSet</code>接受多个表达式，并识别出所有表达式中的公共子表达式，以便可以只计算一次。<code>FilterProject</code>运算符受益于这种能力，因为它为所有的过滤和投影表达式创建一个单独的<code>ExprSet</code>。编译步骤还会展开相邻的<code>AND、OR和concat-line</code>表达式，并执行常量折叠。表达式树中的每个节点都被转换为<code>exec::Expr</code>类的相应实例。</p>
+<table>
+<thead>
+<tr>
+<th align="left">core::ITypedExpr node</th>
+<th align="left">exec::Expr instance</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">FieldAccessTypedExpr</td>
+<td align="left">FieldReference</td>
+</tr>
+<tr>
+<td align="left">ConstantTypedExpr</td>
+<td align="left">ConstantExpr</td>
+</tr>
+<tr>
+<td align="left">CallTypedExpr</td>
+<td align="left">- CastExpr if function name is “cast”;<br>- ConjunctExpr if function name is “and” or “or”;<br>- SwitchExpr if function name is “if” or “switch”;<br>- CoalesceExpr if function name is “coalesce”<br>- TryExpr if function name is “try”;<br>- Expr if function name is none of the above.</td>
+</tr>
+<tr>
+<td align="left">CastTypedExpr</td>
+<td align="left">CastExpr</td>
+</tr>
+<tr>
+<td align="left">LambdaTypedExpr</td>
+<td align="left">LambdaExpr</td>
+</tr>
+</tbody></table>
+<p>CallTypedExpr节点被处理以确定函数名称是否指向特殊形式表达式或函数（矢量化或简单函数）。查找按照以下顺序进行，并在第一个匹配时停止搜索：</p>
+<ul>
+<li>检查名称是否与<code>special forms</code>之一匹配</li>
+<li>检查名称和签名（即输入类型）是否与向量化函数之一匹配</li>
+<li>检查名称和签名（即输入类型）是否与简单函数之一匹配</li>
+</ul>
+<h4 id="Evaluation"><a href="#Evaluation" class="headerlink" title="Evaluation"></a>Evaluation</h4><p>求值过程接受一个编译的表达式和一个输入数据集（使用Velox向量表示），在计算结果后返回一个输出数据集。该过程包括对表达式树进行递归下降，传递一个行掩码，用于标识活动的（非空且未被条件掩码屏蔽）元素。在每个步骤中，可以避免评估两种情况：</p>
+<ul>
+<li>如果当前节点是一个常见的子表达式并且结果已经计算过（Common Subexpression Elimination）</li>
+<li>如果表达式被标记为传播空值，并且其任何输入为空。后一步可以通过简单地组合所有输入的空值位掩码并使用SIMD操作更新活动行掩码来高效实现（nulls propagation）</li>
+</ul>
 <p><strong>Peeling（剥离）</strong>：当输入是字典编码时，可以通过仅考虑不同的值来高效计算确定性表达式。首先，需要验证所有输入列是否共享相同的字典封装，如果是，则剥离这些封装以提取内部向量集合（不同的值），在这些内部向量上评估表达式，并使用原始封装将结果重新封装回字典向量。例如，考虑一个使用字典编码的向量，表示颜色列的1k行数据集，使用包含3个值的字典进行编码：<code>0 - red, 1 - green, 2 - blue</code>。内存布局包括一个包含1k个值的索引缓冲区，范围为[0, 2]，以及一个大小为3的内部向量，包含以下值：[red, green, blue]。例如，在评估表达式<code>𝑢𝑝𝑝𝑒𝑟(𝑐𝑜𝑙𝑜𝑟)</code>时，剥离字典封装后，<code>upper</code>函数仅应用于3个不同的值 - [红色，绿色，蓝色] - 生成另一个大小为3的向量：[RED，GREEN，BLUE]。作为最后一步，使用原始索引将结果封装为字典向量，生成一个表示1k个大写颜色值的字典编码向量。</p>
 <p><strong>Memoization（记忆化）</strong>：评估步骤可以根据需要重复执行，以处理多个批次的数据，并重用相同的编译表达式对象。例如，当从TableScan运算符读取多个数据批次时，批次通常是字典编码的，并引用相同的基础向量。在上述描述的示例中，颜色列可能有数百万行引用相同的不同值基础集合[red, green, blue]，由具有相同基础向量但不同索引缓冲区的字典编码向量表示。评估引擎利用这个特性，并记住在基础内部向量上计算的表达式评估结果，以便在后续批次中重用这些结果。对于每个新的批次，它只需使用输入向量的索引缓冲区包装现有的计算结果。</p>
 <p>总之，对于简单的原始类型的算术操作，所描述的许多技术可能并不会带来显著的改进，但对于复杂的表达式，如字符串操作、正则表达式、数组&#x2F;映射操作以及其他嵌套数据类型的操作，它们确实提供了显著的加速。Velox在优化这些工作负载时做出了明智的决策，考虑到实证数据表明这些操作是CPU时间消耗最高的，同时为基本情况提供了快速路径。</p>
 <p>将可执行的expression和input dataset计算结果，返回output dataset。这个过程包括递归下降处理expression tree，向下传递一个行掩码（row mask）标识有效的行。每个步骤都会避免重复计算</p>
 <ul>
 <li>common subexpression</li>
-<li>nulls传递expression，且有输入为null<br>Evaluation还包括如下两类优化</li>
-<li>Peeling<br>只计算distinct值，比如<code>upper(color)</code>，color列是一个字典编码，1000个indices和3个元素[red, green, blue]的inner vector，只需将upper函数apply到这3元素即可，产出一个[RED, GREEN, BLUE]的inner vector，复用之前的1000个indices即可产出结果。</li>
-<li>Memoization<br>对于字典编码的输入，有可能只是indices不同，underlying inner vector是相同的（比如都是[red, green, blue]），记录和复用对inner vector的计算结果。</li>
+<li>nulls传递expression，且有输入为null</li>
 </ul>
 <p>Velox的开发者文档对<a target="_blank" rel="noopener" href="https://facebookincubator.github.io/velox/develop/expression-evaluation.html">Expression的优化描述</a>更详细，可以对照看一下。<br><img src="https://facebookincubator.github.io/velox/_images/expression-evaluation.png" alt="image"></p>
 <h4 id="Code-Generation"><a href="#Code-Generation" class="headerlink" title="Code Generation"></a>Code Generation</h4><p>Velox还提供了对通过代码生成（codegen）进行表达式求值的实验性支持。启用时，执行时将整个表达式树重写为C++函数的源代码，并将其写入源文件，使用常规编译器（如gcc或clang）将其编译为共享库。然后，将共享库动态链接到主进程，并在求值时使用它，而不是使用向量化的解释路径。考虑到代码生成过程涉及完整的编译器调用，编译时间通常很长（在某些情况下长达10秒），并且不适用于短期查询或交互式工作负载。相反，我们最初的评估重点是大型ETL查询（执行时间为几小时到几天），以及表达式树固定的用例。截至目前，Velox中的代码生成支持仍处于实验阶段。权衡编译延迟、降低开发人员生产力和可调试性，以及在向量化和基于代码生成的评估路径之间探索运行时适应性的工作是未来研究的开放问题和方向。</p>
@@ -485,7 +531,7 @@
     </div>
 
     <div id="toc-footer" style="display: none">
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#What-is-Velox"><span class="toc-number">1.</span> <span class="toc-text">What is Velox</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Why-Velox"><span class="toc-number">2.</span> <span class="toc-text">Why Velox</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Velox-Structure"><span class="toc-number">3.</span> <span class="toc-text">Velox Structure</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Velox-Deep-Dive"><span class="toc-number">4.</span> <span class="toc-text">Velox Deep Dive</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Type"><span class="toc-number">4.1.</span> <span class="toc-text">Type</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Scalar-Type"><span class="toc-number">4.1.1.</span> <span class="toc-text">Scalar Type</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Complex-Type"><span class="toc-number">4.1.2.</span> <span class="toc-text">Complex Type</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Vector"><span class="toc-number">4.2.</span> <span class="toc-text">Vector</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Expression"><span class="toc-number">4.3.</span> <span class="toc-text">Expression</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Compilation"><span class="toc-number">4.3.1.</span> <span class="toc-text">Compilation</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Evaluation"><span class="toc-number">4.3.2.</span> <span class="toc-text">Evaluation</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Code-Generation"><span class="toc-number">4.3.3.</span> <span class="toc-text">Code Generation</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Function"><span class="toc-number">4.4.</span> <span class="toc-text">Function</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Operators"><span class="toc-number">4.5.</span> <span class="toc-text">Operators</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Table-Scans-Filter-and-Project"><span class="toc-number">4.5.1.</span> <span class="toc-text">Table Scans, Filter, and Project</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Aggregate-and-Hash-Joins"><span class="toc-number">4.5.2.</span> <span class="toc-text">Aggregate and Hash Joins</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Memory-Management"><span class="toc-number">4.6.</span> <span class="toc-text">Memory Management</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Caching"><span class="toc-number">4.6.1.</span> <span class="toc-text">Caching</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#EXPERIMENTAL-RESULTS"><span class="toc-number">5.</span> <span class="toc-text">EXPERIMENTAL RESULTS</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83"><span class="toc-number">6.</span> <span class="toc-text">参考</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#What-is-Velox"><span class="toc-number">1.</span> <span class="toc-text">What is Velox</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Why-Velox"><span class="toc-number">2.</span> <span class="toc-text">Why Velox</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Velox-Structure"><span class="toc-number">3.</span> <span class="toc-text">Velox Structure</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Velox-Deep-Dive"><span class="toc-number">4.</span> <span class="toc-text">Velox Deep Dive</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Type"><span class="toc-number">4.1.</span> <span class="toc-text">Type</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Scalar-Type"><span class="toc-number">4.1.1.</span> <span class="toc-text">Scalar Type</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Complex-Type"><span class="toc-number">4.1.2.</span> <span class="toc-text">Complex Type</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Vector"><span class="toc-number">4.2.</span> <span class="toc-text">Vector</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Expression"><span class="toc-number">4.3.</span> <span class="toc-text">Expression</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Expression-Trees"><span class="toc-number">4.3.1.</span> <span class="toc-text">Expression Trees</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Compilation"><span class="toc-number">4.3.2.</span> <span class="toc-text">Compilation</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Evaluation"><span class="toc-number">4.3.3.</span> <span class="toc-text">Evaluation</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Code-Generation"><span class="toc-number">4.3.4.</span> <span class="toc-text">Code Generation</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Function"><span class="toc-number">4.4.</span> <span class="toc-text">Function</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Operators"><span class="toc-number">4.5.</span> <span class="toc-text">Operators</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Table-Scans-Filter-and-Project"><span class="toc-number">4.5.1.</span> <span class="toc-text">Table Scans, Filter, and Project</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Aggregate-and-Hash-Joins"><span class="toc-number">4.5.2.</span> <span class="toc-text">Aggregate and Hash Joins</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Memory-Management"><span class="toc-number">4.6.</span> <span class="toc-text">Memory Management</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Caching"><span class="toc-number">4.6.1.</span> <span class="toc-text">Caching</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#EXPERIMENTAL-RESULTS"><span class="toc-number">5.</span> <span class="toc-text">EXPERIMENTAL RESULTS</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83"><span class="toc-number">6.</span> <span class="toc-text">参考</span></a></li></ol>
     </div>
 
     <div id="share-footer" style="display: none">

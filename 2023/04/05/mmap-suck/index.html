@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="Andy Pavlo在他的课上一直说mmap不好，最近发现他还专门发了一篇论文，风速看了一下。  What IS MMAP内存映射（mmap）文件I&#x2F;O是操作系统提供的一种功能，它将二级存储中的文件内容映射到程序的地址空间。然后，程序通过指针访问页面，就像文件完全驻留在内存中一样。当程序引用它们时，操作系统透明地只加载页面，并在内存填满时自动驱逐页面。 mmap的易用性吸引了数十年来的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Are You Sure You Want to Use MMAP in Your Database Management System?">
+<meta property="og:url" content="http://example.com/2023/04/05/mmap-suck/index.html">
+<meta property="og:site_name" content="Macduan Notes">
+<meta property="og:description" content="Andy Pavlo在他的课上一直说mmap不好，最近发现他还专门发了一篇论文，风速看了一下。  What IS MMAP内存映射（mmap）文件I&#x2F;O是操作系统提供的一种功能，它将二级存储中的文件内容映射到程序的地址空间。然后，程序通过指针访问页面，就像文件完全驻留在内存中一样。当程序引用它们时，操作系统透明地只加载页面，并在内存填满时自动驱逐页面。 mmap的易用性吸引了数十年来的">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://live.staticflickr.com/65535/53066394808_b3eb32aebb_z.jpg">
+<meta property="article:published_time" content="2023-04-05T13:23:48.000Z">
+<meta property="article:modified_time" content="2023-07-23T17:01:03.566Z">
+<meta property="article:author" content="duanmeng">
+<meta property="article:tag" content="data">
+<meta property="article:tag" content="paper">
+<meta property="article:tag" content="storage">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://live.staticflickr.com/65535/53066394808_b3eb32aebb_z.jpg">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Are You Sure You Want to Use MMAP in Your Database Management System?</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/categories/technology">Technology</a></li><!--
+     --><!--
+       --><li><a href="/categories/life">Life</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Archives</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tags</a></li><!--
+     --><!--
+       --><li><a href="/about">About</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2023/05/28/shared-foundations/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2023/03/05/analyzing-compare-lakehouse/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/04/05/mmap-suck/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/04/05/mmap-suck/&text=Are You Sure You Want to Use MMAP in Your Database Management System?"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/04/05/mmap-suck/&title=Are You Sure You Want to Use MMAP in Your Database Management System?"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/04/05/mmap-suck/&is_video=false&description=Are You Sure You Want to Use MMAP in Your Database Management System?"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Are You Sure You Want to Use MMAP in Your Database Management System?&body=Check out this article: http://example.com/2023/04/05/mmap-suck/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/04/05/mmap-suck/&title=Are You Sure You Want to Use MMAP in Your Database Management System?"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/04/05/mmap-suck/&title=Are You Sure You Want to Use MMAP in Your Database Management System?"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/04/05/mmap-suck/&title=Are You Sure You Want to Use MMAP in Your Database Management System?"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/04/05/mmap-suck/&title=Are You Sure You Want to Use MMAP in Your Database Management System?"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/04/05/mmap-suck/&name=Are You Sure You Want to Use MMAP in Your Database Management System?&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/04/05/mmap-suck/&t=Are You Sure You Want to Use MMAP in Your Database Management System?"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#What-IS-MMAP"><span class="toc-number">1.</span> <span class="toc-text">What IS MMAP</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#MMAP-Overview"><span class="toc-number">1.1.</span> <span class="toc-text">MMAP Overview</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#POSIX-API"><span class="toc-number">1.2.</span> <span class="toc-text">POSIX API</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Whay-Not-MMAP"><span class="toc-number">2.</span> <span class="toc-text">Whay Not MMAP</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#MMAP-Gone-Wrong"><span class="toc-number">2.1.</span> <span class="toc-text">MMAP Gone Wrong</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#PROBLEMS-WITH-MMAP"><span class="toc-number">3.</span> <span class="toc-text">PROBLEMS WITH MMAP</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Transactional-Safety"><span class="toc-number">3.1.</span> <span class="toc-text">Transactional Safety</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#I-x2F-O-Stalls"><span class="toc-number">3.2.</span> <span class="toc-text">I&#x2F;O Stalls</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Error-Handling"><span class="toc-number">3.3.</span> <span class="toc-text">Error Handling</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Performance-Issues"><span class="toc-number">3.4.</span> <span class="toc-text">Performance Issues</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">4.</span> <span class="toc-text">References</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Are You Sure You Want to Use MMAP in Your Database Management System?
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">duanmeng</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-04-05T13:23:48.000Z" itemprop="datePublished">2023-04-05</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/technology/">technology</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/data/" rel="tag">data</a>, <a class="tag-link-link" href="/tags/paper/" rel="tag">paper</a>, <a class="tag-link-link" href="/tags/storage/" rel="tag">storage</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <blockquote>
+<p>Andy Pavlo在他的课上一直说mmap不好，最近发现他还专门发了一篇论文，风速看了一下。</p>
+</blockquote>
+<h2 id="What-IS-MMAP"><a href="#What-IS-MMAP" class="headerlink" title="What IS MMAP"></a>What IS MMAP</h2><p>内存映射（mmap）文件I&#x2F;O是操作系统提供的一种功能，它将二级存储中的文件内容映射到程序的地址空间。然后，程序通过指针访问页面，就像文件完全驻留在内存中一样。当程序引用它们时，操作系统透明地只加载页面，并在内存填满时自动驱逐页面。 mmap的易用性吸引了数十年来的数据库管理系统（DBMS）开发者，作为实现缓冲池的可行替代方案。然而，mmap存在严重的正确性和性能问题，这些问题并不立即显现。这些问题使得在现代DBMS中正确和高效地使用mmap变得困难，甚至不可能。事实上，一些初期使用mmap来支持大于内存的数据库的流行DBMS很快就遇到了这些隐藏的危险，迫使它们在付出巨大的工程成本后切换到自己管理文件I&#x2F;O。</p>
+<h3 id="MMAP-Overview"><a href="#MMAP-Overview" class="headerlink" title="MMAP Overview"></a>MMAP Overview</h3><p>下图展示了使用mmap访问文件（”cidr.db”）的步骤概述：</p>
+<ol>
+<li>程序调用mmap并接收到内存映射文件内容的指针。</li>
+<li>操作系统保留了程序的虚拟地址空间的一部分，但没有加载文件的任何部分。</li>
+<li>程序使用指针访问文件的内容。</li>
+<li>操作系统尝试检索页面。</li>
+<li>由于指定的虚拟地址没有有效的映射，操作系统触发页面错误，将文件的引用部分从辅助存储加载到物理内存页面中。</li>
+<li>操作系统向页表添加一个条目，将虚拟地址映射到新的物理地址。</li>
+<li>发起的CPU核心还将此条目缓存到其本地的转换查找缓冲器（TLB）中，以加速将来的访问。</li>
+</ol>
+<p>当程序访问其他页面时，操作系统将它们加载到内存中，如果页面缓存已满，则根据需要驱逐页面。在驱逐页面时，操作系统还会从页表和每个CPU核心的TLB中删除它们的映射。刷新发起核心的本地TLB很简单，但操作系统必须确保远程核心的TLB中没有过时的条目。由于当前的CPU不为远程TLB提供一致性，操作系统必须发出昂贵的处理器间中断来刷新它们，这被称为<a target="_blank" rel="noopener" href="https://juejin.cn/post/6844904084957315086">TLB shootdown</a>，可能会对性能产生显著影响。</p>
+<p><a><img src="https://live.staticflickr.com/65535/53066394808_b3eb32aebb_z.jpg" width="640" height="216" alt="mmap-arch" /></a></p>
+<h3 id="POSIX-API"><a href="#POSIX-API" class="headerlink" title="POSIX API"></a>POSIX API</h3><p>我们现在回顾一下对于内存映射文件I&#x2F;O最重要的POSIX系统调用，并描述数据库管理系统(DBMS)如何用它们代替传统的缓冲池。</p>
+<p><strong>mmap</strong>：如前所述，这个调用使操作系统将一个文件映射到DBMS的虚拟地址空间。然后，DBMS可以使用普通的内存操作来读取或写入文件内容。操作系统在内存中缓存页面，并且，当使用MAP_SHARED标志时，会（最终）将任何更改写回到底层文件。另一方面，MAP_PRIVATE标志将创建一个只有调用者可以访问的写时复制映射（即，更改不会持久化到后备文件）。</p>
+<p><strong>madvise</strong>：这个调用允许DBMS向操作系统提供关于预期的数据访问模式的提示，可以是整个文件的粒度，也可以是特定页面范围的粒度。我们关注三个常见的提示：MADV_NORMAL，MADV_RANDOM和MADV_SEQUENTIAL。当在Linux中发生页面错误，并且使用默认的MADV_NORMAL提示时，操作系统将获取访问的页面，以及接下来的16页和前面的15页。对于4 KB的页面，MADV_NORMAL使操作系统从二级存储中读取128 KB，即使调用者只请求了单个页面。根据工作负载，这种预取可能有助于或损害DBMS的性能。例如，对于大于内存的OLTP工作负载，只读取必要页面的MADV_RANDOM模式是更好的选择，而对于具有顺序扫描的OLAP工作负载，MADV_SEQUENTIAL是更好的选择。</p>
+<p><strong>mlock</strong>：此调用允许数据库管理系统(DBMS)在内存中固定页面，确保操作系统永远不会将它们驱逐。然而，根据POSIX标准（以及Linux的实现），操作系统被允许在任何时候将脏页面刷新到后备文件，即使该页面被固定。因此，DBMS不能使用mlock来确保脏页面永远不会被写入二级存储，这对事务安全性有严重的影响。&amp;#x20;</p>
+<p><strong>msync</strong>：最后，此调用显式地将指定的内存范围刷新到二级存储。没有msync，DBMS没有其他方式来保证更新被持久化到后备文件。</p>
+<h2 id="Whay-Not-MMAP"><a href="#Whay-Not-MMAP" class="headerlink" title="Whay Not MMAP"></a>Whay Not MMAP</h2><p>磁盘基础的数据库管理系统（DBMS）的一个重要特性是它们能够支持比可用物理内存大的数据库。这个功能允许用户查询数据库，就好像它完全存在于内存中，即使它一次不能全部装下。DBMS通过按需从二级存储（例如，HDD，SSD）读取数据页到内存中来实现这种假象。如果没有足够的内存用于新的页面，DBMS将会驱逐不再需要的现有页面以腾出空间。</p>
+<p>传统上，DBMS在缓冲池中实现页面在二级存储和内存之间的移动，该缓冲池使用像读取和写入这样的系统调用与二级存储进行交互。这些文件I&#x2F;O机制将数据从用户空间的缓冲区复制到并从缓冲区复制数据，DBMS完全控制如何以及何时传输页面。</p>
+<p>另一方面，DBMS可以放弃数据移动的责任，将其交给操作系统，操作系统维护自己的文件映射和页面缓存。POSIX mmap系统调用将二级存储上的文件映射到调用者（即DBMS）的虚拟地址空间，当DBMS访问它们时，操作系统将懒加载页面。对于DBMS来说，数据库似乎完全存在于内存中，但操作系统处理所有必要的页面操作，而不是DBMS的缓冲池。</p>
+<p>从表面上看，<code>mmap</code>似乎是管理DBMS中的文件I&#x2F;O的一个有吸引力的实现选项。最显著的好处是易于使用和低工程成本。DBMS不再需要跟踪哪些页面在内存中，也不需要跟踪页面被访问的频率或哪些页面是脏的。相反，DBMS可以简单地通过指针访问磁盘驻留数据，就好像它在访问内存中的数据一样，同时将所有低级页面管理交给操作系统。如果可用内存填满了，那么操作系统将通过透明地驱逐（理想情况下是不需要的）页面从页面缓存中释放空间给新的页面。</p>
+<p>从性能的角度来看，mmap应该比传统的缓冲池有更低的开销。具体来说，mmap不需要显式的系统调用（即，读&#x2F;写）的成本，并且因为数据库管理系统（DBMS）可以直接从操作系统的页面缓存中访问页面，所以避免了向用户空间的缓冲区进行冗余复制。 自1980年代初以来，这些所谓的优点吸引了数据库管理系统的开发者，他们放弃了实现缓冲池，而是依赖操作系统来管理文件I&#x2F;O。事实上，一些知名的数据库管理系统的开发者（参见第2.3节）已经走上了这条道路，有些人甚至将mmap作为实现良好性能的关键因素。 不幸的是，mmap有一个隐藏的阴暗面，有许多令人不悦的问题，使得它不适合在数据库管理系统中进行文件I&#x2F;O。正如这篇论文中所描述的，这些问题涉及到数据安全和系统性能的问题。为了克服这些问题所需的工程步骤，否定了使用mmap的简单性。因此，mmap增加了过多的复杂性，而没有相应的性能优势，我们强烈建议数据库管理系统的开发者避免使用mmap作为传统缓冲池的替代品。</p>
+<h3 id="MMAP-Gone-Wrong"><a href="#MMAP-Gone-Wrong" class="headerlink" title="MMAP Gone Wrong"></a>MMAP Gone Wrong</h3><p>MongoDB可能是最知名的使用mmap进行文件I&#x2F;O的数据库管理系统。我们从开发者那里了解到，他们选择基于mmap的原因是作为一个初创公司，他们需要快速行动。然而，这种设计有许多缺点，包括为确保正确性而采用的过于复杂的复制方案，以及无法对二级存储上的数据进行任何压缩。对于后者，由于操作系统管理了文件映射，内存中的数据布局需要与二级存储上的物理表示相匹配，这导致了空间的浪费和I&#x2F;O吞吐量的降低。随着2015年WiredTiger作为默认存储引擎的引入，MongoDB废弃了<a target="_blank" rel="noopener" href="https://www.mongodb.com/docs/v4.0/core/mmapv1/">MMAPv1</a>，然后在2019年完全移除了它。然而，在2020年，MongoDB在WiredTiger中重新引入了<a target="_blank" rel="noopener" href="https://engineering.mongodb.com/post/getting-storage-engines-ready-for-fast-storage-devices">mmap作为一个选项</a>，但它的使用受到了限制，以避免用户空间和操作系统之间的边界交叉惩罚。</p>
+<p>InfluxDB是一个时间序列的DBMS，在早期版本中使用了<a target="_blank" rel="noopener" href="https://docs.influxdata.com/influxdb/v1.8/concepts/storage_engine/">mmap进行文件I&#x2F;O</a>。然而，开发人员在观察到数据库大小超过几GB后写入时的I&#x2F;O峰值后，替换了mmap，这很可能是由于页面驱逐的开销引起的。当在容器化环境或没有直接连接存储（例如云部署）的机器上运行时，他们还面临其他问题，这进一步阻止了在他们的新IOx存储引擎中使用mmap。</p>
+<p>SingleStore在遇到简单的顺序扫描查询性能差的情况下移除了<a target="_blank" rel="noopener" href="https://www.singlestore.com/blog/linux-off-cpu-investigation/">基于mmap的文件I&#x2F;O</a>。DBMS对mmap的调用每个查询需要10-20毫秒，这几乎占了整个查询运行时间的一半。经过进一步调查，开发人员确定问题的根源是共享的mmap写锁争用。通过切换到读取系统调用，查询变得完全受CPU限制。</p>
+<p>其他一些系统在开发早期就排除了mmap。例如，Facebook创建了RocksDB作为Google的LevelDB的分支，部分原因是由于后者使用<a target="_blank" rel="noopener" href="https://rocksdb.org/docs/support/faq.html">mmap导致的读取性能瓶颈</a>。</p>
+<h2 id="PROBLEMS-WITH-MMAP"><a href="#PROBLEMS-WITH-MMAP" class="headerlink" title="PROBLEMS WITH MMAP"></a>PROBLEMS WITH MMAP</h2><h3 id="Transactional-Safety"><a href="#Transactional-Safety" class="headerlink" title="Transactional Safety"></a>Transactional Safety</h3><p>基于mmap的DBMS在保证修改页面的事务安全性方面存在挑战，这是众所周知的 [22, 18]。核心问题在于，由于透明分页，操作系统可以在任何时候将脏页刷新到辅助存储器中，而不管写入事务是否已提交。DBMS无法阻止这些刷新操作，并且在其发生时也不会收到任何警告。</p>
+<p>因此，基于mmap的DBMS必须采用复杂的协议，以确保透明分页不违反事务安全性的保证。我们将处理更新的方法分为三类：（1）操作系统的写时复制，（2）用户空间的写时复制，以及（3）影子分页。为了简化我们的解释，我们假设DBMS将数据库存储在单个文件中。</p>
+<p><em><strong>OS Copy-On-Write</strong></em>：这种方法的思想是使用mmap创建两个数据库文件的副本，这两个副本最初都指向相同的物理页面。第一个副本作为主要副本，而第二个副本则作为私有工作空间，用于事务的更新操作。重要的是，DBMS使用mmap的MAP_PRIVATE标志创建私有工作空间，以启用操作系统的写时复制功能。据我们所知，只有MongoDB的MMAPv1存储引擎使用了这种方法。</p>
+<p>要执行更新操作，DBMS会在私有工作空间中修改受影响的页面。操作系统将会透明地将内容复制到新的物理页面，重新映射虚拟内存地址到这些副本上，然后应用更改。主要副本不会看到这些更改，操作系统也不会将它们持久化到数据库文件中。因此，为了提供持久性，DBMS必须使用预写式日志（WAL）来记录更改。当事务提交时，DBMS将相应的WAL记录刷新到辅助存储器，并使用单独的后台线程将已提交的更改应用到主要副本上。</p>
+<p>维护更新页面的独立副本会引起两个主要问题。首先，DBMS必须确保已提交事务的最新更新已在允许冲突事务运行之前传播到主要副本，这需要额外的簿记工作来跟踪具有待处理更新的页面。其次，随着更新的发生，私有工作空间将继续增长，DBMS最终可能在内存中拥有两个完整的数据库副本。为了解决这个第二个问题，DBMS可以使用mremap系统调用定期缩小私有工作空间。然而，在销毁私有工作空间之前，DBMS必须再次确保所有待处理更新已传播到主要副本。此外，为了避免在mremap过程中丢失更新，DBMS需要阻塞待处理的更改，直到操作系统完成私有工作空间的压缩。</p>
+<p><em><strong>User Space Copy-On-Write</strong></em>：与操作系统的写时复制不同，这种方法涉及手动将受影响的页面从基于mmap的内存复制到用户空间中单独维护的缓冲区。SQLite、MonetDB和RavenDB都使用了这种方法的某种变体。为了执行更新操作，DBMS仅将更改应用于副本并创建相应的WAL记录。DBMS可以通过将WAL写入辅助存储器来提交这些更改，此时可以安全地将修改后的页面复制回基于mmap的内存。由于对于小的更改来说复制整个页面是浪费的，一些DBMS支持直接将WAL记录应用于基于mmap的内存。</p>
+<p><em><strong>Shadow Paging</strong></em>：LMDB是这种方法的最著名的支持者，它基于System R的影子分页设计[13]。使用影子分页，DBMS维护数据库的独立的主要副本和影子副本，两者都由mmap支持。为了执行更新操作，DBMS首先将受影响的页面从主要副本复制到影子副本，然后应用必要的更改。提交更改涉及使用msync将修改后的影子页面刷新到辅助存储器，然后更新指针以将影子副本安装为新的主要副本。原始的主要副本则成为新的影子副本。</p>
+<p>尽管这种方法看起来实现起来似乎不复杂，但DBMS必须确保事务不会发生冲突或看到部分更新。例如，LMDB通过只允许单个写入者来解决这个问题。</p>
+<h3 id="I-x2F-O-Stalls"><a href="#I-x2F-O-Stalls" class="headerlink" title="I&#x2F;O Stalls"></a>I&#x2F;O Stalls</h3><p>传统的缓冲池可以使DBMS在查询执行过程中使用异步I&#x2F;O（例如libaio、io_uring）来避免阻塞线程。例如，考虑一个常见的访问模式，比如B+树中的叶节点扫描。DBMS可以异步发出对这些可能不连续的页面的读取请求，以掩盖延迟，但是mmap不支持异步读取。</p>
+<p>此外，由于操作系统可以透明地将页面驱逐到辅助存储器，只读查询如果尝试访问被驱逐的页面，可能会无意中触发阻塞的页面错误。换句话说，访问任何页面都可能导致意外的I&#x2F;O停顿，因为DBMS无法知道页面是否在内存中。</p>
+<p>为了避免这些问题，DBMS开发人员可以使用第2.2节中描述的系统调用来实现解决方法。最明显的选择是使用mlock来锁定DBMS预计在不久的将来再次访问的页面。不幸的是，操作系统通常限制单个进程可以锁定的内存量，因为锁定太多的页面可能会对同时运行的进程甚至操作系统本身造成问题。DBMS还需要仔细跟踪和解锁不再使用的页面，以便操作系统可以将其驱逐。</p>
+<p>另一个潜在的解决方案是使用madvise向操作系统提供关于查询预期访问模式的提示。例如，需要执行顺序扫描的DBMS可以向madvise提供MADV_SEQUENTIAL标志，告诉操作系统在读取页面后将其驱逐，并预取接下来将访问的连续页面。这种方法比使用mlock要简单得多，但它也提供了更少的控制，因为这些标志只是操作系统可以选择忽略的提示。此外，如果向操作系统提供错误的提示（例如，在访问模式是随机的情况下使用MADV_SEQUENTIAL），可能会对性能产生严重影响，正如我们在实验中所展示的（第4节）。</p>
+<p>还有一种可能性是生成额外的线程来预取（即尝试访问）页面，以便在页面错误发生时阻塞，而不是主线程。然而，尽管这些解决方案可能（部分地）解决一些问题，但它们都引入了显著的额外复杂性，这与使用mmap的初衷相悖。</p>
+<h3 id="Error-Handling"><a href="#Error-Handling" class="headerlink" title="Error Handling"></a>Error Handling</h3><p>DBMS的一个核心职责是确保数据完整性，因此错误处理非常重要。例如，一些DBMS（例如SQL Server [6]）维护页面级别的校验和，以便在文件I&#x2F;O过程中检测数据损坏。在从辅助存储器读取页面时，DBMS会根据头部中存储的校验和验证页面内容。然而，使用mmap时，DBMS需要在每次访问页面时验证校验和，因为操作系统可能在上次访问后的某个时间点透明地将页面驱逐。</p>
+<p>同样，许多DBMS（包括第2.3节中提到的几个）是用不安全的内存语言编写的，这意味着指针错误可能会破坏内存中的页面。一个具有防御性编码的缓冲池实现可以在将页面写入辅助存储器之前检查这些页面的错误，但是mmap将会将损坏的页面静默地持久化到后备文件中。</p>
+<p>最后，当使用mmap时，优雅地处理I&#x2F;O错误变得更加困难。传统的缓冲池允许开发人员将I&#x2F;O错误处理限制在单个模块内，而与mmap支持的内存交互的任何代码现在都可能产生一个SIGBUS信号，DBMS必须通过繁琐的信号处理程序来处理它。</p>
+<h3 id="Performance-Issues"><a href="#Performance-Issues" class="headerlink" title="Performance Issues"></a>Performance Issues</h3><p>mmap的透明分页的最大和最重要的缺点与性能有关。尽管DBMS开发人员可以通过仔细的实现可能克服其他问题，但我们认为mmap存在严重的瓶颈，如果没有操作系统级别的重新设计，无法避免这些瓶颈。</p>
+<p>传统观点认为，mmap应该优于传统的文件I&#x2F;O，因为它避免了两个主要的开销来源。首先，mmap绕过了显式的读&#x2F;写系统调用的成本，因为操作系统在幕后处理文件映射和页面错误。其次，mmap可以返回指向存储在操作系统页缓存中的页面的指针，从而避免了将数据额外复制到在用户空间分配的缓冲区中。作为额外的好处，基于mmap的文件I&#x2F;O还会导致较低的总内存消耗，因为数据不会在用户空间中不必要地重复。</p>
+<p>鉴于这些优势，人们会期望随着更好的闪存存储（例如PCIe 5.0 NVMe）的出现，mmap和传统文件I&#x2F;O方法之间的性能差距应该会随之扩大，因为这些闪存存储将提供与内存相当的带宽。令人惊讶的是，我们发现操作系统的页面驱逐机制在高带宽辅助存储设备上，对于大于内存的DBMS工作负载，无法扩展到多个线程。我们认为这些性能问题之所以很大程度上未被注意到，是因为历史上文件I&#x2F;O带宽有限。</p>
+<p>具体而言，我们确定了三个困扰基于mmap的文件I&#x2F;O的关键瓶颈：（1）页表争用，（2）单线程页面驱逐，以及（3）TLB shootdowns。对操作系统进行相对简单的调整可以部分缓解前两个问题，但TLB shootdowns则是一个更棘手的问题。</p>
+<p>回顾第2.1节，TLB shootdowns发生在页面驱逐期间，当一个核心需要使远程TLB中的映射无效时。虽然刷新本地TLB的成本很低，但发出用于同步远程TLB的处理器间中断可能需要数千个周期。解决这个问题的方法要么涉及提出的微体系结构更改，要么涉及对操作系统内部的广泛修改。</p>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://www.mongodb.com/docs/v4.0/core/mmapv1/">https://www.mongodb.com/docs/v4.0/core/mmapv1/</a></li>
+<li><a target="_blank" rel="noopener" href="https://engineering.mongodb.com/post/getting-storage-engines-ready-for-fast-storage-devices">https://engineering.mongodb.com/post/getting-storage-engines-ready-for-fast-storage-devices</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.singlestore.com/blog/linux-off-cpu-investigation/">https://www.singlestore.com/blog/linux-off-cpu-investigation/</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.influxdata.com/influxdb/v1.8/concepts/storage_engine/">https://docs.influxdata.com/influxdb/v1.8/concepts/storage_engine/</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.influxdata.com/blog/announcing-influxdb-iox/">https://www.influxdata.com/blog/announcing-influxdb-iox/</a></li>
+<li><a target="_blank" rel="noopener" href="https://rocksdb.org/docs/support/faq.html">https://rocksdb.org/docs/support/faq.html</a></li>
+</ul>
+
+  </div>
+</article>
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/categories/technology">Technology</a></li>
+         
+          <li><a href="/categories/life">Life</a></li>
+         
+          <li><a href="/archives/">Archives</a></li>
+         
+          <li><a href="/tags/">Tags</a></li>
+         
+          <li><a href="/about">About</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#What-IS-MMAP"><span class="toc-number">1.</span> <span class="toc-text">What IS MMAP</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#MMAP-Overview"><span class="toc-number">1.1.</span> <span class="toc-text">MMAP Overview</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#POSIX-API"><span class="toc-number">1.2.</span> <span class="toc-text">POSIX API</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Whay-Not-MMAP"><span class="toc-number">2.</span> <span class="toc-text">Whay Not MMAP</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#MMAP-Gone-Wrong"><span class="toc-number">2.1.</span> <span class="toc-text">MMAP Gone Wrong</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#PROBLEMS-WITH-MMAP"><span class="toc-number">3.</span> <span class="toc-text">PROBLEMS WITH MMAP</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Transactional-Safety"><span class="toc-number">3.1.</span> <span class="toc-text">Transactional Safety</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#I-x2F-O-Stalls"><span class="toc-number">3.2.</span> <span class="toc-text">I&#x2F;O Stalls</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Error-Handling"><span class="toc-number">3.3.</span> <span class="toc-text">Error Handling</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Performance-Issues"><span class="toc-number">3.4.</span> <span class="toc-text">Performance Issues</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">4.</span> <span class="toc-text">References</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/04/05/mmap-suck/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/04/05/mmap-suck/&text=Are You Sure You Want to Use MMAP in Your Database Management System?"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/04/05/mmap-suck/&title=Are You Sure You Want to Use MMAP in Your Database Management System?"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/04/05/mmap-suck/&is_video=false&description=Are You Sure You Want to Use MMAP in Your Database Management System?"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Are You Sure You Want to Use MMAP in Your Database Management System?&body=Check out this article: http://example.com/2023/04/05/mmap-suck/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/04/05/mmap-suck/&title=Are You Sure You Want to Use MMAP in Your Database Management System?"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/04/05/mmap-suck/&title=Are You Sure You Want to Use MMAP in Your Database Management System?"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/04/05/mmap-suck/&title=Are You Sure You Want to Use MMAP in Your Database Management System?"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/04/05/mmap-suck/&title=Are You Sure You Want to Use MMAP in Your Database Management System?"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/04/05/mmap-suck/&name=Are You Sure You Want to Use MMAP in Your Database Management System?&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/04/05/mmap-suck/&t=Are You Sure You Want to Use MMAP in Your Database Management System?"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2023
+    duanmeng
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/categories/technology">Technology</a></li><!--
+     --><!--
+       --><li><a href="/categories/life">Life</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Archives</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tags</a></li><!--
+     --><!--
+       --><li><a href="/about">About</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+
+  <script src='https://unpkg.com/mermaid@9.0.0/dist/mermaid.min.js'></script>
+  <script>
+    if (window.mermaid) {
+      mermaid.initialize({theme: 'forest'});
+    }
+  </script>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
