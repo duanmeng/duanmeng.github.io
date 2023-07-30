@@ -6,16 +6,16 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
-    <meta name="description" content="Andy Pavlo在他的课上一直说mmap不好，最近发现他还专门发了一篇论文，风速看了一下。  What IS MMAP内存映射（mmap）文件I&#x2F;O是操作系统提供的一种功能，它将二级存储中的文件内容映射到程序的地址空间。然后，程序通过指针访问页面，就像文件完全驻留在内存中一样。当程序引用它们时，操作系统透明地只加载页面，并在内存填满时自动驱逐页面。 mmap的易用性吸引了数十年来的">
+    <meta name="description" content="Andy Pavlo在他的课上一直说mmap不好，最近发现他还专门发了一篇论文，风速看了一下。  What IS MMAP内存映射（mmap）文件I&#x2F;O是操作系统提供的一种功能，它将二级存储中的文件内容映射到程序的地址空间。然后，程序通过指针访问页面，就像文件完全驻留在内存中一样。当程序引用它们时，操作系统透明地只加载页面，并在内存填满时自动驱逐页面。  MMAP Overview下图展示了使用">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Are You Sure You Want to Use MMAP in Your Database Management System?">
 <meta property="og:url" content="http://example.com/2023/04/05/mmap-suck/index.html">
 <meta property="og:site_name" content="Macduan Notes">
-<meta property="og:description" content="Andy Pavlo在他的课上一直说mmap不好，最近发现他还专门发了一篇论文，风速看了一下。  What IS MMAP内存映射（mmap）文件I&#x2F;O是操作系统提供的一种功能，它将二级存储中的文件内容映射到程序的地址空间。然后，程序通过指针访问页面，就像文件完全驻留在内存中一样。当程序引用它们时，操作系统透明地只加载页面，并在内存填满时自动驱逐页面。 mmap的易用性吸引了数十年来的">
+<meta property="og:description" content="Andy Pavlo在他的课上一直说mmap不好，最近发现他还专门发了一篇论文，风速看了一下。  What IS MMAP内存映射（mmap）文件I&#x2F;O是操作系统提供的一种功能，它将二级存储中的文件内容映射到程序的地址空间。然后，程序通过指针访问页面，就像文件完全驻留在内存中一样。当程序引用它们时，操作系统透明地只加载页面，并在内存填满时自动驱逐页面。  MMAP Overview下图展示了使用">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://live.staticflickr.com/65535/53066394808_b3eb32aebb_z.jpg">
 <meta property="article:published_time" content="2023-04-05T13:23:48.000Z">
-<meta property="article:modified_time" content="2023-07-23T17:01:03.566Z">
+<meta property="article:modified_time" content="2023-07-24T11:53:10.582Z">
 <meta property="article:author" content="duanmeng">
 <meta property="article:tag" content="data">
 <meta property="article:tag" content="paper">
@@ -164,10 +164,10 @@
 
   <div class="content" itemprop="articleBody">
     <blockquote>
-<p>Andy Pavlo在他的课上一直说mmap不好，最近发现他还专门发了一篇论文，风速看了一下。</p>
+<p>Andy Pavlo在他的课上一直说<code>mmap</code>不好，最近发现他还专门发了一篇论文，风速看了一下。</p>
 </blockquote>
-<h2 id="What-IS-MMAP"><a href="#What-IS-MMAP" class="headerlink" title="What IS MMAP"></a>What IS MMAP</h2><p>内存映射（mmap）文件I&#x2F;O是操作系统提供的一种功能，它将二级存储中的文件内容映射到程序的地址空间。然后，程序通过指针访问页面，就像文件完全驻留在内存中一样。当程序引用它们时，操作系统透明地只加载页面，并在内存填满时自动驱逐页面。 mmap的易用性吸引了数十年来的数据库管理系统（DBMS）开发者，作为实现缓冲池的可行替代方案。然而，mmap存在严重的正确性和性能问题，这些问题并不立即显现。这些问题使得在现代DBMS中正确和高效地使用mmap变得困难，甚至不可能。事实上，一些初期使用mmap来支持大于内存的数据库的流行DBMS很快就遇到了这些隐藏的危险，迫使它们在付出巨大的工程成本后切换到自己管理文件I&#x2F;O。</p>
-<h3 id="MMAP-Overview"><a href="#MMAP-Overview" class="headerlink" title="MMAP Overview"></a>MMAP Overview</h3><p>下图展示了使用mmap访问文件（”cidr.db”）的步骤概述：</p>
+<h2 id="What-IS-MMAP"><a href="#What-IS-MMAP" class="headerlink" title="What IS MMAP"></a>What IS MMAP</h2><p>内存映射（<code>mmap</code>）文件<code>I/O</code>是操作系统提供的一种功能，它将二级存储中的文件内容映射到程序的地址空间。然后，程序通过指针访问页面，就像文件完全驻留在内存中一样。当程序引用它们时，操作系统透明地只加载页面，并在内存填满时自动驱逐页面。 </p>
+<h3 id="MMAP-Overview"><a href="#MMAP-Overview" class="headerlink" title="MMAP Overview"></a>MMAP Overview</h3><p>下图展示了使用<code>mmap</code>访问文件（<code>cidr.db</code>）的步骤概述：</p>
 <ol>
 <li>程序调用mmap并接收到内存映射文件内容的指针。</li>
 <li>操作系统保留了程序的虚拟地址空间的一部分，但没有加载文件的任何部分。</li>
@@ -179,12 +179,12 @@
 </ol>
 <p>当程序访问其他页面时，操作系统将它们加载到内存中，如果页面缓存已满，则根据需要驱逐页面。在驱逐页面时，操作系统还会从页表和每个CPU核心的TLB中删除它们的映射。刷新发起核心的本地TLB很简单，但操作系统必须确保远程核心的TLB中没有过时的条目。由于当前的CPU不为远程TLB提供一致性，操作系统必须发出昂贵的处理器间中断来刷新它们，这被称为<a target="_blank" rel="noopener" href="https://juejin.cn/post/6844904084957315086">TLB shootdown</a>，可能会对性能产生显著影响。</p>
 <p><a><img src="https://live.staticflickr.com/65535/53066394808_b3eb32aebb_z.jpg" width="640" height="216" alt="mmap-arch" /></a></p>
-<h3 id="POSIX-API"><a href="#POSIX-API" class="headerlink" title="POSIX API"></a>POSIX API</h3><p>我们现在回顾一下对于内存映射文件I&#x2F;O最重要的POSIX系统调用，并描述数据库管理系统(DBMS)如何用它们代替传统的缓冲池。</p>
-<p><strong>mmap</strong>：如前所述，这个调用使操作系统将一个文件映射到DBMS的虚拟地址空间。然后，DBMS可以使用普通的内存操作来读取或写入文件内容。操作系统在内存中缓存页面，并且，当使用MAP_SHARED标志时，会（最终）将任何更改写回到底层文件。另一方面，MAP_PRIVATE标志将创建一个只有调用者可以访问的写时复制映射（即，更改不会持久化到后备文件）。</p>
+<h3 id="POSIX-API"><a href="#POSIX-API" class="headerlink" title="POSIX API"></a>POSIX API</h3><p><strong>mmap</strong>：如前所述，这个调用使操作系统将一个文件映射到DBMS的虚拟地址空间。然后，DBMS可以使用普通的内存操作来读取或写入文件内容。操作系统在内存中缓存页面，并且，当使用MAP_SHARED标志时，会（最终）将任何更改写回到底层文件。另一方面，MAP_PRIVATE标志将创建一个只有调用者可以访问的copy-on-write(COW)映射（即，更改不会持久化到原始文件）。</p>
 <p><strong>madvise</strong>：这个调用允许DBMS向操作系统提供关于预期的数据访问模式的提示，可以是整个文件的粒度，也可以是特定页面范围的粒度。我们关注三个常见的提示：MADV_NORMAL，MADV_RANDOM和MADV_SEQUENTIAL。当在Linux中发生页面错误，并且使用默认的MADV_NORMAL提示时，操作系统将获取访问的页面，以及接下来的16页和前面的15页。对于4 KB的页面，MADV_NORMAL使操作系统从二级存储中读取128 KB，即使调用者只请求了单个页面。根据工作负载，这种预取可能有助于或损害DBMS的性能。例如，对于大于内存的OLTP工作负载，只读取必要页面的MADV_RANDOM模式是更好的选择，而对于具有顺序扫描的OLAP工作负载，MADV_SEQUENTIAL是更好的选择。</p>
-<p><strong>mlock</strong>：此调用允许数据库管理系统(DBMS)在内存中固定页面，确保操作系统永远不会将它们驱逐。然而，根据POSIX标准（以及Linux的实现），操作系统被允许在任何时候将脏页面刷新到后备文件，即使该页面被固定。因此，DBMS不能使用mlock来确保脏页面永远不会被写入二级存储，这对事务安全性有严重的影响。&amp;#x20;</p>
+<p><strong>mlock</strong>：此调用允许数据库管理系统(DBMS)在内存中固定页面，确保操作系统永远不会将它们驱逐。然而，根据POSIX标准（以及Linux的实现），操作系统被允许在任何时候将脏页面刷新到源文件，即使该页面被固定。因此，DBMS不能使用mlock来确保脏页面永远不会被写入二级存储，这对事务安全性有严重的影响。</p>
 <p><strong>msync</strong>：最后，此调用显式地将指定的内存范围刷新到二级存储。没有msync，DBMS没有其他方式来保证更新被持久化到后备文件。</p>
-<h2 id="Whay-Not-MMAP"><a href="#Whay-Not-MMAP" class="headerlink" title="Whay Not MMAP"></a>Whay Not MMAP</h2><p>磁盘基础的数据库管理系统（DBMS）的一个重要特性是它们能够支持比可用物理内存大的数据库。这个功能允许用户查询数据库，就好像它完全存在于内存中，即使它一次不能全部装下。DBMS通过按需从二级存储（例如，HDD，SSD）读取数据页到内存中来实现这种假象。如果没有足够的内存用于新的页面，DBMS将会驱逐不再需要的现有页面以腾出空间。</p>
+<h2 id="Whay-Not-MMAP"><a href="#Whay-Not-MMAP" class="headerlink" title="Whay Not MMAP"></a>Whay Not MMAP</h2><p><code>mmap</code>的易用性吸引了数十年来的数据库管理系统（DBMS）开发者，作为实现缓冲池的可行替代方案。然而，<code>mmap</code>存在严重的正确性和性能问题，这些问题并不立即显现。这些问题使得在现代DBMS中正确和高效地使用mmap变得困难，甚至不可能。事实上，一些初期使用mmap来支持大于内存的数据库的流行DBMS很快就遇到了这些隐藏的危险，迫使它们在付出巨大的工程成本后切换到自己管理文件I&#x2F;O。</p>
+<p>磁盘基础的数据库管理系统（DBMS）的一个重要特性是它们能够支持比可用物理内存大的数据库。这个功能允许用户查询数据库，就好像它完全存在于内存中，即使它一次不能全部装下。DBMS通过按需从二级存储（例如，HDD，SSD）读取数据页到内存中来实现这种假象。如果没有足够的内存用于新的页面，DBMS将会驱逐不再需要的现有页面以腾出空间。</p>
 <p>传统上，DBMS在缓冲池中实现页面在二级存储和内存之间的移动，该缓冲池使用像读取和写入这样的系统调用与二级存储进行交互。这些文件I&#x2F;O机制将数据从用户空间的缓冲区复制到并从缓冲区复制数据，DBMS完全控制如何以及何时传输页面。</p>
 <p>另一方面，DBMS可以放弃数据移动的责任，将其交给操作系统，操作系统维护自己的文件映射和页面缓存。POSIX mmap系统调用将二级存储上的文件映射到调用者（即DBMS）的虚拟地址空间，当DBMS访问它们时，操作系统将懒加载页面。对于DBMS来说，数据库似乎完全存在于内存中，但操作系统处理所有必要的页面操作，而不是DBMS的缓冲池。</p>
 <p>从表面上看，<code>mmap</code>似乎是管理DBMS中的文件I&#x2F;O的一个有吸引力的实现选项。最显著的好处是易于使用和低工程成本。DBMS不再需要跟踪哪些页面在内存中，也不需要跟踪页面被访问的频率或哪些页面是脏的。相反，DBMS可以简单地通过指针访问磁盘驻留数据，就好像它在访问内存中的数据一样，同时将所有低级页面管理交给操作系统。如果可用内存填满了，那么操作系统将通过透明地驱逐（理想情况下是不需要的）页面从页面缓存中释放空间给新的页面。</p>

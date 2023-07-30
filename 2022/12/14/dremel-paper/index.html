@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="这是Google时隔多年发表的Dremel的第二篇论文，比第一篇有诚意多了，里面提到的演进也是和业界架构（Snowflake，Photon）架构趋于同质化。  What Is DremelDremel（aka BigQuery）是一个分布式交互式数据分析系统，是一个完全托管的无服务器数据仓库，可以对PB级数据进行可扩展的分析。它是Google Cloud平台上增长最快的服务之一。其设计的主要思想">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Dremel: A Decade of Interactive SQL Analysis at Web Scale">
+<meta property="og:url" content="http://example.com/2022/12/14/dremel-paper/index.html">
+<meta property="og:site_name" content="Macduan Notes">
+<meta property="og:description" content="这是Google时隔多年发表的Dremel的第二篇论文，比第一篇有诚意多了，里面提到的演进也是和业界架构（Snowflake，Photon）架构趋于同质化。  What Is DremelDremel（aka BigQuery）是一个分布式交互式数据分析系统，是一个完全托管的无服务器数据仓库，可以对PB级数据进行可扩展的分析。它是Google Cloud平台上增长最快的服务之一。其设计的主要思想">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://live.staticflickr.com/65535/53078959326_f75686ecff_c.jpg">
+<meta property="og:image" content="https://live.staticflickr.com/65535/53078661261_285247ef09_z.jpg">
+<meta property="og:image" content="https://live.staticflickr.com/65535/53080829473_169d69ba9b_b.jpg">
+<meta property="og:image" content="https://live.staticflickr.com/65535/53078863289_1d0c5e4626_c.jpg">
+<meta property="og:image" content="https://live.staticflickr.com/65535/53079075705_d7c3067314.jpg">
+<meta property="og:image" content="https://live.staticflickr.com/65535/53081190768_b78343bdec_c.jpg">
+<meta property="article:published_time" content="2022-12-14T07:20:47.000Z">
+<meta property="article:modified_time" content="2023-07-30T07:58:31.539Z">
+<meta property="article:author" content="duanmeng">
+<meta property="article:tag" content="data">
+<meta property="article:tag" content="paper">
+<meta property="article:tag" content="QueryExecution">
+<meta property="article:tag" content="vectorized">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://live.staticflickr.com/65535/53078959326_f75686ecff_c.jpg">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Dremel: A Decade of Interactive SQL Analysis at Web Scale</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/categories/technology">Technology</a></li><!--
+     --><!--
+       --><li><a href="/categories/life">Life</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Archives</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tags</a></li><!--
+     --><!--
+       --><li><a href="/about">About</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2023/01/05/iceberg-look-under/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2022/12/06/macduan-velox-commits/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2022/12/14/dremel-paper/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2022/12/14/dremel-paper/&text=Dremel: A Decade of Interactive SQL Analysis at Web Scale"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2022/12/14/dremel-paper/&title=Dremel: A Decade of Interactive SQL Analysis at Web Scale"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2022/12/14/dremel-paper/&is_video=false&description=Dremel: A Decade of Interactive SQL Analysis at Web Scale"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Dremel: A Decade of Interactive SQL Analysis at Web Scale&body=Check out this article: http://example.com/2022/12/14/dremel-paper/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2022/12/14/dremel-paper/&title=Dremel: A Decade of Interactive SQL Analysis at Web Scale"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2022/12/14/dremel-paper/&title=Dremel: A Decade of Interactive SQL Analysis at Web Scale"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2022/12/14/dremel-paper/&title=Dremel: A Decade of Interactive SQL Analysis at Web Scale"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2022/12/14/dremel-paper/&title=Dremel: A Decade of Interactive SQL Analysis at Web Scale"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2022/12/14/dremel-paper/&name=Dremel: A Decade of Interactive SQL Analysis at Web Scale&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2022/12/14/dremel-paper/&t=Dremel: A Decade of Interactive SQL Analysis at Web Scale"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#What-Is-Dremel"><span class="toc-number">1.</span> <span class="toc-text">What Is Dremel</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#EMBRACING-SQL"><span class="toc-number">2.</span> <span class="toc-text">EMBRACING SQL</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#DISAGGREGATION"><span class="toc-number">3.</span> <span class="toc-text">DISAGGREGATION</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Disaggregated-storage"><span class="toc-number">3.1.</span> <span class="toc-text">Disaggregated storage</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Disaggregated-memory"><span class="toc-number">3.2.</span> <span class="toc-text">Disaggregated memory</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Observations"><span class="toc-number">3.3.</span> <span class="toc-text">Observations</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#IN-SITU-DATA-ANALYSIS"><span class="toc-number">4.</span> <span class="toc-text">IN SITU DATA ANALYSIS</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Dremel%E2%80%99s-evolution-to-in-situ-analysis"><span class="toc-number">4.1.</span> <span class="toc-text">Dremel’s evolution to in situ analysis</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Drawbacks-of-in-situ-analysis"><span class="toc-number">4.2.</span> <span class="toc-text">Drawbacks of in situ analysis</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SERVERLESS-COMPUTING"><span class="toc-number">5.</span> <span class="toc-text">SERVERLESS COMPUTING</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Serverless-roots"><span class="toc-number">5.1.</span> <span class="toc-text">Serverless roots</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Evolution-of-serverless-architecture"><span class="toc-number">5.2.</span> <span class="toc-text">Evolution of serverless architecture</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%9B%86%E4%B8%AD%E5%BC%8F%E8%B0%83%E5%BA%A6%EF%BC%88Centralized-Scheduling%EF%BC%89"><span class="toc-number">5.2.1.</span> <span class="toc-text">集中式调度（Centralized Scheduling）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Shuffle%E6%8C%81%E4%B9%85%E5%B1%82"><span class="toc-number">5.2.2.</span> <span class="toc-text">Shuffle持久层</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%81%B5%E6%B4%BB%E7%9A%84%E6%89%A7%E8%A1%8CDAG%EF%BC%88Flexible-Execution-DAGs%EF%BC%89"><span class="toc-number">5.2.3.</span> <span class="toc-text">灵活的执行DAG（Flexible Execution DAGs）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8A%A8%E6%80%81%E6%9F%A5%E8%AF%A2%E6%89%A7%E8%A1%8C%EF%BC%88Dynamic-Query-Execution%EF%BC%89"><span class="toc-number">5.2.4.</span> <span class="toc-text">动态查询执行（Dynamic Query Execution）</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#COLUMNAR-STORAGE-FOR-NESTED-DATA"><span class="toc-number">6.</span> <span class="toc-text">COLUMNAR STORAGE FOR NESTED DATA</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Embedded-evaluation"><span class="toc-number">6.1.</span> <span class="toc-text">Embedded evaluation</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Row-reordering"><span class="toc-number">6.2.</span> <span class="toc-text">Row reordering</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#More-complex-schemas"><span class="toc-number">6.3.</span> <span class="toc-text">More complex schemas</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#INTERACTIVE-QUERY-LATENCY-OVER-BIG-DATA"><span class="toc-number">7.</span> <span class="toc-text">INTERACTIVE QUERY LATENCY OVER BIG DATA</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Dremel: A Decade of Interactive SQL Analysis at Web Scale
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">duanmeng</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2022-12-14T07:20:47.000Z" itemprop="datePublished">2022-12-14</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/technology/">technology</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/QueryExecution/" rel="tag">QueryExecution</a>, <a class="tag-link-link" href="/tags/data/" rel="tag">data</a>, <a class="tag-link-link" href="/tags/paper/" rel="tag">paper</a>, <a class="tag-link-link" href="/tags/vectorized/" rel="tag">vectorized</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <blockquote>
+<p>这是Google时隔多年发表的Dremel的第二篇论文，比第一篇有诚意多了，里面提到的演进也是和业界架构（Snowflake，Photon）架构趋于同质化。</p>
+</blockquote>
+<h2 id="What-Is-Dremel"><a href="#What-Is-Dremel" class="headerlink" title="What Is Dremel"></a>What Is Dremel</h2><p>Dremel（aka BigQuery）是一个分布式交互式数据分析系统，是一个完全托管的无服务器数据仓库，可以对PB级数据进行可扩展的分析。它是Google Cloud平台上增长最快的服务之一。其设计的主要思想是：</p>
+<ul>
+<li>SQL：业界几乎所有数据平台都采用了SQL风格的API作为查询和检索数据的主要方式。</li>
+<li>计算存储分离：该行业已经趋于采用一种架构，使用弹性计算服务来分析云存储中的数据。这种架构将计算与存储分离，因此每个部分都可以独立扩展。</li>
+<li>原地分析（In situ analysis）：数据湖存储库已经变得流行起来，其中各种计算引擎可以在数据上操作，以对其进行管理或执行复杂的SQL查询，并将结果存储回数据湖或将结果发送到其他操作系统。Dremel使用分布式文件系统和共享数据访问工具，使得MapReduce和其他数据处理系统在Google内部可以与基于SQL的分析无缝协作。</li>
+<li>无服务计算：作为预配资源的替代方案，该行业现在提供按需资源，提供极端的弹性。Dremel是作为完全托管的内部服务构建的，没有预配资源，采用按使用量付费的经济模式。这个概念已经成功地移植到了BigQuery。</li>
+<li>列存储：虽然商业数据分析平台中使用列存储的情况早于Dremel论文，但Dremel引入了一种新的编码方式，用于嵌套数据，将列存储的适用性推广到嵌套关系和半结构化数据。</li>
+</ul>
+<p><a><img src="https://live.staticflickr.com/65535/53078959326_f75686ecff_c.jpg" width="800" height="352" alt="dremel-arch"/></a></p>
+<h2 id="EMBRACING-SQL"><a href="#EMBRACING-SQL" class="headerlink" title="EMBRACING SQL"></a>EMBRACING SQL</h2><p>Google是大数据时代的早期先驱。在2000年代初，该公司围绕大规模廉价、不可靠的通用服务器构建了分布式基础设施的新理念。GFS和MapReduce成为存储和处理大型数据集的标准方式。MapReduce使得在数千台机器上并行处理数据变得容易，隐藏了大部分关于通信、协调和可靠性的问题。为了使MapReduce比直接使用C++更容易编写，开发了一种自定义语言Sawzall。NoSQL存储系统，如BigTable，也成为管理大规模事务数据的默认选择。在Google，传统的看法是“SQL不可扩展”，除了一些例外，Google几乎完全放弃了SQL。在解决可扩展性问题时，放弃了易用性和快速迭代的能力。</p>
+<blockquote>
+<p>Stonebraker也批判过这个，有兴趣参考著名的<a target="_blank" rel="noopener" href="https://homes.cs.washington.edu/~billhowe/mapreduce_a_major_step_backwards.html">MapReduce: A major step backwards</a>。</p>
+</blockquote>
+<p>Dremel是最早重新引入SQL用于大数据分析的系统之一。Dremel首次使得编写简单的SQL查询来分析Web规模的数据集成为可能。以前需要几个小时才能编写、构建、调试和执行的分析作业现在可以在几分钟内编写并在几秒钟内执行，从而允许用户交互式地编写、完善和迭代查询。这是数据分析的一种范式转变。交互式和声明式地分析大型数据集，自由地在仪表板和其他工具中进行，解锁了巨大数据集中隐藏的见解(insight)，这是未来十年许多成功产品的关键推动因素之一。</p>
+<p>F1项目始于2009年，推动了SQL在Google的事务性大数据系统中的并行重现。广告团队厌倦了试图在分片MySQL中扩展核心数据，同时将更大的数据集移动到可扩展的系统，如Mesa和BigTable。F1被构建为传统SQL数据库和像BigTable这样的大规模分布式存储系统的混合体。到2013年，广告完全转向F1，其他OLTP-focused应用程序也跟随其后，也看到了从NoSQL返回SQL的优势。F1的大多数事务数据库功能后来被Spanner采纳，现在支持Google的大多数事务应用程序。F1继续关注新的SQL查询用例和优化，包括使用F1 Lightning的HTAP，并在数十个其他专业存储系统之间进行联合。</p>
+<p>SQL最终在Google变得普遍，包括Dremel、F1和Spanner等广泛使用的系统，以及PowerDrill、Procella和Tenzing等其他专业系统。Google也开始进入基于Dremel的早期版本的云业务。所有这些系统都有自己的SQL实现和方言。用户经常使用这些系统中的几个，并且必须学习多个特殊的和非标准的方言。</p>
+<p>为了解决这种复杂性并改进我们在即兴设计SQL方言时不可避免地犯的错误，启动了GoogleSQL项目，统一了一个新的SQL实现，我们可以在所有类似SQL的系统中共享。该框架包括：</p>
+<ul>
+<li>一个新的SQL方言，符合ANSI标准，并扩展了关键功能，如查询结构化数据。</li>
+<li>一个共同的解析器、编译器前端和解析代数。</li>
+<li>一个共享的SQL函数库。</li>
+<li>一个简单的参考实现，展示正确的行为。</li>
+<li>共享的测试库，包括合规性测试，确保引擎行为与我们的语言规范相匹配。</li>
+<li>其他必要的工具，如随机查询生成器和SQL格式化程序。</li>
+</ul>
+<p>现在，Google的所有SQL系统，包括BigQuery、Cloud Spanner和Cloud DataFlow，都采用了这种通用方言和框架。用户受益于拥有一个单一的、符合标准的、完整的方言，可以在许多系统中使用。这些通用的SQL库现在在开源中作为ZetaSQL提供。</p>
+<p>在最近几年中，Dremel的SQL功能大大扩展。新的Shuffle架构支持连接、分析函数和其他复杂查询。这既是由于Google对更高级分析的需求增加，也是由于BigQuery云用户对与其他熟悉的数据仓库产品的功能平衡的需求。</p>
+<p>在开源世界中，也发生了类似的从远离SQL然后回归的历程。Google之外的用户在面对不断增长的数据规模和成本挑战时也遇到了类似的问题。分布式文件系统和MapReduce在Hadoop中变得流行，随后出现了一系列其他NoSQL系统。这些用户面临着复杂性和缓慢迭代的相同挑战。类似的回归到SQL也发生了，如HiveSQL、SparkSQL和Presto等系统的流行所证明的那样。</p>
+<h2 id="DISAGGREGATION"><a href="#DISAGGREGATION" class="headerlink" title="DISAGGREGATION"></a>DISAGGREGATION</h2><h3 id="Disaggregated-storage"><a href="#Disaggregated-storage" class="headerlink" title="Disaggregated storage"></a>Disaggregated storage</h3><p>最初，Dremel在几百台共享无服务器上运行。每个服务器在本地磁盘上保留数据的不相交子集。当时，从分析系统中挤出最大性能的最佳方法似乎是使用专用硬件和直接附加的磁盘。随着Dremel的工作负载增加，越来越难以在一小群专用服务器上管理它。在2009年初发生了重大转变。Dremel迁移到了一个名为Borg的集群管理系统。（Borg是Google开发的第一个统一容器管理系统，也是开源平台Kubernetes的前身。）转移到托管集群对于容纳不断增长的查询工作负载和提高服务利用率至关重要。然而，它暴露了使用共享资源的一个挑战：用于Dremel数据的磁盘是与其他作业共享的。因此，我们切换到了副本存储组织，其中每个表的一部分保存在三个不同的本地磁盘上，并由独立的服务器管理。</p>
+<p>托管集群和副本存储的组合大大增加了Dremel的可扩展性和速度，并将其数据集推入了PB级大小和万亿行表的范围。在本地磁盘上存储副本数据意味着存储和处理以精密的方式耦合在一起。这有一些缺点：添加新功能很困难，因为所有算法都需要具备复制感知能力，服务系统无法调整大小而不转移数据，<strong>扩展存储</strong>需要添加服务器和<strong>扩展CPU</strong>，最重要的是，数据被<strong>锁定</strong>，即除了通过Dremel之外无法以任何其他方式访问。所有这些问题都是可以解决的，但正在朝着一个前景解决方案前进，它开始看起来与现有的核心基础设施的一个部分——Google的分布式文件系统GFS非常相似。</p>
+<p>考虑到Google存储和网络基础设施的巨大改进，是时候重新审视共享无服务架构了。显而易见的阻碍问题是数据访问延迟。在第一次尝试使用基于GFS的Dremel系统时，看到了一个数量级的性能下降。一个问题是扫描由数十万个Tablet组成的表需要在GFS中打开同样数量的文件，这需要多秒钟的时间，计入查询响应时间。此外，Dremel最初使用的元数据格式是为磁盘寻道而设计的，而不是网络往返。</p>
+<p>治理查询延迟成为Dremel工程师的一个持久性挑战，为了将Dremel迁移到GFS，需要对存储格式、元数据表示、查询亲和性和预取进行大量微调。最终，分离存储的Dremel在典型工作负载的延迟和吞吐量方面都优于基于本地磁盘的系统。</p>
+<p>除了解放数据和减少复杂性外，分离存储还有其他几个重要优点。首先，GFS是一个完全托管的内部服务，这提高了Dremel的SLO和鲁棒性。其次，从GFS加载分片表到Dremel服务器的本地磁盘的初始步骤被消除了。第三，由于我们不需要调整集群大小来加载他们的数据，因此更容易将其他团队引入服务。一旦Google的文件系统从GFS的单主模型迁移到其后继者Colossus的分布式多主模型，就获得了更高的可扩展性和鲁棒性。</p>
+<h3 id="Disaggregated-memory"><a href="#Disaggregated-memory" class="headerlink" title="Disaggregated memory"></a>Disaggregated memory</h3><p>通过Shuffle原语支持分布式连接。受MapReduce Shuffle实现的启发，Dremel的Shuffle利用本地RAM和磁盘存储排序的中间结果。然而，计算节点和中间Shuffle存储之间的紧密耦合证明是可扩展性瓶颈：</p>
+<ul>
+<li>在这种共存情况下，随着数据生产者和消费者数量的增加，不可能有效地缓解Shuffle操作的二次扩展特性。</li>
+<li>耦合本质上导致资源碎片化和滞留，并提供了较差的隔离性。随着服务使用量的增加，这成为可扩展性和多租户的主要瓶颈。</li>
+</ul>
+<p>在继续分离路径的同时，我们在2012年使用Colossus分布式文件系统构建了一个新的分离洗牌基础设施。这个实现遇到了[38, 47]中描述的所有挑战。在探索替代方案（包括专用洗牌服务）之后，我们在2014年最终选择了支持完全内存查询执行的洗牌基础设施[4]。在新的洗牌实现中，需要存储中间Shuffle数据的RAM和磁盘资源在分布式瞬态存储系统中分别管理。在部署时，内存洗牌实现在以下几个方面改进了Dremel查询执行引擎：</p>
+<ul>
+<li>将Shuffle延迟降低了一个数量级。</li>
+<li>支持一个数量级更大的Shuffle。</li>
+<li>将服务的资源成本降低了20%以上。</li>
+</ul>
+<p><a><img src="https://live.staticflickr.com/65535/53078661261_285247ef09_z.jpg" width="640" height="500" alt="dremel-shuffle"/></a></p>
+<h3 id="Observations"><a href="#Observations" class="headerlink" title="Observations"></a>Observations</h3><p>分离存储解耦了不同类型资源的供应，实现了更好的成本性能和弹性。分离存储的几个方面突出：</p>
+<ul>
+<li>规模经济：存储分离的路径从RAID、SAN、分布式文件系统到仓库级计算。</li>
+<li>普适性：存储分离已被分析和事务系统广泛采用，包括Spanner、AWS Aurora、Snowflake和Azure SQL Hyperscale。</li>
+<li>更高级别的API：分离的资源通过越来越高层次的抽象API进行访问。存储访问远离早期的块I&#x2F;O API，包括访问控制、静态加密、客户管理的加密密钥、负载均衡和元数据服务。一些数据访问API内置了过滤和聚合支持，这可能一直推到硬件层面（例如，在Oracle SPARC M7中完成）。</li>
+<li>增值再打包：原始资源被打包成提供增强功能的服务。即使将原始资源（如RAM）分离出来以供数据管理系统的通用目的使用不切实际，将其作为增值服务因素分离出来可能是划算的，正如Dremel的Shuffle所示。</li>
+</ul>
+<h2 id="IN-SITU-DATA-ANALYSIS"><a href="#IN-SITU-DATA-ANALYSIS" class="headerlink" title="IN SITU DATA ANALYSIS"></a>IN SITU DATA ANALYSIS</h2><p>原地数据处理指的是在原始位置访问数据，无需预先加载和转换步骤。具有精确元数据的显式和标准的数据访问层被认为是数据独立性的关键因素。事实上，数据管理社区今天发现自己正处于从传统数据仓库向面向分析的数据湖架构的转变中。这个转变的核心被称为三个因素：</p>
+<ul>
+<li>从各种数据源消费数据，</li>
+<li>消除传统的基于ETL的数据摄取，从OLTP系统到数据仓库，</li>
+<li>使各种计算引擎能够对数据进行操作。</li>
+</ul>
+<h3 id="Dremel’s-evolution-to-in-situ-analysis"><a href="#Dremel’s-evolution-to-in-situ-analysis" class="headerlink" title="Dremel’s evolution to in situ analysis"></a>Dremel’s evolution to in situ analysis</h3><p>Dremel最初的设计于2006年类似于传统的DBMS：需要显式数据加载，并且数据以专有格式存储，其他工具无法访问。当时，Google的许多工具，包括MapReduce，采用了一种通用的记录导向格式，由分布式文件系统中的分片文件和存储在源代码库中的s<code>schema</code>定义组成。作为将Dremel迁移到GFS的一部分，我们通过共享的内部库在Google内部“开源”了我们的存储格式。这种格式具有两个独特的属性：它是列式的和自描述的。存储表的数据分区的每个文件还嵌入了精确的元数据，其中包括<code>schema</code>和派生信息，例如列的值范围。在GFS中的自描述存储格式使自定义数据转换工具和基于SQL的分析之间能够互操作。MapReduce作业可以在列式数据上运行，写出列式结果，这些结果可以立即通过Dremel查询。用户不再需要将数据加载到他们的数据仓库中。他们在分布式文件系统中拥有的任何文件都可以有效地成为可查询的数据存储库的一部分。MapReduce和并行DBMS的范例被证明是朋友而不是敌人。</p>
+<p>随着时间的推移，我们以两个互补的方向发展了我们的原地方法。首先，我们开始添加超出我们原始列式格式的文件格式。这些包括基于记录的格式，如Avro、CSV和JSON。这扩展了用户可以使用Dremel查询的数据范围，但由于需要读取大多数这些格式的完整记录以及需要即时转换数据进行处理，增加了I&#x2F;O延迟的成本。我们发现，用户通常愿意忍受额外的查询延迟，以避免重新编码数据的成本。第二个方向是通过联邦机制扩展原地分析。在某些情况下，包括远程文件系统，如Google Cloud Storage和Google Drive，我们直接读取文件。在其他情况下，包括F1、MySQL和BigTable，我们通过另一个引擎的查询API读取数据。除了扩展可连接数据的范围外，联邦机制还允许Dremel利用这些其他系统的独特优势。例如，在BigTable中使用行键的查找连接可以通过仅读取子集行而不是读取整个表来更有效地执行。</p>
+<h3 id="Drawbacks-of-in-situ-analysis"><a href="#Drawbacks-of-in-situ-analysis" class="headerlink" title="Drawbacks of in situ analysis"></a>Drawbacks of in situ analysis</h3><p>然而，Dremel的原地方法存在重要的缺点。首先，用户并不总是想要或有能力安全地管理自己的数据。虽然数据治理中的这种额外复杂性在Google内部在某种程度上是可以接受的，但对于许多外部客户来说是不可容忍的。其次，原地分析意味着在一般情况下没有机会优化存储布局或计算统计信息。事实上，大量的Dremel查询是在第一次看到数据时运行的。这使得许多标准优化变得不可能。在独立文件上运行DML更新和删除或DDL模式更改也是不切实际的。</p>
+<p>这些问题导致了为云用户创建BigQuery Managed Storage以及Google内部的其他托管解决方案。我们观察到，在成功的大数据分析解决方案中，预期同时存在自管理和原地数据。用户将在文件系统中自我管理一些数据，出于各种原因，但当不必要或产生反效果时，不应强制用户承担自我管理的负担。互补的托管存储系统可以提供最佳的解决方案，缓解原地分析遇到的缺点。</p>
+<p>在NoDB和Delta Lake中探索了混合模型，将原地和托管存储的特点融合在一起。</p>
+<h2 id="SERVERLESS-COMPUTING"><a href="#SERVERLESS-COMPUTING" class="headerlink" title="SERVERLESS COMPUTING"></a>SERVERLESS COMPUTING</h2><p>Dremel是提供弹性、多租户和按需服务的先驱之一，现在在行业中被广泛称为无服务器。</p>
+<h3 id="Serverless-roots"><a href="#Serverless-roots" class="headerlink" title="Serverless roots"></a>Serverless roots</h3><p>在Dremel概念形成时，数据仓库（如IBM Netezza、Teradata和Oracle产品）大多遵循数据库管理系统的模式，部署在专用服务器上。MapReduce和Hadoop等大数据框架采用了更灵活的部署模式，利用虚拟机和容器，但仍需要单租户资源配置，即每个用户一个作业。显然，如果服务是多租户的，并提供按需资源配置，同时支持交互式、低延迟查询和原地分析，同时在Google内部扩展到数千个用户，成本将会更低。最初，我们利用了三个核心思想来实现无服务器分析：</p>
+<ul>
+<li><strong>解聚(Disaggregation)</strong><br>解聚计算、存储和内存允许按需扩展和共享计算，独立于存储。因此，它允许系统以更低的成本适应使用。正如第3节所述，Dremel从2009年开始将磁盘存储与计算资源解耦，并最终在2014年添加了解聚内存。</li>
+<li><strong>容错和可重启性(Fault Tolerance and Restartability)</strong><br>Dremel的查询执行是基于这样的假设构建的，即底层计算资源可能很慢或不可用，使得工作进程本质上不可靠。这个假设对查询运行时和调度逻辑有很强的影响：<ul>
+<li>查询中的每个子任务必须是确定性的和可重复的，以便在失败的情况下，只需要在另一个工作进程上重新启动一小部分工作。</li>
+<li>查询任务调度程序必须支持将多个相同任务的副本分派给其他工作进程，以缓解不响应的工作进程。<br>  因此，这些机制使调度逻辑能够轻松地通过取消和重新调度子任务来调整分配给查询的资源量。</li>
+</ul>
+</li>
+<li><strong>虚拟调度单元(Virtual Scheduling Units)</strong><br>Dremel调度逻辑的设计不依赖于特定的机器类型和形状，而是使用称为<code>slots</code>的计算和内存的抽象单元。这是一个适合容器导向的Borg计算环境的模型，支持灵活的资源分配形状。这些虚拟调度单元允许将调度和客户可见的资源分配与容器和机器形状以及服务部署解耦。在BigQuery中，Slots仍然是资源管理的核心客户可见概念。</li>
+</ul>
+<p>这三个在原始Dremel论文中使用的思想成为许多无服务器数据分析系统的构建块。解聚已被行业和学术界广泛采用。虚拟资源单元已被其他提供商（如Snowflake）采用。在许多领域，行业已经趋于采用数据湖架构，使用弹性计算服务<em>按需</em>分析云存储中的数据。此外，许多数据仓库服务，如Presto、AWS Athena和Snowflake，也采用了按需分析或自动缩放作为无服务分析的关键enabler，引导许多企业选择云服务而不是本地系统。</p>
+<h3 id="Evolution-of-serverless-architecture"><a href="#Evolution-of-serverless-architecture" class="headerlink" title="Evolution of serverless architecture"></a>Evolution of serverless architecture</h3><p>Dremel继续发展其无服务能力，使其成为Google BigQuery的关键特征之一。原始Dremel论文中的一些方法演变成了下面描述的新思想，将无服务器方法提升到了新的水平。</p>
+<h4 id="集中式调度（Centralized-Scheduling）"><a href="#集中式调度（Centralized-Scheduling）" class="headerlink" title="集中式调度（Centralized Scheduling）"></a><strong>集中式调度</strong>（Centralized Scheduling）</h4><p>Dremel在2012年转向了集中式调度（下图从左到右），这允许更细粒度的资源分配，并开放了预留的可能性，即为特定客户分配Dremel处理能力的一部分。集中式调度取代了原始论文中的“调度程序”，后者负责在中间服务器中在查询之间分配资源。新的调度程序使用整个集群状态来进行调度决策，从而实现更好的利用和隔离。</p>
+<h4 id="Shuffle持久层"><a href="#Shuffle持久层" class="headerlink" title="Shuffle持久层"></a><strong>Shuffle持久层</strong></h4><p>在2010年论文发表后，Shuffle和分布式连接功能被引入，在最初的Shuffle实现之后，架构发展为允许解耦查询不同阶段的调度和执行。使用Shuffle的结果作为查询执行状态的检查点（checkpoint），调度程序具有动态抢占工作进程的灵活性，在计算资源受限时减少资源分配以适应其他工作负载。</p>
+<h4 id="灵活的执行DAG（Flexible-Execution-DAGs）"><a href="#灵活的执行DAG（Flexible-Execution-DAGs）" class="headerlink" title="灵活的执行DAG（Flexible Execution DAGs）"></a><strong>灵活的执行DAG</strong>（Flexible Execution DAGs）</h4><p>原始论文描述的固定的执行树对于聚合等操作效果很好，但随着Dremel的发展，固定的树对于更复杂的查询计划并不理想。通过迁移到集中式调度和Shuffle持久层，架构发生了以下变化：</p>
+<ul>
+<li>查询协调器是接收查询的第一个节点。它构建查询计划，可以是查询执行树（也称为阶段）的DAG，然后通过调度程序将查询执行与分配给它的工作进程协调。</li>
+<li>工作进程被分配为一个没有预定义结构的池。一旦协调器决定执行DAG的形状，它将一个准备好执行的本地查询执行计划（树）发送给工作进程。来自叶子阶段的工作进程从存储层读取并写入Shuffle持久层，而来自其他阶段的工作进程从&#x2F;向Shuffle持久层读取&#x2F;写入。一旦整个查询完成，最终结果将存储在Shuffle持久层中，然后查询协调器将其发送给客户端。</li>
+</ul>
+<p>考虑下图右侧中的示例，它说明了在Wikipedia表上执行top-k查询的过程。查询的执行如下：<br>    - 阶段1（叶子）的工作进程从分布式存储中读取数据，应用过滤器，局部预聚合数据，然后通过哈希分区在语言字段上对数据进行Shuffle。<br>    - 由于数据按聚合键进行Shuffle，因此阶段2的工作进程可以进行最终的GROUP BY聚合，然后按不同的键排序，按限制截断，并将结果发送到下一个阶段。<br>    - 在阶段3中只有一个工作进程；它从Shuffle持久层读取输入，进行最终的排序和截断，并将结果写入Shuffle层。查询协调器从Shuffle持久层读取最终的100条记录，并将它们发送给客户端。</p>
+<blockquote>
+<p>任何Dremel查询，例如上面介绍的示例，都可以在任意数量的工作进程上执行，从一个到数万个工作进程不等。Shuffle持久层提供了这种灵活性。这不就是Spark的stage-by-stage模式嘛！</p>
+</blockquote>
+<p><a><img src="https://live.staticflickr.com/65535/53080829473_169d69ba9b_b.jpg" width="1024" height="345" alt="dremel-ex"/></a></p>
+<h4 id="动态查询执行（Dynamic-Query-Execution）"><a href="#动态查询执行（Dynamic-Query-Execution）" class="headerlink" title="动态查询执行（Dynamic Query Execution）"></a><strong>动态查询执行</strong>（Dynamic Query Execution）</h4><p>查询引擎可以根据数据的形状应用多种优化。例如，考虑选择连接策略，例如广播连接和哈希连接。广播连接不需要在连接的探测端对数据进行Shuffle，因此速度可以快得多，但是广播连接仅在构建端的大小足够小以适合内存时才有效。</p>
+<p>通常，在查询计划期间获得准确的基数估计是困难的；众所周知，错误会通过连接呈指数级传播。Dremel选择了一条路径，在查询执行期间基于查询执行期间收集的统计信息动态更改查询执行计划。这种方法是由Shuffle持久层和查询协调器的集中式查询编排变得可能的。在广播连接和哈希连接的情况下，Dremel将从哈希连接开始，通过在两侧Shuffle数据，但如果一侧快速完成并且低于广播数据大小阈值，则Dremel将取消第二个Shuffle并执行广播连接。</p>
+<h2 id="COLUMNAR-STORAGE-FOR-NESTED-DATA"><a href="#COLUMNAR-STORAGE-FOR-NESTED-DATA" class="headerlink" title="COLUMNAR STORAGE FOR NESTED DATA"></a>COLUMNAR STORAGE FOR NESTED DATA</h2><p>在21世纪初，出现了新的应用程序和数据模型（通常与Web 2.0的兴起有关），其中应用程序不再将数据写入规范化的关系存储中，而是写入具有灵活模式的半结构化数据（例如日志）。许多编程框架促进了半结构化数据的使用。XML传统上用于此目的；由于相对于XML而言JSON更简单，因此JSON变得流行。Google推出了ProtoBuffer，Facebook推出了Thrift，Hadoop社区开发了Avro。</p>
+<p>虽然列存储的想法早已为人所知，但Dremel论文推动了将列存储用于半结构化数据。Google在其所有应用程序中广泛使用协议缓冲区-搜索、GMail、地图、YouTube等。随之而来的是许多开源嵌套数据列格式的开发：2013年，Twitter和Cloudera宣布了Parquet文件格式，引用了Dremel论文的影响，Facebook和Hortonworks推出了ORC，2016年Apache基金会宣布了Apache Arrow。</p>
+<p>所有这些格式都支持嵌套和重复数据，但它们的实现方式不同。Dremel论文提出了重复和定义级别的概念，以分别跟踪重复和可选字段。有关此编码的详细说明可以在中找到，但简要地说，重复级别指定对于重复值，每个祖先记录是附加到还是开始新值，而定义级别指定当可选字段不存在时哪些祖先记录不存在。Parquet采用了这种编码方式。<br>ORC采用了不同的方法，跟踪重复字段的长度（即父级内出现的次数）和指示可选字段存在的布尔属性。Arrow使用与ORC类似的方法，但通过它们的偏移量跟踪重复字段（即累积长度）。使用偏移量可以直接访问数组元素，并且对于像Arrow这样的内存格式是有意义的，而存储长度对于磁盘文件格式是有意义的，因为它可以更好地压缩。</p>
+<p>为了比较这些方法，如下图所示。Name.Language.Country的编码如下：其最大重复级别为2，因为其路径中有2个重复字段，Name和Language。其最大定义级别为3，因为其路径中有3个重复或可选字段，Name、Language和Country。让我们从记录r1开始。在记录开头，重复级别始终为0。定义级别为3，因为第一个值“us”中存在路径的所有3个部分。当我们移动到下一个值时，Country现在缺失（表示为NULL），但Name和Language仍然被定义（包含Code“en”），因此定义级别变为2。重复级别告诉我们路径中哪个重复字段发生了变化。它是Language（因为Name保持不变），即第2个重复字段，因此重复级别为2。长度和存在编码如图7所示。Name.Language列出了每个连续的Name记录中Language出现的次数，分别为2、0、1和0次，总共为3次。Name.Language.Country包含这3个记录的相应Country值。</p>
+<div align=center><table>
+<tr>
+    <td><img src="https://live.staticflickr.com/65535/53078863289_1d0c5e4626_c.jpg" width="800" height="236" alt="dremel-t1"/></td>
+</tr>
+<tr>
+    <td><img src="https://live.staticflickr.com/65535/53079075705_d7c3067314.jpg" width="492" height="430" alt="dremel-t2"/></td>
+</tr>
+</table></div>
+
+<p>这些方法之间存在权衡。重复和定义级别编码背后的主要设计决策是将所有结构信息编码在列本身中，因此可以在不读取祖先字段的情况下访问它。实际上，非叶节点甚至没有明确存储。然而，这种方案会导致冗余数据存储，因为每个子节点都重复存储关于共同祖先结构的相同信息。消息的结构越深和越宽，引入的冗余就越多。2014年，我们发表了有效的算法，用于计算、过滤和聚合，可与此编码一起使用。使用长度&#x2F;存在编码，还需要读取列的所有祖先。这会产生额外的I&#x2F;O，虽然祖先列通常非常小，但可能需要额外的磁盘寻道。此外，检测数组边界的算法需要查看多个级别的计数。量化这些编码之间的权衡是未来研究的领域。2014年，我们开始将存储迁移到改进的列格式Capacitor。它建立在原始Dremel论文描述的基础上，并添加了许多新功能。其中一些增强功能如下所述。</p>
+<h3 id="Embedded-evaluation"><a href="#Embedded-evaluation" class="headerlink" title="Embedded evaluation"></a>Embedded evaluation</h3><p>为了使过滤尽可能高效，我们直接将其嵌入到Capacitor数据访问库中。该库包括一个小型查询处理器，用于评估SQL谓词。这种设计选择使我们能够在使用Capacitor的所有数据管理应用程序中具有高效的过滤支持，不仅包括Dremel，还包括F1、Procella、Flume、MapReduce和BigQuery的存储API。例如，存储API允许在读取选项的一部分中将SQL谓词指定为字符串。Capacitor使用多种技术使过滤高效：</p>
+<ul>
+<li>分区和谓词修剪：维护有关每个列中值的各种统计信息。它们用于消除保证不包含任何匹配行的分区，并通过删除重言式来简化过滤器。例如，谓词<code>EXTRACT(YEAR FROM date) = 2020</code>首先被重写为<code>date BETWEEN &#39;2020-01-01&#39; AND &#39;2020-12-31&#39;</code>，并用于消除此日期范围之外的所有分区。更复杂的例子是<code>ST DISTANCE(geo, constant geo) &lt; 100</code>，仅返回距离给定常量对象100米以内的值。在这种情况下，使用更高级的统计信息来比较常量geo的S2覆盖和文件中所有值的S2覆盖的并集。</li>
+<li>向量化：列存储适合于列块导向的向量化处理。Capacitor的嵌入式查询评估器使用了<a target="_blank" rel="noopener" href="https://15721.courses.cs.cmu.edu/spring2016/papers/abadi-sigmod2006.pdf">该论文</a>中描述的大多数技术。</li>
+<li>跳过索引：在内部和外部BigQuery工作负载中使用的过滤谓词往往非常选择性。约15%的查询不返回数据（选择性为0），约25%的查询返回少于0.01%的数据，约50%的查询返回少于1%的数据。高选择性需要快速实现跳过，以跳过谓词计算为false的记录。为此，在写入时，Capacitor将列值组合成段，这些段单独压缩。列头包含一个索引，其中偏移量指向每个段的开头。当过滤器非常选择性时，Capacitor使用此索引跳过没有命中的段，避免它们的解压缩。</li>
+<li>谓词重排序：虽然谓词重排序的最优算法已知，但它依赖于每个谓词的选择性和成本的先验知识，这些很难估计。Capacitor使用多种启发式方法来进行过滤器重排序决策，考虑到字典使用、唯一值基数、NULL密度和表达式复杂性。例如，考虑一个过滤器<code>p(x) AND q(y)</code>，其中x没有字典编码且具有许多唯一值，而y具有字典且只有少量唯一值。在这种情况下，最好先评估谓词<code>q(y)</code>，然后是<code>p(x)</code>，即使<code>q(y)</code>是比<code>p(x)</code>更复杂的表达式，因为<code>q(y)</code>只会在少量字典值上进行评估。</li>
+</ul>
+<h3 id="Row-reordering"><a href="#Row-reordering" class="headerlink" title="Row reordering"></a>Row reordering</h3><p>Capacitor使用多种标准技术来编码值，包括字典和行长度编码（RLE）。特别是，RLE对行顺序非常敏感。通常，表中的行顺序没有意义，因此Capacitor可以自由地重新排列行以提高RLE的效果。下图中的三列数据作为例子来说明。使用现有顺序对这些数据进行RLE编码将是次优的，因为所有运行长度都为1，导致21个runs。但是，如果将输入行按照下图所示重新排列，我们可以获得总共9个runs。这种排列对于给定的输入是最优的，并且比任何组合列的字典序排序都产生更好的结果。不幸的是，找到最优解是一个NP完全问题，即使对于少量的输入行也是不切实际的，更不用说对于数十亿行了。为了进一步复杂化问题，不是所有的列都是平等的：短的RLE运行对于长字符串比小整数列上的长运行更有益。最后，我们必须考虑实际使用情况：有些列比其他列更有可能在查询中被选择，有些列更有可能在WHERE子句中用作过滤器。Capacitor的行重新排序算法使用抽样和启发式方法来构建近似模型。行重新排序在实践中表现出奇效，总体节省了17%，有些数据集达到了40%，其中一个数据集达到了75%。</p>
+<p><a><img src="https://live.staticflickr.com/65535/53081190768_b78343bdec_c.jpg" width="800" height="379" alt="dremel-row"/></a></p>
+<h3 id="More-complex-schemas"><a href="#More-complex-schemas" class="headerlink" title="More complex schemas"></a>More complex schemas</h3><p>Protocol buffers允许定义递归消息模式。这对于建模许多常见的数据结构非常有用。例如，可以将树定义为…一个挑战是在给定数据集中使用的最大递归深度事先不知道。Dremel最初不支持任意深度的递归消息。Capacitor添加了这种支持。另一个新的挑战是支持没有严格模式的消息。这在JSON消息或没有XSD的XML中很常见。协议缓冲区通过扩展21和使用带有“Any”消息类型的proto3来允许它。22主要的挑战不仅是新列可以出现在任何行中，而且同名列在不同消息中的类型可能不同。Capacitor只部分解决了本节中概述的问题。高效存储和访问异构列式数据仍然是一个活跃的研究领域。</p>
+<h2 id="INTERACTIVE-QUERY-LATENCY-OVER-BIG-DATA"><a href="#INTERACTIVE-QUERY-LATENCY-OVER-BIG-DATA" class="headerlink" title="INTERACTIVE QUERY LATENCY OVER BIG DATA"></a>INTERACTIVE QUERY LATENCY OVER BIG DATA</h2><p>之前介绍的设计原则（分离、原地处理和无服务器）往往与构建交互式查询延迟系统相矛盾。传统智慧认为，将处理与数据放置在一起可以减少数据访问延迟，这与分离相矛盾。优化数据的存储布局与原地处理相矛盾。专用机器应该比共享的无服务器机器资源更具性能。在本节中，我们讨论了Dremel中实现的一些降低延迟的技术，以实现交互式查询处理速度，超出了使用列存储的范畴。</p>
+<ul>
+<li><strong>备用服务器池</strong><br>使用分布式SQL执行引擎，可以启动一个系统，并在提交查询时准备好处理查询。这消除了用户编写自己的MapReduce或Sawzall作业时存在的机器分配、二进制复制和二进制启动延迟。</li>
+<li><strong>推测执行</strong><br>当一个查询由数百台机器处理时，最慢的工作机器可能比平均速度慢一个数量级。如果没有任何补救措施，最终效果是用户的端到端查询延迟高一个数量级。为了解决这个问题，Dremel将查询分成数千个小任务，每个工作机器可以在完成任务时接收任务。通过这种方式，慢速机器处理较少的任务，快速机器处理更多的任务。此外，为了在查询执行结束时对抗长尾延迟，Dremel可以为滞后者发出重复任务，从而降低总延迟。因此，性能成为总可用资源的函数，而不是最慢的组件。</li>
+</ul>
+<blockquote>
+<p>推测执行Spark早就有了</p>
+</blockquote>
+<ul>
+<li><strong>多级执行树</strong>（Multilevel execution trees）<br>能够使用数百台机器在几秒钟内处理单个查询需要协调。Dremel使用树形架构解决了这个问题，根服务器位于中间服务器之上，叶服务器之上。执行从根到叶子再返回。这个模型最初是从Google的搜索中借鉴的。它很好地并行化了请求的分派和查询结果的组装。</li>
+</ul>
+<blockquote>
+<p>多级执行树这个架构不是被替换成Flexible Execution DAGs了吗？</p>
+</blockquote>
+<ul>
+<li><strong>基于列的模式表示</strong><br>Dremel的存储格式被设计为自描述的，即数据分区存储嵌入式模式。Google使用的模式通常包含数千个字段。解析完整的模式可能比从分区读取和处理数据列需要更长的时间。为了解决这个问题，Dremel的内部模式表示本身以列格式存储。</li>
+<li><strong>轻量级压缩平衡CPU和IO</strong><br>使用列格式使压缩更有效，因为相似的值（单个列的所有值）被顺序存储。这意味着从存储层读取的字节数更少，从而减少了查询延迟。另一方面，解压数据需要CPU周期，因此涉及的压缩越多，CPU成本就越高。关键是选择一个平衡数据大小减小和CPU解压缩成本的压缩方案，以便CPU和IO都不成为瓶颈。</li>
+<li><strong>近似结果</strong><br>许多分析不需要100%的准确性，因此提供处理前k个和计数不同的近似算法可以减少延迟。Dremel使用一遍算法，这些算法与多级执行树架构很好地配合使用。此外，Dremel允许用户指定在返回结果之前要处理多少数据的百分比。由于滞后效应，处理了98%的数据后返回结果已被证明可以将延迟降低2-3倍。</li>
+<li><strong>查询延迟层</strong>（Query latency tiers）<br>为了在共享的服务器池中实现高利用率，Dremel必须本地支持多个用户同时发出多个查询。由于数据大小范围广泛，一些查询可以在几秒钟内完成，而其他查询可能需要数十秒钟。为了确保“小”查询保持快速，并且不会被“大”查询的用户阻塞，Dremel在中间服务器上使用调度程序公平地安排资源。调度程序需要能够抢占查询的部分处理，以允许处理新用户的查询，以避免先前的用户通过运行数百个并发查询来垄断资源的情况。即使来自单个用户的查询也可能需要不同的优先级，例如支持交互式仪表板的查询与执行每日ETL管道作业的查询。</li>
+<li><strong>文件操作的重用</strong><br>在几秒钟内为查询处理数十万个文件会对分布式文件系统产生巨大的负载。这实际上可能成为实现低延迟的瓶颈，因为数千个Dremel工作机器向文件系统主节点发送请求以获取元数据，并向块服务器发送打开和读取操作。Dremel使用了一些技术来解决这个问题。最重要的技术是通过在根服务器批量获取元数据并将其通过执行树传递到叶服务器进行数据读取来重用从文件系统获取的元数据。另一种技术是创建更大的文件，以便可以用较少的文件表示相同的表，从而减少文件元数据操作。</li>
+<li><strong>容量保证</strong><br>客户可以预留一些容量，并仅将该容量用于延迟敏感的工作负载。当保证容量未被充分利用时，这些资源可供其他人使用，但当请求时，这些资源立即授予给客户。Dremel工作机器使用自定义线程调度程序，可以立即将CPU重新分配给预留的工作负载，并暂停非预留的工作负载。</li>
+<li><strong>自适应查询扩展</strong><br>在第5节中描述的灵活执行DAG是改善延迟的重要部分，因为工作负载不断增长且多样化。执行DAG可以根据查询计划为每个查询单独构建。考虑全局聚合，例如COUNT或SUM：使用固定的聚合树，这样的查询必须通过中间级别进行多次跳跃，但是使用灵活的DAG，不需要超过两个聚合级别-叶级别聚合输入并生成每个文件一个记录，顶级执行最终聚合。相反，考虑top-k查询，即ORDER BY … LIMIT。叶级阶段的每个工作机器都会产生许多记录。在具有大量输入的单个节点上进行最终聚合将成为瓶颈。因此，为了处理此查询，Dremel动态构建聚合树，其深度取决于输入的大小。</li>
+</ul>
+
+  </div>
+</article>
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/categories/technology">Technology</a></li>
+         
+          <li><a href="/categories/life">Life</a></li>
+         
+          <li><a href="/archives/">Archives</a></li>
+         
+          <li><a href="/tags/">Tags</a></li>
+         
+          <li><a href="/about">About</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#What-Is-Dremel"><span class="toc-number">1.</span> <span class="toc-text">What Is Dremel</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#EMBRACING-SQL"><span class="toc-number">2.</span> <span class="toc-text">EMBRACING SQL</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#DISAGGREGATION"><span class="toc-number">3.</span> <span class="toc-text">DISAGGREGATION</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Disaggregated-storage"><span class="toc-number">3.1.</span> <span class="toc-text">Disaggregated storage</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Disaggregated-memory"><span class="toc-number">3.2.</span> <span class="toc-text">Disaggregated memory</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Observations"><span class="toc-number">3.3.</span> <span class="toc-text">Observations</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#IN-SITU-DATA-ANALYSIS"><span class="toc-number">4.</span> <span class="toc-text">IN SITU DATA ANALYSIS</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Dremel%E2%80%99s-evolution-to-in-situ-analysis"><span class="toc-number">4.1.</span> <span class="toc-text">Dremel’s evolution to in situ analysis</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Drawbacks-of-in-situ-analysis"><span class="toc-number">4.2.</span> <span class="toc-text">Drawbacks of in situ analysis</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SERVERLESS-COMPUTING"><span class="toc-number">5.</span> <span class="toc-text">SERVERLESS COMPUTING</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Serverless-roots"><span class="toc-number">5.1.</span> <span class="toc-text">Serverless roots</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Evolution-of-serverless-architecture"><span class="toc-number">5.2.</span> <span class="toc-text">Evolution of serverless architecture</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%9B%86%E4%B8%AD%E5%BC%8F%E8%B0%83%E5%BA%A6%EF%BC%88Centralized-Scheduling%EF%BC%89"><span class="toc-number">5.2.1.</span> <span class="toc-text">集中式调度（Centralized Scheduling）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Shuffle%E6%8C%81%E4%B9%85%E5%B1%82"><span class="toc-number">5.2.2.</span> <span class="toc-text">Shuffle持久层</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%81%B5%E6%B4%BB%E7%9A%84%E6%89%A7%E8%A1%8CDAG%EF%BC%88Flexible-Execution-DAGs%EF%BC%89"><span class="toc-number">5.2.3.</span> <span class="toc-text">灵活的执行DAG（Flexible Execution DAGs）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8A%A8%E6%80%81%E6%9F%A5%E8%AF%A2%E6%89%A7%E8%A1%8C%EF%BC%88Dynamic-Query-Execution%EF%BC%89"><span class="toc-number">5.2.4.</span> <span class="toc-text">动态查询执行（Dynamic Query Execution）</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#COLUMNAR-STORAGE-FOR-NESTED-DATA"><span class="toc-number">6.</span> <span class="toc-text">COLUMNAR STORAGE FOR NESTED DATA</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Embedded-evaluation"><span class="toc-number">6.1.</span> <span class="toc-text">Embedded evaluation</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Row-reordering"><span class="toc-number">6.2.</span> <span class="toc-text">Row reordering</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#More-complex-schemas"><span class="toc-number">6.3.</span> <span class="toc-text">More complex schemas</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#INTERACTIVE-QUERY-LATENCY-OVER-BIG-DATA"><span class="toc-number">7.</span> <span class="toc-text">INTERACTIVE QUERY LATENCY OVER BIG DATA</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2022/12/14/dremel-paper/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2022/12/14/dremel-paper/&text=Dremel: A Decade of Interactive SQL Analysis at Web Scale"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2022/12/14/dremel-paper/&title=Dremel: A Decade of Interactive SQL Analysis at Web Scale"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2022/12/14/dremel-paper/&is_video=false&description=Dremel: A Decade of Interactive SQL Analysis at Web Scale"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Dremel: A Decade of Interactive SQL Analysis at Web Scale&body=Check out this article: http://example.com/2022/12/14/dremel-paper/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2022/12/14/dremel-paper/&title=Dremel: A Decade of Interactive SQL Analysis at Web Scale"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2022/12/14/dremel-paper/&title=Dremel: A Decade of Interactive SQL Analysis at Web Scale"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2022/12/14/dremel-paper/&title=Dremel: A Decade of Interactive SQL Analysis at Web Scale"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2022/12/14/dremel-paper/&title=Dremel: A Decade of Interactive SQL Analysis at Web Scale"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2022/12/14/dremel-paper/&name=Dremel: A Decade of Interactive SQL Analysis at Web Scale&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2022/12/14/dremel-paper/&t=Dremel: A Decade of Interactive SQL Analysis at Web Scale"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2023
+    duanmeng
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/categories/technology">Technology</a></li><!--
+     --><!--
+       --><li><a href="/categories/life">Life</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Archives</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tags</a></li><!--
+     --><!--
+       --><li><a href="/about">About</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+
+  <script src='https://unpkg.com/mermaid@9.0.0/dist/mermaid.min.js'></script>
+  <script>
+    if (window.mermaid) {
+      mermaid.initialize({theme: 'forest'});
+    }
+  </script>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

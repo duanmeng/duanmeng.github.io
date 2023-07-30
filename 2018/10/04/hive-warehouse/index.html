@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="什么是Hive，为什么需要HiveHadoop是一种流行的开源map-reduce实现，被用作在商品硬件上存储和处理极大的数据集的替代方案。然而，map-reduce编程模型非常低级，并且需要开发人员编写难以维护和重用的自定义程序。Hive是一个建立在Hadoop之上的开源数据仓库解决方案。Hive支持使用类似SQL的声明性语言HiveQL表示的查询，这些查询被编译成在Hadoop上执行的map-">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Hive A Warehousing Solution Over a MapReduce Framework">
+<meta property="og:url" content="http://example.com/2018/10/04/hive-warehouse/index.html">
+<meta property="og:site_name" content="Macduan Notes">
+<meta property="og:description" content="什么是Hive，为什么需要HiveHadoop是一种流行的开源map-reduce实现，被用作在商品硬件上存储和处理极大的数据集的替代方案。然而，map-reduce编程模型非常低级，并且需要开发人员编写难以维护和重用的自定义程序。Hive是一个建立在Hadoop之上的开源数据仓库解决方案。Hive支持使用类似SQL的声明性语言HiveQL表示的查询，这些查询被编译成在Hadoop上执行的map-">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2018-10-04T07:17:13.000Z">
+<meta property="article:modified_time" content="2023-07-29T06:41:34.978Z">
+<meta property="article:author" content="duanmeng">
+<meta property="article:tag" content="lakehouse">
+<meta property="article:tag" content="data">
+<meta property="article:tag" content="hive">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Hive A Warehousing Solution Over a MapReduce Framework</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/categories/technology">Technology</a></li><!--
+     --><!--
+       --><li><a href="/categories/life">Life</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Archives</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tags</a></li><!--
+     --><!--
+       --><li><a href="/about">About</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2018/11/08/byte-of-kubernetes/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2018/08/24/epoll-notes/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2018/10/04/hive-warehouse/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2018/10/04/hive-warehouse/&text=Hive A Warehousing Solution Over a MapReduce Framework"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2018/10/04/hive-warehouse/&title=Hive A Warehousing Solution Over a MapReduce Framework"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2018/10/04/hive-warehouse/&is_video=false&description=Hive A Warehousing Solution Over a MapReduce Framework"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Hive A Warehousing Solution Over a MapReduce Framework&body=Check out this article: http://example.com/2018/10/04/hive-warehouse/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2018/10/04/hive-warehouse/&title=Hive A Warehousing Solution Over a MapReduce Framework"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2018/10/04/hive-warehouse/&title=Hive A Warehousing Solution Over a MapReduce Framework"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2018/10/04/hive-warehouse/&title=Hive A Warehousing Solution Over a MapReduce Framework"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2018/10/04/hive-warehouse/&title=Hive A Warehousing Solution Over a MapReduce Framework"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2018/10/04/hive-warehouse/&name=Hive A Warehousing Solution Over a MapReduce Framework&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2018/10/04/hive-warehouse/&t=Hive A Warehousing Solution Over a MapReduce Framework"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFHive%EF%BC%8C%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81Hive"><span class="toc-number">1.</span> <span class="toc-text">什么是Hive，为什么需要Hive</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#HIVE-DATABASE"><span class="toc-number">2.</span> <span class="toc-text">HIVE DATABASE</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Data-Model"><span class="toc-number">2.1.</span> <span class="toc-text">Data Model</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Query-Language"><span class="toc-number">2.2.</span> <span class="toc-text">Query Language</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Running-Example-StatusMeme"><span class="toc-number">2.3.</span> <span class="toc-text">Running Example: StatusMeme</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#HIVE-ARCHITECTURE"><span class="toc-number">3.</span> <span class="toc-text">HIVE ARCHITECTURE</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Metastore"><span class="toc-number">3.1.</span> <span class="toc-text">Metastore</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Compiler"><span class="toc-number">3.2.</span> <span class="toc-text">Compiler</span></a></li></ol></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Hive A Warehousing Solution Over a MapReduce Framework
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">duanmeng</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2018-10-04T07:17:13.000Z" itemprop="datePublished">2018-10-04</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/technology/">technology</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/data/" rel="tag">data</a>, <a class="tag-link-link" href="/tags/hive/" rel="tag">hive</a>, <a class="tag-link-link" href="/tags/lakehouse/" rel="tag">lakehouse</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="什么是Hive，为什么需要Hive"><a href="#什么是Hive，为什么需要Hive" class="headerlink" title="什么是Hive，为什么需要Hive"></a>什么是Hive，为什么需要Hive</h2><p>Hadoop是一种流行的开源map-reduce实现，被用作在商品硬件上存储和处理极大的数据集的替代方案。然而，map-reduce编程模型非常低级，并且需要开发人员编写难以维护和重用的自定义程序。Hive是一个建立在Hadoop之上的开源数据仓库解决方案。Hive支持使用类似SQL的声明性语言HiveQL表示的查询，这些查询被编译成在Hadoop上执行的map-reduce作业。此外，HiveQL支持将自定义map-reduce脚本插入到查询中。该语言包括一个类型系统，支持包含原始类型、数组和映射等集合以及相同类型的嵌套组合的表。底层的IO库可以扩展以查询自定义格式的数据。Hive还包括一个系统目录，Hive-Metastore，其中包含模式和统计信息，这在数据探索和查询优化中非常有用。</p>
+<h2 id="HIVE-DATABASE"><a href="#HIVE-DATABASE" class="headerlink" title="HIVE DATABASE"></a>HIVE DATABASE</h2><h3 id="Data-Model"><a href="#Data-Model" class="headerlink" title="Data Model"></a>Data Model</h3><p>Hive中的数据组织方式如下：</p>
+<p><strong>表</strong> - 这类似于关系数据库中的表。每个表都有一个对应的HDFS目录。表中的数据被序列化并存储在该目录中的文件中。用户可以将表与底层数据的序列化格式关联起来。Hive提供了内置的序列化格式，利用了压缩和惰性反序列化。用户还可以通过定义Java编写的自定义序列化和反序列化方法（称为<code>SerDe</code>）来添加对新数据格式的支持。每个表的序列化格式存储在系统目录中，并在查询编译和执行期间由Hive自动使用。Hive还支持在存储在HDFS、NFS或本地目录中的数据上的外部表。</p>
+<p><strong>分区</strong> - 每个表可以有一个或多个分区，确定表目录的子目录中数据的分布。假设表T的数据在目录<code>/wh/T</code>中。如果T在列<code>ds</code>和<code>ctry</code>上进行分区，则具有特定ds值20090101和ctry值US的数据将存储在目录<code>/wh/T/ds=20090101/ctry=US</code>中的文件中。</p>
+<p><strong>桶</strong> - 每个分区中的数据可以根据表中某一列的哈希值再次分成桶。每个桶都作为一个文件存储在分区目录中。</p>
+<p>Hive支持原始列类型（整数、浮点数、通用字符串、日期和布尔值）和可嵌套的集合类型（数组和映射）。用户还可以通过编程方式定义自己的类型。</p>
+<h3 id="Query-Language"><a href="#Query-Language" class="headerlink" title="Query Language"></a>Query Language</h3><p>Hive提供了一个名为HiveQL的类似SQL的查询语言，支持在from子句中的select、project、join、aggregate、union all和子查询。HiveQL支持数据定义（DDL）语句，以创建具有特定序列化格式、分区和桶列的表。用户可以通过load和insert数据操作（DML）语句从外部源加载数据并将查询结果插入到Hive表中。HiveQL目前不支持更新和删除现有表中的行。HiveQL支持多表插入，用户可以使用单个HiveQL语句对相同的输入数据执行多个查询。Hive通过共享输入数据的扫描来优化这些查询。</p>
+<p>HiveQL也非常可扩展。它支持在Java中实现的用户定义的列转换（UDF）和聚合（UDAF）函数。此外，用户可以使用简单的基于行的流接口嵌入使用任何语言编写的自定义map-reduce脚本，即从标准输入读取行并将行写入标准输出。</p>
+<h3 id="Running-Example-StatusMeme"><a href="#Running-Example-StatusMeme" class="headerlink" title="Running Example: StatusMeme"></a>Running Example: StatusMeme</h3><p>现在我们介绍一个高度简化的应用程序，名为Status-Meme，用户更新其状态时，更新会被记录在一个NFS目录<code>/logs/status updates</code>的日志文件中，这些文件每天轮换一次。我们每天使用如下的load语句将这些数据加载到Hive表*<code>status updates(userid int,status string,ds string)</code>*中。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">LOAD DATA <span class="keyword">LOCAL</span> INPATH `<span class="operator">/</span>logs<span class="operator">/</span>status_updates<span class="string">&#x27;</span></span><br><span class="line"><span class="string">INTO TABLE status_updates PARTITION (ds=&#x27;</span><span class="number">2009</span><span class="number">-03</span><span class="number">-20</span><span class="string">&#x27;)</span></span><br></pre></td></tr></table></figure>
+<p>每个状态更新记录包含用户标识符（<code>userid</code>）、实际状态字符串（<code>status</code>）以及状态更新发生的日期（<code>ds</code>）。该表在<code>ds</code>列上进行分区。用户详细资料信息，如用户的性别和所在学校，可在<code>profiles(userid int,school string,gender int)</code>表中找到。</p>
+<p>我们首先想要根据用户所在的学校和性别计算每天状态更新频率的统计信息。以下多表插入语句使用一次连接<code>status updates</code>和<code>profiles</code>表的扫描，生成按学校（插入到<code>school summary(school string,cnt int,ds string)</code>中）和性别（插入到<code>gender summary(gender int,cnt int,ds string)</code>中）计算的每日状态更新计数。请注意，输出表也在ds列上进行分区，而<code>HiveQL</code>允许用户将查询结果插入到输出表的特定分区中。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">FROM</span> (<span class="keyword">SELECT</span> a.status, b.school, b.gender</span><br><span class="line">    <span class="keyword">FROM</span> status_updates a <span class="keyword">JOIN</span> profiles b</span><br><span class="line">        <span class="keyword">ON</span> (a.userid <span class="operator">=</span> b.userid <span class="keyword">and</span></span><br><span class="line">            a.ds<span class="operator">=</span><span class="string">&#x27;2009-03-20&#x27;</span> )</span><br><span class="line">    ) subq1</span><br><span class="line"><span class="keyword">INSERT</span> OVERWRITE <span class="keyword">TABLE</span> gender_summary</span><br><span class="line">                        <span class="keyword">PARTITION</span>(ds<span class="operator">=</span><span class="string">&#x27;2009-03-20&#x27;</span>)</span><br><span class="line"><span class="keyword">SELECT</span> subq1.gender, <span class="built_in">COUNT</span>(<span class="number">1</span>) <span class="keyword">GROUP</span> <span class="keyword">BY</span> subq1.gender</span><br><span class="line"><span class="keyword">INSERT</span> OVERWRITE <span class="keyword">TABLE</span> school_summary</span><br><span class="line">                        <span class="keyword">PARTITION</span>(ds<span class="operator">=</span><span class="string">&#x27;2009-03-20&#x27;</span>)</span><br><span class="line"><span class="keyword">SELECT</span> subq1.school, <span class="built_in">COUNT</span>(<span class="number">1</span>) <span class="keyword">GROUP</span> <span class="keyword">BY</span> subq1.school</span><br></pre></td></tr></table></figure>
+
+<p>接下来，我们想要显示每个学校的十个最受欢迎的<code>memes</code>，这是由那些就读于该学校的用户的状态更新所确定的。现在我们展示如何使用HiveQL的map-reduce构造来完成这个计算。我们通过插入一个自定义的Python映射器脚本<code>meme-extractor.py</code>来解析状态更新和<code>profiles</code>表之间的连接结果，该脚本使用复杂的自然语言处理技术从状态字符串中提取<code>meme</code>。由于Hive尚不支持排名聚合函数，因此可以通过一个简单的自定义Python reduce脚本<code>top10.py</code>来计算每个学校的前10个<code>memes</code>。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">REDUCE subq2.school, subq2.meme, subq2.cnt</span><br><span class="line">    <span class="keyword">USING</span> `top10.py<span class="string">&#x27; AS (school,meme,cnt)</span></span><br><span class="line"><span class="string">FROM (SELECT subq1.school, subq1.meme, COUNT(1) AS cnt</span></span><br><span class="line"><span class="string">    FROM (MAP b.school, a.status</span></span><br><span class="line"><span class="string">        USING `meme-extractor.py&#x27;</span> <span class="keyword">AS</span> (school,meme)</span><br><span class="line">            <span class="keyword">FROM</span> status_updates a <span class="keyword">JOIN</span> profiles b</span><br><span class="line">                <span class="keyword">ON</span> (a.userid <span class="operator">=</span> b.userid)</span><br><span class="line">            ) subq1</span><br><span class="line"><span class="keyword">GROUP</span> <span class="keyword">BY</span> subq1.school, subq1.meme</span><br><span class="line">DISTRIBUTE <span class="keyword">BY</span> school, meme</span><br><span class="line">SORT <span class="keyword">BY</span> school, meme, cnt <span class="keyword">desc</span></span><br><span class="line">) subq2;</span><br></pre></td></tr></table></figure>
+
+<h2 id="HIVE-ARCHITECTURE"><a href="#HIVE-ARCHITECTURE" class="headerlink" title="HIVE ARCHITECTURE"></a>HIVE ARCHITECTURE</h2><p>Hive的主要组件包括：</p>
+<ul>
+<li><strong>外部接口</strong><br>Hive提供用户界面（如命令行（CLI）和Web UI）和应用程序编程接口（API）（如JDBC和ODBC）。</li>
+<li><strong>Hive Thrift Server</strong><br>暴露了一个非常简单的客户端API来执行HiveQL语句。在不同语言中生成的Thrift Hive客户端用于构建常见的驱动程序，如JDBC（Java）、ODBC（C++）和用php、perl、python等编写的脚本驱动程序。</li>
+<li><strong>Metastore</strong><br>Hive的所有其他组件都与元数据存储库交互</li>
+<li><strong>Driver</strong><br>管理HiveQL语句编译、优化和执行的生命周期。在从Thrift服务器或其他接口接收到HiveQL语句时，它创建一个会话句柄，稍后用于跟踪执行时间、输出行数等统计信息。编译器在接收到HiveQL语句时由驱动程序调用。编译器将此语句转换为一个计划，该计划由一组map-reduce作业的DAG组成。驱动程序按拓扑顺序将DAG中的单个map-reduce作业提交给执行引擎。Hive目前使用Hadoop作为其执行引擎。</li>
+</ul>
+<pre class="mermaid">graph LR
+
+C1-1(CLI) --> C2(Thrift Sever)
+C1-2(JDBC/ODBC) --> C2
+C1-3(WebGUI) --> C2
+C2 --> C3(Driver<br>Compiler, Optimizer, Executor)
+C3 --> C5(Hadoop)
+
+C4(<big>MetaStore</big>)</pre>
+
+
+<h3 id="Metastore"><a href="#Metastore" class="headerlink" title="Metastore"></a>Metastore</h3><p><strong>Metastore</strong>是包含有关存储在Hive中的表的元数据的系统目录(System Catalog)。这些元数据在表创建期间被指定，并在每次在HiveQL中引用表时被重用。与基于map-reduce的类似数据处理系统相比，metastore将Hive区分为传统的仓储解决方案（如Oracle或DB2）。</p>
+<p><strong>Metastore</strong>包含以下对象：</p>
+<ul>
+<li><strong>数据库</strong> - 是表的命名空间。默认数据库用于没有用户提供的数据库名称的表。</li>
+<li><strong>表</strong> - 表的元数据包含列及其类型、所有者、存储和SerDe信息的列表。它还可以包含任何用户提供的键值数据；这个功能可以用来在未来存储表统计信息。存储信息包括表数据在底层文件系统中的位置、数据格式和桶信息。SerDe元数据包括序列化器和反序列化器方法的实现类以及该实现所需的任何支持信息。所有这些信息都可以在创建表时提供。</li>
+<li><strong>分区</strong> - 每个分区可以有自己的列、SerDe和存储信息。这可以在未来用于支持Hive仓库中的模式演变。</li>
+</ul>
+<p><strong>Metastore</strong>应该针对随机访问和更新进行在线事务优化。像HDFS这样的文件系统不适合，因为它针对顺序扫描而不是随机访问进行了优化。因此，<strong>Metastore</strong>使用传统的关系型数据库（如MySQL、Oracle）或文件系统（如本地、NFS、AFS），而不是HDFS。因此，仅访问元数据对象的HiveQL语句具有非常低的延迟。但是，Hive必须明确地维护元数据和数据之间的一致性。</p>
+<h3 id="Compiler"><a href="#Compiler" class="headerlink" title="Compiler"></a>Compiler</h3><p>Driver使用HiveQL字符串调用编译器，该字符串可以是DDL、DML或查询语句之一。编译器将字符串转换为计划。在DDL语句的情况下，计划仅包含元数据操作，在LOAD语句的情况下，计划包含HDFS操作。对于插入语句和查询，计划由一组map-reduce作业的有向无环图（DAG）组成。</p>
+<ul>
+<li><p>解析器将查询字符串转换为解析树表示。</p>
+</li>
+<li><p>语义分析器将解析树转换为基于块的内部查询表示。它从元数据存储库中检索输入表的模式信息。使用此信息，它验证列名，展开select *并执行类型检查，包括添加隐式类型转换。</p>
+</li>
+<li><p>逻辑计划生成器将内部查询表示转换为逻辑计划，该计划由逻辑运算符树组成。</p>
+</li>
+<li><p>优化器对逻辑计划进行多次遍历，并以多种方式重写它：</p>
+<ul>
+<li>将共享连接键的多个连接合并为单个多路连接，因此只需一个map-reduce作业。</li>
+<li>为连接、group-by和自定义map-reduce运算符添加重新分区运算符（也称为ReduceSinkOperator）。这些重新分区运算符标记了物理计划生成期间的map阶段和reduce阶段之间的边界。</li>
+<li>尽早修剪列，并将谓词推到表扫描运算符附近，以最小化运算符之间传输的数据量。</li>
+<li>在分区表的情况下，修剪查询不需要的分区。</li>
+<li>在抽样查询的情况下，修剪不需要的桶。</li>
+</ul>
+</li>
+<li><p>用户还可以向优化器提供提示，以处理大基数分组聚合：</p>
+<ul>
+<li>添加部分聚合运算符</li>
+<li>添加重新分区运算符以处理分组聚合中的偏斜</li>
+<li>在map阶段而不是reduce阶段执行连接</li>
+</ul>
+</li>
+<li><p>物理计划生成器将逻辑计划转换为由一组map-reduce作业的有向无环图（DAG）组成的物理计划。它为逻辑计划中的每个标记运算符（如repartition和union all）创建一个新的map-reduce作业。然后，它将标记之间的逻辑计划部分分配给map-reduce作业的mappers和reducers。</p>
+</li>
+</ul>
+
+  </div>
+</article>
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/categories/technology">Technology</a></li>
+         
+          <li><a href="/categories/life">Life</a></li>
+         
+          <li><a href="/archives/">Archives</a></li>
+         
+          <li><a href="/tags/">Tags</a></li>
+         
+          <li><a href="/about">About</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFHive%EF%BC%8C%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81Hive"><span class="toc-number">1.</span> <span class="toc-text">什么是Hive，为什么需要Hive</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#HIVE-DATABASE"><span class="toc-number">2.</span> <span class="toc-text">HIVE DATABASE</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Data-Model"><span class="toc-number">2.1.</span> <span class="toc-text">Data Model</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Query-Language"><span class="toc-number">2.2.</span> <span class="toc-text">Query Language</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Running-Example-StatusMeme"><span class="toc-number">2.3.</span> <span class="toc-text">Running Example: StatusMeme</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#HIVE-ARCHITECTURE"><span class="toc-number">3.</span> <span class="toc-text">HIVE ARCHITECTURE</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Metastore"><span class="toc-number">3.1.</span> <span class="toc-text">Metastore</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Compiler"><span class="toc-number">3.2.</span> <span class="toc-text">Compiler</span></a></li></ol></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2018/10/04/hive-warehouse/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2018/10/04/hive-warehouse/&text=Hive A Warehousing Solution Over a MapReduce Framework"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2018/10/04/hive-warehouse/&title=Hive A Warehousing Solution Over a MapReduce Framework"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2018/10/04/hive-warehouse/&is_video=false&description=Hive A Warehousing Solution Over a MapReduce Framework"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Hive A Warehousing Solution Over a MapReduce Framework&body=Check out this article: http://example.com/2018/10/04/hive-warehouse/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2018/10/04/hive-warehouse/&title=Hive A Warehousing Solution Over a MapReduce Framework"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2018/10/04/hive-warehouse/&title=Hive A Warehousing Solution Over a MapReduce Framework"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2018/10/04/hive-warehouse/&title=Hive A Warehousing Solution Over a MapReduce Framework"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2018/10/04/hive-warehouse/&title=Hive A Warehousing Solution Over a MapReduce Framework"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2018/10/04/hive-warehouse/&name=Hive A Warehousing Solution Over a MapReduce Framework&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2018/10/04/hive-warehouse/&t=Hive A Warehousing Solution Over a MapReduce Framework"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2023
+    duanmeng
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/categories/technology">Technology</a></li><!--
+     --><!--
+       --><li><a href="/categories/life">Life</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Archives</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tags</a></li><!--
+     --><!--
+       --><li><a href="/about">About</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+
+  <script src='https://unpkg.com/mermaid@9.0.0/dist/mermaid.min.js'></script>
+  <script>
+    if (window.mermaid) {
+      mermaid.initialize({theme: 'forest'});
+    }
+  </script>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
