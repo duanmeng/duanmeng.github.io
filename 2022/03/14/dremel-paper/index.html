@@ -9,7 +9,7 @@
     <meta name="description" content="这是Google时隔多年发表的Dremel的第二篇论文，比第一篇有诚意多了，里面提到的演进也是和业界架构（Snowflake，Photon）架构趋于同质化。  What Is DremelDremel（aka BigQuery）是一个分布式交互式数据分析系统，是一个完全托管的无服务器数据仓库，可以对PB级数据进行可扩展的分析。它是Google Cloud平台上增长最快的服务之一。其设计的主要思想">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Dremel: A Decade of Interactive SQL Analysis at Web Scale">
-<meta property="og:url" content="http://example.com/2022/08/14/dremel-paper/index.html">
+<meta property="og:url" content="http://example.com/2022/03/14/dremel-paper/index.html">
 <meta property="og:site_name" content="Macduan Notes">
 <meta property="og:description" content="这是Google时隔多年发表的Dremel的第二篇论文，比第一篇有诚意多了，里面提到的演进也是和业界架构（Snowflake，Photon）架构趋于同质化。  What Is DremelDremel（aka BigQuery）是一个分布式交互式数据分析系统，是一个完全托管的无服务器数据仓库，可以对PB级数据进行可扩展的分析。它是Google Cloud平台上增长最快的服务之一。其设计的主要思想">
 <meta property="og:locale" content="en_US">
@@ -19,8 +19,8 @@
 <meta property="og:image" content="https://live.staticflickr.com/65535/53078863289_1d0c5e4626_c.jpg">
 <meta property="og:image" content="https://live.staticflickr.com/65535/53079075705_d7c3067314.jpg">
 <meta property="og:image" content="https://live.staticflickr.com/65535/53081190768_b78343bdec_c.jpg">
-<meta property="article:published_time" content="2022-08-14T07:20:47.000Z">
-<meta property="article:modified_time" content="2023-07-30T08:17:08.582Z">
+<meta property="article:published_time" content="2022-03-14T14:20:47.000Z">
+<meta property="article:modified_time" content="2023-07-30T15:10:56.431Z">
 <meta property="article:author" content="duanmeng">
 <meta property="article:tag" content="data">
 <meta property="article:tag" content="paper">
@@ -89,7 +89,7 @@
     <span id="actions">
       <ul>
         
-        <li><a class="icon" aria-label="Previous post" href="/2022/10/02/redshift/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Previous post" href="/2022/06/07/velox-types/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
         
         
         <li><a class="icon" aria-label="Next post" href="/2021/08/11/lakehouse-paper/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
@@ -105,17 +105,17 @@
     <br/>
     <div id="share" style="display: none">
       <ul>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2022/08/14/dremel-paper/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2022/08/14/dremel-paper/&text=Dremel: A Decade of Interactive SQL Analysis at Web Scale"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2022/08/14/dremel-paper/&title=Dremel: A Decade of Interactive SQL Analysis at Web Scale"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2022/08/14/dremel-paper/&is_video=false&description=Dremel: A Decade of Interactive SQL Analysis at Web Scale"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="mailto:?subject=Dremel: A Decade of Interactive SQL Analysis at Web Scale&body=Check out this article: http://example.com/2022/08/14/dremel-paper/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2022/08/14/dremel-paper/&title=Dremel: A Decade of Interactive SQL Analysis at Web Scale"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2022/08/14/dremel-paper/&title=Dremel: A Decade of Interactive SQL Analysis at Web Scale"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2022/08/14/dremel-paper/&title=Dremel: A Decade of Interactive SQL Analysis at Web Scale"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2022/08/14/dremel-paper/&title=Dremel: A Decade of Interactive SQL Analysis at Web Scale"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2022/08/14/dremel-paper/&name=Dremel: A Decade of Interactive SQL Analysis at Web Scale&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2022/08/14/dremel-paper/&t=Dremel: A Decade of Interactive SQL Analysis at Web Scale"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2022/03/14/dremel-paper/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2022/03/14/dremel-paper/&text=Dremel: A Decade of Interactive SQL Analysis at Web Scale"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2022/03/14/dremel-paper/&title=Dremel: A Decade of Interactive SQL Analysis at Web Scale"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2022/03/14/dremel-paper/&is_video=false&description=Dremel: A Decade of Interactive SQL Analysis at Web Scale"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Dremel: A Decade of Interactive SQL Analysis at Web Scale&body=Check out this article: http://example.com/2022/03/14/dremel-paper/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2022/03/14/dremel-paper/&title=Dremel: A Decade of Interactive SQL Analysis at Web Scale"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2022/03/14/dremel-paper/&title=Dremel: A Decade of Interactive SQL Analysis at Web Scale"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2022/03/14/dremel-paper/&title=Dremel: A Decade of Interactive SQL Analysis at Web Scale"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2022/03/14/dremel-paper/&title=Dremel: A Decade of Interactive SQL Analysis at Web Scale"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2022/03/14/dremel-paper/&name=Dremel: A Decade of Interactive SQL Analysis at Web Scale&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2022/03/14/dremel-paper/&t=Dremel: A Decade of Interactive SQL Analysis at Web Scale"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
 </ul>
 
     </div>
@@ -144,7 +144,7 @@
       
     <div class="postdate">
       
-        <time datetime="2022-08-14T07:20:47.000Z" itemprop="datePublished">2022-08-14</time>
+        <time datetime="2022-03-14T14:20:47.000Z" itemprop="datePublished">2022-03-14</time>
         
       
     </div>
@@ -348,17 +348,17 @@
 
     <div id="share-footer" style="display: none">
       <ul>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2022/08/14/dremel-paper/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2022/08/14/dremel-paper/&text=Dremel: A Decade of Interactive SQL Analysis at Web Scale"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2022/08/14/dremel-paper/&title=Dremel: A Decade of Interactive SQL Analysis at Web Scale"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2022/08/14/dremel-paper/&is_video=false&description=Dremel: A Decade of Interactive SQL Analysis at Web Scale"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="mailto:?subject=Dremel: A Decade of Interactive SQL Analysis at Web Scale&body=Check out this article: http://example.com/2022/08/14/dremel-paper/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2022/08/14/dremel-paper/&title=Dremel: A Decade of Interactive SQL Analysis at Web Scale"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2022/08/14/dremel-paper/&title=Dremel: A Decade of Interactive SQL Analysis at Web Scale"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2022/08/14/dremel-paper/&title=Dremel: A Decade of Interactive SQL Analysis at Web Scale"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2022/08/14/dremel-paper/&title=Dremel: A Decade of Interactive SQL Analysis at Web Scale"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2022/08/14/dremel-paper/&name=Dremel: A Decade of Interactive SQL Analysis at Web Scale&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2022/08/14/dremel-paper/&t=Dremel: A Decade of Interactive SQL Analysis at Web Scale"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2022/03/14/dremel-paper/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2022/03/14/dremel-paper/&text=Dremel: A Decade of Interactive SQL Analysis at Web Scale"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2022/03/14/dremel-paper/&title=Dremel: A Decade of Interactive SQL Analysis at Web Scale"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2022/03/14/dremel-paper/&is_video=false&description=Dremel: A Decade of Interactive SQL Analysis at Web Scale"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Dremel: A Decade of Interactive SQL Analysis at Web Scale&body=Check out this article: http://example.com/2022/03/14/dremel-paper/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2022/03/14/dremel-paper/&title=Dremel: A Decade of Interactive SQL Analysis at Web Scale"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2022/03/14/dremel-paper/&title=Dremel: A Decade of Interactive SQL Analysis at Web Scale"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2022/03/14/dremel-paper/&title=Dremel: A Decade of Interactive SQL Analysis at Web Scale"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2022/03/14/dremel-paper/&title=Dremel: A Decade of Interactive SQL Analysis at Web Scale"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2022/03/14/dremel-paper/&name=Dremel: A Decade of Interactive SQL Analysis at Web Scale&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2022/03/14/dremel-paper/&t=Dremel: A Decade of Interactive SQL Analysis at Web Scale"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
 </ul>
 
     </div>
