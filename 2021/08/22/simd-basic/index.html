@@ -13,12 +13,15 @@
 <meta property="og:site_name" content="Macduan Notes">
 <meta property="og:description" content="What Is SIMDSIMD代表单指令多数据（Single Instruction, Multiple Data）。它是一种计算机指令集架构，旨在同时处理多个数据元素。SIMD指令允许在单个指令中对多个数据元素执行相同的操作，从而实现并行处理和向量化计算。 在SIMD架构中，数据被组织为向量（也称为寄存器），其中每个向量元素都可以是整数、浮点数或其他数据类型。SIMD指令可以同时对向量中的多个">
 <meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://www.codeproject.com/KB/cpp/874396/Fig4.jpg">
+<meta property="og:image" content="https://www.codeproject.com/KB/cpp/874396/Fig5.jpg">
 <meta property="article:published_time" content="2021-08-22T02:20:20.000Z">
-<meta property="article:modified_time" content="2023-08-20T04:37:32.107Z">
+<meta property="article:modified_time" content="2023-08-20T06:50:20.371Z">
 <meta property="article:author" content="duanmeng">
 <meta property="article:tag" content="SIMD">
 <meta property="article:tag" content="C++">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://www.codeproject.com/KB/cpp/874396/Fig4.jpg">
     
     
       
@@ -111,7 +114,7 @@
 
     </div>
     <div id="toc">
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#What-Is-SIMD"><span class="toc-number">1.</span> <span class="toc-text">What Is SIMD</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Fundamentals-of-AVX-Programming"><span class="toc-number">2.</span> <span class="toc-text">Fundamentals of AVX Programming</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#SIMD-Data-Type"><span class="toc-number">2.1.</span> <span class="toc-text">SIMD Data Type</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Function-Naming-Conventions"><span class="toc-number">2.2.</span> <span class="toc-text">Function Naming Conventions</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E4%BE%8B%E5%AD%90"><span class="toc-number">2.3.</span> <span class="toc-text">一个简单例子</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Initialization-Intrinsics"><span class="toc-number">3.</span> <span class="toc-text">Initialization Intrinsics</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Initialization-with-Scalar-Values"><span class="toc-number">3.1.</span> <span class="toc-text">Initialization with Scalar Values</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Loading-Data-from-Memory"><span class="toc-number">3.2.</span> <span class="toc-text">Loading Data from Memory</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Arithmetic-Intrinsics"><span class="toc-number">4.</span> <span class="toc-text">Arithmetic Intrinsics</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Addition-and-Subtraction"><span class="toc-number">4.1.</span> <span class="toc-text">Addition and Subtraction</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Multiplication-and-Division"><span class="toc-number">4.2.</span> <span class="toc-text">Multiplication and Division</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Fused-Multiply-and-Add-FMA"><span class="toc-number">4.3.</span> <span class="toc-text">Fused Multiply and Add (FMA)</span></a></li></ol></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#What-Is-SIMD"><span class="toc-number">1.</span> <span class="toc-text">What Is SIMD</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Fundamentals-of-AVX-Programming"><span class="toc-number">2.</span> <span class="toc-text">Fundamentals of AVX Programming</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#SIMD-Data-Type"><span class="toc-number">2.1.</span> <span class="toc-text">SIMD Data Type</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Function-Naming-Conventions"><span class="toc-number">2.2.</span> <span class="toc-text">Function Naming Conventions</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E4%BE%8B%E5%AD%90"><span class="toc-number">2.3.</span> <span class="toc-text">一个简单例子</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Initialization-Intrinsics"><span class="toc-number">3.</span> <span class="toc-text">Initialization Intrinsics</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Initialization-with-Scalar-Values"><span class="toc-number">3.1.</span> <span class="toc-text">Initialization with Scalar Values</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Loading-Data-from-Memory"><span class="toc-number">3.2.</span> <span class="toc-text">Loading Data from Memory</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Arithmetic-Intrinsics"><span class="toc-number">4.</span> <span class="toc-text">Arithmetic Intrinsics</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Addition-and-Subtraction"><span class="toc-number">4.1.</span> <span class="toc-text">Addition and Subtraction</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Multiplication-and-Division"><span class="toc-number">4.2.</span> <span class="toc-text">Multiplication and Division</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Fused-Multiply-and-Add-FMA"><span class="toc-number">4.3.</span> <span class="toc-text">Fused Multiply and Add (FMA)</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Permuting-and-Shuffling"><span class="toc-number">5.</span> <span class="toc-text">Permuting and Shuffling</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Permuting"><span class="toc-number">5.1.</span> <span class="toc-text">Permuting</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Shuffling"><span class="toc-number">5.2.</span> <span class="toc-text">Shuffling</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">6.</span> <span class="toc-text">References</span></a></li></ol>
     </div>
   </span>
 </div>
@@ -441,6 +444,87 @@
 <td align="left">Multiply two vectors and alternately subtract and add from the product (res &#x3D; a * b - c)</td>
 </tr>
 </tbody></table>
+<p><strong>Example</strong></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;immintrin.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  __m256d veca = _mm256_setr_pd(<span class="number">6.0</span>, <span class="number">6.0</span>, <span class="number">6.0</span>, <span class="number">6.0</span>);</span><br><span class="line">  __m256d vecb = _mm256_setr_pd(<span class="number">2.0</span>, <span class="number">2.0</span>, <span class="number">2.0</span>, <span class="number">2.0</span>);</span><br><span class="line">  __m256d vecc = _mm256_setr_pd(<span class="number">7.0</span>, <span class="number">7.0</span>, <span class="number">7.0</span>, <span class="number">7.0</span>);</span><br><span class="line">  </span><br><span class="line">  <span class="comment">/* Alternately subtract and add the third vector</span></span><br><span class="line"><span class="comment">     from the product of the first and second vectors */</span></span><br><span class="line">  __m256d result = _mm256_fmaddsub_pd(veca, vecb, vecc);</span><br><span class="line">  </span><br><span class="line">  <span class="comment">/* Display the elements of the result vector */</span></span><br><span class="line">  <span class="type">double</span>* res = (<span class="type">double</span>*)&amp;result;</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;%lf %lf %lf %lf\n&quot;</span>, res[<span class="number">0</span>], res[<span class="number">1</span>], res[<span class="number">2</span>], res[<span class="number">3</span>]);</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">g++ -mavx2 -mfma test.cpp</span> </span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">./a.out</span> </span><br><span class="line">5.000000 19.000000 5.000000 19.000000</span><br></pre></td></tr></table></figure>
+
+<h2 id="Permuting-and-Shuffling"><a href="#Permuting-and-Shuffling" class="headerlink" title="Permuting and Shuffling"></a>Permuting and Shuffling</h2><p>许多应用程序需要重新排列向量元素，以确保操作正确执行。AVX&#x2F;AVX2提供了许多内嵌函数来实现这个目的，其中两个主要类别是_permute_函数和_shuffle_函数。</p>
+<h3 id="Permuting"><a href="#Permuting" class="headerlink" title="Permuting"></a>Permuting</h3><table>
+<thead>
+<tr>
+<th align="left">Data Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">_mm_permute_ps&#x2F;pd &#x2F; _mm256_permute_ps&#x2F;pd</td>
+<td align="left">Select elements from the input vector based on an 8-bitcontrol value</td>
+</tr>
+<tr>
+<td align="left">_mm256_permute4x64_pd &#x2F; _mm256_permute4x64_epi64</td>
+<td align="left">Select 64-bit elements from the input vector based on an 8-bit control value</td>
+</tr>
+<tr>
+<td align="left">_mm256_permute2f128_ps&#x2F;pd</td>
+<td align="left">Select 128-bit chunks from two input vectors based on an 8-bit control value</td>
+</tr>
+<tr>
+<td align="left">_mm256_permute2f128_si256</td>
+<td align="left">Select 128-bit chunks from two input vectors based on an 8-bit control value</td>
+</tr>
+<tr>
+<td align="left"><br></td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">_mm_permutevar_ps&#x2F;pd <br> _mm256_permutevar_ps&#x2F;pd</td>
+<td align="left">Select elements from the input vector based on bits in an integer vector</td>
+</tr>
+<tr>
+<td align="left"><br></td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">_mm256_permutevar8x32_ps <br> _mm256_permutevar8x32_epi32</td>
+<td align="left">Select 32-bit elements (floats and ints) using indices in an integer vector</td>
+</tr>
+</tbody></table>
+<p>_permute_内嵌函数接受两个参数：一个输入向量和一个8位控制值。控制值的位确定了要插入输出的输入向量元素。对于_mm256_permute_ps，每对控制位通过选择输入向量中的上半部分或下半部分元素之一，确定一个上半部分和下半部分的输出元素，如下图所示：</p>
+<p><a><img src="https://www.codeproject.com/KB/cpp/874396/Fig4.jpg" width="800" height="462" alt="permute"/></a></p>
+<p>如图所示，输入向量的值可能在输出中重复多次。其他输入值可能根本不被选中。在_mm256_permute_pd中，控制值的低四位在相邻的双精度数对之间进行选择。_mm256_permute4x4_pd类似，但使用所有的控制位来选择放置在输出中的64位元素。在_permute2f128_内嵌函数中，控制值选择两个输入向量的128位块，而不是从一个输入向量中选择元素。_permutevar_内嵌函数执行与_permute_内嵌函数相同的操作。但是，它们不使用8位控制值来选择元素，而是依赖于与输入向量大小相同的整数向量。例如，_mm256_permute_ps的输入向量是_mm256，因此整数向量是_mm256i。整数向量的高位以与_permute_内嵌函数的8位控制值的位相同的方式进行选择。</p>
+<h3 id="Shuffling"><a href="#Shuffling" class="headerlink" title="Shuffling"></a>Shuffling</h3><p>与_permute_内嵌函数类似，_shuffle_内嵌函数从一个或两个输入向量中选择元素，并将它们放置在输出向量中。</p>
+<table>
+<thead>
+<tr>
+<th align="left">Data Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">_mm256_shuffle_ps&#x2F;pd</td>
+<td align="left">Select floating-point elements according to an 8-bit value</td>
+</tr>
+<tr>
+<td align="left">_mm256_shuffle_epi8 &#x2F; _mm256_shuffle_epi32</td>
+<td align="left">Select integer elements according to an 8-bit value</td>
+</tr>
+<tr>
+<td align="left">_mm256_shufflelo_epi16 &#x2F; _mm256_shufflehi_epi16</td>
+<td align="left">Select 128-bit chunks from two input vectors based on an 8-bit control value</td>
+</tr>
+</tbody></table>
+<p>所有_shuffle_内嵌函数都操作256位向量。在每种情况下，最后一个参数是一个8位值，确定应该将哪些输入元素放置在输出向量中。对于_mm256_shuffle_ps，只使用控制值的高四位。如果输入向量包含整数或浮点数，所有控制位都会被使用。对于_mm256_shuffle_ps，前两对位选择第一个向量的元素，后两对位选择第二个向量的元素。</p>
+<p><a><img src="https://www.codeproject.com/KB/cpp/874396/Fig5.jpg" width="800" height="462" alt="permute"/></a></p>
+<p>为了对16位值进行洗牌，AVX2提供了_mm256_shufflelo_epi16和_mm256_shufflehi_epi16。与_mm256_shuffle_ps类似，控制值被分为4对bits，从8个元素中进行选择。但对于_mm256_shufflelo_epi16，这8个元素来自8个低16位值。对于_mm256_shufflehi_epi16，这8个元素来自8个高16位值。</p>
+<p><strong>Example</strong></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;immintrin.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">  __m256d vec1 = _mm256_setr_pd(<span class="number">4.0</span>, <span class="number">5.0</span>, <span class="number">13.0</span>, <span class="number">6.0</span>);</span><br><span class="line">  __m256d vec2 = _mm256_setr_pd(<span class="number">9.0</span>, <span class="number">3.0</span>, <span class="number">6.0</span>, <span class="number">7.0</span>);</span><br><span class="line">  __m256d neg = _mm256_setr_pd(<span class="number">1.0</span>, <span class="number">-1.0</span>, <span class="number">1.0</span>, <span class="number">-1.0</span>);</span><br><span class="line">  </span><br><span class="line">  <span class="comment">/* Step 1: Multiply vec1 and vec2 */</span></span><br><span class="line">  __m256d vec3 = _mm256_mul_pd(vec1, vec2);</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* Step 2: Switch the real and imaginary elements of vec2 */</span></span><br><span class="line">  vec2 = _mm256_permute_pd(vec2, <span class="number">0x5</span>);</span><br><span class="line">  <span class="comment">/* Step 3: Negate the imaginary elements of vec2 */</span></span><br><span class="line">  vec2 = _mm256_mul_pd(vec2, neg);  </span><br><span class="line">  <span class="comment">/* Step 4: Multiply vec1 and the modified vec2 */</span></span><br><span class="line">  __m256d vec4 = _mm256_mul_pd(vec1, vec2);</span><br><span class="line">  <span class="comment">/* Horizontally subtract the elements in vec3 and vec4 */</span></span><br><span class="line">  vec1 = _mm256_hsub_pd(vec3, vec4);</span><br><span class="line">  <span class="comment">/* Display the elements of the result vector */</span></span><br><span class="line">  <span class="type">double</span>* res = (<span class="type">double</span>*)&amp;vec1;</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;%lf %lf %lf %lf\n&quot;</span>, res[<span class="number">0</span>], res[<span class="number">1</span>], res[<span class="number">2</span>], res[<span class="number">3</span>]);</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">g++ -mavx2 -mfma test.cpp</span> </span><br><span class="line">[root@VM-76-184-tencentos~/native/test]</span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">./a.out</span> </span><br><span class="line">21.000000 57.000000 36.000000 127.000000</span><br></pre></td></tr></table></figure>
+
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://www.codeproject.com/Articles/874396/Crunching-Numbers-with-AVX-and-AVX">https://www.codeproject.com/Articles/874396/Crunching-Numbers-with-AVX-and-AVX</a></li>
+</ul>
 
   </div>
 </article>
@@ -468,7 +552,7 @@
     </div>
 
     <div id="toc-footer" style="display: none">
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#What-Is-SIMD"><span class="toc-number">1.</span> <span class="toc-text">What Is SIMD</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Fundamentals-of-AVX-Programming"><span class="toc-number">2.</span> <span class="toc-text">Fundamentals of AVX Programming</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#SIMD-Data-Type"><span class="toc-number">2.1.</span> <span class="toc-text">SIMD Data Type</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Function-Naming-Conventions"><span class="toc-number">2.2.</span> <span class="toc-text">Function Naming Conventions</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E4%BE%8B%E5%AD%90"><span class="toc-number">2.3.</span> <span class="toc-text">一个简单例子</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Initialization-Intrinsics"><span class="toc-number">3.</span> <span class="toc-text">Initialization Intrinsics</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Initialization-with-Scalar-Values"><span class="toc-number">3.1.</span> <span class="toc-text">Initialization with Scalar Values</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Loading-Data-from-Memory"><span class="toc-number">3.2.</span> <span class="toc-text">Loading Data from Memory</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Arithmetic-Intrinsics"><span class="toc-number">4.</span> <span class="toc-text">Arithmetic Intrinsics</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Addition-and-Subtraction"><span class="toc-number">4.1.</span> <span class="toc-text">Addition and Subtraction</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Multiplication-and-Division"><span class="toc-number">4.2.</span> <span class="toc-text">Multiplication and Division</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Fused-Multiply-and-Add-FMA"><span class="toc-number">4.3.</span> <span class="toc-text">Fused Multiply and Add (FMA)</span></a></li></ol></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#What-Is-SIMD"><span class="toc-number">1.</span> <span class="toc-text">What Is SIMD</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Fundamentals-of-AVX-Programming"><span class="toc-number">2.</span> <span class="toc-text">Fundamentals of AVX Programming</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#SIMD-Data-Type"><span class="toc-number">2.1.</span> <span class="toc-text">SIMD Data Type</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Function-Naming-Conventions"><span class="toc-number">2.2.</span> <span class="toc-text">Function Naming Conventions</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E4%BE%8B%E5%AD%90"><span class="toc-number">2.3.</span> <span class="toc-text">一个简单例子</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Initialization-Intrinsics"><span class="toc-number">3.</span> <span class="toc-text">Initialization Intrinsics</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Initialization-with-Scalar-Values"><span class="toc-number">3.1.</span> <span class="toc-text">Initialization with Scalar Values</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Loading-Data-from-Memory"><span class="toc-number">3.2.</span> <span class="toc-text">Loading Data from Memory</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Arithmetic-Intrinsics"><span class="toc-number">4.</span> <span class="toc-text">Arithmetic Intrinsics</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Addition-and-Subtraction"><span class="toc-number">4.1.</span> <span class="toc-text">Addition and Subtraction</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Multiplication-and-Division"><span class="toc-number">4.2.</span> <span class="toc-text">Multiplication and Division</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Fused-Multiply-and-Add-FMA"><span class="toc-number">4.3.</span> <span class="toc-text">Fused Multiply and Add (FMA)</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Permuting-and-Shuffling"><span class="toc-number">5.</span> <span class="toc-text">Permuting and Shuffling</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Permuting"><span class="toc-number">5.1.</span> <span class="toc-text">Permuting</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Shuffling"><span class="toc-number">5.2.</span> <span class="toc-text">Shuffling</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">6.</span> <span class="toc-text">References</span></a></li></ol>
     </div>
 
     <div id="share-footer" style="display: none">
