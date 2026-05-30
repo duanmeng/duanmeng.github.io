@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="Velox的Memory Management中的SizeClass就参考这边论文  摘要过去十年间，主内存容量的增长使得纯内存数据库系统成为可能，内存系统提供了前所未有的性能。然而，DRAM（动态随机存取存储器）仍然相对昂贵，主内存容量的增长已经放缓。相比之下，过去几年SSD（固态硬盘）的价格大幅下降，它们的读取带宽已增加到每秒千兆字节。这使得将大型内存缓冲区与快速SSD结合作为存储设备变得具">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Umbra: A Disk-Based System with In-Memory Performance">
+<meta property="og:url" content="http://example.com/2023/12/14/umbra/index.html">
+<meta property="og:site_name" content="Macduan Notes">
+<meta property="og:description" content="Velox的Memory Management中的SizeClass就参考这边论文  摘要过去十年间，主内存容量的增长使得纯内存数据库系统成为可能，内存系统提供了前所未有的性能。然而，DRAM（动态随机存取存储器）仍然相对昂贵，主内存容量的增长已经放缓。相比之下，过去几年SSD（固态硬盘）的价格大幅下降，它们的读取带宽已增加到每秒千兆字节。这使得将大型内存缓冲区与快速SSD结合作为存储设备变得具">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2023-12-14T11:22:45.000Z">
+<meta property="article:modified_time" content="2026-05-30T05:46:54.133Z">
+<meta property="article:author" content="duanmeng">
+<meta property="article:tag" content="QueryExecution">
+<meta property="article:tag" content="velox">
+<meta property="article:tag" content="data">
+<meta property="article:tag" content="paper">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Umbra: A Disk-Based System with In-Memory Performance</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/categories/technology">Technology</a></li><!--
+     --><!--
+       --><li><a href="/categories/life">Life</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Archives</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tags</a></li><!--
+     --><!--
+       --><li><a href="/about">About</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2024/01/13/table-scan/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2023/10/03/morsel-driven/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/12/14/umbra/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/12/14/umbra/&text=Umbra: A Disk-Based System with In-Memory Performance"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/12/14/umbra/&title=Umbra: A Disk-Based System with In-Memory Performance"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/12/14/umbra/&is_video=false&description=Umbra: A Disk-Based System with In-Memory Performance"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Umbra: A Disk-Based System with In-Memory Performance&body=Check out this article: http://example.com/2023/12/14/umbra/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/12/14/umbra/&title=Umbra: A Disk-Based System with In-Memory Performance"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/12/14/umbra/&title=Umbra: A Disk-Based System with In-Memory Performance"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/12/14/umbra/&title=Umbra: A Disk-Based System with In-Memory Performance"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/12/14/umbra/&title=Umbra: A Disk-Based System with In-Memory Performance"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/12/14/umbra/&name=Umbra: A Disk-Based System with In-Memory Performance&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/12/14/umbra/&t=Umbra: A Disk-Based System with In-Memory Performance"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%91%98%E8%A6%81"><span class="toc-number">1.</span> <span class="toc-text">摘要</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%BC%95%E8%A8%80"><span class="toc-number">2.</span> <span class="toc-text">1. 引言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E7%BC%93%E5%86%B2%E7%AE%A1%E7%90%86%E5%99%A8"><span class="toc-number">3.</span> <span class="toc-text">2. 缓冲管理器</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E7%BC%93%E5%86%B2%E6%B1%A0%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86"><span class="toc-number">3.1.</span> <span class="toc-text">2.1 缓冲池内存管理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-%E6%8C%87%E9%92%88%E4%BA%A4%E6%8D%A2"><span class="toc-number">3.2.</span> <span class="toc-text">2.2 指针交换</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-%E7%89%88%E6%9C%AC%E5%8C%96%E9%94%81"><span class="toc-number">3.3.</span> <span class="toc-text">2.3 版本化锁</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-%E7%BC%93%E5%86%B2%E7%AE%A1%E7%90%86%E7%9A%84%E5%85%B3%E7%B3%BB"><span class="toc-number">3.4.</span> <span class="toc-text">2.4 缓冲管理的关系</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-5-%E6%81%A2%E5%A4%8D"><span class="toc-number">3.5.</span> <span class="toc-text">2.5 恢复</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E8%BF%9B%E4%B8%80%E6%AD%A5%E8%80%83%E8%99%91"><span class="toc-number">4.</span> <span class="toc-text">3. 进一步考虑</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%A4%84%E7%90%86"><span class="toc-number">4.1.</span> <span class="toc-text">3.1 字符串处理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-%E7%BB%9F%E8%AE%A1%E4%BF%A1%E6%81%AF"><span class="toc-number">4.2.</span> <span class="toc-text">3.2 统计信息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-%E7%BC%96%E8%AF%91-amp-%E6%89%A7%E8%A1%8C"><span class="toc-number">4.3.</span> <span class="toc-text">3.3 编译 &amp; 执行</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E5%AE%9E%E9%AA%8C"><span class="toc-number">5.</span> <span class="toc-text">4. 实验</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-%E7%B3%BB%E7%BB%9F%E6%AF%94%E8%BE%83"><span class="toc-number">5.1.</span> <span class="toc-text">4.1 系统比较</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-%E5%BE%AE%E5%9F%BA%E5%87%86%E6%B5%8B%E8%AF%95"><span class="toc-number">5.2.</span> <span class="toc-text">4.2 微基准测试</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E7%9B%B8%E5%85%B3%E5%B7%A5%E4%BD%9C"><span class="toc-number">6.</span> <span class="toc-text">5. 相关工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E7%BB%93%E8%AE%BA"><span class="toc-number">7.</span> <span class="toc-text">6. 结论</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Umbra: A Disk-Based System with In-Memory Performance
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">duanmeng</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-12-14T11:22:45.000Z" itemprop="datePublished">2023-12-14</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/technology/">technology</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/QueryExecution/" rel="tag">QueryExecution</a>, <a class="tag-link-link" href="/tags/data/" rel="tag">data</a>, <a class="tag-link-link" href="/tags/paper/" rel="tag">paper</a>, <a class="tag-link-link" href="/tags/velox/" rel="tag">velox</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <blockquote>
+<p>Velox的Memory Management中的SizeClass就参考这边论文</p>
+</blockquote>
+<h2 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h2><p>过去十年间，主内存容量的增长使得纯内存数据库系统成为可能，内存系统提供了前所未有的性能。然而，DRAM（动态随机存取存储器）仍然相对昂贵，主内存容量的增长已经放缓。相比之下，过去几年SSD（固态硬盘）的价格大幅下降，它们的读取带宽已增加到每秒千兆字节。这使得将大型内存缓冲区与快速SSD结合作为存储设备变得具有吸引力，结合了内存工作集的卓越性能和基于磁盘系统的可扩展性。在本文中，我们介绍了Umbra系统，这是纯内存HyPer系统的演进，朝着基于磁盘或更确切地说是基于SSD的系统发展。我们展示了通过引入一种新的低开销缓冲管理器和可变大小页面，我们可以为缓存的工作集实现与内存数据库系统相当的性能，同时优雅地处理对未缓存数据的访问。我们讨论了处理内存外情况所必需的变化和技术，并以低开销提供见解，以设计一个优化内存的基于磁盘的系统。</p>
+<h2 id="1-引言"><a href="#1-引言" class="headerlink" title="1. 引言"></a>1. 引言</h2><p>硬件趋势长期以来对数据库管理系统的发展和演变产生了巨大影响。历史上，大部分数据存储在（旋转的）磁盘上，只有一小部分数据能够被保持在RAM中的缓冲池中。随着主内存容量的显著增长，高达数TB的RAM，这种观点发生了变化，因为现在大部分数据甚至全部数据都可以保持在内存中。与基于磁盘的系统相比，这提供了巨大的性能优势，并导致了纯内存数据库系统的开发，包括我们自己的系统HyPer。这些系统利用仅RAM存储，并提供了卓越的性能，但如果数据不适合内存，它们往往会失败或严重降级。</p>
+<p>此外，我们目前观察到两种硬件趋势，对纯内存系统的可行性产生了强烈怀疑。首先，RAM容量不再显著增加。十年前，人们可以合理地购买一台带有1TB内存的商品服务器，价格合理。今天，可负担的主内存大小可能已经增加到2TB，但超过这个容量的成本会不成比例地增加。由于成本通常需要保持在控制之下，这导致近年来服务器主内存大小的增长有所减缓。</p>
+<p>另一方面，SSD在过去几年中取得了惊人的进步。一个现代的2TB M.2 SSD可以以大约3.5GB&#x2F;s的速度读取，而成本仅为500美元。相比之下，2TB的服务器DRAM大约需要20000美元，即高出40倍。通过在一台机器中放置多个SSD，我们可以以纯DRAM解决方案成本的一小部分获得出色的读取带宽。因此，Lomet认为纯内存DBMS在经济上是不切实际的。它们当然提供了最佳可能的性能，但它们无法扩展到某个尺寸之外，对于大多数用例来说过于昂贵。相比之下，结合大型主内存缓冲区和快速SSD是一个吸引人的替代方案，因为成本要低得多，性能也可以几乎一样好。</p>
+<p>我们完全同意这种观点，并介绍了我们的新型Umbra系统，它同时具备这两个世界的优点：在缓存的工作集上提供真正的内存性能，并在需要时透明地扩展到主内存之外。Umbra是我们纯内存系统HyPer的精神继承者，并且完全消除了HyPer对数据大小的限制。正如我们将在本文中展示的，我们实现了这一点，而没有在过程中牺牲任何性能。Umbra是一个完全功能的通用数据库管理系统，我们的团队正在积极进一步开发。本文中介绍的所有技术都已在该工作系统中实现和评估。虽然Umbra和HyPer在设计选择上有若干相似之处，如编译查询执行引擎，但由于外部内存使用的必要性，Umbra在许多重要方面都有所不同。下面，我们介绍系统的关键组件，并强调支持任意数据大小而不损失性能所需的更改，对于常见情况，整个工作集适合主内存。</p>
+<p>实现这一点的一个关键因素是一个新的缓冲管理器，它结合了低开销缓冲和可变大小页面。与基于磁盘的系统相比，在内存系统中，它们可以摆脱缓冲，这既消除了开销，也大大简化了代码。对于基于磁盘的系统，普遍的观点是使用具有固定大小页面的缓冲管理器。然而，虽然这简化了缓冲管理器本身，但它使得使用缓冲管理器变得极其困难。例如，大型字符串或用于字典压缩的查找表通常不能容易地存储在单个固定大小页面中，因此需要在数据库系统的各个部分使用复杂且昂贵的机制来处理大型对象。我们认为，使用具有可变大小页面的缓冲管理器要好得多，这允许在需要时本地和连续地存储大型对象。这样的设计导致缓冲管理器更加复杂，但它大大简化了系统的其余部分。如果我们能够依靠字典在内存中连续存储的事实，解压缩就像在内存系统中一样简单和快速。相比之下，具有固定大小页面的系统要么需要在内存中重新组装（因此复制）字典，要么必须使用复杂且昂贵的查找逻辑。</p>
+<p>当然，以前系统偏好固定大小页面有充分的技术原因，例如碎片问题。然而，我们在这项工作中展示了如何通过利用操作系统提供的虚拟地址和物理内存之间的动态映射来消除这些问题。总结来说，我们做出了以下贡献。首先，我们提出了一个新的缓冲管理器，支持可变大小页面，并且只引入了最小的开销（第2节）。其次，我们强调了过渡到基于磁盘的系统所必需的其他关键调整（第3节）。特别是，我们提供了有关Umbra中的字符串处理、统计维护和执行模型的见解。最后，我们在第4节中展示实验，在第5节中回顾相关工作，并在第6节中得出结论。</p>
+<h2 id="2-缓冲管理器"><a href="#2-缓冲管理器" class="headerlink" title="2. 缓冲管理器"></a>2. 缓冲管理器</h2><p>先前的研究已经表明，传统的缓冲管理器是现代硬件平台上部署数据库管理系统时的主要瓶颈之一。因此，我们最近发布了LeanStore存储管理器，它克服了这些低效问题。LeanStore是一个非常可扩展的缓冲管理器，当工作集适合主内存时，它提供了几乎与纯内存系统相同的性能。然而，它仍然依赖于固定大小的页面，因此，如上所述，需要昂贵的机制来处理大型对象。在Umbra中，我们更进一步，建立在LeanStore提出的基本思想之上，同时额外支持可变大小的页面。</p>
+<p>数据库页面在Umbra中是按照大小类别概念性地组织，其中每个大小类别包含所有给定大小的页面。大小类别0包含最小的页面，应该是系统页面大小的倍数。在Umbra中，我们选择64KiB作为最小的页面大小。随后的大小类别包含页面的大小呈指数级增长，即大小类别i+1中的页面是大小类别i中的页面的两倍大（见图1）。页面理论上可以和整个缓冲池一样大，尽管实际上即使是最大的页面也比这个理论限制小得多。</p>
+<p>我们的缓冲管理器维护一个单一的缓冲池，具有可配置的大小，任何大小类别的页面都可以加载到其中。默认情况下，我们允许缓冲池占用可用物理内存的一半，留下另一半作为查询执行的临时内存。至关重要的是，Umbra不要求像之前支持可变大小页面的系统那样，每个页面大小类别单独配置缓冲池内存。因此，所提出的缓冲管理器的外部接口与传统缓冲管理器没有显著差异。也就是说，缓冲管理器暴露了功能，这些功能会导致特定页面被固定在内存中，如果需要，从磁盘加载它，以及导致页面被取消固定，允许它随后从内存中被逐出。</p>
+<h3 id="2-1-缓冲池内存管理"><a href="#2-1-缓冲池内存管理" class="headerlink" title="2.1 缓冲池内存管理"></a>2.1 缓冲池内存管理</h3><p>在实现一个支持单个缓冲池中多个页面大小的缓冲管理器时面临的主要挑战是缓冲池中的外部碎片问题。幸运的是，我们可以利用操作系统提供的虚拟地址和物理内存之间的灵活映射来避免这个问题。操作系统内核维护一个页表，以透明地将用户空间进程使用的虚拟地址转换为实际RAM中的物理地址。这不仅允许连续的虚拟内存块在物理上是分散的，而且还使得虚拟内存可以独立于物理内存进行分配。也就是说，应用程序可以为内核在页表中不立即创建映射到物理内存的虚拟内存块保留一个虚拟内存块。</p>
+<p>我们的缓冲管理器利用这些虚拟内存管理的特定属性，以完全避免缓冲池中的任何外部碎片。特别是，缓冲管理器使用mmap系统调用为每个页面大小类别分配一个单独的虚拟内存块，其中每个内存区域都足够大，理论上可以容纳整个缓冲池。我们配置mmap调用来创建一个私有匿名映射，这导致它只保留一个连续的虚拟地址范围，这些地址尚未消耗任何物理内存（见图1）。随后，这些虚拟内存区域被划分为页面大小的块，并且为每个块创建一个包含指向相应虚拟地址的指针的缓冲帧。这些指针标识了可以在内存中存储页面数据的虚拟地址，并且在缓冲管理器的整个生命周期中保持静态。由于页面大小在给定大小类别内是固定的，并且为每个大小类别保留了单独的虚拟地址范围，因此与大小类别相关联的虚拟地址空间的碎片化不会发生。当然，用于存储与活动缓冲帧相关联的页面数据的物理内存可能仍然是分散的。</p>
+<p>当缓冲帧变为活动状态时，缓冲管理器使用pread系统调用将数据从磁盘读入内存。数据存储在与缓冲帧相关联的虚拟内存地址处，此时操作系统创建从这些虚拟地址到物理内存的实际映射（见图1）。如果之前活动的缓冲帧由于从缓冲池中逐出而变为非活动状态，我们首先使用pwrite系统调用将页面数据的任何更改写回磁盘，然后允许内核立即重用相关的物理内存。在Linux上，这可以通过将<code>MADV_DONTNEED</code>标志传递给<code>madvise</code>系统调用来实现。这一步至关重要，以确保缓冲池的物理内存消耗不会超过配置的缓冲池大小，因为内部分配的虚拟内存是实际使用的数倍（见图1）。由于缓冲管理器中使用的内存映射不受任何实际文件的支持（见上文），<code>madvise</code>调用几乎没有开销。</p>
+<p>我们目前假设存在一个底层块设备存储抽象，这使我们能够依赖pread和pwrite系统调用来在后台存储和主内存之间移动数据。这不仅简化了实现，而且提高了我们缓冲管理器的灵活性，因为它对用于后台存储的实际硬件没有任何限制。尽管如此，通过开放通道SSD等直接与硬件通信，而没有中间块设备抽象，将提供各种有趣的优化机会，我们计划在未来探索[3]。</p>
+<p>在操作过程中，缓冲管理器跟踪当前保存在内存中的所有页面的总大小。它通过将页面逐出到磁盘来确保它们的总大小永远不会超过缓冲池的最大大小。Umbra采用了与LeanStore基本相同的替换策略，我们会推测性地取消固定页面，但不会立即将它们从主内存中逐出。这些冷却页面随后被放置在FIFO队列中，并在到达队列末尾时最终被逐出。</p>
+<p>总的来说，这种方法允许Umbra系统充分利用可变大小页面的优势，运行时开销和实现复杂性都最小。然而，可变大小页面本身并不能解决现代数据库系统中传统缓冲管理器的所有不足之处[14]。下面，我们简要概述了LeanStore中的其他优化，并为可变大小页面进行了调整。</p>
+<h3 id="2-2-指针交换"><a href="#2-2-指针交换" class="headerlink" title="2.2 指针交换"></a>2.2 指针交换</h3><p>由于页面被序列化到磁盘，它们通常需要通过逻辑页面标识符（PIDs）进行引用。然而，依赖于全局哈希表将PIDs映射到缓冲管理器中的内存地址的集中式方法，可以迅速成为现代多核系统中的主要性能瓶颈[7]。在Umbra中，我们采用了指针交换作为一种低成本的分散式地址转换技术[14]。在这种方法中，对内存中的和磁盘上的页面的引用都是通过swips实现的，它编码了定位和访问页面所需的所有必要信息。当引用的页面存储在内存中时，swip是一个单一的64位整数，包含一个虚拟内存地址；如果它当前存储在磁盘上，则是一个64位的PID。如果swip引用的是存储在内存中的页面，则称为已交换的；否则为未交换。我们使用指针标记来区分这两种选项，因此只需要一个额外的条件语句就可以访问存储在内存中的页面。除了标记位之外，未交换的swip还存储相应页面的大小类别（6位）和实际页面编号（57位）。这样，缓冲管理器除了swip之外不需要任何额外信息就可以将相应的页面加载到内存中（见图2）。由于指针交换的分散性质，一些操作如页面逐出变得更加复杂。例如，相同的页面可能被几个swips引用，当页面被逐出到磁盘时，所有这些swips都需要更新。然而，我们不能轻松地找到引用给定页面的所有swips，这使得维护一致性变得困难[14]。为了应对这一点，Umbra中所有缓冲管理的数据结构都需要以（可能是退化的）树的形式组织其组成页面。这通过设计确保了每个页面只被一个拥有swip引用，并且在页面加载或逐出时不需要更新除了拥有swip之外的其他swips。例如，在B+树的情况下，这意味着叶子页面不能包含对其兄弟页面的引用，因为这将要求叶子页面被多个swip引用。我们将在下面概述如何在这些限制下实现高效的扫描。</p>
+<h3 id="2-3-版本化锁"><a href="#2-3-版本化锁" class="headerlink" title="2.3 版本化锁"></a>2.3 版本化锁</h3><p>为了减少缓冲管理器中线程同步的频繁锁获取，现代硬件平台上很快会出现争用点。因此，LeanStore采用乐观锁机制来同步对同一页面的并发访问，允许缓冲管理的数据结构大幅度减少实际锁获取的次数。请注意，线程同步是独立于事务并发控制的，后者需要在这些数据结构之上实现。</p>
+<p>我们在Umbra中采用了LeanStore提出的乐观锁方案，具体实现如下：每个活动的缓冲帧包含一个版本化锁，它可以以独占模式、共享模式或乐观模式被获取。版本化锁的主要组成部分是一个单一的64位整数，其中5位用于存储状态信息，其余59位用于存储版本计数器。状态位编码了锁当前是否被锁定以及以哪种模式被锁定，而版本计数器用于验证对缓冲帧的乐观访问（见图3）。版本化锁通过原子操作进行访问和修改，以确保正确的同步。</p>
+<p>如果锁的状态位设置为整数值为零，则表示锁是未锁定的。一个未锁定的锁可以通过原子地将其状态位设置为整数值为1来以独占模式被获取。一次只允许一个线程以独占模式持有锁，这类似于一个全局互斥锁。例如，如果要修改页面，如插入数据，需要先以独占模式获取相应的锁，以避免数据竞争。线程通过将状态位重置为零来释放独占锁。此外，如果页面数据以任何方式被修改，版本计数器也会增加。</p>
+<p>或者，如果多个线程可以同时以共享模式获取锁，只要当前没有其他线程以独占模式锁定它。共享锁将其状态位设置为一个大于1的整数值，其中n+1的值表示当前有n个线程持有共享锁。在状态位不足以计数线程数量的极少数情况下，会使用一个额外的64位整数作为溢出计数器。持有共享锁时不允许对页面进行修改，但可以保证读操作成功。共享锁有效地将关联的页面固定在缓冲管理器中，防止其被卸载。如果其他线程仍然持有共享锁，可以通过简单地减少状态位编码的线程计数来释放它。最后一个释放共享锁的线程通过将状态位重置为零来完全解锁它。</p>
+<p>最后，一个未锁定或以共享模式锁定的锁可以被任意数量的线程以乐观模式获取。这是通过简单地记住在获取锁时版本计数器的值来实现的，即不需要修改锁本身，因此不会引起争用。像共享模式一样，持有乐观锁时只允许对页面进行读访问。然而，这些读访问允许失败，因为另一个线程可能获取独占锁并同时修改页面。因此，当释放乐观锁时，所有乐观访问都必须经过验证。如果自从获取锁以来版本计数器发生了变化，那么页面就发生了并发修改，读操作需要重新开始。注意，即使在页面内容被乐观地读取时页面被卸载也是允许的。这是因为为缓冲帧保留的虚拟内存区域始终有效（见上文），对标记有MADV_DONTNEED标志的内存区域的读访问仅仅会产生零字节。在这种情况下不会分配额外的物理内存，因为所有这些访问都被映射到同一个零页。乐观锁消除了如果有许多并发读访问，锁本身的争用[14]。虽然LeanStore只支持读者的乐观锁，我们还额外支持共享锁[14]。这是必要的，因为Umbra中的操作符通常不知道关系的分页特性。如果我们只支持读者的乐观锁，那么流水线中的每个操作符在处理页面时都需要包括额外的验证逻辑，以防页面在处理过程中被逐出。此外，这避免了在读重的OLAP查询中频繁出现验证失败，以防其他查询写入相同的关系。</p>
+<h3 id="2-4-缓冲管理的关系"><a href="#2-4-缓冲管理的关系" class="headerlink" title="2.4 缓冲管理的关系"></a>2.4 缓冲管理的关系</h3><p>在缓冲管理器提供的基本设施基础上，Umbra中的关系以B+树的形式组织，使用合成的8字节元组标识符作为键。给定元组的标识符是在将元组插入B+树时生成的。我们确保元组标识符严格单调递增，这允许我们避免在元组插入期间拆分节点。相反，我们在分配新节点之前完全填满现有的内部和叶子节点。在主B+树中使用合成键还提供了一个主要优点，即Umbra同样很好地处理任意插入模式。内部节点总是使用最小的可用页面大小（64 KiB），导致分叉度为8192。由于我们从不拆分叶子节点，它们只在插入操作期间，当一个元组不适合现有页面时才被分配。在这种情况下，选择能够容纳整个元组的最小页面大小。通常，这个单一元组很容易适应64 KiB页面，因此Umbra中的大多数叶子页面也是64 KiB大小。在实践中，我们发现这在有效点访问和有效范围访问之间提供了良好的平衡，例如用于扫描。叶子页面内的元组目前以PAX布局组织。也就是说，固定大小的属性以列式布局存储在页面的开始，可变大小的属性密集存储在页面的末尾。如果需要，页面在插入期间会被压缩。然而，这种页面布局对于存储在磁盘上的数据并不理想，因为即使只有少数属性被访问，也必须加载关系的所有属性。因此，我们也计划将来集成替代的存储布局，例如DataBlocks用于数据的冷部分。</p>
+<p>对B+树的并发访问通过乐观锁耦合进行同步，这大量使用了与每个缓冲帧相关联的版本化锁。写入者仅在需要拆分内部页面或将元组插入叶子页面时才以独占模式获取锁，而读取者只以共享模式获取锁，以便从叶子页面读取元组或从磁盘加载子页面。在非修改遍历期间，锁以乐观模式获取，并在需要时进行验证。由于每个页面都有一个确切的拥有swip的限制，传统B+树中的相邻叶子节点之间没有链接。为了避免频繁的完整遍历，我们在表扫描期间保持对当前叶子节点的父节点的乐观锁。只要这个乐观锁保持有效，即没有并发修改父节点，这允许我们以低成本导航到下一个叶子节点。</p>
+<h3 id="2-5-恢复"><a href="#2-5-恢复" class="headerlink" title="2.5 恢复"></a>2.5 恢复</h3><p>Umbra系统使用ARIES进行恢复。总体而言，ARIES无缝支持Umbra使用的可变页面大小。然而，在使用重复的磁盘空间时，必须小心确保可恢复性。特别是，我们不能在以前由单个大页面占用的磁盘空间中存储多个较小的页面。考虑一个例子，一个128 KiB的数据库文件，目前完全被一个128 KiB页面占用。现在我们加载这个页面到内存中，删除它，并创建两个新的64 KiB页面，这些页面重用了数据库文件中的磁盘空间。如果系统崩溃，我们可能只设法将相应的日志记录写入磁盘，而没有实际的新页面数据。在恢复期间，ARIES然后可能在某个时候尝试从数据库文件中读取第二个64 KiB页面的日志序列号，尽管它从未被写入磁盘。因此，它实际上会读取一些已删除的128 KiB页面的数据，并将其错误地解释为日志序列号。为了避免这种问题，Umbra只对相同大小的页面重用磁盘空间。</p>
+<h2 id="3-进一步考虑"><a href="#3-进一步考虑" class="headerlink" title="3. 进一步考虑"></a>3. 进一步考虑</h2><p>虽然缓冲管理器无疑是Umbra实现内存性能的关键因素，但与HyPer相比，还需要调整或重新设计其他组件。Umbra中最显著的调整是对字符串处理和统计信息收集，以及编译和执行的调整。</p>
+<h3 id="3-1-字符串处理"><a href="#3-1-字符串处理" class="headerlink" title="3.1 字符串处理"></a>3.1 字符串处理</h3><p>Umbra将字符串属性存储在两个独立的部分：包含元数据的16字节头部，以及包含实际字符串数据的可变大小主体。头部像其他固定大小属性一样，存储在页面开始处的列式布局中，而可变大小的实际字符串数据则存储在页面的末尾。由于我们的缓冲管理器支持多种页面大小，我们不必将长字符串分割到多个页面上。根据字符串长度，Umbra中字符串头部的表示会略有不同（见图4）。头部的前四个字节始终包含字符串的长度，即Umbra中字符串长度限制为2^32 - 1。包含12个或更少字符的短字符串直接存储在字符串头部的剩余12个字节中，从而避免了昂贵的指针间接寻址。较长的字符串会离线存储，头部将包含指向它们存储位置的指针，或从已知位置的偏移量。通常，存储在数据库页面中的字符串通过从页面开始的偏移量来寻址，其他字符串则通过指针寻址。对于长字符串，头部的剩余四个字节用于存储字符串的前四个字符，允许Umbra短路一些比较操作。与纯内存系统不同，像Umbra这样的基于磁盘的系统不能保证在查询执行期间页面一直保留在内存中。因此，存储在离线位置的字符串需要一些特殊处理，因为如果相应的页面被逐出，存储在它们头部的偏移量或指针可能会变得无效。为此，Umbra为离线字符串引入了三个存储类别：持久性、临时性和临时存储。存储类别编码在字符串头部存储的偏移量或指针值的两位中。持久性存储的字符串引用，例如查询常量，在数据库正常运行时间内保持有效。具有临时存储持续时间的字符串引用在当前工作单元正在处理时有效，但最终将变得无效。与持久性字符串不同，临时字符串在查询执行期间被具体化时需要被复制。在Umbra中，任何来自关系的数据，例如，都有临时存储，因为相应的页面可能从内存中逐出。最后，实际在查询执行期间创建的字符串，例如由UPPER函数创建的，具有临时存储持续时间。虽然临时字符串可以在需要时保持活动状态，但它们的生命周期结束后必须进行垃圾回收。</p>
+<h3 id="3-2-统计信息"><a href="#3-2-统计信息" class="headerlink" title="3.2 统计信息"></a>3.2 统计信息</h3><p>Umbra跟踪一些统计信息，用于查询优化目的。首先，维护每个关系的随机样本。由于Umbra是设计为基于磁盘的系统，直接从基础关系中进行简单随机抽样是不可行的。与纯内存系统不同，在基于磁盘的系统中按需计算样本成本过高。即使在内存系统中，计算随机样本仍然是一个昂贵的操作。HyPer通过仅定期更新样本来缓解这个问题，但随后样本很快就会过时。</p>
+<p>在Umbra中，我们采用了我们最近开发的可扩展的在线水库抽样算法。通过这样做，我们可以确保查询优化器始终能够以最小的开销访问最新的样本。除了随机样本外，我们还额外维护了每个单独列的可更新HyperLogLog草图。正如我们之前所示，我们的可更新HyperLogLog草图实现可以在适度开销下为单个列提供几乎完美的基数估计。此外，这还使得查询优化器能够通过结合基于草图和基于抽样的估计，利用高度准确的多列估计。</p>
+<h3 id="3-3-编译-amp-执行"><a href="#3-3-编译-amp-执行" class="headerlink" title="3.3 编译 &amp; 执行"></a>3.3 编译 &amp; 执行</h3><p>总的来说，Umbra采用与HyPer相同的查询执行策略：逻辑查询计划被翻译成高效的并行机器代码，然后执行以获得查询结果。虽然它们自然表现出各种相似之处，但Umbra在几个关键方面进一步发展了HyPer的方法。首先，Umbra采用了比HyPer更细粒度的物理执行计划表示。在HyPer中，物理执行计划本质上是一个单一的代码片段，作为一个整体编译并计算查询结果。相比之下，Umbra中的物理执行计划被表示为模块化的状态机。以众所周知的TPCH模式上的以下查询为例：</p>
+<p><code>SELECT COUNT(*) FROM supplier GROUP BY s_nationkey;</code></p>
+<p>在高层次上，这个查询的执行计划由两个管道组成，第一个管道扫描supplier表并执行分组操作，第二个管道扫描分组并打印查询输出（见图5）。在Umbra中，这些管道进一步被分解为步骤，这些步骤可以是单线程或多线程的。特别是，Umbra将为上述查询生成图5中显示的步骤。在生成的代码中，每个步骤对应于Umbra运行时系统可以调用的一个单独的函数。为了查询执行的目的，这些单独的步骤被视为具有定义良好转换的状态，这些转换由Umbra的查询执行器协调（见图5）。在多线程步骤的情况下，采用以小块为驱动的方法将可用的工作分配给工作线程，并且每个步骤函数在每次调用时处理一个小块[12]。Umbra采用的模块化执行计划模型提供了几个关键好处。首先，我们可以在每个步骤函数的每次调用后暂停查询执行，例如，如果系统的I&#x2F;O负载超过某个阈值。此外，我们的查询执行器可以在运行时检测到，如果并行步骤只包含一个小块，那么所需的工作就不必分派给另一个线程，避免了可能代价昂贵的上下文切换。最后，我们可以轻松地在管道内支持多个并行步骤，如图5所示。另一个重要的区别是，查询代码不是直接在LLVM中间表示（IR）语言中生成的。相反，我们在Umbra中实现了一个自定义的轻量级IR，它允许我们在不依赖LLVM的情况下高效地生成代码。由于LLVM被设计为一个多功能的通用代码生成框架，它可能会因为Umbra不需要的功能而产生明显的开销。通过实现自定义IR，我们可以避免在代码生成期间通过LLVM进行潜在昂贵的往返。与HyPer不同，Umbra不会立即将此IR编译为优化的机器代码。相反，我们采用了一种自适应编译策略，力求为每个单独的步骤在编译和执行时间之间优化权衡[10]。最初，与步骤相关联的IR始终被翻译成高效的字节码格式，并由虚拟机后端解释执行。对于并行步骤，自适应执行引擎随后跟踪进度信息，以决定编译是否有益[10]。如果适用，Umbra IR被翻译成LLVM IR，并将编译委托给LLVM即时编译器。从概念上讲，我们的IR语言被设计成与LLVM IR的一个子集非常相似，以便我们的格式到LLVM格式的翻译可以廉价且在线性时间内完成。</p>
+<h2 id="4-实验"><a href="#4-实验" class="headerlink" title="4. 实验"></a>4. 实验</h2><p>我们的实验评估由两部分组成。首先，我们将Umbra与其精神前辈HyPer (版本0.6-165)和知名的列存储数据库MonetDB (版本11.33.3)进行比较，以展示其竞争性能。其次，我们通过额外的微基准测试突出了Umbra的关键特性。所有基准测试都在一台搭载8个物理核心和16个逻辑核心、运行频率为3.6GHz的Intel Core i7-7820X CPU上执行。系统配备了64GiB的主内存，所有数据库文件都存储在一台拥有500GiB存储空间的三星960 EVO SSD上。</p>
+<h3 id="4-1-系统比较"><a href="#4-1-系统比较" class="headerlink" title="4.1 系统比较"></a>4.1 系统比较</h3><p>作为我们比较实验的基础，我们选择了连接顺序基准测试JOB (版本13)和规模因子为10的TPCH基准测试。每个查询重复执行五次，我们报告最快的重复次数（即我们在这次实验中测量了缓存预热后的性能）。图6显示了Umbra与HyPer和MonetDB相比的相对性能。我们观察到，Umbra与HyPer相比表现卓越。特别是在JOB基准测试中，Umbra实现了3.0倍的几何平均加速，在TPCH基准测试中实现了1.8倍的几何平均加速。这种显著的性能差距在一定程度上可以归因于Umbra采用的更高效的自适应编译策略。虽然HyPer总是将查询计划编译为优化的机器代码，但自适应策略避免了对廉价查询的昂贵编译。在这些查询上，HyPer实际上在查询编译上花费的时间比在查询执行上多，最多可达29倍。</p>
+<p>更重要的是，如果我们只看原始的查询执行时间，Umbra与纯内存系统HyPer的性能相当。平均而言，JOB基准测试的执行时间波动了30%，TPCH基准测试波动了10%。虽然在JOB基准测试上相对差异较大，从0.2倍到2.3倍，TPCH基准测试从0.5倍到1.6倍，我们确定这些异常值，特别是在JOB基准测试上，主要是由于HyPer和Umbra选择的不同逻辑计划所引起的。事实上，我们发现在某些查询中，尽管Umbra有更好的基数估计，但由于HyPer的查询优化器碰巧犯了两个错误相互抵消，Umbra选择了比HyPer更差的逻辑计划。Umbra相对于MonetDB在JOB基准测试上的几何平均加速是4.6倍，在TPCH基准测试上是2.3倍。在许多查询上，特别是在更复杂的JOB查询上，MonetDB在查询优化和代码生成上花费了大部分查询运行时间。此外，与HyPer不同，MonetDB偶尔也会选择极差的查询计划，导致查询执行时间缓慢。即使有好的计划，MonetDB中的查询执行通常也不如HyPer和Umbra高效。</p>
+<h3 id="4-2-微基准测试"><a href="#4-2-微基准测试" class="headerlink" title="4.2 微基准测试"></a>4.2 微基准测试</h3><p>接下来，我们将研究Umbra的一些关键组件对其性能的影响。我们首先通过两种不同的方式修改存储层来证明Umbra的缓冲管理器引入的开销很小。首先，我们禁用了缓冲管理器中的页面逐出，这消除了将来自数据库页面的字符串物化到内存的必要性。其次，我们实现了一个替代的存储层，它简单地将关系存储在没有缓冲管理器的平面内存映射文件中。这也消除了缓冲管理器本身的开销，以及由关系表示的B+树表示引起的间接开销。然后我们在这些修改后的存储层上运行JOB和TPCH，并研究查询执行时间的变化。在这种情况下，我们不考虑优化和编译时间，因为Umbra使用完全相同的逻辑和物理计划与所有三种存储层。我们观察到性能波动很小，在两个方向上平均不到2%，如果只避免字符串物化，性能变化最大仅为30%；如果绕过整个缓冲管理器，性能变化平均不到6%，在两种情况下，性能变化最大也仅为30%。从这些结果中，我们得出结论，缓冲管理器在Umbra中的成本可以忽略不计。我们利用修改后的存储层进行另一个微基准测试，以说明缓冲管理器的I&#x2F;O性能。为此，我们生成了一个包含2.5亿个随机8字节浮点值的关系。随后，我们在数据库和操作系统缓存都处于冷状态的情况下，计算这些值的总和。当绕过缓冲管理器时，Umbra依赖操作系统将包含关系数据的平面内存映射文件的内容加载到内存中。在这种情况下，Umbra实现了1.15 GiB&#x2F;s的读取吞吐量，我们确定这接近我们SSD上可用的最大随机访问带宽。由于Umbra查询执行的高度并行性，对SSD的读取访问基本上是随机的，它不对线程间处理页面的顺序施加任何约束。当实际使用缓冲管理器时，Umbra实现了几乎相同的1.13 GiB&#x2F;s的读取吞吐量。这些结果表明，Umbra中的缓冲管理器可以充分利用可用的I&#x2F;O带宽。我们通过在JOB和TPCH上运行人为减少缓冲池大小的测试进一步验证了这一发现，在这种情况下，Umbra变得同样受I&#x2F;O限制。总结来说，我们观察到Umbra中的主要瓶颈是由有限的存储吞吐量引起的，而缓冲管理器本身能够轻松处理高度并行和I&#x2F;O密集型的工作负载。正如第1节所建议的，我们可以通过简单地在单个系统中放置多个SSD来增加可用的I&#x2F;O带宽，允许Umbra即使在不适合主内存的工作负载上也能与纯内存系统的性能相媲美。</p>
+<h2 id="5-相关工作"><a href="#5-相关工作" class="headerlink" title="5. 相关工作"></a>5. 相关工作</h2><p>作为对我们HyPer系统设计的重新构思，Umbra大量借鉴了在HyPer开发过程中获得的洞见[9]。我们同意Lomet提出的观点，即纯内存系统在经济上是不切实际的[15]，并提出Umbra作为HyPer向高性能基于磁盘系统的演进。因此，该系统需要一个高效且可扩展的缓冲管理器，这需要对传统缓冲管理器架构进行细致的调整。Umbra中的缓冲管理器与LeanStore[14]共享许多特性，我们推荐读者阅读[14]以获取相关文献的详细回顾。我们进一步主张，缓冲管理器支持可变大小页面是可取的，以减少处理大型数据对象的复杂性。据我们所知，唯一其他具有可变大小页面的缓冲管理器是为ADABAS系统[18]开发的。然而，与Umbra相比，这个缓冲管理器的灵活性要小得多，因为它只支持两个不同的页面大小，这些页面大小在独立的池中维护。他们方法的一个主要缺点是我们必须提前指定为每个池分配多少内存。</p>
+<h2 id="6-结论"><a href="#6-结论" class="headerlink" title="6. 结论"></a>6. 结论</h2><p>在本文中，我们介绍了新开发的Umbra系统，它是从纯内存系统HyPer向基于SSD的系统的演进。我们展示了Umbra如果整个工作集适合RAM，就能实现内存性能，同时在数据需要溢写到磁盘时充分利用可用的I&#x2F;O带宽。我们引入了一种新的低开销缓冲管理器和可变大小页面，使这种性能成为可能。此外，我们研究了为过渡到基于SSD的系统所需的内存数据库系统的其他关键调整。我们的发现可以作为设计新型高性能数据缓存系统的指导方针。</p>
+
+  </div>
+</article>
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/categories/technology">Technology</a></li>
+         
+          <li><a href="/categories/life">Life</a></li>
+         
+          <li><a href="/archives/">Archives</a></li>
+         
+          <li><a href="/tags/">Tags</a></li>
+         
+          <li><a href="/about">About</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%91%98%E8%A6%81"><span class="toc-number">1.</span> <span class="toc-text">摘要</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%BC%95%E8%A8%80"><span class="toc-number">2.</span> <span class="toc-text">1. 引言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E7%BC%93%E5%86%B2%E7%AE%A1%E7%90%86%E5%99%A8"><span class="toc-number">3.</span> <span class="toc-text">2. 缓冲管理器</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E7%BC%93%E5%86%B2%E6%B1%A0%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86"><span class="toc-number">3.1.</span> <span class="toc-text">2.1 缓冲池内存管理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-%E6%8C%87%E9%92%88%E4%BA%A4%E6%8D%A2"><span class="toc-number">3.2.</span> <span class="toc-text">2.2 指针交换</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-%E7%89%88%E6%9C%AC%E5%8C%96%E9%94%81"><span class="toc-number">3.3.</span> <span class="toc-text">2.3 版本化锁</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-%E7%BC%93%E5%86%B2%E7%AE%A1%E7%90%86%E7%9A%84%E5%85%B3%E7%B3%BB"><span class="toc-number">3.4.</span> <span class="toc-text">2.4 缓冲管理的关系</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-5-%E6%81%A2%E5%A4%8D"><span class="toc-number">3.5.</span> <span class="toc-text">2.5 恢复</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E8%BF%9B%E4%B8%80%E6%AD%A5%E8%80%83%E8%99%91"><span class="toc-number">4.</span> <span class="toc-text">3. 进一步考虑</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%A4%84%E7%90%86"><span class="toc-number">4.1.</span> <span class="toc-text">3.1 字符串处理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-%E7%BB%9F%E8%AE%A1%E4%BF%A1%E6%81%AF"><span class="toc-number">4.2.</span> <span class="toc-text">3.2 统计信息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-%E7%BC%96%E8%AF%91-amp-%E6%89%A7%E8%A1%8C"><span class="toc-number">4.3.</span> <span class="toc-text">3.3 编译 &amp; 执行</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E5%AE%9E%E9%AA%8C"><span class="toc-number">5.</span> <span class="toc-text">4. 实验</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-%E7%B3%BB%E7%BB%9F%E6%AF%94%E8%BE%83"><span class="toc-number">5.1.</span> <span class="toc-text">4.1 系统比较</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-%E5%BE%AE%E5%9F%BA%E5%87%86%E6%B5%8B%E8%AF%95"><span class="toc-number">5.2.</span> <span class="toc-text">4.2 微基准测试</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E7%9B%B8%E5%85%B3%E5%B7%A5%E4%BD%9C"><span class="toc-number">6.</span> <span class="toc-text">5. 相关工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E7%BB%93%E8%AE%BA"><span class="toc-number">7.</span> <span class="toc-text">6. 结论</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/12/14/umbra/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/12/14/umbra/&text=Umbra: A Disk-Based System with In-Memory Performance"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/12/14/umbra/&title=Umbra: A Disk-Based System with In-Memory Performance"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/12/14/umbra/&is_video=false&description=Umbra: A Disk-Based System with In-Memory Performance"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Umbra: A Disk-Based System with In-Memory Performance&body=Check out this article: http://example.com/2023/12/14/umbra/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/12/14/umbra/&title=Umbra: A Disk-Based System with In-Memory Performance"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/12/14/umbra/&title=Umbra: A Disk-Based System with In-Memory Performance"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/12/14/umbra/&title=Umbra: A Disk-Based System with In-Memory Performance"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/12/14/umbra/&title=Umbra: A Disk-Based System with In-Memory Performance"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/12/14/umbra/&name=Umbra: A Disk-Based System with In-Memory Performance&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/12/14/umbra/&t=Umbra: A Disk-Based System with In-Memory Performance"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2026
+    duanmeng
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/categories/technology">Technology</a></li><!--
+     --><!--
+       --><li><a href="/categories/life">Life</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Archives</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tags</a></li><!--
+     --><!--
+       --><li><a href="/about">About</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+
+  <script src='https://unpkg.com/mermaid@10.3.0/dist/mermaid.min.js'></script>
+  <script>
+    if (window.mermaid) {
+      mermaid.initialize({theme: 'forest'});
+    }
+  </script>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

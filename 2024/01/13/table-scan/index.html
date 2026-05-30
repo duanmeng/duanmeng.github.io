@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="大神Orri Erling关于TableScan的一篇文章，非常不错，所以全文翻译了。  What Is Table Scan表扫描，表面上听起来似乎微不足道且乏味。只是简单地从头到尾读取一大堆记录，有什么特别的呢？索引和其他类型的物理设计不是更有趣吗？随着数据量的增长，列式表扫描变得越来越突出。列式扫描是一个相当安全的基线操作：写入数据的成本很低，读取它的成本是可预测的。使表扫描成为主要操作的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Everything You Always Wanted To Do in Table Scan">
+<meta property="og:url" content="http://example.com/2024/01/13/table-scan/index.html">
+<meta property="og:site_name" content="Macduan Notes">
+<meta property="og:description" content="大神Orri Erling关于TableScan的一篇文章，非常不错，所以全文翻译了。  What Is Table Scan表扫描，表面上听起来似乎微不足道且乏味。只是简单地从头到尾读取一大堆记录，有什么特别的呢？索引和其他类型的物理设计不是更有趣吗？随着数据量的增长，列式表扫描变得越来越突出。列式扫描是一个相当安全的基线操作：写入数据的成本很低，读取它的成本是可预测的。使表扫描成为主要操作的">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2024-01-13T08:04:53.000Z">
+<meta property="article:modified_time" content="2026-05-30T05:46:54.133Z">
+<meta property="article:author" content="duanmeng">
+<meta property="article:tag" content="QueryExecution">
+<meta property="article:tag" content="data">
+<meta property="article:tag" content="paper">
+<meta property="article:tag" content="Presto">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Everything You Always Wanted To Do in Table Scan</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/categories/technology">Technology</a></li><!--
+     --><!--
+       --><li><a href="/categories/life">Life</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Archives</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tags</a></li><!--
+     --><!--
+       --><li><a href="/about">About</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2024/02/11/Composable-Data-Management/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2023/12/14/umbra/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2024/01/13/table-scan/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2024/01/13/table-scan/&text=Everything You Always Wanted To Do in Table Scan"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2024/01/13/table-scan/&title=Everything You Always Wanted To Do in Table Scan"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2024/01/13/table-scan/&is_video=false&description=Everything You Always Wanted To Do in Table Scan"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Everything You Always Wanted To Do in Table Scan&body=Check out this article: http://example.com/2024/01/13/table-scan/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2024/01/13/table-scan/&title=Everything You Always Wanted To Do in Table Scan"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2024/01/13/table-scan/&title=Everything You Always Wanted To Do in Table Scan"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2024/01/13/table-scan/&title=Everything You Always Wanted To Do in Table Scan"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2024/01/13/table-scan/&title=Everything You Always Wanted To Do in Table Scan"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2024/01/13/table-scan/&name=Everything You Always Wanted To Do in Table Scan&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2024/01/13/table-scan/&t=Everything You Always Wanted To Do in Table Scan"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#What-Is-Table-Scan"><span class="toc-number">1.</span> <span class="toc-text">What Is Table Scan</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Structure-of-ORC"><span class="toc-number">2.</span> <span class="toc-text">Structure of ORC</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Logical-Steps-in-Scanning-a-Table"><span class="toc-number">3.</span> <span class="toc-text">Logical Steps in Scanning a Table</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%8D%E5%90%8C%E7%B1%BB%E5%9E%8B%E7%9A%84%E8%BF%87%E6%BB%A4%E5%99%A8"><span class="toc-number">4.</span> <span class="toc-text">不同类型的过滤器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BF%87%E6%BB%A4%E5%99%A8%E5%92%8C%E5%88%97%E9%A1%BA%E5%BA%8F"><span class="toc-number">5.</span> <span class="toc-text">过滤器和列顺序</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B5%8C%E5%A5%97%E7%BB%93%E6%9E%84%EF%BC%9A%E5%88%97%E8%A1%A8%E3%80%81%E6%98%A0%E5%B0%84%E5%92%8C%E7%BB%93%E6%9E%84"><span class="toc-number">6.</span> <span class="toc-text">嵌套结构：列表、映射和结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%80%82%E5%BA%94%E6%80%A7"><span class="toc-number">7.</span> <span class="toc-text">适应性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number">8.</span> <span class="toc-text">Reference</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Everything You Always Wanted To Do in Table Scan
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">duanmeng</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-01-13T08:04:53.000Z" itemprop="datePublished">2024-01-13</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/technology/">technology</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/Presto/" rel="tag">Presto</a>, <a class="tag-link-link" href="/tags/QueryExecution/" rel="tag">QueryExecution</a>, <a class="tag-link-link" href="/tags/data/" rel="tag">data</a>, <a class="tag-link-link" href="/tags/paper/" rel="tag">paper</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <blockquote>
+<p>大神Orri Erling关于TableScan的一篇文章，非常不错，所以全文翻译了。</p>
+</blockquote>
+<h2 id="What-Is-Table-Scan"><a href="#What-Is-Table-Scan" class="headerlink" title="What Is Table Scan"></a>What Is Table Scan</h2><p>表扫描，表面上听起来似乎微不足道且乏味。只是简单地从头到尾读取一大堆记录，有什么特别的呢？索引和其他类型的物理设计不是更有趣吗？随着数据量的增长，列式表扫描变得越来越突出。列式扫描是一个相当安全的基线操作：写入数据的成本很低，读取它的成本是可预测的。使表扫描成为主要操作的另一个因素是数据仓库中无处不在的非规范化。这一点由于列表、映射和其他非第一范式数据的普遍使用而进一步加剧。</p>
+<p>表扫描的理论和实践，主要是常识和系统性应用的原则：不要做额外的工作，总是批量地做你所做的工作。许多系统，如谷歌的BigQuery，都实现了这里概述的一些优化。然而，在大数据世界中，做到所有这些还远未普及，因此有必要将这些全部展示出来，并在Presto之上实现一个模型。我们在这里讨论的是ORC格式，但同样的原则也适用于被拆分成列的Parquet或JSON。</p>
+<p>我们将演示分为几个部分：</p>
+<ul>
+<li>数据的逻辑结构以及要应用到其上的操作。产生结果所必需的严格步骤是什么？</li>
+<li>与简单实现相比，性能提升了多少？</li>
+<li>实现是如何工作的，存在哪些困难和权衡？</li>
+<li>执行的物理方面。我们何时受CPU限制，何时受IO限制？我们如何调度IO，以及在一个越来越关注分离存储的世界中，我们从中获得了什么？</li>
+<li>关于文件格式我们能说些什么？使用案例的演化压力是什么？元数据又如何？</li>
+</ul>
+<p>理想的表扫描可以用以下基本原理来描述：</p>
+<ul>
+<li>不要物化不在结果中的数据</li>
+<li>只读取严格必要产生结果的数据</li>
+<li>尽早过滤，首先运行最有效的过滤器</li>
+<li>以可预测大小的块产生输出，并在固定内存中运行</li>
+</ul>
+<p>这是逻辑方面。物理方面是关于如何最大限度地利用IO，读取正确的块大小，并提前于需求进行，以便数据在被访问之前已经到达。接下来，我们将从原则层面审视这个问题。在随后的文章中，我们将探讨物理实现的实际情况以及实现这些所需的要素。</p>
+<h2 id="Structure-of-ORC"><a href="#Structure-of-ORC" class="headerlink" title="Structure of ORC"></a>Structure of ORC</h2><p>ORC将数据划分为条带(stripes)和行组，通常每个组有10,000行，但如果行很宽，有时候可能更少。宽行的常见情况来自于映射和列表，这些可能每行有多达几千个嵌套值。一个条带是几个行组。任何特定列的编码在条带级别上设置。例如，一个列可能在一个条带中以字典形式编码，在另一个条带中以值序列的形式编码，这取决于数据的属性。</p>
+<p>列由流(streams)组成。一个流对应于ORC文件中的一个连续区域。流由压缩块组成，这些块是高达256K的原始数据，可能会也可能不会使用流压缩如gzip、ZSTD或Snappy进行压缩。不同的流对列的不同方面进行编码，例如空值、长度和数据本身。</p>
+<p>读取ORC文件涉及每个列的读取器。这些读取器形成了一个类层次结构。实际上，一些读取器封装了读取器的树，因为我们有像列表、映射和结构这样的结构化类型。</p>
+<p>我们区分以下抽象超类：</p>
+<p>列读取器（Column reader） — 封装了跟踪空值和长度的通用逻辑。<br>空包装器（Null wrapper） — 具有复杂内部结构的流的超类，适用于非空值。<br>重复（Repeated ） — 列表和映射的通用超类。这处理与一个顶层行有多个嵌套行相关的逻辑。<br>变体（Variant） — 封装了可能用于一个列的不同条带的选择的交替读取器。例如，字符串读取器是一个变体，它包装了直接和字典字符串读取器。</p>
+<p>实际的流读取器对应于SQL数据类型，如数字和字符串。三种结构化类型，列表、映射和结构，包装了一个或多个任意类型的读取器。列表有一个用于重复数据的嵌套读取器。结构有一个用于每个成员的读取器，映射有一个用于键（字符串或数字）的嵌套读取器和另一个用于值的读取器。像列表在映射中，映射在结构中，结构在列表中这样的组合经常出现。</p>
+<h2 id="Logical-Steps-in-Scanning-a-Table"><a href="#Logical-Steps-in-Scanning-a-Table" class="headerlink" title="Logical Steps in Scanning a Table"></a>Logical Steps in Scanning a Table</h2><p>Presto工作节点接收到要扫描的条带（stripe）。它查看行组元数据以确定是否可以基于元数据排除行组，实际上通常是列的最小&#x2F;最大值。由于数据很少排序或以其他方式相关联，因此跳过整个行组是罕见的。</p>
+<p>Presto表扫描然后定位到行组的开头。</p>
+<p>扫描涉及多个列。对于每个列，我们要么评估一个过滤器并产生过滤器为真的行号集合，要么检索合格集中每行的值。我们也可以做两者，这种情况下，过滤器首先进行。如果列具有结构，即是一个列表、映射或结构，可能有子字段上的过滤器，并且只有查询引用的子字段的一部分。子字段是结构的成员，列表中的特定索引，映射中的特定键，或者可能指的是列表或映射中的元素数量。</p>
+<p>起初，我们有过滤器的选择。有些过滤器可能与任何列无关，例如在随机抽样的情况下。如果我们有这样，这些将产生要扫描的初始行集。否则，初始集是行组的一部分。这个分数的大小取决于数据的宽度和目标批处理大小。因此，我们有一个初始的行选择集。这称为合格集，并且随着我们评估过滤器将被限制。</p>
+<h2 id="不同类型的过滤器"><a href="#不同类型的过滤器" class="headerlink" title="不同类型的过滤器"></a>不同类型的过滤器</h2><p>在实践中，大多数过滤器是单个列和文字之间的比较。文字可以是单个值、一组范围或IN列表。大多数时间过滤器是AND在一起的。每个顶级AND的项称为顶级连接词。大多数连接词是列和文字的比较。这些在它们自己的类别中可以独立评估，当解码列的表示时。在Presto上下文中，我们称这些为元组域过滤器。下一个最常见的过滤器是对列的表达式，例如对列进行正则表达式匹配或JSON字段提取。最后，有些情况是依赖于多列的表达式，例如<code>discount &gt; 0.08 OR comment LIKE ‘%special price%’</code>。OR的两个操作数（析取项）可能合理地在列本身上进行评估，但是OR使这成为一个两列表达式。一个更常见的多列过滤器的例子是哈希连接探针下推到扫描中，带有多部分键。我们将在后面回到这一点。</p>
+<h2 id="过滤器和列顺序"><a href="#过滤器和列顺序" class="headerlink" title="过滤器和列顺序"></a>过滤器和列顺序</h2><p>SQL没有指定评估过滤器的顺序。所有连接词都为真的行是选择的结果。大多数过滤器都定义在一列的所有值上；因此，错误很少见。然而，有些过滤器可能会产生错误，例如除以零，在这些情况下，不同的过滤器顺序可能有不同的错误行为。</p>
+<p>Presto在初始状态下按原始查询的顺序从左到右评估复杂过滤器，并发出第一行出现错误的最左边的错误信号。我们将其更改为根据它们的性能重新排序过滤器，并在没有假过滤器的第一行上发出第一个错误信号。</p>
+<p>有了这个定义，我们现在可以完全自由地重新排列过滤器，以便我们尽可能早地获得最多的选择。过滤器的成本函数是<code>time / (rows_in / rows_out)</code>。值越低，过滤器越好。因此，我们可以按这个分数对所有过滤器进行排序，并且由于我们可以独立地并且以任意顺序读取列，我们可以根据过滤器的顺序重新排列列的顺序。唯一的限制是多列过滤器不能早于其最后一个操作数放置。</p>
+<p>理论上解决这个排序问题的完整解决方案将类似于查询连接顺序选择，我们对所有可能的排列运行成本模型。在实践中，一些更简单的东西同样有效，例如首先按成本升序放置所有单列过滤器，然后在依赖此列的最后一个列之后放置所有多列过滤器，从最便宜的开始。如果过滤器依赖的列还没有放置在集合中，就添加它。放置完所有过滤器后，我们首先放置所有未过滤的列，最宽的列先放。</p>
+<h2 id="嵌套结构：列表、映射和结构"><a href="#嵌套结构：列表、映射和结构" class="headerlink" title="嵌套结构：列表、映射和结构"></a>嵌套结构：列表、映射和结构</h2><p>扫描结构就像扫描一组顶级列。结构内列不能仅仅被视为常规顶级列的原因是它们都共享一个结构级别的空指示器。在结构内，与顶级列之间完全相同的过滤器顺序选择是可能的。因此，读取结构首先从结构级别的行号合格集开始。这被转换为结构成员级别的行号集合。如果没有空结构，这种转换就是恒等的。内部合格集然后通过结构列上的过滤器进行限制。最后，这被转换为外层级别的合格行集。如果结果中包括了空结构，那么空值在其他所有内容之后添加。如果除了结构成员上的<code>is null</code>之外没有其他过滤器，那么只有在这种情况下才会发生最后一步。</p>
+<p>列表或映射类似于结构，但现在每个顶层行可能有零个或多个嵌套行。现在内部合格集是顶层行到相应嵌套行号集合的双向映射，反之亦然。</p>
+<p>过滤列表或映射增加了在一列的不同位置上应用不同过滤器的额外复杂性。考虑<code>features[1] = 2 AND features[3] = 4</code>的情况。这实际上是一个非常常见的情况，特别是在机器学习应用中，训练数据经常表示为映射。</p>
+<p>这里的映射读取器读取键，并过滤掉值是1或3的位置。从这里，读取器知道哪些值位置应该有<code>= 2</code>和<code>= 4</code>作为过滤器。值列读取器的合格集设置为这些行，并创建了一个位置依赖的过滤器，以便我们交替应用一个或另一个条件。如果对于任何包含的行，我们少于2次过滤器命中，该行将被丢弃。如果对于任何包含的行，我们放置了少于2个过滤器，那么键就缺失了，这要么是一个错误，要么丢弃该行。一个全局配置控制了<code>[]</code>的错误行为。<code>element_at(map, key)</code>形式对于缺失的键始终是<code>null</code>。</p>
+<p>根据是否投影出所有或部分映射键，还有一些更多的复杂性，但一般原则如上所述。列表类似于映射，只是在这里我们不需要键列来映射顶层行号和下标到值列中的位置。</p>
+<p>Facebook的DWRF格式，一个定制的ORC V1，有一个称为flat map的额外概念。这有一个值列和每个不同键的呈现标志。当读取子集的键时，这比直接映射更有效率，至少需要跳过不想要的值。这个读取器变成了一个修改过的结构读取器。这也重新引入了过滤器重排序的可能性，也适用于映射。</p>
+<p>最后，还有一些深度嵌套的映射、列表和结构的情况。表达式如<code>map[1].field.list[0] = 10 AND map[2].field2.list2[1] = 11</code>涉及一系列位置依赖的过滤器。这些操作是可组合的，并且通过简单地堆叠多层内部到外部的行号，按预期工作。在所有情况下，我们都需要在叶列上进行长紧循环，并且不需要一次处理一个元组。</p>
+<h2 id="适应性"><a href="#适应性" class="headerlink" title="适应性"></a>适应性</h2><p>到目前为止，我们有两种适应性：过滤器顺序和批量大小。过滤器顺序的目的是显而易见的：在好的情况下，它不需要任何成本，在坏的情况下它可以节省大量成本。它这样做不依赖于优化器成本模型，这是一个额外的优点。统计数据通常缺失或错误，无论如何，这些不包括数据相关性。这在DBMS中不是太大的问题，它写入了其所有数据，但在数据湖中，多个引擎在同一数据上工作，并且没有对元数据的集中控制，这是一个更大的问题。</p>
+<p>适应批量大小是在对一个列的连续值进行长循环和保持中间结果的内存上限之间的折衷。列式数据表示的基本点是，压缩和循环一个列的连续值是高效的：相同的操作适用于所有，并且值都是同一域的。在同一个列上停留的时间越长，花在解释查询上的时间就越少，例如在列之间切换。</p>
+<p>但是，随着数据通常是宽的、总是非规范化的，并且有不可预测的重复元素序列，例如对一个列的1K个值进行操作，然后移动到下一列，这不再实用。</p>
+<p>在实践中，我们总是在内存压力下运行，基本上所有与Presto相关的可靠性事件都与内存耗尽有关。因此，我们必须在扫描表时强制执行内存上限。</p>
+<p>这是通过保持过滤器选择性和列宽度的统计数据来完成的。基本公式是从一个提议的批量大小开始，对于每个列，添加值大小乘以应用在该列之前的过滤器的选择性的乘积。这给出了批量的估计大小。需要应用合理的安全边际，因为数据不是均匀分布的。通过这种方式，我们得到了一个估计，允许调整批量大小，以便我们有可能适应预算。如果超过了硬性限制，我们将使用更小的批量大小重新扫描。</p>
+<p>这相对容易实现，并且只要重试发生在不到1&#x2F;1000的行组中，我们就没问题。</p>
+<p>在实践中，为了从对列的紧循环中获得收益，只要我们在最高基数列的几个千个值上循环就足够了。通常这是最嵌套的列。如果有这样的嵌套模式，处理的顶层行数在批量中并不是很重要。</p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p><a target="_blank" rel="noopener" href="https://prestodb.io/blog/2019/06/29/everything-you-always-wanted-to-do-in-table-scan/">https://prestodb.io/blog/2019/06/29/everything-you-always-wanted-to-do-in-table-scan/</a></p>
+
+  </div>
+</article>
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/categories/technology">Technology</a></li>
+         
+          <li><a href="/categories/life">Life</a></li>
+         
+          <li><a href="/archives/">Archives</a></li>
+         
+          <li><a href="/tags/">Tags</a></li>
+         
+          <li><a href="/about">About</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#What-Is-Table-Scan"><span class="toc-number">1.</span> <span class="toc-text">What Is Table Scan</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Structure-of-ORC"><span class="toc-number">2.</span> <span class="toc-text">Structure of ORC</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Logical-Steps-in-Scanning-a-Table"><span class="toc-number">3.</span> <span class="toc-text">Logical Steps in Scanning a Table</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%8D%E5%90%8C%E7%B1%BB%E5%9E%8B%E7%9A%84%E8%BF%87%E6%BB%A4%E5%99%A8"><span class="toc-number">4.</span> <span class="toc-text">不同类型的过滤器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BF%87%E6%BB%A4%E5%99%A8%E5%92%8C%E5%88%97%E9%A1%BA%E5%BA%8F"><span class="toc-number">5.</span> <span class="toc-text">过滤器和列顺序</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B5%8C%E5%A5%97%E7%BB%93%E6%9E%84%EF%BC%9A%E5%88%97%E8%A1%A8%E3%80%81%E6%98%A0%E5%B0%84%E5%92%8C%E7%BB%93%E6%9E%84"><span class="toc-number">6.</span> <span class="toc-text">嵌套结构：列表、映射和结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%80%82%E5%BA%94%E6%80%A7"><span class="toc-number">7.</span> <span class="toc-text">适应性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number">8.</span> <span class="toc-text">Reference</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2024/01/13/table-scan/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2024/01/13/table-scan/&text=Everything You Always Wanted To Do in Table Scan"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2024/01/13/table-scan/&title=Everything You Always Wanted To Do in Table Scan"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2024/01/13/table-scan/&is_video=false&description=Everything You Always Wanted To Do in Table Scan"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Everything You Always Wanted To Do in Table Scan&body=Check out this article: http://example.com/2024/01/13/table-scan/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2024/01/13/table-scan/&title=Everything You Always Wanted To Do in Table Scan"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2024/01/13/table-scan/&title=Everything You Always Wanted To Do in Table Scan"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2024/01/13/table-scan/&title=Everything You Always Wanted To Do in Table Scan"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2024/01/13/table-scan/&title=Everything You Always Wanted To Do in Table Scan"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2024/01/13/table-scan/&name=Everything You Always Wanted To Do in Table Scan&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2024/01/13/table-scan/&t=Everything You Always Wanted To Do in Table Scan"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2026
+    duanmeng
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/categories/technology">Technology</a></li><!--
+     --><!--
+       --><li><a href="/categories/life">Life</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Archives</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tags</a></li><!--
+     --><!--
+       --><li><a href="/about">About</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+
+  <script src='https://unpkg.com/mermaid@10.3.0/dist/mermaid.min.js'></script>
+  <script>
+    if (window.mermaid) {
+      mermaid.initialize({theme: 'forest'});
+    }
+  </script>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

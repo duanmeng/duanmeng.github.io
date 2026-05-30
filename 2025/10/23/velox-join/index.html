@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="总体架构HashJoin 由三个核心组件构成： 123Build Pipeline (N drivers)          Probe Pipeline (M drivers)   HashBuild × N  ──────bridge──────  HashProbe × M                     HashJoinBridge  Bridge 是核心枢纽，负责 build&amp;#">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Velox HashJoin">
+<meta property="og:url" content="http://example.com/2025/10/23/velox-join/index.html">
+<meta property="og:site_name" content="Macduan Notes">
+<meta property="og:description" content="总体架构HashJoin 由三个核心组件构成： 123Build Pipeline (N drivers)          Probe Pipeline (M drivers)   HashBuild × N  ──────bridge──────  HashProbe × M                     HashJoinBridge  Bridge 是核心枢纽，负责 build&amp;#">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-10-23T03:20:34.000Z">
+<meta property="article:modified_time" content="2026-05-30T13:29:38.372Z">
+<meta property="article:author" content="duanmeng">
+<meta property="article:tag" content="QueryExecution">
+<meta property="article:tag" content="Velox">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Velox HashJoin</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/categories/technology">Technology</a></li><!--
+     --><!--
+       --><li><a href="/categories/life">Life</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Archives</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tags</a></li><!--
+     --><!--
+       --><li><a href="/about">About</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2025/11/30/velox-spiller/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2024/07/30/velox-query/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2025/10/23/velox-join/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2025/10/23/velox-join/&text=Velox HashJoin"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2025/10/23/velox-join/&title=Velox HashJoin"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2025/10/23/velox-join/&is_video=false&description=Velox HashJoin"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Velox HashJoin&body=Check out this article: http://example.com/2025/10/23/velox-join/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2025/10/23/velox-join/&title=Velox HashJoin"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2025/10/23/velox-join/&title=Velox HashJoin"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2025/10/23/velox-join/&title=Velox HashJoin"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2025/10/23/velox-join/&title=Velox HashJoin"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2025/10/23/velox-join/&name=Velox HashJoin&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2025/10/23/velox-join/&t=Velox HashJoin"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E4%BD%93%E6%9E%B6%E6%9E%84"><span class="toc-number">1.</span> <span class="toc-text">总体架构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81HashJoinBridge"><span class="toc-number">2.</span> <span class="toc-text">一、HashJoinBridge</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81HashBuild-%E2%80%94-Build-%E9%98%B6%E6%AE%B5"><span class="toc-number">3.</span> <span class="toc-text">二、HashBuild — Build 阶段</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E7%8A%B6%E6%80%81%E6%9C%BA%EF%BC%88HashBuild-h-43-57%EF%BC%89"><span class="toc-number">3.1.</span> <span class="toc-text">2.1 状态机（HashBuild.h:43-57）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-%E6%A0%B8%E5%BF%83%E6%B5%81%E7%A8%8B"><span class="toc-number">3.2.</span> <span class="toc-text">2.2 核心流程</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81HashProbe-%E2%80%94-Probe-%E9%98%B6%E6%AE%B5"><span class="toc-number">4.</span> <span class="toc-text">三、HashProbe — Probe 阶段</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-%E7%8A%B6%E6%80%81%E6%9C%BA%EF%BC%88ProbeOperatorState-h-34-53%EF%BC%89"><span class="toc-number">4.1.</span> <span class="toc-text">3.1 状态机（ProbeOperatorState.h:34-53）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-%E6%A0%B8%E5%BF%83%E6%B5%81%E7%A8%8B"><span class="toc-number">4.2.</span> <span class="toc-text">3.2 核心流程</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81Spill-%E6%9C%BA%E5%88%B6"><span class="toc-number">5.</span> <span class="toc-text">四、Spill 机制</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-%E8%A7%A6%E5%8F%91%E8%B7%AF%E5%BE%84"><span class="toc-number">5.1.</span> <span class="toc-text">4.1 触发路径</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-%E6%95%B4%E4%BD%93%E8%BF%AD%E4%BB%A3%EF%BC%88%E4%BB%A5-1-%E4%B8%AA-spill-%E5%88%86%E5%8C%BA%E4%B8%BA%E4%BE%8B%EF%BC%89"><span class="toc-number">5.2.</span> <span class="toc-text">4.2 整体迭代（以 1 个 spill 分区为例）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-%E9%80%92%E5%BD%92-Spill"><span class="toc-number">5.3.</span> <span class="toc-text">4.3 递归 Spill</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E5%AE%8C%E6%95%B4%E5%8D%8F%E8%B0%83%E6%97%B6%E5%BA%8F%E5%9B%BE"><span class="toc-number">6.</span> <span class="toc-text">五、完整协调时序图</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E5%85%B3%E9%94%AE%E6%96%87%E4%BB%B6%E7%B4%A2%E5%BC%95"><span class="toc-number">7.</span> <span class="toc-text">六、关键文件索引</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E8%8C%83%E5%BC%8F"><span class="toc-number">8.</span> <span class="toc-text">七、多线程编程范式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#7-1-%E5%8D%8F%E4%BD%9C%E5%BC%8F%E9%9D%9E%E9%98%BB%E5%A1%9E%E7%AE%97%E5%AD%90%E6%A8%A1%E5%9E%8B%EF%BC%88Cooperative-Non-Blocking%EF%BC%89"><span class="toc-number">8.1.</span> <span class="toc-text">7.1 协作式非阻塞算子模型（Cooperative Non-Blocking）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-2-Promise-x2F-Future-%E5%81%9A%E8%B7%A8-Pipeline-%E6%8F%A1%E6%89%8B"><span class="toc-number">8.2.</span> <span class="toc-text">7.2 Promise&#x2F;Future 做跨 Pipeline 握手</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-3-Last-Peer-Barrier%EF%BC%88%E6%9C%80%E5%90%8E%E4%B8%80%E4%BA%BA%E5%81%9A%E5%BD%92%E7%BA%A6%EF%BC%89"><span class="toc-number">8.3.</span> <span class="toc-text">7.3 Last-Peer Barrier（最后一人做归约）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-4-%E9%94%81%E7%9A%84%E7%B2%92%E5%BA%A6%EF%BC%9A%E4%B8%B4%E7%95%8C%E5%8C%BA%E5%8F%AA%E6%90%AC%E6%8C%87%E9%92%88%EF%BC%8C%E9%87%8D%E6%B4%BB%E5%85%A8%E5%9C%A8%E9%94%81%E5%A4%96"><span class="toc-number">8.4.</span> <span class="toc-text">7.4 锁的粒度：临界区只搬指针，重活全在锁外</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-5-%E6%97%A0%E9%94%81%E5%B9%B6%E8%A1%8C-build-%E4%B8%B2%E8%A1%8C-merge"><span class="toc-number">8.5.</span> <span class="toc-text">7.5 无锁并行 build + 串行 merge</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-6-%E6%89%80%E6%9C%89%E6%9D%83%E8%BD%AC%E7%A7%BB%E7%94%A8-stateCleared-%E6%A0%87%E5%BF%97%E4%BD%8D%E9%98%B2%E5%8F%8C%E9%87%8D%E5%A4%84%E7%90%86"><span class="toc-number">8.6.</span> <span class="toc-text">7.6 所有权转移用 stateCleared_ 标志位防双重处理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-7-%E5%86%85%E5%AD%98%E4%BB%B2%E8%A3%81-reclaim-%E4%B8%8E%E7%AE%97%E5%AD%90%E7%BA%BF%E7%A8%8B%E7%9A%84%E7%AB%9E%E4%BA%89%E9%98%B2%E6%8A%A4"><span class="toc-number">8.7.</span> <span class="toc-text">7.7 内存仲裁 reclaim 与算子线程的竞争防护</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-8-%E8%8C%83%E5%BC%8F%E6%80%BB%E8%A7%88"><span class="toc-number">8.8.</span> <span class="toc-text">7.8 范式总览</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AB%E3%80%81Promise-x2F-Future-%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E7%AE%A1%E7%90%86%EF%BC%9A%E5%A6%82%E4%BD%95%E4%B8%8D%E6%B3%84%E6%BC%8F%E3%80%81%E4%B8%8D%E5%8D%A1%E6%AD%BB"><span class="toc-number">9.</span> <span class="toc-text">八、Promise&#x2F;Future 生命周期管理：如何不泄漏、不卡死</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#8-1-%E5%BA%95%E5%B1%82%E5%85%9C%E5%BA%95%EF%BC%9Afolly-%E7%9A%84-BrokenPromise-%E6%8A%8A%E2%80%9D%E6%8C%82%E6%AD%BB%E2%80%9D%E8%BD%AC%E6%88%90%E2%80%9D%E6%8A%A5%E9%94%99%E2%80%9D"><span class="toc-number">9.1.</span> <span class="toc-text">8.1 底层兜底：folly 的 BrokenPromise 把”挂死”转成”报错”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-2-VeloxPromise%EF%BC%9A%E7%BB%99%E6%AF%8F%E4%B8%AA-promise-%E5%8A%A0%E2%80%9D%E5%87%BA%E7%94%9F%E5%9C%B0%E2%80%9D%E6%A0%87%E7%AD%BE"><span class="toc-number">9.2.</span> <span class="toc-text">8.2 VeloxPromise：给每个 promise 加”出生地”标签</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-3-%E6%8F%90%E5%8F%96-%E5%8A%A0%E9%94%81-x2F-fulfill-%E8%A7%A3%E9%94%81%EF%BC%9A%E5%BC%82%E5%B8%B8%E5%AE%89%E5%85%A8%E7%9A%84%E6%A0%B8%E5%BF%83-idiom"><span class="toc-number">9.3.</span> <span class="toc-text">8.3 提取-加锁 &#x2F; fulfill-解锁：异常安全的核心 idiom</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-4-Task-%E7%BB%88%E6%AD%A2%EF%BC%9A%E6%8A%8A%E6%AF%8F%E4%B8%80%E4%B8%AA-promise-%E6%BA%90%E5%A4%B4%E9%83%BD%E6%8A%BD%E5%B9%B2"><span class="toc-number">9.4.</span> <span class="toc-text">8.4 Task 终止：把每一个 promise 源头都抽干</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-5-EventCompletionNotifier%EF%BC%9ARAII-%E4%BF%9D%E8%AF%81%E2%80%9D%E5%8D%B3%E4%BD%BF%E7%BB%88%E6%AD%A2%E8%BF%87%E7%A8%8B%E8%87%AA%E5%B7%B1%E6%8A%9B%E5%BC%82%E5%B8%B8%E4%B9%9F-fulfill%E2%80%9D"><span class="toc-number">9.5.</span> <span class="toc-text">8.5 EventCompletionNotifier：RAII 保证”即使终止过程自己抛异常也 fulfill”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-6-BlockingState%EF%BC%9Afuture-%E5%9C%A8%E9%A3%9E%E8%A1%8C%E9%80%94%E4%B8%AD%EF%BC%8C%E8%B0%81%E4%BF%9D%E8%AF%81-driver-%E4%B8%8D%E8%A2%AB%E6%9E%90%E6%9E%84%EF%BC%9F"><span class="toc-number">9.6.</span> <span class="toc-text">8.6 BlockingState：future 在飞行途中，谁保证 driver 不被析构？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-7-%E8%BF%99%E5%A5%97%E8%AE%BE%E8%AE%A1%E7%9A%84%E5%88%86%E5%B1%82%E9%98%B2%E5%BE%A1%E6%80%BB%E8%A7%88"><span class="toc-number">9.7.</span> <span class="toc-text">8.7 这套设计的分层防御总览</span></a></li></ol></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Velox HashJoin
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">duanmeng</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2025-10-23T03:20:34.000Z" itemprop="datePublished">2025-10-23</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/QueryExecution/" rel="tag">QueryExecution</a>, <a class="tag-link-link" href="/tags/Velox/" rel="tag">Velox</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="总体架构"><a href="#总体架构" class="headerlink" title="总体架构"></a>总体架构</h2><p>HashJoin 由三个核心组件构成：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Build Pipeline (N drivers)          Probe Pipeline (M drivers)</span><br><span class="line">   HashBuild × N  ──────bridge──────  HashProbe × M</span><br><span class="line">                     HashJoinBridge</span><br></pre></td></tr></table></figure>
+
+<p><strong>Bridge 是核心枢纽</strong>，负责 build&#x2F;probe 之间的所有同步，以及 spill 迭代的协调。</p>
+<hr>
+<h2 id="一、HashJoinBridge"><a href="#一、HashJoinBridge" class="headerlink" title="一、HashJoinBridge"></a>一、HashJoinBridge</h2><p><strong>文件：</strong> <code>velox/exec/HashJoinBridge.h</code> &#x2F; <code>HashJoinBridge.cpp</code></p>
+<p>Bridge 是 build 和 probe 两个 pipeline 之间唯一的通信通道。</p>
+<p><strong>关键数据成员（HashJoinBridge.h:159-203）：</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">uint32_t</span> numBuilders_;                              <span class="comment">// build driver 数量</span></span><br><span class="line">std::optional&lt;HashBuildResult&gt; buildResult_;        <span class="comment">// 合并后的 hash table</span></span><br><span class="line">std::optional&lt;SpillPartitionId&gt; restoringSpillPartitionId_; <span class="comment">// 当前在 restore 的 spill 分区</span></span><br><span class="line">std::vector&lt;SpillPartition*&gt; restoringSpillShards_; <span class="comment">// 按 builder 数量拆分后的 shards</span></span><br><span class="line">IterableSpillPartitionSet spillPartitionSet_;        <span class="comment">// 待处理的 spill 分区栈</span></span><br><span class="line">std::vector&lt;ContinuePromise&gt; promises_;             <span class="comment">// 等待 table 的 probe 协程</span></span><br><span class="line"><span class="type">bool</span> probeStarted_;                                 <span class="comment">// probe 是否已启动</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>核心接口：</strong></p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>调用方</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>setHashTable()</code></td>
+<td>Last build driver</td>
+<td>提交合并好的 hash table，唤醒所有等待的 probe</td>
+</tr>
+<tr>
+<td><code>tableOrFuture()</code></td>
+<td>Probe driver</td>
+<td>获取 hash table，不就绪则挂起等</td>
+</tr>
+<tr>
+<td><code>probeFinished()</code></td>
+<td>Last probe driver</td>
+<td>通知 probe 结束，Bridge 调度下一个 spill 分区</td>
+</tr>
+<tr>
+<td><code>spillInputOrFuture()</code></td>
+<td>Build driver (restore)</td>
+<td>获取分配的 spill shard，不就绪则挂起等</td>
+</tr>
+<tr>
+<td><code>appendSpilledHashTablePartitions()</code></td>
+<td>Probe driver</td>
+<td>向 Bridge 追加新 spill 分区</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="二、HashBuild-—-Build-阶段"><a href="#二、HashBuild-—-Build-阶段" class="headerlink" title="二、HashBuild — Build 阶段"></a>二、HashBuild — Build 阶段</h2><p><strong>文件：</strong> <code>velox/exec/HashBuild.h</code> &#x2F; <code>HashBuild.cpp</code></p>
+<h3 id="2-1-状态机（HashBuild-h-43-57）"><a href="#2-1-状态机（HashBuild-h-43-57）" class="headerlink" title="2.1 状态机（HashBuild.h:43-57）"></a>2.1 状态机（HashBuild.h:43-57）</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">kRunning → kWaitForBuild → kWaitForProbe → (kRunning 循环) → kFinish</span><br><span class="line">                                               (spill restore)</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>状态</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>kRunning</code></td>
+<td>正在接收并处理输入行</td>
+</tr>
+<tr>
+<td><code>kYield</code></td>
+<td>处理完 spill 数据后主动让出 CPU</td>
+</tr>
+<tr>
+<td><code>kWaitForBuild</code></td>
+<td>非 last driver，等待 last driver 完成 table 合并</td>
+</tr>
+<tr>
+<td><code>kWaitForProbe</code></td>
+<td>等待 probe 完成，才能开始 restore 下一个 spill 分区</td>
+</tr>
+<tr>
+<td><code>kFinish</code></td>
+<td>完成</td>
+</tr>
+</tbody></table>
+<h3 id="2-2-核心流程"><a href="#2-2-核心流程" class="headerlink" title="2.2 核心流程"></a>2.2 核心流程</h3><p><strong>（1）<code>initialize()</code> （HashBuild.cpp:123）</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">setupCachedHashTable() → 若命中缓存直接返回</span><br><span class="line">setupTable()           → 创建 HashTable&lt;IgnoreNull&gt;</span><br><span class="line">setupSpiller()         → 若可 spill 则创建 HashBuildSpiller</span><br></pre></td></tr></table></figure>
+
+<p><strong>（2）<code>addInput()</code> （HashBuild.cpp:442）</strong></p>
+<ul>
+<li>调用 <code>ensureInputFits()</code> 做内存预留（不够则触发 spill）</li>
+<li>调用 <code>computeSpillPartitions()</code> 计算每行属于哪个 spill 分区</li>
+<li>被标记为 spilling 的分区行 → 调 <code>spillInput()</code> 写盘</li>
+<li>其余行 → <code>table_-&gt;groupProbe()</code> 或直接插入 <code>lookup_</code></li>
+</ul>
+<p><strong>（3）<code>finishHashBuild()</code> — 多 driver 汇聚（HashBuild.cpp:808）</strong></p>
+<p>这里是多 driver 并行 build 的核心：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">allPeersFinished()?</span><br><span class="line">   ├── false（非 last driver）→ kWaitForBuild，挂起</span><br><span class="line">   └── true（last driver）→</span><br><span class="line">         ① 遍历所有 peer build driver，收集各自的部分 table</span><br><span class="line">         ② ensureTableFits(totalNumRows)  // 预留内存做 merge</span><br><span class="line">         ③ table_-&gt;prepareJoinTable(otherTables, executor)  // 并行 merge</span><br><span class="line">         ④ joinBridge_-&gt;setHashTable(mergedTable, spillPartitions)</span><br><span class="line">         ⑤ 唤醒所有等待的 probe driver</span><br></pre></td></tr></table></figure>
+
+<p><strong>关键设计：</strong> 每个 build driver 各自持有一个 <code>HashTable</code>，last driver 负责 merge 所有 partial table，然后一次性交给 bridge。非 last driver 在 merge 完成后由 last driver 通过 <code>stateCleared_</code> 标记释放其数据所有权。</p>
+<p><strong>（4）<code>postHashBuildProcess()</code> → Spill Restore 循环（HashBuild.cpp:1029）</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">while (true):</span><br><span class="line">  shard = joinBridge_-&gt;spillInputOrFuture()</span><br><span class="line">  if (empty)   → kFinish</span><br><span class="line">  if (waiting) → kWaitForProbe</span><br><span class="line"></span><br><span class="line">  setupSpillInput(shard)   // 重置 table + spiller，创建 spillInputReader</span><br><span class="line">  processSpillInput()      // 逐 batch 读取 → addInput() → 重新 build</span><br><span class="line">  noMoreInput()            // → 回到 finishHashBuild()，提交新 table</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="三、HashProbe-—-Probe-阶段"><a href="#三、HashProbe-—-Probe-阶段" class="headerlink" title="三、HashProbe — Probe 阶段"></a>三、HashProbe — Probe 阶段</h2><p><strong>文件：</strong> <code>velox/exec/HashProbe.h</code> &#x2F; <code>HashProbe.cpp</code></p>
+<h3 id="3-1-状态机（ProbeOperatorState-h-34-53）"><a href="#3-1-状态机（ProbeOperatorState-h-34-53）" class="headerlink" title="3.1 状态机（ProbeOperatorState.h:34-53）"></a>3.1 状态机（ProbeOperatorState.h:34-53）</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">kWaitForBuild → kRunning → kWaitForPeers → kFinish</span><br><span class="line">                   ↑ spill restore 时循环回来</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-2-核心流程"><a href="#3-2-核心流程" class="headerlink" title="3.2 核心流程"></a>3.2 核心流程</h3><p><strong>（1）<code>asyncWaitForHashTable()</code> （HashProbe.cpp:434）</strong></p>
+<ul>
+<li>调 <code>joinBridge_-&gt;tableOrFuture()</code> 取 hash table</li>
+<li>若未就绪：挂起，等 <code>setHashTable()</code> 触发</li>
+<li>就绪后：<ul>
+<li><code>maybeSetupInputSpiller()</code> — 若 build 有 spill 分区，则建 probe 端 spiller</li>
+<li><code>maybeSetupSpillInputReader()</code> — 若当前是 restore 模式，建 spillInputReader</li>
+<li>若 table 为空且 join 类型允许短路 → 直接调 <code>noMoreInput()</code></li>
+</ul>
+</li>
+</ul>
+<p><strong>（2）<code>addInput()</code> （HashProbe.cpp:703）</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">if (needToSpillInput()):</span><br><span class="line">  spillInput()  // 将属于 spill 分区的 probe 行写盘</span><br><span class="line"></span><br><span class="line">table_-&gt;prepareForJoinProbe()</span><br><span class="line">table_-&gt;joinProbe(*lookup_)      // 核心：hash 查找，填充 lookup_-&gt;hits</span><br><span class="line">resultIter_-&gt;reset(*lookup_)     // 初始化结果迭代器</span><br></pre></td></tr></table></figure>
+
+<p><strong>（3）<code>getOutput()</code> &#x2F; <code>getOutputInternal()</code></strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">listJoinResults()     // 从 resultIter_ 批量取命中行</span><br><span class="line">evalFilter()          // 若有 join filter 则过滤</span><br><span class="line">fillOutput()          // 组装输出 batch（probe 列 + build 列）</span><br><span class="line">// RIGHT/FULL join：标记已匹配的 build 行（setProbedFlag）</span><br></pre></td></tr></table></figure>
+
+<p><strong>（4）Build 端输出（RIGHT&#x2F;FULL join）— <code>getBuildSideOutput()</code> （HashProbe.cpp:897）</strong></p>
+<p>只有 last probe driver 处理，负责输出 build 端未匹配的行：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">getAndIncrementUnclaimedRowContainerId()  // 认领 row container</span><br><span class="line">table_-&gt;listNotProbedRows()  // RIGHT/FULL: 未被探测的 build 行</span><br><span class="line">// 或 listProbedRows()       // RIGHT SEMI FILTER</span><br><span class="line">// 或 listAllRows()          // RIGHT SEMI PROJECT</span><br></pre></td></tr></table></figure>
+
+<p><strong>（5）<code>noMoreInputInternal()</code> — Peer 同步（HashProbe.cpp:1822）</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">allPeersFinished()?</span><br><span class="line">  ├── false（非 last）→ kWaitForPeers，等 last 唤醒</span><br><span class="line">  └── true（last）→</span><br><span class="line">       ① 设 lastProber_ = true</span><br><span class="line">       ② getBuildSideOutput() 输出 build 端行（RIGHT/FULL）</span><br><span class="line">       ③ joinBridge_-&gt;probeFinished()   // 通知 bridge</span><br><span class="line">       ④ wakeupPeerOperators()          // 唤醒等待的 peer probe driver</span><br></pre></td></tr></table></figure>
+
+<p><strong><code>joinBridge_-&gt;probeFinished()</code> 做了什么：</strong></p>
+<ul>
+<li>从 <code>spillPartitionSet_</code> 弹出下一个 spill 分区</li>
+<li>调 <code>partition-&gt;split(numBuilders_)</code> 拆成 N 个 shard</li>
+<li>清空 <code>buildResult_</code>（通知 build driver 可以开始 restore）</li>
+<li>唤醒所有等待的 build driver</li>
+</ul>
+<hr>
+<h2 id="四、Spill-机制"><a href="#四、Spill-机制" class="headerlink" title="四、Spill 机制"></a>四、Spill 机制</h2><h3 id="4-1-触发路径"><a href="#4-1-触发路径" class="headerlink" title="4.1 触发路径"></a>4.1 触发路径</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">内存仲裁器 → HashBuild::reclaim()</span><br><span class="line">             └── spiller_-&gt;spill(partitionId)  // 把某分区的 rows 写盘</span><br></pre></td></tr></table></figure>
+
+<p><code>addInput()</code> 时检测：<code>spiller_-&gt;spillTriggered(partitionId)</code> → 后续该分区的行直接 spill，不入 table。</p>
+<h3 id="4-2-整体迭代（以-1-个-spill-分区为例）"><a href="#4-2-整体迭代（以-1-个-spill-分区为例）" class="headerlink" title="4.2 整体迭代（以 1 个 spill 分区为例）"></a>4.2 整体迭代（以 1 个 spill 分区为例）</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">Round 1 (正常):</span><br><span class="line">  Build:  addInput → [分区0写盘] → setHashTable(table, spillPartitions=&#123;0&#125;)</span><br><span class="line">  Probe:  取 table → 探测 → [分区0的 probe 行写盘] → probeFinished()</span><br><span class="line"></span><br><span class="line">Round 2 (Restore):</span><br><span class="line">  Bridge: 弹出分区0，split → 2 shards（假设 2 build drivers）</span><br><span class="line">  Build:  各取 1 shard → setupSpillInput → processSpillInput</span><br><span class="line">         → 重新 build → setHashTable(newTable, spillPartitions=&#123;&#125;)</span><br><span class="line">  Probe:  取 newTable → 从 probe 端 spill 读取分区0的 probe 行 → 探测</span><br><span class="line">         → probeFinished()（无更多分区）→ 结束</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-3-递归-Spill"><a href="#4-3-递归-Spill" class="headerlink" title="4.3 递归 Spill"></a>4.3 递归 Spill</h3><p>如果 restore 时内存仍不足，会在更深的 bit range 再次 spill。<code>SpillPartitionId</code> 包含父分区信息，通过 <code>maxSpillLevel</code> 限制递归深度。</p>
+<hr>
+<h2 id="五、完整协调时序图"><a href="#五、完整协调时序图" class="headerlink" title="五、完整协调时序图"></a>五、完整协调时序图</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">Build Driver 0  Build Driver 1  HashJoinBridge  Probe Driver 0  Probe Driver 1</span><br><span class="line">     │                │               │                │               │</span><br><span class="line">  addInput()       addInput()         │                │               │</span><br><span class="line">     │                │               │           tableOrFuture()  tableOrFuture()</span><br><span class="line">     │                │               │←─ wait ───────┤               │</span><br><span class="line">     │                │               │←─ wait ────────────────────────┤</span><br><span class="line">  noMoreInput()    noMoreInput()      │                │               │</span><br><span class="line">     │                │               │                │               │</span><br><span class="line">  allPeersFinished=false  allPeersFinished=true         │               │</span><br><span class="line">  → kWaitForBuild  merge tables       │                │               │</span><br><span class="line">     │             setHashTable() ───→│                │               │</span><br><span class="line">     │                │           notify() ────────────→               │</span><br><span class="line">     │                │               │       ─────────────────────────→</span><br><span class="line">     │             kFinish            │                │               │</span><br><span class="line">     │             spillInputOrFuture()→ kWaitForProbe │               │</span><br><span class="line">     │                │               │           addInput()       addInput()</span><br><span class="line">     │                │               │           getOutput()      getOutput()</span><br><span class="line">     │                │               │           noMoreInput()    noMoreInput()</span><br><span class="line">     │                │               │         allPeersFinished=false</span><br><span class="line">     │                │               │       allPeersFinished=true</span><br><span class="line">     │                │               │←─ probeFinished() ─────────────┤</span><br><span class="line">     │                │           set shard     │               │</span><br><span class="line">     │             spillInputOrFuture()→shard   │               │</span><br><span class="line">     │             setupSpillInput()     │      │               │</span><br><span class="line">     │             processSpillInput()   │      │               │</span><br><span class="line">     │             setHashTable() ──────→│      │               │</span><br><span class="line">     │                │               notify()──→               │</span><br><span class="line">     │                │               │      addSpillInput()     │</span><br><span class="line">     │                │               │      getOutput()         │</span><br><span class="line">     │                │               │      probeFinished()─────→</span><br><span class="line">     │                │           spillPartitionSet empty        │</span><br><span class="line">     │                │           → notify builders              │</span><br><span class="line">     │             spillInputOrFuture() → empty → kFinish       kFinish</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="六、关键文件索引"><a href="#六、关键文件索引" class="headerlink" title="六、关键文件索引"></a>六、关键文件索引</h2><table>
+<thead>
+<tr>
+<th>文件</th>
+<th>位置</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>velox/exec/HashBuild.h</code></td>
+<td>:43</td>
+<td>Build 状态机定义</td>
+</tr>
+<tr>
+<td><code>velox/exec/HashBuild.cpp</code></td>
+<td>:808</td>
+<td><code>finishHashBuild()</code> — 多 driver 汇聚 + merge</td>
+</tr>
+<tr>
+<td><code>velox/exec/HashBuild.cpp</code></td>
+<td>:1029</td>
+<td><code>postHashBuildProcess()</code> — spill restore 循环</td>
+</tr>
+<tr>
+<td><code>velox/exec/HashProbe.cpp</code></td>
+<td>:434</td>
+<td><code>asyncWaitForHashTable()</code> — 等待 table</td>
+</tr>
+<tr>
+<td><code>velox/exec/HashProbe.cpp</code></td>
+<td>:1822</td>
+<td><code>noMoreInputInternal()</code> — peer 同步</td>
+</tr>
+<tr>
+<td><code>velox/exec/HashJoinBridge.cpp</code></td>
+<td>:218</td>
+<td><code>setHashTable()</code> — build 提交 table</td>
+</tr>
+<tr>
+<td><code>velox/exec/HashJoinBridge.cpp</code></td>
+<td>:320</td>
+<td><code>probeFinished()</code> — probe 完成，调度 restore</td>
+</tr>
+<tr>
+<td><code>velox/exec/HashJoinBridge.cpp</code></td>
+<td>:368</td>
+<td><code>spillInputOrFuture()</code> — build 取 shard</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="七、多线程编程范式"><a href="#七、多线程编程范式" class="headerlink" title="七、多线程编程范式"></a>七、多线程编程范式</h2><p>HashJoin 的并发设计是整个 Velox 执行引擎并发哲学的缩影。它<strong>几乎不使用传统的”锁 + 条件变量阻塞线程”模型</strong>，而是建立在一套协作式、future 驱动的范式上。下面逐个拆解。</p>
+<h3 id="7-1-协作式非阻塞算子模型（Cooperative-Non-Blocking）"><a href="#7-1-协作式非阻塞算子模型（Cooperative-Non-Blocking）" class="headerlink" title="7.1 协作式非阻塞算子模型（Cooperative Non-Blocking）"></a>7.1 协作式非阻塞算子模型（Cooperative Non-Blocking）</h3><p>这是最根本的范式。<strong>算子永远不阻塞 OS 线程</strong>——没有 <code>cv.wait()</code>，没有 <code>thread.join()</code>。</p>
+<p>算子通过 <code>isBlocked()</code> 返回一个”阻塞原因 + future”来表达”我要等”：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Operator.h:284</span></span><br><span class="line"><span class="function"><span class="keyword">virtual</span> BlockingReason <span class="title">isBlocked</span><span class="params">(ContinueFuture* future)</span> </span>= <span class="number">0</span>;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// BlockingReason.h:32</span></span><br><span class="line">kWaitForJoinBuild,   <span class="comment">// probe 等 build table</span></span><br><span class="line">kWaitForJoinProbe,   <span class="comment">// build 等 probe 完成（spill restore）</span></span><br><span class="line">kWaitForMemory,</span><br><span class="line">kWaitForArbitration,</span><br></pre></td></tr></table></figure>
+
+<p>当算子返回非 <code>kNotBlocked</code> 时，Driver <strong>不会 park 线程</strong>，而是 <code>return StopReason::kBlock</code>（<code>Driver.cpp:1379</code> <code>blockDriver()</code>），把这个 OS 线程<strong>还给 executor 线程池</strong>去跑别的 driver。等 future 被 fulfill 时，<code>BlockingState::setResume</code> 再把这个 driver 重新调度回线程池。</p>
+<blockquote>
+<p><strong>品味点：</strong> 这是典型的 <strong>M:N 协程式调度</strong>——M 个 driver 跑在 N 个 OS 线程上（N &#x3D; CPU 核数）。一个 SQL 查询可能有成百上千个 driver，但绝不会创建成百上千个线程。HashJoin 在 build 等 probe、probe 等 build 时全程不占线程，这是它能在高并发下保持低线程数、避免上下文切换风暴的根本原因。对比”一个算子一个线程 + 条件变量”的朴素实现，这个设计在可伸缩性上是质变。</p>
+</blockquote>
+<h3 id="7-2-Promise-x2F-Future-做跨-Pipeline-握手"><a href="#7-2-Promise-x2F-Future-做跨-Pipeline-握手" class="headerlink" title="7.2 Promise&#x2F;Future 做跨 Pipeline 握手"></a>7.2 Promise&#x2F;Future 做跨 Pipeline 握手</h3><p>Build pipeline 和 probe pipeline 是两组<strong>完全独立</strong>的 driver，它们之间不共享任何执行栈。耦合只通过 Bridge 上的一组 promise&#x2F;future 完成：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> ContinuePromise = VeloxPromise&lt;folly::Unit&gt;;</span><br><span class="line"><span class="keyword">using</span> ContinueFuture = folly::SemiFuture&lt;folly::Unit&gt;;</span><br></pre></td></tr></table></figure>
+
+<p><strong>消费者（probe）登记 future：</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// HashJoinBridge.cpp:301  tableOrFuture()</span></span><br><span class="line"><span class="function">std::lock_guard&lt;std::mutex&gt; <span class="title">l</span><span class="params">(mutex_)</span></span>;</span><br><span class="line"><span class="keyword">if</span> (buildResult_.<span class="built_in">has_value</span>()) <span class="keyword">return</span> buildResult_.<span class="built_in">value</span>();  <span class="comment">// 已就绪，直接拿</span></span><br><span class="line">promises_.<span class="built_in">emplace_back</span>(<span class="string">&quot;HashJoinBridge::tableOrFuture&quot;</span>);</span><br><span class="line">*future = promises_.<span class="built_in">back</span>().<span class="built_in">getSemiFuture</span>();                 <span class="comment">// 没就绪，登记后挂起</span></span><br><span class="line"><span class="keyword">return</span> std::<span class="literal">nullopt</span>;</span><br></pre></td></tr></table></figure>
+
+<p><strong>生产者（build）fulfill：</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// HashJoinBridge.cpp:218  setHashTable()</span></span><br><span class="line">std::vector&lt;ContinuePromise&gt; promises;</span><br><span class="line">&#123;</span><br><span class="line">  <span class="function">std::lock_guard&lt;std::mutex&gt; <span class="title">l</span><span class="params">(mutex_)</span></span>;</span><br><span class="line">  buildResult_ = <span class="built_in">HashBuildResult</span>(...);</span><br><span class="line">  promises = std::<span class="built_in">move</span>(promises_);   <span class="comment">// 锁内只搬走 promise</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">notify</span>(std::<span class="built_in">move</span>(promises));          <span class="comment">// 锁外 fulfill —— 关键！</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><strong>品味点：</strong> 注意 <code>notify()</code> 在<strong>锁外</strong>执行。fulfill promise 会触发下游 driver 重新入队调度，如果在持锁状态下做，可能引发锁顺序问题甚至死锁。”锁内只搬运状态、锁外做唤醒”是贯穿全代码的纪律。<code>folly::Unit</code> 作为 payload 表示”这是一个纯信号，不传数据”——数据本身（table）已经放在 <code>buildResult_</code> 里，future 只负责”通知就绪”，信号与数据分离得很干净。</p>
+</blockquote>
+<h3 id="7-3-Last-Peer-Barrier（最后一人做归约）"><a href="#7-3-Last-Peer-Barrier（最后一人做归约）" class="headerlink" title="7.3 Last-Peer Barrier（最后一人做归约）"></a>7.3 Last-Peer Barrier（最后一人做归约）</h3><p>多个 build driver 并行建表后，需要一个 barrier 把它们汇聚。Velox 没有用 <code>std::barrier</code> 或计数信号量，而是用一个**”最后到达者胜出并负责归约”**的模式：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Task.cpp:2304  allPeersFinished()</span></span><br><span class="line"><span class="function">std::lock_guard&lt;std::timed_mutex&gt; <span class="title">l</span><span class="params">(mutex_)</span></span>;</span><br><span class="line"><span class="keyword">auto</span>&amp; state = barriers[planNodeId];</span><br><span class="line"><span class="keyword">if</span> (++state.numRequested == numPeers) &#123;       <span class="comment">// 我是最后一个</span></span><br><span class="line">  peers = std::<span class="built_in">move</span>(state.drivers);           <span class="comment">// 接管所有 peer 的句柄</span></span><br><span class="line">  promises = std::<span class="built_in">move</span>(state.allPeersFinishedPromises);</span><br><span class="line">  barriers.<span class="built_in">erase</span>(planNodeId);</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">true</span>;                                 <span class="comment">// 唯一返回 true 的人</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 不是最后一个：登记 promise 后挂起</span></span><br><span class="line">state.drivers.<span class="built_in">push_back</span>(callerShared);</span><br><span class="line">state.allPeersFinishedPromises.<span class="built_in">emplace_back</span>(...);</span><br><span class="line">*future = state.allPeersFinishedPromises.<span class="built_in">back</span>().<span class="built_in">getSemiFuture</span>();</span><br><span class="line"><span class="keyword">return</span> <span class="literal">false</span>;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><strong>品味点：</strong> 这个模式优雅地把”同步点”和”串行归约工作的指派”合二为一。<code>numPeers - 1</code> 个 driver 返回 false 后挂起（不占线程），<strong>唯一</strong>返回 true 的最后那个 driver 拿到全部 peer 句柄，独自完成 table merge，再 fulfill 所有挂起者的 promise。没有专门的”协调者线程”，协调者是动态选出来的——谁最后到谁干。这避免了”主从线程”的静态分工，天然负载均衡（最后到的往往是最闲的）。</p>
+</blockquote>
+<h3 id="7-4-锁的粒度：临界区只搬指针，重活全在锁外"><a href="#7-4-锁的粒度：临界区只搬指针，重活全在锁外" class="headerlink" title="7.4 锁的粒度：临界区只搬指针，重活全在锁外"></a>7.4 锁的粒度：临界区只搬指针，重活全在锁外</h3><p>整个 HashBuild 只有一把 <code>std::mutex mutex_</code>（<code>HashBuild.h:326</code>），且<strong>绝不在持锁时做重计算</strong>。</p>
+<p>最关键的 table merge：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// HashBuild.cpp:865  锁内：仅&quot;偷&quot;走 peer 的 unique_ptr</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="function">std::lock_guard&lt;std::mutex&gt; <span class="title">l</span><span class="params">(build-&gt;mutex_)</span></span>;</span><br><span class="line">  otherTables.<span class="built_in">push_back</span>(std::<span class="built_in">move</span>(build-&gt;table_));  <span class="comment">// O(1) 指针搬移</span></span><br><span class="line">  spiller = std::<span class="built_in">move</span>(build-&gt;spiller_);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// HashBuild.cpp:933  锁外：真正的 merge（可能耗时数秒）</span></span><br><span class="line">table_-&gt;<span class="built_in">prepareJoinTable</span>(std::<span class="built_in">move</span>(otherTables), ..., executor);</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><strong>品味点：</strong> 临界区内全是 <code>std::move</code> 指针级操作，O(1) 完成；<code>prepareJoinTable</code> 这种可能耗时几秒的 hash table 重建放在锁外。这是”<strong>锁保护的是数据结构的不变量，不是计算过程</strong>“的教科书实践。锁的持有时间趋近于零，多 driver 间几乎无锁竞争。</p>
+</blockquote>
+<h3 id="7-5-无锁并行-build-串行-merge"><a href="#7-5-无锁并行-build-串行-merge" class="headerlink" title="7.5 无锁并行 build + 串行 merge"></a>7.5 无锁并行 build + 串行 merge</h3><p>每个 build driver 独占自己的 <code>table_</code>，<code>addInput()</code> 全程<strong>无任何同步</strong>——因为没有共享。N 个 driver 真正并行地各建各的表。只有最后的 merge 是串行的（指派给 last driver）。</p>
+<p>而且 merge 本身<strong>内部还能再并行</strong>：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// HashBuild.cpp:933</span></span><br><span class="line">table_-&gt;<span class="built_in">prepareJoinTable</span>(</span><br><span class="line">    std::<span class="built_in">move</span>(otherTables), ...,</span><br><span class="line">    allowParallelJoinBuild ? <span class="built_in">queryCtx</span>()-&gt;<span class="built_in">executor</span>() : <span class="literal">nullptr</span>);  <span class="comment">// 传入 executor 做 fork/join</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><strong>品味点：</strong> 这是一个<strong>两级并行</strong>的精妙设计。第一级：N driver 无锁并行填各自的 partial table（吞吐最大化）。第二级：归约阶段虽然逻辑上串行，但 <code>prepareJoinTable</code> 内部又用 executor 把”重算所有 partial table 的 hash 分区”这件事 fork&#x2F;join 出去。本该是瓶颈的串行段，被二次并行化吃掉了。”先无共享地并行，再把不得不串行的部分内部并行化”——这是处理 reduce 阶段的最佳实践。</p>
+</blockquote>
+<h3 id="7-6-所有权转移用-stateCleared-标志位防双重处理"><a href="#7-6-所有权转移用-stateCleared-标志位防双重处理" class="headerlink" title="7.6 所有权转移用 stateCleared_ 标志位防双重处理"></a>7.6 所有权转移用 <code>stateCleared_</code> 标志位防双重处理</h3><p>last driver “偷”走 peer 的 table 时，用一个 bool 标志保证幂等：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// HashBuild.cpp:900</span></span><br><span class="line"><span class="function">std::lock_guard&lt;std::mutex&gt; <span class="title">l</span><span class="params">(build-&gt;mutex_)</span></span>;</span><br><span class="line"><span class="built_in">VELOX_CHECK</span>(!build-&gt;stateCleared_, <span class="string">&quot;peer state empty...&quot;</span>);  <span class="comment">// 断言没被偷过</span></span><br><span class="line">build-&gt;stateCleared_ = <span class="literal">true</span>;                                <span class="comment">// 标记已偷</span></span><br><span class="line">otherTables.<span class="built_in">push_back</span>(std::<span class="built_in">move</span>(build-&gt;table_));            <span class="comment">// 转移所有权</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><strong>品味点：</strong> <code>unique_ptr</code> 的 move 语义 + <code>stateCleared_</code> 标志位 + <code>VELOX_CHECK</code> 断言，三者组合让”所有权转移”既安全又自我验证。被偷后的 peer 在 <code>close()</code> 时再次置位是幂等的。用类型系统（unique_ptr 不可复制）来表达”所有权只能有一个归属”，而不是靠注释约定——让编译器帮你查并发 bug。</p>
+</blockquote>
+<h3 id="7-7-内存仲裁-reclaim-与算子线程的竞争防护"><a href="#7-7-内存仲裁-reclaim-与算子线程的竞争防护" class="headerlink" title="7.7 内存仲裁 reclaim 与算子线程的竞争防护"></a>7.7 内存仲裁 reclaim 与算子线程的竞争防护</h3><p>Spill 可能由<strong>另一个线程</strong>（内存仲裁器）发起，它会回调算子的 <code>reclaim()</code>。这与算子自己的执行线程存在天然竞争。Velox 用两层防护：</p>
+<ol>
+<li><strong>算子线程先被暂停</strong>：仲裁前 Task 会 pause 相关 driver，保证 reclaim 时算子线程已离开 CPU。</li>
+<li><strong><code>NonReclaimableSectionGuard</code> 临界区守卫</strong>：<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Operator.h:489</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">NonReclaimableSectionGuard</span> &#123;</span><br><span class="line">  <span class="built_in">NonReclaimableSectionGuard</span>(Operator* op) &#123;</span><br><span class="line">    op_-&gt;nonReclaimableSection_ = <span class="literal">true</span>;   <span class="comment">// 进入不可回收区</span></span><br><span class="line">  &#125;</span><br><span class="line">  ~<span class="built_in">NonReclaimableSectionGuard</span>() &#123; ... &#125;   <span class="comment">// RAII 自动退出</span></span><br><span class="line">&#125;;</span><br><span class="line">tsan_atomic&lt;<span class="type">bool</span>&gt; nonReclaimableSection_&#123;<span class="literal">false</span>&#125;;   <span class="comment">// tsan 可见，配合 ThreadSanitizer 检测</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+<p><code>reclaim()</code> 入口先检查状态，不安全就直接放弃本次回收：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// HashBuild.cpp:1310</span></span><br><span class="line"><span class="built_in">VELOX_CHECK</span>(!nonReclaimableSection_);</span><br><span class="line"><span class="keyword">if</span> (<span class="built_in">nonReclaimableState</span>()) <span class="keyword">return</span>;   <span class="comment">// 任一 peer 处于临界态则放弃</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><strong>品味点：</strong> 这里有三层品味。其一，用 <strong>RAII guard</strong> 管理”不可回收区”的进出，绝不会忘记退出（异常安全）。其二，<code>nonReclaimableSection_</code> 用 <code>tsan_atomic</code> 包装——这个类型在普通构建是裸 bool（零开销），在 ThreadSanitizer 构建下变成带 happens-before 标注的原子量，让 TSan 能验证跨线程访问的正确性。<strong>为并发正确性的可验证性买单，但只在测试构建付费</strong>。其三，reclaim 失败时选择<strong>优雅放弃</strong>（return）而非报错——回收是尽力而为的，这次回收不了就等下次，不破坏正确性。</p>
+</blockquote>
+<h3 id="7-8-范式总览"><a href="#7-8-范式总览" class="headerlink" title="7.8 范式总览"></a>7.8 范式总览</h3><table>
+<thead>
+<tr>
+<th>范式</th>
+<th>替代了什么朴素做法</th>
+<th>收益</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>协作式非阻塞算子</td>
+<td>一算子一线程 + <code>cv.wait()</code></td>
+<td>M:N 调度，线程数 &#x3D; 核数，无上下文切换风暴</td>
+</tr>
+<tr>
+<td>Promise&#x2F;Future 握手</td>
+<td>共享标志位 + 轮询&#x2F;条件变量</td>
+<td>跨 pipeline 解耦，信号与数据分离</td>
+</tr>
+<tr>
+<td>Last-Peer Barrier</td>
+<td><code>std::barrier</code> + 静态协调者</td>
+<td>同步点与归约指派合一，动态负载均衡</td>
+</tr>
+<tr>
+<td>锁内只搬指针</td>
+<td>持锁做重计算</td>
+<td>临界区趋近零，无锁竞争</td>
+</tr>
+<tr>
+<td>无锁并行 + 内部并行 merge</td>
+<td>全局锁保护共享 table</td>
+<td>两级并行，吃掉串行瓶颈</td>
+</tr>
+<tr>
+<td>unique_ptr + 标志位转移所有权</td>
+<td>裸指针 + 注释约定</td>
+<td>编译器&#x2F;断言验证并发安全</td>
+</tr>
+<tr>
+<td>RAII guard + tsan_atomic</td>
+<td>手动加解锁 + 无验证</td>
+<td>异常安全 + TSan 可验证、零生产开销</td>
+</tr>
+</tbody></table>
+<p><strong>一句话总结整体设计哲学：</strong></p>
+<blockquote>
+<p>把”等待”变成 future、把”线程”变成可调度的 driver、把”锁”压缩成指针搬运的瞬间、把”串行归约”二次并行化、把”并发正确性”交给类型系统和 sanitizer 去验证。HashJoin 不是”用锁把并发问题摁住”，而是”通过结构设计让大部分并发冲突根本不存在”。</p>
+</blockquote>
+<hr>
+<h2 id="八、Promise-x2F-Future-生命周期管理：如何不泄漏、不卡死"><a href="#八、Promise-x2F-Future-生命周期管理：如何不泄漏、不卡死" class="headerlink" title="八、Promise&#x2F;Future 生命周期管理：如何不泄漏、不卡死"></a>八、Promise&#x2F;Future 生命周期管理：如何不泄漏、不卡死</h2><p>整个 HashJoin（乃至 Velox 执行层）散落着大量 promise&#x2F;future。这是把双刃剑——它换来了非阻塞调度，但<strong>任何一个 promise 被悄悄丢弃、或任何一个 future 永远无人 fulfill，就会造成 driver 永久挂起（hung query），等价于资源泄漏</strong>。Velox 用一套系统化的设计来杜绝这两类故障。</p>
+<p>先明确两个故障模式：</p>
+<ul>
+<li><strong>故障 A：promise 被销毁但从未 fulfill</strong> —— 等在对应 future 上的 driver 永远等不到信号。</li>
+<li><strong>故障 B：future 无人满足</strong> —— 通常发生在 task 异常&#x2F;取消路径，正常的 fulfill 点被跳过。</li>
+</ul>
+<h3 id="8-1-底层兜底：folly-的-BrokenPromise-把”挂死”转成”报错”"><a href="#8-1-底层兜底：folly-的-BrokenPromise-把”挂死”转成”报错”" class="headerlink" title="8.1 底层兜底：folly 的 BrokenPromise 把”挂死”转成”报错”"></a>8.1 底层兜底：folly 的 BrokenPromise 把”挂死”转成”报错”</h3><p>这是整套设计的基石。<code>ContinuePromise</code>&#x2F;<code>ContinueFuture</code> 基于 folly：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> ContinuePromise = VeloxPromise&lt;folly::Unit&gt;;</span><br><span class="line"><span class="keyword">using</span> ContinueFuture = folly::SemiFuture&lt;folly::Unit&gt;;</span><br></pre></td></tr></table></figure>
+
+<p>folly 的语义是：<strong>一个 Promise 析构时若尚未 fulfill，会自动给关联的 future 投递一个 <code>BrokenPromise</code> 异常</strong>。也就是说——</p>
+<blockquote>
+<p>即使代码因为 bug 把一个 promise 直接丢弃了，等待方也不会无限挂起，而是会”带着错误被唤醒”。挂死（最难排查）被降级成了报错（有栈、有日志、能恢复）。</p>
+</blockquote>
+<p>这是一条至关重要的安全网：它把”故障 A”从”静默死锁”变成了”显式异常”。Velox 的上层设计都建立在这条兜底之上。</p>
+<h3 id="8-2-VeloxPromise：给每个-promise-加”出生地”标签"><a href="#8-2-VeloxPromise：给每个-promise-加”出生地”标签" class="headerlink" title="8.2 VeloxPromise：给每个 promise 加”出生地”标签"></a>8.2 VeloxPromise：给每个 promise 加”出生地”标签</h3><p>Velox 没有裸用 <code>folly::Promise</code>，而是包了一层 <code>VeloxPromise</code>（<code>VeloxPromise.h:41</code>）：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">~<span class="built_in">VeloxPromise</span>() &#123;</span><br><span class="line">  <span class="keyword">if</span> (!<span class="keyword">this</span>-&gt;<span class="built_in">isFulfilled</span>()) &#123;</span><br><span class="line">    <span class="built_in">LOG</span>(WARNING) &lt;&lt; <span class="string">&quot;PROMISE: Unfulfilled promise is being deleted. Context: &quot;</span></span><br><span class="line">                 &lt;&lt; context_;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>构造时<strong>强制</strong>要求传入 context 字符串（如 <code>&quot;HashJoinBridge::tableOrFuture&quot;</code>、<code>&quot;Task::allPeersFinished &#123;taskId&#125;&quot;</code>）。</p>
+<blockquote>
+<p><strong>品味点：</strong> BrokenPromise 兜底了”不挂死”，但还有个问题——<em>哪个</em> promise 漏了？分布式执行里几百个 promise，光知道”有人 broken”无济于事。VeloxPromise 在析构时打印 context，等于给每个 promise 烙上”出生地”。一旦出现未 fulfill 的析构，日志直接告诉你是哪条协调路径漏了。**这是把”难以复现的并发泄漏”变成”一行可 grep 的 WARNING”**——可观测性优先于事后调试。注意它只是 <code>LOG(WARNING)</code> 而非 <code>VELOX_CHECK</code>：因为在 task 取消路径下，promise 经 <code>cancel()</code> fulfill 后再析构是正常的，未 fulfill 析构是”可疑”而非”必错”，用 warning 而非 fail 是恰当的分寸。</p>
+</blockquote>
+<h3 id="8-3-提取-加锁-x2F-fulfill-解锁：异常安全的核心-idiom"><a href="#8-3-提取-加锁-x2F-fulfill-解锁：异常安全的核心-idiom" class="headerlink" title="8.3 提取-加锁 &#x2F; fulfill-解锁：异常安全的核心 idiom"></a>8.3 提取-加锁 &#x2F; fulfill-解锁：异常安全的核心 idiom</h3><p>所有 fulfill 点都遵循同一个两段式结构（以 <code>JoinBridge::cancel()</code> 为例，<code>JoinBridge.cpp:31</code>）：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">JoinBridge::cancel</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  std::vector&lt;ContinuePromise&gt; promises;</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="function">std::lock_guard&lt;std::mutex&gt; <span class="title">l</span><span class="params">(mutex_)</span></span>;</span><br><span class="line">    cancelled_ = <span class="literal">true</span>;</span><br><span class="line">    promises = std::<span class="built_in">move</span>(promises_);   <span class="comment">// ① 锁内：把 promise 搬到局部变量</span></span><br><span class="line">  &#125;                                     <span class="comment">//   （promises_ 被清空）</span></span><br><span class="line">  <span class="built_in">notify</span>(std::<span class="built_in">move</span>(promises));          <span class="comment">// ② 锁外：逐个 setValue</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// JoinBridge.cpp:20</span></span><br><span class="line"><span class="function"><span class="type">static</span> <span class="type">void</span> <span class="title">JoinBridge::notify</span><span class="params">(std::vector&lt;ContinuePromise&gt; promises)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">auto</span>&amp; promise : promises) &#123;</span><br><span class="line">    promise.<span class="built_in">setValue</span>();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个写法防了三件事：</p>
+<ol>
+<li><strong>死锁</strong> —— <code>setValue()</code> 会触发下游 driver 重新入队调度，可能回调进其他持锁路径。在锁外 fulfill 避免锁重入&#x2F;锁顺序死锁。</li>
+<li><strong>promise 泄漏</strong> —— 一旦 <code>std::move(promises_)</code> 执行，这批 promise 的所有权就<strong>完全转移</strong>到局部 <code>promises</code> 变量。无论后面发生什么（包括异常），这个局部 vector 析构时，要么已经 <code>setValue</code> 过，要么触发 BrokenPromise 唤醒等待方。**绝不会”留在 promises_ 里被遗忘”**。</li>
+<li><strong>重复 fulfill</strong> —— 搬走后 <code>promises_</code> 已空，后续再调 <code>cancel()</code> 是幂等的 no-op。</li>
+</ol>
+<blockquote>
+<p><strong>品味点：</strong> “把待 fulfill 的 promise 从共享状态搬进栈上局部变量”是关键一招。共享状态里的 promise 容易被遗忘（要靠记得清空），而栈上局部变量<strong>一定会析构</strong>——C++ 的栈展开机制成了泄漏的最后防线。即使 <code>notify()</code> 中途抛异常，剩余 promise 随栈展开析构 → BrokenPromise → 等待方带错误恢复。把生命周期管理”挂靠”到语言保证的 RAII 上，而不是靠程序员的纪律。</p>
+</blockquote>
+<h3 id="8-4-Task-终止：把每一个-promise-源头都抽干"><a href="#8-4-Task-终止：把每一个-promise-源头都抽干" class="headerlink" title="8.4 Task 终止：把每一个 promise 源头都抽干"></a>8.4 Task 终止：把每一个 promise 源头都抽干</h3><p>故障 B 主要发生在异常&#x2F;取消路径——正常的 fulfill 点（如 build 完成调 <code>setHashTable</code>）被跳过了。Velox 的对策是：<code>Task::terminate()</code>（<code>Task.cpp:2502</code>）<strong>系统化地遍历每一个 promise 来源并全部 fulfill</strong>：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Task::terminate() 内</span></span><br><span class="line">taskCompletionNotifier.<span class="built_in">activate</span>(std::<span class="built_in">move</span>(taskCompletionPromises_), ...); <span class="comment">// 任务完成</span></span><br><span class="line">stateChangeNotifier.<span class="built_in">activate</span>(std::<span class="built_in">move</span>(stateChangePromises_));            <span class="comment">// 状态变更</span></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">auto</span>&amp; splitGroupState : splitGroupStates) splitGroupState.<span class="built_in">clear</span>();   <span class="comment">// split</span></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">auto</span>&amp; promise : splitPromises)      promise.<span class="built_in">setValue</span>();              <span class="comment">// split 等待</span></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">auto</span>&amp; bridge : oldBridges)          bridge-&gt;<span class="built_in">cancel</span>();                <span class="comment">// join/其他 bridge</span></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">auto</span>&amp; barrierPromise : barrierPromises) barrierPromise.<span class="built_in">setValue</span>();   <span class="comment">// barrier 等待</span></span><br></pre></td></tr></table></figure>
+
+<p>每一类 promise——任务完成、状态变更、split 输入、JoinBridge 的 build&#x2F;probe 等待、<code>allPeersFinished</code> 的 barrier 等待——都有对应的抽干语句。<code>bridge-&gt;cancel()</code> 内部又走 8.3 的 idiom 抽干 bridge 自己的 <code>promises_</code>。</p>
+<blockquote>
+<p><strong>品味点：</strong> 这是”<strong>集中式排水口</strong>“设计。promise 可以分散地在各 bridge、各 barrier 里产生，但<strong>销毁只有一个总闸</strong>——<code>terminate()</code>。它像一个清单一样逐项点名每个 promise 容器。配合 8.2 的 context 日志，如果将来新增了一种 promise 却忘了在 terminate 里抽干，测试时就会看到”Unfulfilled promise … Context: XXX”的告警，直接定位遗漏。<strong>新增 promise 源 → 必须在 terminate 加一行</strong>，这条不变量靠日志自我执行。</p>
+</blockquote>
+<h3 id="8-5-EventCompletionNotifier：RAII-保证”即使终止过程自己抛异常也-fulfill”"><a href="#8-5-EventCompletionNotifier：RAII-保证”即使终止过程自己抛异常也-fulfill”" class="headerlink" title="8.5 EventCompletionNotifier：RAII 保证”即使终止过程自己抛异常也 fulfill”"></a>8.5 EventCompletionNotifier：RAII 保证”即使终止过程自己抛异常也 fulfill”</h3><p>终止过程本身也可能抛异常。如果 fulfill 写成裸循环，异常会跳过剩余 promise。Velox 用一个 RAII 包装兜底（<code>Task.cpp:51</code>）：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">EventCompletionNotifier</span> &#123;</span><br><span class="line"> <span class="keyword">public</span>:</span><br><span class="line">  ~<span class="built_in">EventCompletionNotifier</span>() &#123; <span class="built_in">notify</span>(); &#125;   <span class="comment">// 析构兜底</span></span><br><span class="line">  <span class="function"><span class="type">void</span> <span class="title">activate</span><span class="params">(std::vector&lt;ContinuePromise&gt; promises, std::function&lt;<span class="type">void</span>()&gt; cb = <span class="literal">nullptr</span>)</span> </span>&#123;</span><br><span class="line">    active_ = <span class="literal">true</span>; callback_ = std::<span class="built_in">move</span>(cb); promises_ = std::<span class="built_in">move</span>(promises);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="function"><span class="type">void</span> <span class="title">notify</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (active_) &#123;</span><br><span class="line">      <span class="keyword">for</span> (<span class="keyword">auto</span>&amp; p : promises_) p.<span class="built_in">setValue</span>();</span><br><span class="line">      promises_.<span class="built_in">clear</span>();</span><br><span class="line">      <span class="keyword">if</span> (callback_) <span class="built_in">callback_</span>();</span><br><span class="line">      active_ = <span class="literal">false</span>;                        <span class="comment">// 幂等：标记已通知</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>正常路径显式调 <code>notify()</code>（置 <code>active_=false</code>，析构不再重复）；若异常跳过了显式 <code>notify()</code>，<strong>析构函数会补上</strong>。</p>
+<blockquote>
+<p><strong>品味点：</strong> 这是 8.3 idiom 的升级版——连”忘记调用 notify”或”notify 前抛异常”都用析构函数兜住。<code>active_</code> 标志让它幂等（显式调过就不再调）。把”必须执行的收尾动作”绑定到对象生命周期，是 C++ 异常安全的标准答案，这里用在了 promise fulfill 上。</p>
+</blockquote>
+<h3 id="8-6-BlockingState：future-在飞行途中，谁保证-driver-不被析构？"><a href="#8-6-BlockingState：future-在飞行途中，谁保证-driver-不被析构？" class="headerlink" title="8.6 BlockingState：future 在飞行途中，谁保证 driver 不被析构？"></a>8.6 BlockingState：future 在飞行途中，谁保证 driver 不被析构？</h3><p>还有一个隐蔽的泄漏&#x2F;悬垂问题：driver 返回 future 后，执行线程离开了，<strong>是什么阻止 Driver 对象（及其内存池）在 future resolve 前被销毁？</strong> 答案是 <code>BlockingState</code> 持有一个 <code>shared_ptr&lt;Driver&gt;</code>（<code>Driver.h:184</code>）：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">BlockingState</span> &#123;</span><br><span class="line">  std::shared_ptr&lt;Driver&gt; driver_;   <span class="comment">// keepalive：把 driver 续命</span></span><br><span class="line">  ContinueFuture future_;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Driver.cpp:227  setResume()</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">BlockingState::setResume</span><span class="params">(std::shared_ptr&lt;BlockingState&gt; state)</span> </span>&#123;</span><br><span class="line">  std::<span class="built_in">move</span>(state-&gt;future_)</span><br><span class="line">      .<span class="built_in">via</span>(&amp;exec)</span><br><span class="line">      .<span class="built_in">thenValue</span>([state](<span class="keyword">auto</span>&amp;&amp;) &#123;           <span class="comment">// lambda 捕获 state → 续命整条链</span></span><br><span class="line">        <span class="comment">// ... 未终止则重新入队 ...</span></span><br><span class="line">        Driver::<span class="built_in">enqueue</span>(state-&gt;driver_);</span><br><span class="line">      &#125;)</span><br><span class="line">      .<span class="built_in">thenError</span>(folly::<span class="type">tag_t</span>&lt;std::exception&gt;&#123;&#125;, [state](std::exception <span class="type">const</span>&amp; e) &#123;</span><br><span class="line">        <span class="comment">// future 带 BrokenPromise/其他错误 resolve → 设置 task error</span></span><br><span class="line">        state-&gt;driver_-&gt;<span class="built_in">task</span>()-&gt;<span class="built_in">setError</span>(std::<span class="built_in">current_exception</span>());</span><br><span class="line">      &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>续命链条：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">future 回调  →  捕获 [state]  →  state (shared_ptr&lt;BlockingState&gt;)</span><br><span class="line">                                   └─ driver_ (shared_ptr&lt;Driver&gt;)</span><br></pre></td></tr></table></figure>
+
+<p>只要 future 没 resolve，回调 lambda 就活着，lambda 捕获的 <code>state</code> 就活着，<code>state-&gt;driver_</code> 就活着——<strong>driver 不会被析构</strong>。future 一旦 resolve（无论成功 <code>thenValue</code> 还是失败 <code>thenError</code>），lambda 执行完毕、<code>state</code> 析构、driver 引用释放。</p>
+<blockquote>
+<p><strong>品味点：</strong> 两点品味。其一，<strong>用 shared_ptr 的引用计数把”对象生命周期”和”异步操作生命周期”绑定</strong>——异步操作没结束，对象就不会死，从根上消除悬垂。其二，<code>thenValue</code> + <code>thenError</code> <strong>成对出现</strong>：这正是对 8.1 BrokenPromise 的接应。promise 被丢弃 → future 带 BrokenPromise resolve → 走 <code>thenError</code> → <code>setError</code> → 整个 task 优雅失败并连锁抽干其余 promise（回到 8.4）。一条 driver 的 future 异常，会触发全 task 的有序拆除，而不是孤立地挂死。<strong>错误是会传染的，而这正是设计想要的——宁可让整个 task 带错退出并清理干净，也不要留一个静默挂起的 driver。</strong></p>
+</blockquote>
+<h3 id="8-7-这套设计的分层防御总览"><a href="#8-7-这套设计的分层防御总览" class="headerlink" title="8.7 这套设计的分层防御总览"></a>8.7 这套设计的分层防御总览</h3><table>
+<thead>
+<tr>
+<th>层次</th>
+<th>机制</th>
+<th>防的是</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>L0 语言&#x2F;库兜底</td>
+<td>folly BrokenPromise：未 fulfill 的 promise 析构 → future 收到异常</td>
+<td>把”挂死”降级为”报错”</td>
+</tr>
+<tr>
+<td>L1 可观测性</td>
+<td>VeloxPromise 析构打印 context</td>
+<td>定位<em>哪条路径</em>漏了 promise</td>
+</tr>
+<tr>
+<td>L2 fulfill idiom</td>
+<td>锁内 <code>std::move</code> 提取 → 锁外 <code>notify</code>，靠栈上局部变量 RAII</td>
+<td>死锁 &#x2F; 遗忘 &#x2F; 重复 fulfill</td>
+</tr>
+<tr>
+<td>L3 终止排水</td>
+<td><code>Task::terminate()</code> 逐项抽干每类 promise 源</td>
+<td>异常&#x2F;取消路径下的故障 B</td>
+</tr>
+<tr>
+<td>L4 异常安全</td>
+<td>EventCompletionNotifier 析构兜底 fulfill</td>
+<td>终止过程自身抛异常</td>
+</tr>
+<tr>
+<td>L5 生命周期</td>
+<td>BlockingState 持 <code>shared_ptr&lt;Driver&gt;</code> keepalive</td>
+<td>future 飞行途中 driver 被析构（悬垂）</td>
+</tr>
+<tr>
+<td>L6 错误传染</td>
+<td><code>thenError</code> → <code>setError</code> → 连锁 terminate</td>
+<td>单点 future 异常 → 全 task 有序拆除</td>
+</tr>
+</tbody></table>
+<p><strong>一句话总结 promise 生命周期哲学：</strong></p>
+<blockquote>
+<p>不指望程序员”记得 fulfill 每个 promise”——而是层层设防：库层让漏掉的 promise 变成异常而非挂死，包装层标注出生地便于定位，idiom 层把 promise 挂靠到栈 RAII 上，终止层设一个集中排水口点名抽干，再用 shared_ptr 把对象生命周期焊死在异步操作上。最终结果是：<strong>任何一个 promise 走失，系统都会”带着错误大声退出并清理干净”，而绝不”安静地挂死”。</strong></p>
+</blockquote>
+
+  </div>
+</article>
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/categories/technology">Technology</a></li>
+         
+          <li><a href="/categories/life">Life</a></li>
+         
+          <li><a href="/archives/">Archives</a></li>
+         
+          <li><a href="/tags/">Tags</a></li>
+         
+          <li><a href="/about">About</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E4%BD%93%E6%9E%B6%E6%9E%84"><span class="toc-number">1.</span> <span class="toc-text">总体架构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81HashJoinBridge"><span class="toc-number">2.</span> <span class="toc-text">一、HashJoinBridge</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81HashBuild-%E2%80%94-Build-%E9%98%B6%E6%AE%B5"><span class="toc-number">3.</span> <span class="toc-text">二、HashBuild — Build 阶段</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E7%8A%B6%E6%80%81%E6%9C%BA%EF%BC%88HashBuild-h-43-57%EF%BC%89"><span class="toc-number">3.1.</span> <span class="toc-text">2.1 状态机（HashBuild.h:43-57）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-%E6%A0%B8%E5%BF%83%E6%B5%81%E7%A8%8B"><span class="toc-number">3.2.</span> <span class="toc-text">2.2 核心流程</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81HashProbe-%E2%80%94-Probe-%E9%98%B6%E6%AE%B5"><span class="toc-number">4.</span> <span class="toc-text">三、HashProbe — Probe 阶段</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-%E7%8A%B6%E6%80%81%E6%9C%BA%EF%BC%88ProbeOperatorState-h-34-53%EF%BC%89"><span class="toc-number">4.1.</span> <span class="toc-text">3.1 状态机（ProbeOperatorState.h:34-53）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-%E6%A0%B8%E5%BF%83%E6%B5%81%E7%A8%8B"><span class="toc-number">4.2.</span> <span class="toc-text">3.2 核心流程</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81Spill-%E6%9C%BA%E5%88%B6"><span class="toc-number">5.</span> <span class="toc-text">四、Spill 机制</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-%E8%A7%A6%E5%8F%91%E8%B7%AF%E5%BE%84"><span class="toc-number">5.1.</span> <span class="toc-text">4.1 触发路径</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-%E6%95%B4%E4%BD%93%E8%BF%AD%E4%BB%A3%EF%BC%88%E4%BB%A5-1-%E4%B8%AA-spill-%E5%88%86%E5%8C%BA%E4%B8%BA%E4%BE%8B%EF%BC%89"><span class="toc-number">5.2.</span> <span class="toc-text">4.2 整体迭代（以 1 个 spill 分区为例）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-%E9%80%92%E5%BD%92-Spill"><span class="toc-number">5.3.</span> <span class="toc-text">4.3 递归 Spill</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E5%AE%8C%E6%95%B4%E5%8D%8F%E8%B0%83%E6%97%B6%E5%BA%8F%E5%9B%BE"><span class="toc-number">6.</span> <span class="toc-text">五、完整协调时序图</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E5%85%B3%E9%94%AE%E6%96%87%E4%BB%B6%E7%B4%A2%E5%BC%95"><span class="toc-number">7.</span> <span class="toc-text">六、关键文件索引</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E8%8C%83%E5%BC%8F"><span class="toc-number">8.</span> <span class="toc-text">七、多线程编程范式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#7-1-%E5%8D%8F%E4%BD%9C%E5%BC%8F%E9%9D%9E%E9%98%BB%E5%A1%9E%E7%AE%97%E5%AD%90%E6%A8%A1%E5%9E%8B%EF%BC%88Cooperative-Non-Blocking%EF%BC%89"><span class="toc-number">8.1.</span> <span class="toc-text">7.1 协作式非阻塞算子模型（Cooperative Non-Blocking）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-2-Promise-x2F-Future-%E5%81%9A%E8%B7%A8-Pipeline-%E6%8F%A1%E6%89%8B"><span class="toc-number">8.2.</span> <span class="toc-text">7.2 Promise&#x2F;Future 做跨 Pipeline 握手</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-3-Last-Peer-Barrier%EF%BC%88%E6%9C%80%E5%90%8E%E4%B8%80%E4%BA%BA%E5%81%9A%E5%BD%92%E7%BA%A6%EF%BC%89"><span class="toc-number">8.3.</span> <span class="toc-text">7.3 Last-Peer Barrier（最后一人做归约）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-4-%E9%94%81%E7%9A%84%E7%B2%92%E5%BA%A6%EF%BC%9A%E4%B8%B4%E7%95%8C%E5%8C%BA%E5%8F%AA%E6%90%AC%E6%8C%87%E9%92%88%EF%BC%8C%E9%87%8D%E6%B4%BB%E5%85%A8%E5%9C%A8%E9%94%81%E5%A4%96"><span class="toc-number">8.4.</span> <span class="toc-text">7.4 锁的粒度：临界区只搬指针，重活全在锁外</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-5-%E6%97%A0%E9%94%81%E5%B9%B6%E8%A1%8C-build-%E4%B8%B2%E8%A1%8C-merge"><span class="toc-number">8.5.</span> <span class="toc-text">7.5 无锁并行 build + 串行 merge</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-6-%E6%89%80%E6%9C%89%E6%9D%83%E8%BD%AC%E7%A7%BB%E7%94%A8-stateCleared-%E6%A0%87%E5%BF%97%E4%BD%8D%E9%98%B2%E5%8F%8C%E9%87%8D%E5%A4%84%E7%90%86"><span class="toc-number">8.6.</span> <span class="toc-text">7.6 所有权转移用 stateCleared_ 标志位防双重处理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-7-%E5%86%85%E5%AD%98%E4%BB%B2%E8%A3%81-reclaim-%E4%B8%8E%E7%AE%97%E5%AD%90%E7%BA%BF%E7%A8%8B%E7%9A%84%E7%AB%9E%E4%BA%89%E9%98%B2%E6%8A%A4"><span class="toc-number">8.7.</span> <span class="toc-text">7.7 内存仲裁 reclaim 与算子线程的竞争防护</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-8-%E8%8C%83%E5%BC%8F%E6%80%BB%E8%A7%88"><span class="toc-number">8.8.</span> <span class="toc-text">7.8 范式总览</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AB%E3%80%81Promise-x2F-Future-%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E7%AE%A1%E7%90%86%EF%BC%9A%E5%A6%82%E4%BD%95%E4%B8%8D%E6%B3%84%E6%BC%8F%E3%80%81%E4%B8%8D%E5%8D%A1%E6%AD%BB"><span class="toc-number">9.</span> <span class="toc-text">八、Promise&#x2F;Future 生命周期管理：如何不泄漏、不卡死</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#8-1-%E5%BA%95%E5%B1%82%E5%85%9C%E5%BA%95%EF%BC%9Afolly-%E7%9A%84-BrokenPromise-%E6%8A%8A%E2%80%9D%E6%8C%82%E6%AD%BB%E2%80%9D%E8%BD%AC%E6%88%90%E2%80%9D%E6%8A%A5%E9%94%99%E2%80%9D"><span class="toc-number">9.1.</span> <span class="toc-text">8.1 底层兜底：folly 的 BrokenPromise 把”挂死”转成”报错”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-2-VeloxPromise%EF%BC%9A%E7%BB%99%E6%AF%8F%E4%B8%AA-promise-%E5%8A%A0%E2%80%9D%E5%87%BA%E7%94%9F%E5%9C%B0%E2%80%9D%E6%A0%87%E7%AD%BE"><span class="toc-number">9.2.</span> <span class="toc-text">8.2 VeloxPromise：给每个 promise 加”出生地”标签</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-3-%E6%8F%90%E5%8F%96-%E5%8A%A0%E9%94%81-x2F-fulfill-%E8%A7%A3%E9%94%81%EF%BC%9A%E5%BC%82%E5%B8%B8%E5%AE%89%E5%85%A8%E7%9A%84%E6%A0%B8%E5%BF%83-idiom"><span class="toc-number">9.3.</span> <span class="toc-text">8.3 提取-加锁 &#x2F; fulfill-解锁：异常安全的核心 idiom</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-4-Task-%E7%BB%88%E6%AD%A2%EF%BC%9A%E6%8A%8A%E6%AF%8F%E4%B8%80%E4%B8%AA-promise-%E6%BA%90%E5%A4%B4%E9%83%BD%E6%8A%BD%E5%B9%B2"><span class="toc-number">9.4.</span> <span class="toc-text">8.4 Task 终止：把每一个 promise 源头都抽干</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-5-EventCompletionNotifier%EF%BC%9ARAII-%E4%BF%9D%E8%AF%81%E2%80%9D%E5%8D%B3%E4%BD%BF%E7%BB%88%E6%AD%A2%E8%BF%87%E7%A8%8B%E8%87%AA%E5%B7%B1%E6%8A%9B%E5%BC%82%E5%B8%B8%E4%B9%9F-fulfill%E2%80%9D"><span class="toc-number">9.5.</span> <span class="toc-text">8.5 EventCompletionNotifier：RAII 保证”即使终止过程自己抛异常也 fulfill”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-6-BlockingState%EF%BC%9Afuture-%E5%9C%A8%E9%A3%9E%E8%A1%8C%E9%80%94%E4%B8%AD%EF%BC%8C%E8%B0%81%E4%BF%9D%E8%AF%81-driver-%E4%B8%8D%E8%A2%AB%E6%9E%90%E6%9E%84%EF%BC%9F"><span class="toc-number">9.6.</span> <span class="toc-text">8.6 BlockingState：future 在飞行途中，谁保证 driver 不被析构？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-7-%E8%BF%99%E5%A5%97%E8%AE%BE%E8%AE%A1%E7%9A%84%E5%88%86%E5%B1%82%E9%98%B2%E5%BE%A1%E6%80%BB%E8%A7%88"><span class="toc-number">9.7.</span> <span class="toc-text">8.7 这套设计的分层防御总览</span></a></li></ol></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2025/10/23/velox-join/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2025/10/23/velox-join/&text=Velox HashJoin"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2025/10/23/velox-join/&title=Velox HashJoin"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2025/10/23/velox-join/&is_video=false&description=Velox HashJoin"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Velox HashJoin&body=Check out this article: http://example.com/2025/10/23/velox-join/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2025/10/23/velox-join/&title=Velox HashJoin"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2025/10/23/velox-join/&title=Velox HashJoin"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2025/10/23/velox-join/&title=Velox HashJoin"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2025/10/23/velox-join/&title=Velox HashJoin"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2025/10/23/velox-join/&name=Velox HashJoin&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2025/10/23/velox-join/&t=Velox HashJoin"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2026
+    duanmeng
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/categories/technology">Technology</a></li><!--
+     --><!--
+       --><li><a href="/categories/life">Life</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Archives</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tags</a></li><!--
+     --><!--
+       --><li><a href="/about">About</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+
+  <script src='https://unpkg.com/mermaid@10.3.0/dist/mermaid.min.js'></script>
+  <script>
+    if (window.mermaid) {
+      mermaid.initialize({theme: 'forest'});
+    }
+  </script>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

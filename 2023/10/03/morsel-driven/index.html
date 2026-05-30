@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="本篇基本上对该论文的全文翻译  摘要随着现代计算机架构的发展，两个问题共同对抗了并行查询执行的最新方法：(i) 为了利用众核，所有查询工作必须均匀地分配给（很快将是）数百个线程，以实现良好的加速比，然而 (ii) 即使有准确的数据统计，由于现代乱序核心的复杂性，均匀地划分工作也很困难。因此，现有的“计划驱动”并行性方法遇到了负载平衡和上下文切换瓶颈，因此不再扩展。众核架构面临的第三个问题是内存控">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Morsel-Driven Parallelism: A NUMA-Aware Query Evaluation Framework for the Many-Core Age">
+<meta property="og:url" content="http://example.com/2023/10/03/morsel-driven/index.html">
+<meta property="og:site_name" content="Macduan Notes">
+<meta property="og:description" content="本篇基本上对该论文的全文翻译  摘要随着现代计算机架构的发展，两个问题共同对抗了并行查询执行的最新方法：(i) 为了利用众核，所有查询工作必须均匀地分配给（很快将是）数百个线程，以实现良好的加速比，然而 (ii) 即使有准确的数据统计，由于现代乱序核心的复杂性，均匀地划分工作也很困难。因此，现有的“计划驱动”并行性方法遇到了负载平衡和上下文切换瓶颈，因此不再扩展。众核架构面临的第三个问题是内存控">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2023-10-03T06:24:23.000Z">
+<meta property="article:modified_time" content="2026-05-30T05:46:54.131Z">
+<meta property="article:author" content="duanmeng">
+<meta property="article:tag" content="QueryExecution">
+<meta property="article:tag" content="data">
+<meta property="article:tag" content="paper">
+<meta property="article:tag" content="schedule">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Morsel-Driven Parallelism: A NUMA-Aware Query Evaluation Framework for the Many-Core Age</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/categories/technology">Technology</a></li><!--
+     --><!--
+       --><li><a href="/categories/life">Life</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Archives</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tags</a></li><!--
+     --><!--
+       --><li><a href="/about">About</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2023/12/14/umbra/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2023/08/19/simd-in-velox-filter/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/10/03/morsel-driven/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/10/03/morsel-driven/&text=Morsel-Driven Parallelism: A NUMA-Aware Query Evaluation Framework for the Many-Core Age"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/10/03/morsel-driven/&title=Morsel-Driven Parallelism: A NUMA-Aware Query Evaluation Framework for the Many-Core Age"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/10/03/morsel-driven/&is_video=false&description=Morsel-Driven Parallelism: A NUMA-Aware Query Evaluation Framework for the Many-Core Age"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Morsel-Driven Parallelism: A NUMA-Aware Query Evaluation Framework for the Many-Core Age&body=Check out this article: http://example.com/2023/10/03/morsel-driven/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/10/03/morsel-driven/&title=Morsel-Driven Parallelism: A NUMA-Aware Query Evaluation Framework for the Many-Core Age"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/10/03/morsel-driven/&title=Morsel-Driven Parallelism: A NUMA-Aware Query Evaluation Framework for the Many-Core Age"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/10/03/morsel-driven/&title=Morsel-Driven Parallelism: A NUMA-Aware Query Evaluation Framework for the Many-Core Age"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/10/03/morsel-driven/&title=Morsel-Driven Parallelism: A NUMA-Aware Query Evaluation Framework for the Many-Core Age"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/10/03/morsel-driven/&name=Morsel-Driven Parallelism: A NUMA-Aware Query Evaluation Framework for the Many-Core Age&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/10/03/morsel-driven/&t=Morsel-Driven Parallelism: A NUMA-Aware Query Evaluation Framework for the Many-Core Age"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%91%98%E8%A6%81"><span class="toc-number">1.</span> <span class="toc-text">摘要</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%BC%95%E8%A8%80"><span class="toc-number">2.</span> <span class="toc-text">1 引言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E5%B0%8F%E7%89%87%E6%AE%B5%E9%A9%B1%E5%8A%A8%E6%89%A7%E8%A1%8C"><span class="toc-number">3.</span> <span class="toc-text">2. 小片段驱动执行</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E8%B0%83%E5%BA%A6%E5%99%A8%EF%BC%9A%E8%B0%83%E5%BA%A6%E5%B9%B6%E8%A1%8C%E7%AE%A1%E9%81%93%E4%BB%BB%E5%8A%A1"><span class="toc-number">4.</span> <span class="toc-text">3. 调度器：调度并行管道任务</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-%E5%BC%B9%E6%80%A7"><span class="toc-number">4.1.</span> <span class="toc-text">3.1 弹性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-%E5%AE%9E%E7%8E%B0%E6%A6%82%E8%BF%B0"><span class="toc-number">4.2.</span> <span class="toc-text">3.2 实现概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-%E5%B0%8F%E7%89%87%E6%AE%B5%E5%A4%A7%E5%B0%8F"><span class="toc-number">4.3.</span> <span class="toc-text">3.3 小片段大小</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E5%B9%B6%E8%A1%8C%E6%93%8D%E4%BD%9C%E7%AC%A6%E7%BB%86%E8%8A%82"><span class="toc-number">5.</span> <span class="toc-text">4. 并行操作符细节</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-%E5%93%88%E5%B8%8C%E8%BF%9E%E6%8E%A5"><span class="toc-number">5.1.</span> <span class="toc-text">4.1 哈希连接</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-%E6%97%A0%E9%94%81%E6%A0%87%E8%AE%B0%E5%93%88%E5%B8%8C%E8%A1%A8"><span class="toc-number">5.2.</span> <span class="toc-text">4.2 无锁标记哈希表</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-NUMA%E6%84%9F%E7%9F%A5%E8%A1%A8%E5%88%86%E5%8C%BA"><span class="toc-number">5.3.</span> <span class="toc-text">4.3 NUMA感知表分区</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-4-%E5%88%86%E7%BB%84-x2F-%E8%81%9A%E5%90%88"><span class="toc-number">5.4.</span> <span class="toc-text">4.4 分组&#x2F;聚合</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-5-%E6%8E%92%E5%BA%8F"><span class="toc-number">5.5.</span> <span class="toc-text">4.5 排序</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E8%AF%84%E4%BC%B0"><span class="toc-number">6.</span> <span class="toc-text">5. 评估</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-%E5%AE%9E%E9%AA%8C%E8%AE%BE%E7%BD%AE"><span class="toc-number">6.1.</span> <span class="toc-text">5.1 实验设置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-TPC-H"><span class="toc-number">6.2.</span> <span class="toc-text">5.2 TPC-H</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-3-NUMA%E6%84%9F%E7%9F%A5"><span class="toc-number">6.3.</span> <span class="toc-text">5.3 NUMA感知</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-4-%E5%BC%B9%E6%80%A7"><span class="toc-number">6.4.</span> <span class="toc-text">5.4 弹性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-5-%E6%98%9F%E5%9E%8B%E6%A8%A1%E5%BC%8F%E5%9F%BA%E5%87%86%E6%B5%8B%E8%AF%95"><span class="toc-number">6.5.</span> <span class="toc-text">5.5 星型模式基准测试</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E7%9B%B8%E5%85%B3%E5%B7%A5%E4%BD%9C"><span class="toc-number">7.</span> <span class="toc-text">6. 相关工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE"><span class="toc-number">8.</span> <span class="toc-text">参考文献</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Morsel-Driven Parallelism: A NUMA-Aware Query Evaluation Framework for the Many-Core Age
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">duanmeng</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-10-03T06:24:23.000Z" itemprop="datePublished">2023-10-03</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/technology/">technology</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/QueryExecution/" rel="tag">QueryExecution</a>, <a class="tag-link-link" href="/tags/data/" rel="tag">data</a>, <a class="tag-link-link" href="/tags/paper/" rel="tag">paper</a>, <a class="tag-link-link" href="/tags/schedule/" rel="tag">schedule</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <blockquote>
+<p>本篇基本上对该论文的全文翻译</p>
+</blockquote>
+<h2 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h2><p>随着现代计算机架构的发展，两个问题共同对抗了并行查询执行的最新方法：(i) 为了利用众核，所有查询工作必须均匀地分配给（很快将是）数百个线程，以实现良好的加速比，然而 (ii) 即使有准确的数据统计，由于现代乱序核心的复杂性，均匀地划分工作也很困难。因此，现有的“计划驱动”并行性方法遇到了负载平衡和上下文切换瓶颈，因此不再扩展。众核架构面临的第三个问题是内存控制器的分散化，这导致了非一致性内存访问（NUMA）。作为回应，我们提出了“小片段驱动”的查询执行框架，其中调度成为细粒度的运行时任务，并且具有NUMA-aware。小片段驱动的查询处理采用输入数据的小片段（<strong>mosels</strong>），并将这些调度到运行整个操作符流水线的工作者线程，直到下一个流水线断点。并行度不是内置于计划中，而是可以在查询执行期间弹性变化，因此调度器可以对不同小片段的执行速度做出反应，也可以根据工作负载中新到达的查询动态调整资源。此外，调度器意识到NUMA本地小片段和操作符状态的数据局部性，使得绝大多数执行在NUMA本地内存上进行。我们在TPC-H和SSB基准上的评估显示了非常高的绝对性能和平均超过32个核心的30倍以上的加速比。</p>
+<h2 id="1-引言"><a href="#1-引言" class="headerlink" title="1 引言"></a>1 引言</h2><p>如今，硬件性能提升的主要动力来自于增加多核并行性，而不是提升单线程性能[2]。预计到2014年SIGMOD会议时，Intel即将推出的主流服务器Ivy Bridge EX将能够运行120个并发线程。我们使用“众核”(<code>many-core</code>)一词来指代这些具有数十或数百个核心的架构。与此同时，服务器的最大内存容量增加到数TB，这促进了主存数据库系统的发展。在这些系统中，查询处理不再受I&#x2F;O限制，众核的巨大并行计算资源可以得到真正的利用。不幸的是，为了将吞吐量扩展到巨大的内存，需要将内存控制器移入芯片，从而导致了内存访问的非统一性（NUMA）。本质上，计算机本身已成为一个网络，因为数据项的访问成本取决于数据和访问线程位于哪个芯片。因此，众核并行化需要考虑RAM和缓存层次结构。特别是，必须仔细考虑NUMA对RAM的划分，以确保线程（主要）在NUMA本地数据上工作。</p>
+<p>20世纪90年代的大量研究导致大多数数据库系统采用了受Volcano模型启发的并行形式，其中操作符在很大程度上不感知并行性。并行性由所谓的“交换”操作符封装，它们在执行相同查询计划段的多个线程之间路由元组流。这种Volcano模型的实现可以称为计划驱动的：优化器在查询编译时静态确定应该运行多少线程，为每个线程实例化一个查询操作计划，并使用交换操作符将它们连接起来。在本文中，我们介绍了我们为内存数据库系统HyPer [16]设计的自适应小片段驱动查询执行框架。我们的方法在图1中针对三方连接查询R 1A S 1B T进行了概述。通过在不同核心上并行处理每个管道来实现并行性，如图中的两个（上部&#x2F;红色和下部&#x2F;蓝色）管道所示。核心思想是一种调度机制（“调度器”），它允许操作符管道的灵活并行执行，甚至在查询执行期间也可以改变并行度。查询被划分为段，每个执行段取出一小片段输入元组（例如，100,000个）并执行这些，将结果具体化到下一个管道断路器。小片段框架实现了NUMA本地处理，如图中的彩色编码所示：一个线程在NUMA本地输入上操作，并将结果写入NUMA本地存储区域。我们的调度器运行一个固定数量的、与机器相关的线程，这样即使新查询到达也不会出现资源过度订阅，这些线程被固定到核心上，以防止由于操作系统将线程移动到不同核心而导致NUMA局部性意外丧失。小片段驱动调度的关键特性是任务分配在运行时完成，因此是完全弹性的。这允许即使在中间结果大小分布不确定以及现代CPU核心性能难以预测的情况下，也能达到完美的负载均衡。它的弹性在于它可以处理在运行时变化的工作负载（通过减少或增加已经执行的查询的并行性）并且可以轻松地集成一个以不同优先级运行查询的机制。小片段驱动的思想从仅仅调度扩展到一个完整的查询执行框架，因为所有物理查询操作符都必须能够在所有执行阶段并行地以小片段方式执行（例如，哈希构建和探针），这是在Amdahl定律的光照下实现众核可扩展性的关键需求。小片段框架的重要部分是数据局部性意识。这从输入小片段和具体化输出缓冲区的局部性开始，但扩展到可能由操作符创建和访问的状态（数据结构，如哈希表）。这个状态是可以被任何核心潜在访问的共享数据，但具有高度的NUMA局部性。因此，小片段调度是灵活的，但强烈倾向于最大程度地安排NUMA本地执行的调度选择。这意味着远程NUMA访问只有在处理每个查询的几个小片段时才会发生，以便实现负载平衡。通过主要访问本地RAM，优化了内存延迟，并最小化了可能会减慢其他线程的跨插座内存流量。在一个纯粹的基于Volcano的并行框架中，操作符对并行性的隐藏和共享状态的避免，导致了计划在交换操作符中实时数据分区。我们认为，这并不总是导致最优计划（因为分区工作并不总是值得的），而我们局部性意识的调度器可以实现实时分区所获得的局部性。其他系统倡导每个操作符的并行化[21]以实现执行的灵活性，但这导致了同一管道段中操作符之间的不必要同步。尽管如此，我们相信小片段框架可以集成到许多现有系统中，例如，通过改变交换操作符的实现来封装小片段调度，并引入例如哈希表共享。我们的框架也适用于使用即时编译(JIT)代码编译的系统[19, 25]，因为为计划中出现的每个管道生成的代码，随后可以被小片段调度。事实上，我们的HyPer系统就使用了这种方法[25]。在本文中，我们介绍了一系列相关的思想，这些思想使得高效、可扩展和弹性的并行处理成为可能。主要贡献是为一个查询引擎提供了一个架构蓝图，该查询引擎包括以下内容：</p>
+<p>小片段驱动的查询执行是一个新的并行查询评估框架，它与传统的Volcano模型根本不同，因为它使用工作窃取在线程之间动态分配工作。这防止了由于负载不平衡而造成的CPU资源浪费，并允许弹性，即CPU资源可以在任何时间在不同查询之间重新分配。<br>一组针对最重要关系操作符的快速并行算法。<br>将NUMA感知整合到数据库系统中的系统化方法。<br>本文的其余部分组织如下：第2节详细讨论了管道并行化和数据碎片化。第3节讨论了调度器，它将任务（管道作业）和小片段（数据片段）分配给工作线程。调度器实现了完全的弹性，允许在任何时候改变特定查询的并行线程数量。第4节讨论了并行连接、聚合和排序操作符的算法和同步细节。第5节通过整个TPC-H查询集来评估查询引擎的优点。在第6节中，我们讨论了相关工作，以指出我们并行查询引擎架构的新颖性，然后我们总结了本文。</p>
+<h2 id="2-小片段驱动执行"><a href="#2-小片段驱动执行" class="headerlink" title="2. 小片段驱动执行"></a>2. 小片段驱动执行</h2><p>根据引言中的动机查询，我们将展示以下示例查询计划的并行管道查询执行：</p>
+<p><code>σ...(R) 1A σ...(S) 1B σ...(T)</code></p>
+<p>假设R是最大的表（过滤后），优化器将选择R作为探针输入，并构建其他两个表S和T的（团队）哈希表。由基于成本的优化器获得的得到的代数查询计划包括图2左侧所示的三个管道：</p>
+<p>扫描、过滤并构建基本关系T的哈希表HT(T)。<br>扫描、过滤并构建参数S的哈希表HT(S)。<br>扫描、过滤R并探测S的哈希表HT(S)以及探测T的哈希表HT(T)，并将结果元组存储起来。<br>HyPer使用即时编译(JIT)生成高效的机器代码。每个管道段，包括所有操作符，被编译成一个代码片段。这实现了非常高的原始性能，因为消除了传统查询评估器所经历的解释开销。此外，管道中的操作符甚至不会具体化它们的中间结果，这仍然由Vectorwise的更高效的向量逐个元素评估引擎完成[34]。代数计划的小片段驱动执行由所谓的QEPobject控制，它将可执行的管道转移到调度器——见第3节。QEPobject的职责是观察数据依赖性。在我们的示例查询中，第三个（探测）管道只能在构建了两个哈希表之后执行，即，在前两个管道已完全执行之后。对于每个管道，QEPobject为并行线程执行管道的结果分配临时存储区。图3展示了过滤T和构建哈希表HT(T)的管道的并行处理。让我们集中讨论过滤输入T并存储“幸存”元组到临时存储区的管道的第一阶段。</p>
+<p>在我们的图中展示了三个并行线程，每个线程一次处理一个小片段。由于我们的基本关系T是“小片段方式”存储在NUMA组织的内存中，调度器尽可能地分配位于线程执行的同一插座上的小片段。这在图中的着色中表示：在红色插座的核心上运行的红色线程被分配了处理红色小片段的任务，即位于红色插座的基本关系T的小片段。一旦线程完成了分配的小片段的处理，它可以被委派（调度）到不同的任务，或者它可以获得另一个（相同颜色的）小片段作为下一个任务。随着线程一次处理一个小片段，系统是完全弹性的。并行度（MPL）可以在任何点（更准确地说，在小片段边界）减少或增加，同时处理查询。逻辑代数管道（1）扫描&#x2F;过滤输入T和（2）构建哈希表实际上被分解成两个物理处理管道，如图左侧标记为阶段。在第一阶段，过滤后的元组被插入到NUMA本地存储区，即，为了每个核心都有单独的存储区以避免同步。为了保持进一步处理阶段中的NUMA局部性，特定核心的存储区在同一个插座上本地分配。在所有基本表小片段被扫描和过滤后，在第二阶段这些存储区被扫描——再次由位于相应核心的线程执行——并将指针插入到哈希表中。将逻辑哈希表构建管道分割成两个阶段使得全局哈希表的完美尺寸成为可能，因为在第一阶段完成后，确切的“幸存”对象数量是已知的。这个（完美尺寸的）全局哈希表将由位于NUMA系统各个插座的线程进行探测；因此，为了避免争用，它不应该位于特定的NUMA区域，因此它被交错（分散）在所有插座上。由于许多并行线程竞争向这个哈希表中插入数据，无锁实现是必需的。哈希表的实现细节在第4.2节中描述。在两个哈希表构建完成后，可以调度探测管道。图4展示了探测管道的详细处理。同样，一个线程从调度器请求工作，调度器分配一个在相应NUMA分区中的小片段。也就是说，位于红色NUMA分区核心的线程被分配了位于“红色”NUMA插座的基本关系R的小片段。探测管道的结果再次存储在NUMA本地存储区，以便保持进一步处理（在我们的示例查询计划中未显示）的NUMA局部性。总的来说，小片段驱动并行性并行执行多个管道，这类似于典型的Volcano模型实现。然而，与Volcano不同的是，管道不是独立的。也就是说，它们共享数据结构，操作符知道并行执行并且必须执行同步（通过高效的无锁机制——稍后见）。</p>
+<h2 id="3-调度器：调度并行管道任务"><a href="#3-调度器：调度并行管道任务" class="headerlink" title="3. 调度器：调度并行管道任务"></a>3. 调度器：调度并行管道任务</h2><p>调度器负责控制和分配计算资源给并行管道。这是通过给工作线程分配任务来完成的。我们为机器提供的每个硬件线程（pre-）创建一个工作线程，并将每个工作线程永久绑定到它。因此，特定查询的并行级别不是通过创建或终止线程来控制的，而是通过给它们分配特定任务来实现的，这些任务可能来自不同的查询。分配给这样的工作线程的任务由一个管道作业和一个特定的小片段组成，管道必须在该小片段上执行。任务的抢占在小片段边界发生——从而消除了可能成本较高的中断机制。我们通过实验确定，大约100,000个元组的小片段大小在即时弹性调整、负载均衡和低维护开销之间取得了良好的折衷。给运行在特定核心上的线程分配任务有三个主要目标：</p>
+<p>通过将数据小片段分配到分配了这些小片段的核心上，保持(NUMA-)局部性。<br>关于特定查询的并行级别的完全弹性。<br>负载均衡要求参与查询管道的所有核心同时完成工作，以防止(快速的)核心等待其他(慢速的)核心。<br>图5概述了调度器的架构。它维护了一个待处理管道作业的列表。这个列表只包含那些其先决条件已经被处理的管道作业。例如，对于我们正在运行的示例查询，首先将构建输入管道插入到待处理作业列表中。只有在这两个构建管道完成后，探针管道才会被插入。正如前面所述，每个活动查询都由一个QEPobject控制，它负责将可执行的管道转移到调度器。因此，调度器只维护那些所有依赖管道已经被处理的管道作业列表。通常，调度器队列将包含并行执行的不同查询的待处理管道作业，以适应查询间的并行性。</p>
+<h3 id="3-1-弹性"><a href="#3-1-弹性" class="headerlink" title="3.1 弹性"></a>3.1 弹性</h3><p>通过“每次一个小片段”的方式分派作业实现的完全弹性并行性，允许根据服务质量模型智能调度这些查询间并行管道作业。它使得在处理的任何阶段，优雅地减少一个长期运行的查询Q1的并行度，以便优先处理可能更重要的交互式查询Q+。一旦优先级更高的查询Q+完成，就通过将所有或大多数核心分派给长期运行的查询Q1的任务，使摆锤摆回到长期运行的查询。在第5.4节中，我们将通过实验演示这种动态弹性。在我们当前的实现中，所有查询具有相同的优先级，因此线程平均分配给所有活动查询。一个基于优先级的调度组件正在开发中，但超出了本文的范围。对于每个管道作业，调度器维护待处理小片段的列表，这些小片段上的管道作业仍需执行。对于每个核心，都有一个单独的列表，以确保，比如说，核心0的工作请求返回的是一个与核心0在同一个插座上分配的小片段。这在我们的架构草图中用不同的颜色表示。一旦核心0完成了分配的小片段的处理，它就会请求一个新任务，这可能来自同一个管道作业或不同的管道作业。这取决于来自不同查询的不同管道作业的优先级。如果一个高优先级的查询进入系统，它可能导致当前查询的并行度降低。小片段处理允许在不需要任何剧烈中断机制的情况下，重新分配核心给不同的管道作业。</p>
+<h3 id="3-2-实现概述"><a href="#3-2-实现概述" class="headerlink" title="3.2 实现概述"></a>3.2 实现概述</h3><p>为了说明目的，我们在图5中展示了每个核心的(长)链表的小片段。实际上（即，在我们的实现中），我们维护每个核心&#x2F;插座的存储区域边界，并按需将这些大存储区域分割成小片段；也就是说，当一个核心从调度器请求任务时，特定插座上管道参数的存储区域的下一个小片段被“切出”。此外，在图5中，调度器看起来像是一个单独的线程。然而，这会带来两个缺点：(1) 调度器本身需要一个核心来运行，或者可能抢占查询评估线程，(2) 它可能成为争用的源头，特别是如果小片段大小配置得相当小。因此，调度器被实现为一个无锁数据结构。然后，调度器的代码由请求查询评估线程本身执行。因此，调度器自动在工作线程的(否则未使用的)核心上执行。依靠无锁数据结构(即，管道作业队列以及相关的小片段队列)即使多个查询评估线程同时请求新任务，也减少了争用。类似地，触发特定查询进展的QEPobject通过观察数据依赖性(例如，在执行探针管道之前构建哈希表)被实现为一个被动状态机。当一个管道作业完全执行完毕，无法在工作请求上找到一个新的小片段时，调度器就会调用该状态机。同样，这个状态机在最初请求新任务的工作线程的未使用核心上执行。除了能够随时将核心分配给不同查询的能力——称为弹性——小片段处理还保证了负载均衡和抵抗偏差。在同一个管道作业上工作的所有线程都以“照片完成”的方式运行完毕：它们保证在处理单个小片段的时间段内到达终点线。如果由于某种原因，一个核心完成了其特定插座上的所有小片段的处理，调度器将从另一个核心“窃取工作”，即，它将分配在不同插座上的小片段。在一些NUMA系统中，并非所有插座都直接相互连接；在这里，首先从较近的插座窃取工作是值得的。在正常情况下，从远程插座的工作窃取很少发生；然而这是必要的，以避免线程空闲。而且，写入临时存储将无论如何都在NUMA本地存储区域完成（也就是说，如果在从红色插座的核心窃取工作的过程中被蓝色核心处理，一个红色的小片段变成了蓝色）。到目前为止，我们讨论了管道内的并行性。我们的并行化方案也可以支持茂密并行性，例如，我们的示例中“过滤和构建表T的哈希表”和“过滤和构建表S的哈希表”的管道是独立的，因此可以并行执行。然而，这种并行性的用处是有限的。独立管道的数量通常比核心的数量小得多，每个管道的工作量通常也不同。此外，茂密并行性可能会通过降低缓存局部性来降低性能。因此，我们目前避免并行执行一个查询的多个管道；在我们的示例中，我们首先执行T管道，只有在T完成后，S管道的工作才被添加到管道作业列表中。</p>
+<p>除了弹性之外，小片段驱动的处理方式还允许实现简单而优雅的查询取消功能。如果用户可能已中止了她的查询请求，查询中发生了异常（例如，数值溢出），或者系统内存不足。如果这些事件中的任何一个发生，涉及的查询将在调度器中被标记。每当该查询的小片段完成时，都会检查这个标记，因此，所有工作线程将很快停止处理这个查询。与迫使操作系统杀死线程不同，这种方法允许每个线程进行清理（例如，释放分配的内存）。</p>
+<h3 id="3-3-小片段大小"><a href="#3-3-小片段大小" class="headerlink" title="3.3 小片段大小"></a>3.3 小片段大小</h3><p>与Vectorwise [9] 和 IBM 的 BLU [31] 等系统不同，这些系统使用向量&#x2F;步长在操作符之间传递数据，如果小片段不适合缓存，性能也不会受到惩罚。小片段被用来将一个大任务分解成小的、固定大小的工作单元，以便于工作窃取和抢占。因此，小片段的大小对于性能来说并不非常关键，它只需要足够大以摊销调度开销，同时提供良好的响应时间。为了展示小片段大小对查询性能的影响，我们使用64个线程在Nehalem EX系统上测量了查询select min(a) from R的性能，该系统在第5节中有描述。这个查询非常简单，因此它尽可能多地强调了工作窃取数据结构。图6显示，小片段的大小应该设置为可以忽略不计的最小值，在这种情况下，设置为大于10,000的值。最优设置取决于硬件，但可以通过实验很容易确定。在多核系统上，任何共享数据结构，即使是无锁的，最终也可能成为瓶颈。然而，在我们的工作窃取数据结构的情况下，有几个方面可以防止它成为可扩展性问题。首先，在我们的实现中，总工作最初在所有线程之间分割，这样每个线程暂时拥有一个本地范围。因为我们按缓存行对齐每个范围，所以在缓存行级别发生冲突的可能性很小。只有当这个本地范围用尽时，线程才会尝试从另一个范围窃取工作。其次，如果有多个查询同时执行，对数据结构的压力进一步减少。最后，总是可以增加小片段的大小。这将导致更少地访问工作窃取数据结构。在最坏的情况下，过大的小片段大小会导致线程未充分利用，但如果执行足够多的并发查询，不会影响系统的吞吐量。</p>
+<h2 id="4-并行操作符细节"><a href="#4-并行操作符细节" class="headerlink" title="4. 并行操作符细节"></a>4. 并行操作符细节</h2><p>为了能够完全并行化每个管道，每个操作符都必须能够并行地接收元组（例如，通过同步共享数据结构），并且，对于启动新管道的操作符，必须能够并行地产生元组。在本节中，我们将讨论一些最重要的并行操作符的实现。</p>
+<h3 id="4-1-哈希连接"><a href="#4-1-哈希连接" class="headerlink" title="4.1 哈希连接"></a>4.1 哈希连接</h3><p>如第2节和图3所示，我们的哈希连接的哈希表构建包括两个阶段。在第一阶段，构建输入元组被具体化到线程本地的存储区域；这不需要同步。一旦所有输入元组都以这种方式被消耗，就会创建一个空的哈希表，其大小是完美的，因为现在输入大小已经精确知道了。这比动态增长的哈希表更有效率，在并行设置中，动态增长的哈希表会带来很高的开销。在并行构建阶段的第二阶段，每个线程扫描其存储区域，并使用原子比较并交换指令插入指向其元组的指针。详细信息在第4.2节中解释。外连接是所描述算法的一个小变化。在每个元组中，还分配了一个标记，指示此元组是否有匹配项。在探测阶段，设置标记表示发生了匹配。在设置标记之前，首先检查标记是否尚未设置是有利的，以避免不必要的争用。半连接和反连接类似实现。Balkesen等人使用一系列单操作基准测试表明，高度优化的基数连接可以实现比单表连接更高的性能[5]。然而，与基数连接相比，我们单表哈希连接具有以下优势：</p>
+<p>对于较大的输入关系是完全流水线化的，因此使用的空间更少，因为可以在探针输入上就地处理。<br>是一个“好的团队玩家”，意味着多个小（维度）表可以作为一个团队通过大（事实）表的所有这些维度哈希表进行连接。<br>如果两个输入基数差异很大，通常在实践中是这种情况，它将非常高效。<br>可以从偏斜的键分布中受益[7]。<br>对元组大小不敏感。<br>没有特定于硬件的参数。<br>由于这些实际优势，在复杂查询处理中，单表哈希连接通常比基数连接更受青睐。例如，在TPC-H基准测试中，97.4%的所有连接元组都到达探针侧，因此哈希表通常可以适应缓存。这种效果在星型模式基准测试中更加明显，其中99.5%的连接元组到达探针侧。因此，我们专注于单表哈希连接，它的优点是没有特定于硬件的参数，不依赖于查询优化器估计，同时提供非常好的（如果表适合缓存）或至少是体面的（如果表大于缓存）性能。我们把基数连接的实现留作未来对我们查询引擎增强的措施，因为在某些场景下由于更高的局部性，基数连接是有益的。</p>
+<h3 id="4-2-无锁标记哈希表"><a href="#4-2-无锁标记哈希表" class="headerlink" title="4.2 无锁标记哈希表"></a>4.2 无锁标记哈希表</h3><p>我们用于哈希连接操作符的哈希表具有一个早期过滤优化，这提高了选择性连接的性能，而选择性连接是非常常见的。关键思想是将一个小的过滤器标记到哈希桶列表中，该列表中的所有元素都“哈希”到设置它们的1位。对于选择性探测，即通过遍历列表不会找到匹配项的探测，过滤器通常会在检查标记后跳过列表遍历，将缓存未命中次数减少到1。如图7（上）所示，我们直接在哈希表中的每个指针的16位中编码一个标签。这节省了空间，更重要的是，它允许使用单个原子比较并交换操作来更新指针和标签。为了低成本同步，我们利用了在连接中哈希表是只插入的并且查找仅在所有插入完成后发生的事实。图7（下）展示了将新条目插入哈希表的伪代码。在第11行，使用比较并交换（CAS）设置了指向新元素（例如，图中的“f”）的指针。这个指针通过新标签增强，新标签由旧标签和新标签（第9行）计算得出。如果CAS失败（因为同时进行了另一个插入），则重复该过程。我们的标记技术与Bloom过滤器相比有几个优点，Bloom过滤器可以类似地使用，例如，在Vectorwise [8]、SQL Server [21] 和 BLU [31] 中使用。首先，Bloom 过滤器是一个额外的数据结构，会产生多次读取。对于大型表，Bloom 过滤器可能不适合缓存（或者只适合相对较慢的最后一级缓存），因为为了有效，Bloom 过滤器的大小必须与哈希表大小成比例。因此，开销可能相当高，尽管由于其小尺寸，Bloom 过滤器可以是一个很好的优化。在我们的方法中，不会执行不必要的内存访问，只有少数便宜的位操作。因此，哈希标记有非常低的开销，并且总是可以使用，而不需要依赖查询优化器来估计选择性。除了连接，在大多数键都是唯一的聚合期间，标记也非常有益。哈希表数组只存储指针，而不是元组本身，即我们不使用开放寻址。这有几个原因：由于元组通常比指针大得多，哈希表可以相当慷慨地调整到至少是输入大小的两倍。这减少了冲突的数量，而不会浪费太多空间。此外，链式允许可变大小的元组，这在开放寻址中是不可能的。最后，由于我们的过滤器，探测未命中实际上比开放寻址更快。我们为哈希表和元组存储区域使用大的虚拟内存页（2MB）。这有几个积极的影响：TLB未命中的数量减少了，页表保证适合L1缓存，并且在构建阶段避免了由于过多的内核页面错误而引起的可扩展性问题。我们使用Unix mmap系统调用来分配哈希表，如果可用的话。现代操作系统不会立即急切地分配内存，而只是在特定的页面首次写入时才分配。这有两个积极的影响。首先，不需要手动初始化哈希表为零的额外阶段。其次，表在NUMA节点上自适应地分布，因为页面将位于首次写入该页面的线程所在的同一NUMA节点上。如果许多线程构建哈希表，它将伪随机地交错在所有节点上。如果只有来自单个NUMA节点的线程构建哈希表，它将位于该节点上——这正是所需的。因此，依赖操作系统可以自动考虑通常多个独立查询同时执行的事实。</p>
+<h3 id="4-3-NUMA感知表分区"><a href="#4-3-NUMA感知表分区" class="headerlink" title="4.3 NUMA感知表分区"></a>4.3 NUMA感知表分区</h3><p>为了实现NUMA本地表扫描，需要将关系分布在内存节点上。最显而易见的方式是轮询分配。一个更好的选择是使用某些“重要”属性的哈希值来分区关系。好处在于，在两个都基于连接键分区的表之间的连接（例如，一个表基于主键，另一个表基于外键）中，匹配的元组通常位于同一个插座上。一个典型的例子（来自TPC-H）是按orderkey属性分区订单和明细表。注意，这更多是一个性能提示而不是硬分区：工作窃取或数据不平衡仍然可能导致来自不同插座的元组之间的连接，但大多数连接对将来自同一个插座。结果是，由于这些频繁的连接，关系被同地放置，因此跨插座通信减少了。这也影响了哈希表数组，因为用于确定哈希分区的相同哈希函数也用于哈希连接中哈希桶的最高位。除了分区键的选择外，这个方案是完全透明的，每个分区包含大约相同数量的元组，这是由于基于哈希的碎片化使用。应该强调的是，这种共位方案是有益的，但对小片段驱动执行的高性能来说并不是决定性的，因为在任何情况下，对于表扫描以及第一个具体化结果的管道之后，NUMA本地性都得到了保证。</p>
+<h3 id="4-4-分组-x2F-聚合"><a href="#4-4-分组-x2F-聚合" class="headerlink" title="4.4 分组&#x2F;聚合"></a>4.4 分组&#x2F;聚合</h3><p>聚合操作的性能特征因分组（不同键）的数量而有很大差异。如果分组数量较少，聚合会非常快，因为所有分组都可以放入缓存中。然而，如果分组数量很多，就会发生许多缓存未命中。在这两种情况下，如果关键分布倾斜，来自并行访问的竞争都可能是一个问题。为了在所有这些情况下实现良好的性能和可扩展性，而不依赖于查询优化器的估计，我们采用了类似于IBM BLU聚合的方法[31]。如图8所示，我们的算法有两个阶段。在第一阶段，线程本地预聚合使用线程本地的固定大小哈希表高效地聚合重击手。当这个小的预聚合表变满时，它会被刷新到溢出分区。在所有输入数据被分区后，分区在线程之间交换。第二阶段由每个线程扫描一个分区并将其聚合到线程本地哈希表中组成。由于分区的数量多于工作线程，这个过程会重复进行，直到所有分区都完成。每当一个分区被完全聚合后，它的元组就会立即推送到下一个操作符，然后再处理任何其他分区。结果，聚合后的元组可能仍然在缓存中，并且可以更有效地处理。注意，聚合操作符与连接在本质上是不同的，因为结果只有在阅读完所有输入后才会产生。由于无法进行流水线处理，我们使用分区——而不是像我们的连接操作符中那样使用单个哈希表。</p>
+<h3 id="4-5-排序"><a href="#4-5-排序" class="headerlink" title="4.5 排序"></a>4.5 排序</h3><p>在主存中，基于哈希的算法通常比基于排序的算法更快[4]。因此，我们目前不使用基于排序的连接或聚合，而只使用排序来实现order by或top-k子句。在我们的并行排序操作符中，每个线程首先将其输入本地化并就地进行排序。在top-k查询的情况下，每个线程直接维护一个包含k个元组的堆。在本地排序之后，开始并行合并阶段，如图9所示。难点在于计算分隔符，以便合并是独立的，并且可以在没有同步的情况下并行执行。为此，每个线程首先通过从其排序运行中选择等距的键来计算本地分隔符。然后，为了处理分布倾斜，并类似于中位数-中位数算法，所有线程的本地分隔符被组合、排序，最终计算出全局分隔符键。在确定了全局分隔符键之后，通过二进制（或插值）搜索找到它们在数据数组中的索引。使用这些索引，可以计算出输出数组的确切布局。最后，可以在没有任何同步的情况下将运行合并到输出数组中。</p>
+<h2 id="5-评估"><a href="#5-评估" class="headerlink" title="5. 评估"></a>5. 评估</h2><p>我们将并行查询评估框架集成到了HyPer中，HyPer是一个支持SQL-92的主存列式数据库系统，具有非常好的单线程性能，但到目前为止，还没有利用查询内的并行性。在这次评估中，我们专注于即席决策支持查询，并且除了声明主键外，没有启用任何其他索引结构。因此，我们的结果主要衡量了表扫描、聚合和连接（包括外连接、半连接、反连接）操作的性能和可扩展性。HyPer支持行式和列式存储；我们在所有实验中都使用了列格式。</p>
+<h3 id="5-1-实验设置"><a href="#5-1-实验设置" class="headerlink" title="5.1 实验设置"></a>5.1 实验设置</h3><p>我们使用了两个不同的硬件平台——都运行Linux系统。除非另有说明，我们通常使用4插槽的Nehalem EX（Intel Xeon X7560，2.3GHz）。此外，一些实验在4插槽的Sandy Bridge EP（Intel Xeon E5-4650L，2.6GHz-3.1GHz）上进行。这样的系统特别适合主存数据库系统，因为它们以合理的成本支持TB级别的RAM。尽管这两个系统都有32个核心、64个硬件线程，几乎相同数量的缓存，但它们的NUMA拓扑结构却大不相同。如图10所示，每个Sandy Bridge CPU的每个节点理论内存带宽是Nehalem EX的两倍，但只连接到另外两个插槽。因此，一些内存访问（例如，从插槽0到插槽2）需要两个跳转而不是一个；这增加了延迟并降低了由于交叉流量[23]的内存带宽。请注意，即将推出的4插槽Ivy Bridge平台将有两个版本，Ivy Bridge EX与Nehalem EX完全连接，以及像Sandy Bridge EP一样每个节点只有一个互连的Ivy Bridge EP。作为我们的主要竞争对手，我们选择了官方单服务器TPC-H领导者Vectorwise。我们还测量了开源行存储PostgreSQL和一个集成在主要商业数据库系统中的列存储的性能。在TPC-H上，与HyPer相比，PostgreSQL平均慢30倍，商业列存储慢10倍。因此，我们在进一步的实验中专注于Vectorwise（版本2.5），因为它比其他系统快得多。</p>
+<p>在这次评估中，我们使用了经典的即席TPC-H情况。这意味着没有使用物理存储的手工调整，因为这样使用的计划是相似的（到处都是哈希连接）。Vectorwise在TPC网站上的结果包括这种额外的调整，主要是聚集索引，这允许使用合并连接算法执行一些较大的连接。此外，这些索引允许查询优化器将范围限制从一个连接侧传播到另一个[8]，这大大提高了一些查询的性能，但对查询处理本身影响不大。这种调整也不提高查询执行的可扩展性；平均加速比在有和没有调整的情况下都低于10倍。为了完整性，我们还提供了Vectorwise在Nehalem EX上使用TPC-H完整披露报告设置的结果：系统地理平均值、总和、加速比。</p>
+<p>HyPer可以在45秒内以100的规模因子廉价地更新数据。这与严重针对读取优化的系统（例如[10]）形成对比，其中由于重索引和重新排序，更新非常昂贵。我们的系统通过使用主键的第一个属性将每个关系分成64个分区，透明地将输入关系分布到所有可用的NUMA插座上。执行时间包括中间结果、哈希表等的内存分配和释放（来自操作系统）。</p>
+<h3 id="5-2-TPC-H"><a href="#5-2-TPC-H" class="headerlink" title="5.2 TPC-H"></a>5.2 TPC-H</h3><p>图11比较了HyPer与Vectorwise在Nehalem系统上的可扩展性；两个数据库管理系统都以HyPer的单线程执行时间为准。请注意，多达32个线程，“真实”核心被使用，其余的是“超线程”（同时多线程）。对于大多数查询，HyPer达到了接近30的加速比。在某些情况下，由于同时多线程，达到了接近或高于40的加速比。尽管Vectorwise的单线程性能与HyPer相似，但其整体性能受到低加速比的严重限制，通常低于10。一个问题是负载均衡：在可以轻易并行化的扫描查询6中，最慢的线程通常在最后一个线程完成工作前50%完成。虽然在现实世界的场景中，通常是数据倾斜挑战负载均衡，但在完全统一的TPC-H中并非如此。这些问题与Vectorwise中并行化查询的Volcano模型的使用有关[3]。这种方法通常被遵循（例如，在Oracle和SQL Server中），因为它允许实现并行性而不会影响现有的查询操作符，通过在规划时通过实例化一组单独的计划并通过“交换”操作符连接它们来将并行性嵌入计划中[12]。我们指出，固定工作分配加上缺乏NUMA感知可能导致线程之间的显著性能差异（Vectorwise在版本3之前不是NUMA感知的，正如我们在第5.3节的实验中确认的）。图11还显示了当我们禁用查询引擎的一些重要特性时的可扩展性结果。当我们禁用显式的NUMA感知并依赖操作系统时，性能显著降低（参见“HyPer（不是NUMA感知的）”）。如果我们另外禁用自适应小片段处理和本文介绍的性能增强，如哈希标记，可以观察到进一步的性能损失。这给出了每种技术影响的印象。但请注意，我们仍然使用高度调整的操作符实现，尝试最大化局部性。表1和表2允许比较Nehalem和Sandy Bridge系统上TPC-H性能。两种系统的整体性能相似，因为Sandy Bridge EP上缺失的互连链接导致略低的可扩展性，但其更高的时钟频率对此进行了补偿。注意，所有查询都在3秒内完成——在100GB数据集上使用即席哈希连接，而不使用任何索引结构。</p>
+<h3 id="5-3-NUMA感知"><a href="#5-3-NUMA感知" class="headerlink" title="5.3 NUMA感知"></a>5.3 NUMA感知</h3><p>表1显示了22个TPC-H查询的内存带宽和QPI统计数据4。例如，聚合最大关系的查询1，读取82.6GB&#x2F;s，接近理论带宽最大值100GB&#x2F;s。表中的“远程”列显示了通过互连（远程）访问的数据百分比，因此衡量了每个查询的局部性。由于NUMA感知处理，大多数数据被本地访问，这导致延迟降低和带宽增加。从“QPI”列5中可以看出，该列显示了最重使用的QPI链路的饱和度，可以得出结论，QPI链路的带宽在该系统上是足够的。表还显示Vectorwise没有针对NUMA进行优化：大多数查询都有很高的远程访问内存的百分比。例如，查询1中的75%远程访问表明其缓冲管理器不是NUMA感知的。然而，QPI链路的利用相当均匀，因为数据库关系似乎分布在所有4个NUMA节点上。这防止了一个内存控制器和到它的QPI链路成为瓶颈。到目前为止的大多数实验使用了我们的NUMA感知存储布局、NUMA本地扫描、NUMA感知分区，这减少了连接中的远程访问，以及所有操作符尽可能保持数据NUMA本地化的事实。为了展示NUMA感知的整体性能优势，我们还尝试了合理的替代方案：“操作系统默认”，其中操作系统执行放置6；以及“交错”，其中所有内存都交错分配给所有节点。我们报告了我们在TPC-H上的NUMA感知方法的几何平均值和最大加速比：Nehalem EX Sandy Bridge EP</p>
+<p>几何平均值 最大加速 几何平均值 最大加速<br>操作系统默认 1.57倍 4.95倍 2.40倍 5.81倍<br>交错 1.07倍 1.24倍 1.58倍 5.01倍</p>
+<p>显然，操作系统的默认放置是次优的，因为一个NUMA节点的内存控制器和到它的QPI链路成为瓶颈。这些结果还表明，在Nehalem EX上，简单地交错内存是一个合理的，尽管不是最优的策略，而在Sandy Bridge EP上，NUMA感知对于良好的性能更为重要。原因是这两种系统在NUMA行为上有很大的不同，正如一个比较NUMA本地访问与25%本地和75%远程（包括Sandy Bridge EP上的25%两跳访问）混合访问的微基准测试所显示的：带宽[GB&#x2F;s] 延迟[ns]<br>本地 混合 本地 混合<br>Nehalem EX 93 60 161 186<br>Sandy Bridge EP 121 41 101 257</p>
+<p>在Sandy Bridge EP上，除非大多数访问都是本地的，否则只能达到理论内存带宽的一小部分，而且延迟比本地访问高2.5倍。相比之下，在Nehalem EX上，这些影响要小得多，这解释了为什么在该系统上NUMA感知的积极效果较小。NUMA感知的重要性显然取决于跨插座互连的速度和数量。</p>
+<h3 id="5-4-弹性"><a href="#5-4-弹性" class="headerlink" title="5.4 弹性"></a>5.4 弹性</h3><p>为了展示我们方法的弹性，我们进行了一个实验，其中我们改变了并行查询流的数量。64个可用的硬件线程均匀分布在这些流上，每个流执行TPC-H查询的随机排列。图12显示，即使使用少量流（但每个流有很多核心），吞吐量也保持在高水平。这允许我们在不牺牲太多吞吐量的情况下，最小化高优先级查询的响应时间。图13通过显示我们并行分析器中的注释执行跟踪来说明小片段处理和弹性。每个颜色代表一个管道阶段，每个块是一个小片段。为了图形化的原因，我们在这个实验中只使用了4个线程。我们首先开始执行分配了4个线程的TPC-H查询13；过了一段时间后，开始了TPC-H查询14。正如跟踪所示，一旦工作线程2和3的当前小片段完成，这些线程就切换到查询14，直到它完成，然后继续处理查询13。这个实验表明，我们可以动态地将工作线程重新分配给其他查询，即我们的并行化方案是完全弹性的。正如引言中提到的，Volcano方法通常以静态方式为线程分配工作。为了与这种方法进行比较，我们在小片段驱动方案中通过将工作分成与线程数量一样多的块来模拟它，即我们设置了小片段大小为n&#x2F;t，其中n是输入大小，t是线程数量。只要我们一次只执行一个TPC-H查询，这种改变本身并不会显著降低性能，因为在这个工作负载中输入数据是均匀分布的。然而，如果我们添加一些来自其他进程的干扰，情况就会改变。例如，当我们在另一个无关的单线程进程占用一个核心的同时运行TPC-H查询时，查询性能在使用静态方法时下降了36.8%，而在使用动态小片段分配时仅下降了4.7%。</p>
+<h3 id="5-5-星型模式基准测试"><a href="#5-5-星型模式基准测试" class="headerlink" title="5.5 星型模式基准测试"></a>5.5 星型模式基准测试</h3><p>除了TPC-H之外，我们还测量了我们的系统在星型模式基准测试(SSB)[26]中的性能和可扩展性，该基准测试模拟了数据仓库场景。表3显示，我们的并行化框架在这种工作负载上表现非常好，大多数查询的加速比都超过了40。SSB的可扩展性高于TPC-H，因为TPC-H是一个更加复杂和具有挑战性的工作负载。TPC-H包含了一系列非常多样化的查询：只扫描单个表的查询、具有复杂连接的查询、具有简单和复杂聚合的查询等。在这样的工作负载上获得良好的性能和可扩展性相当具有挑战性，因为所有操作符都必须是可扩展的，并且能够高效地处理非常不同的输入分布。相比之下，所有的SSB查询都连接了一个大的事实表和多个较小的维度表，我们的哈希连接算法的流水线能力在这里非常有益。大部分数据都来自大的事实表，它可以本地NUMA地读取（参见图3中的“远程”列），维度表的哈希表比事实表小得多，并且与其他查询部分相比，聚合相当便宜。</p>
+<h2 id="6-相关工作"><a href="#6-相关工作" class="headerlink" title="6. 相关工作"></a>6. 相关工作</h2><p>本文与三个不同的研究方向有关：专注于多核连接或聚合处理的独立论文，完整的系统描述，以及并行执行框架，尤其是Volcano模型。基数哈希连接最初是为提高局部性而设计的[24]。Kim等人基于对输入关系的重复分区，为其在并行处理中的使用提出了假设[18]。Blanas等人[7]是第一个比较基数连接和简单的全局哈希表连接的人。Balkesen等人[5, 4]全面研究了基于哈希和基于排序的连接算法。Ye等人在多核CPU上评估了并行聚合算法[33]。Polychroniou和Ross设计了一种聚合算法，以高效聚合重击手（频繁项）[27]。一些论文特别关注NUMA。在最早指出NUMA局部性重要性的论文之一中，Teubner和Müller提出了一种基于NUMA感知的窗口流连接[32]。在另一篇早期的NUMA论文中，Albutiu等人设计了一种NUMA感知的并行排序合并连接[1]。Li等人通过显式调度排序运行的洗牌，以避免NUMA互连网络中的交叉流量，从而改进了这个算法[23]。然而，尽管这些局部性保持算法的性质，但由于排序的高成本，它被证明不如哈希连接高效[4, 20]。Lang等人[20]设计了一种低同步开销的NUMA感知哈希连接，这与我们的算法类似。它依赖于一个单一的无锁哈希表，该哈希表交错在所有NUMA节点中，所有线程都向其中插入构建输入。不幸的是，这些单一操作符研究对于完整的查询引擎的结论性是有限的，因为通常用于测试的微基准测试通常具有单一的简单键（有时甚至包含哈希值），并且通常使用非常小的有效载荷（仅一列）。此外，每个操作符都是独立分析的，这忽略了数据如何在操作符之间传递，因此，例如，忽略了算法的不同流水线能力。在我们的小片段驱动数据库系统中，我们专注于（非具体化的）流水线哈希连接，因为在实践中，通常连接的一侧要比其他侧大得多。因此，流水线连接团队通常是可能的和有效的。此外，对于某些经常遍历的大型连接（如TPC-H中的orders-lineitem），预分区数据存储可以在不需要具体化的情况下实现大型连接的NUMA局部性。新的IBM BLU查询引擎[31]和Microsoft的Apollo项目[22]是两个突出的商业项目，利用现代多核服务器进行并行查询处理。IBM BLU按“Vectorwise”方式处理数据，即一次一个步长。在这方面，它与我们的小片段处理技术有些相似。然而，没有迹象表明在处理步骤&#x2F;管道中保持了NUMA本地性。此外，我们提出的关于并行度的完全弹性也没有被涵盖。与Volcano风格的并行化非常相似，在Oracle中，各个操作符在很大程度上不感知并行性。[6]通过在查询执行期间适应性地改变数据分布决策，解决了这种模型的一些问题，特别是对查询优化器估计的依赖。在一个实验性研究中，Kiefer等人[17]表明，NUMA感知可以显著提高数据库性能。Porobic等人[29]研究了[28]，并以NUMA感知的方式对OLTP系统中的数据和内部数据结构进行了分区，以改善NUMA放置。Heimel等人提出了一种硬件无感知的并行化方法，允许操作符被编译到不同的硬件平台上，如CPU或GPU[15]。在本文中，我们专注于经典的、以查询为中心的并行化，即独立地并行化单个查询。另一种有成效的方法是利用多个查询的共同工作。这种操作符中心的方法被QPipe[14]和SharedDB[11]使用。开创性的Volcano模型[12]构成了大多数当前查询评估引擎的基础，支持多核以及分布式[13]并行化。请注意，Volcano在非并行环境中也与一种解释性的迭代器执行范式相关联，其中结果通过调用每个操作符的next()方法向上传递，传递下一个元组。尽管这种逐个元组的执行模型在实现上很优雅，但已被证明引入了显著的解释开销[25]。随着高性能分析查询引擎的出现，系统已经从这种模型转向了向量或批量导向的执行，其中每个next()方法处理数百或数千个元组。这种向量智能执行模型出现在Vectorwise[3]中，但也出现在SQL Server中的ColumnStore索引表提供的批量模式执行中[22]（Apollo项目），以及IBM DB2的BLU引擎中的逐步执行[31]。在HyPer中，我们依赖于Krikellas等人首次提出的编译查询评估方法[19]，并由Neumann进一步完善[25]，以获得相同甚至更高的原始执行性能。就并行性而言，Volcano区分了垂直并行性，其中基本上是两个操作符之间的管道被转换为异步生产者&#x2F;消费者模型，以及水平并行性，其中一个操作符通过划分输入数据并让每个并行线程处理其中一个分区来并行化。大多数系统都实现了水平并行性，因为垂直和茂密并行性由于其不平衡的性质不太有用，正如我们前面观察到的。这种水平Volcano并行性的例子可以在例如Microsoft SQL Server和Vectorwise[3]中找到。虽然这些系统之间可能存在（未公开的）实现差异，但小片段驱动执行通过使并行查询调度细粒度、在运行时自适应和NUMA感知来区分自己。这里描述的并行查询引擎依赖于将输入数据分块为细粒度的小片段。一个小片段完全位于单个NUMA分区中。调度器将处理一个小片段的任务分配给在同一插座的核心上运行的线程，以保持NUMA局部性。小片段处理还促进了完全弹性，这意味着并行度可以在任何时候调整，例如，在查询处理中途。一旦一个小片段完成，线程可以被分配给同一个查询管道的小片段，或者被分配给另一个更重要的查询的不同任务。通过这种方式，调度器显式控制并行性，与Psaroudakis等人最近提出的方法相反，后者根据核心利用率更改线程数量[30]。</p>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p>[1] M.-C. Albutiu, A. Kemper, and T. Neumann. Massively parallel<br>sort-merge joins in main memory multi-core database systems.<br>PVLDB, 5(10), 2012.<br>[2] G. Alonso. Hardware killed the software star. In ICDE, 2013.<br>[3] K. Anikiej. Multi-core parallelization of vectorized query execution.<br>Master’s thesis, University of Warsaw and VU University<br>Amsterdam, 2010. <a target="_blank" rel="noopener" href="http://homepages.cwi.nl/~boncz/">http://homepages.cwi.nl/~boncz/</a><br>msc&#x2F;2010-KamilAnikijej.pdf.<br>[4] C. Balkesen, G. Alonso, J. Teubner, and M. T. Özsu. Multi-core,<br>main-memory joins: Sort vs. hash revisited. PVLDB, 7(1), 2013.<br>[5] C. Balkesen, J. Teubner, G. Alonso, and M. T. Özsu. Main-memory<br>hash joins on multi-core CPUs: Tuning to the underlying hardware.<br>In ICDE, 2013.<br>[6] S. Bellamkonda, H.-G. Li, U. Jagtap, Y. Zhu, V. Liang, and<br>T. Cruanes. Adaptive and big data scale parallel execution in oracle.<br>PVLDB, 6(11), 2013.<br>[7] S. Blanas, Y. Li, and J. M. Patel. Design and evaluation of main<br>memory hash join algorithms for multi-core CPUs. In SIGMOD,<br>2011.<br>[8] P. Boncz, T. Neumann, and O. Erling. TPC-H analyzed: Hidden<br>messages and lessons learned from an influential benchmark. In<br>TPCTC, 2013.<br>[9] P. A. Boncz, M. Zukowski, and N. Nes. MonetDB&#x2F;X100:<br>Hyper-pipelining query execution. In CIDR, 2005.<br>[10] J. Dees and P. Sanders. Efficient many-core query execution in main<br>memory column-stores. In ICDE, 2013.<br>[11] G. Giannikis, G. Alonso, and D. Kossmann. SharedDB: Killing one<br>thousand queries with one stone. PVLDB, 5(6), 2012.<br>[12] G. Graefe. Encapsulation of parallelism in the Volcano query<br>processing system. In SIGMOD, 1990.<br>[13] G. Graefe. Query evaluation techniques for large databases. ACM<br>Comput. Surv., 25(2), 1993.<br>[14] S. Harizopoulos, V. Shkapenyuk, and A. Ailamaki. QPipe: A<br>simultaneously pipelined relational query engine. In SIGMOD, 2005.<br>[15] M. Heimel, M. Saecker, H. Pirk, S. Manegold, and V. Markl.<br>Hardware-oblivious parallelism for in-memory column-stores.<br>PVLDB, 6(9), 2013.<br>[16] A. Kemper and T. Neumann. HyPer: A hybrid OLTP&amp;OLAP main<br>memory database system based on virtual memory snapshots. In<br>ICDE, 2011.<br>[17] T. Kiefer, B. Schlegel, and W. Lehner. Experimental evaluation of<br>NUMA effects on database management systems. In BTW, 2013.<br>[18] C. Kim, E. Sedlar, J. Chhugani, T. Kaldewey, A. D. Nguyen, A. D.<br>Blas, V. W. Lee, N. Satish, and P. Dubey. Sort vs. hash revisited: Fast<br>join implementation on modern multi-core CPUs. PVLDB, 2(2),<br>2009.<br>[19] K. Krikellas, S. Viglas, and M. Cintra. Generating code for holistic<br>query evaluation. In ICDE, 2010.<br>[20] H. Lang, V. Leis, M.-C. Albutiu, T. Neumann, and A. Kemper.<br>Massively parallel NUMA-aware hash joins. In IMDM Workshop,<br>2013.<br>[21] P.-Å. Larson, C. Clinciu, C. Fraser, E. N. Hanson, M. Mokhtar,<br>M. Nowakiewicz, V. Papadimos, S. L. Price, S. Rangarajan,<br>R. Rusanu, and M. Saubhasik. Enhancements to SQL Server column<br>stores. In SIGMOD, 2013.<br>[22] P.-Å. Larson, E. N. Hanson, and S. L. Price. Columnar storage in<br>SQL Server 2012. IEEE Data Eng. Bull., 35(1), 2012.<br>[23] Y. Li, I. Pandis, R. Müller, V. Raman, and G. M. Lohman.<br>NUMA-aware algorithms: the case of data shuffling. In CIDR, 2013.<br>[24] S. Manegold, P. A. Boncz, and M. L. Kersten. Optimizing<br>main-memory join on modern hardware. IEEE Trans. Knowl. Data<br>Eng., 14(4), 2002.<br>[25] T. Neumann. Efficiently compiling efficient query plans for modern<br>hardware. PVLDB, 4, 2011.<br>[26] P. O’Neil, B. O’Neil, and X. Chen. The star schema benchmark<br>(SSB), 2007.<br><a target="_blank" rel="noopener" href="http://www.cs.umb.edu/~poneil/StarSchemaB.PDF">http://www.cs.umb.edu/~poneil/StarSchemaB.PDF</a>.<br>[27] O. Polychroniou and K. A. Ross. High throughput heavy hitter<br>aggregation for modern SIMD processors. In DaMoN, 2013.<br>[28] D. Porobic, E. Liarou, P. Tözün, and A. Ailamaki. ATraPos:<br>Adaptive transaction processing on hardware islands. In ICDE, 2014.<br>[29] D. Porobic, I. Pandis, M. Branco, P. Tözün, and A. Ailamaki. OLTP<br>on hardware islands. PVLDB, 5(11), 2012.<br>[30] I. Psaroudakis, T. Scheuer, N. May, and A. Ailamaki. Task<br>scheduling for highly concurrent analytical and transactional<br>main-memory workloads. In ADMS Workshop, 2013.<br>[31] V. Raman, G. Attaluri, R. Barber, N. Chainani, D. Kalmuk,<br>V. KulandaiSamy, J. Leenstra, S. Lightstone, S. Liu, G. M. Lohman,<br>T. Malkemus, R. Mueller, I. Pandis, B. Schiefer, D. Sharpe, R. Sidle,<br>A. Storm, and L. Zhang. DB2 with BLU acceleration: So much more<br>than just a column store. In VLDB, 2013.<br>[32] J. Teubner and R. Müller. How soccer players would do stream joins.<br>In SIGMOD, 2011.<br>[33] Y. Ye, K. A. Ross, and N. Vesdapunt. Scalable aggregation on<br>multicore processors. In DaMoN, 2011.<br>[34] M. Zukowski and P. A. Boncz. Vectorwise: Beyond column stores.<br>IEEE Data Eng. Bull., 35(1), 2012.</p>
+
+  </div>
+</article>
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/categories/technology">Technology</a></li>
+         
+          <li><a href="/categories/life">Life</a></li>
+         
+          <li><a href="/archives/">Archives</a></li>
+         
+          <li><a href="/tags/">Tags</a></li>
+         
+          <li><a href="/about">About</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%91%98%E8%A6%81"><span class="toc-number">1.</span> <span class="toc-text">摘要</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%BC%95%E8%A8%80"><span class="toc-number">2.</span> <span class="toc-text">1 引言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E5%B0%8F%E7%89%87%E6%AE%B5%E9%A9%B1%E5%8A%A8%E6%89%A7%E8%A1%8C"><span class="toc-number">3.</span> <span class="toc-text">2. 小片段驱动执行</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E8%B0%83%E5%BA%A6%E5%99%A8%EF%BC%9A%E8%B0%83%E5%BA%A6%E5%B9%B6%E8%A1%8C%E7%AE%A1%E9%81%93%E4%BB%BB%E5%8A%A1"><span class="toc-number">4.</span> <span class="toc-text">3. 调度器：调度并行管道任务</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-%E5%BC%B9%E6%80%A7"><span class="toc-number">4.1.</span> <span class="toc-text">3.1 弹性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-%E5%AE%9E%E7%8E%B0%E6%A6%82%E8%BF%B0"><span class="toc-number">4.2.</span> <span class="toc-text">3.2 实现概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-%E5%B0%8F%E7%89%87%E6%AE%B5%E5%A4%A7%E5%B0%8F"><span class="toc-number">4.3.</span> <span class="toc-text">3.3 小片段大小</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E5%B9%B6%E8%A1%8C%E6%93%8D%E4%BD%9C%E7%AC%A6%E7%BB%86%E8%8A%82"><span class="toc-number">5.</span> <span class="toc-text">4. 并行操作符细节</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-%E5%93%88%E5%B8%8C%E8%BF%9E%E6%8E%A5"><span class="toc-number">5.1.</span> <span class="toc-text">4.1 哈希连接</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-%E6%97%A0%E9%94%81%E6%A0%87%E8%AE%B0%E5%93%88%E5%B8%8C%E8%A1%A8"><span class="toc-number">5.2.</span> <span class="toc-text">4.2 无锁标记哈希表</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-NUMA%E6%84%9F%E7%9F%A5%E8%A1%A8%E5%88%86%E5%8C%BA"><span class="toc-number">5.3.</span> <span class="toc-text">4.3 NUMA感知表分区</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-4-%E5%88%86%E7%BB%84-x2F-%E8%81%9A%E5%90%88"><span class="toc-number">5.4.</span> <span class="toc-text">4.4 分组&#x2F;聚合</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-5-%E6%8E%92%E5%BA%8F"><span class="toc-number">5.5.</span> <span class="toc-text">4.5 排序</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E8%AF%84%E4%BC%B0"><span class="toc-number">6.</span> <span class="toc-text">5. 评估</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-%E5%AE%9E%E9%AA%8C%E8%AE%BE%E7%BD%AE"><span class="toc-number">6.1.</span> <span class="toc-text">5.1 实验设置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-TPC-H"><span class="toc-number">6.2.</span> <span class="toc-text">5.2 TPC-H</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-3-NUMA%E6%84%9F%E7%9F%A5"><span class="toc-number">6.3.</span> <span class="toc-text">5.3 NUMA感知</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-4-%E5%BC%B9%E6%80%A7"><span class="toc-number">6.4.</span> <span class="toc-text">5.4 弹性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-5-%E6%98%9F%E5%9E%8B%E6%A8%A1%E5%BC%8F%E5%9F%BA%E5%87%86%E6%B5%8B%E8%AF%95"><span class="toc-number">6.5.</span> <span class="toc-text">5.5 星型模式基准测试</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E7%9B%B8%E5%85%B3%E5%B7%A5%E4%BD%9C"><span class="toc-number">7.</span> <span class="toc-text">6. 相关工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE"><span class="toc-number">8.</span> <span class="toc-text">参考文献</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/10/03/morsel-driven/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/10/03/morsel-driven/&text=Morsel-Driven Parallelism: A NUMA-Aware Query Evaluation Framework for the Many-Core Age"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/10/03/morsel-driven/&title=Morsel-Driven Parallelism: A NUMA-Aware Query Evaluation Framework for the Many-Core Age"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/10/03/morsel-driven/&is_video=false&description=Morsel-Driven Parallelism: A NUMA-Aware Query Evaluation Framework for the Many-Core Age"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Morsel-Driven Parallelism: A NUMA-Aware Query Evaluation Framework for the Many-Core Age&body=Check out this article: http://example.com/2023/10/03/morsel-driven/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/10/03/morsel-driven/&title=Morsel-Driven Parallelism: A NUMA-Aware Query Evaluation Framework for the Many-Core Age"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/10/03/morsel-driven/&title=Morsel-Driven Parallelism: A NUMA-Aware Query Evaluation Framework for the Many-Core Age"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/10/03/morsel-driven/&title=Morsel-Driven Parallelism: A NUMA-Aware Query Evaluation Framework for the Many-Core Age"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/10/03/morsel-driven/&title=Morsel-Driven Parallelism: A NUMA-Aware Query Evaluation Framework for the Many-Core Age"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/10/03/morsel-driven/&name=Morsel-Driven Parallelism: A NUMA-Aware Query Evaluation Framework for the Many-Core Age&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/10/03/morsel-driven/&t=Morsel-Driven Parallelism: A NUMA-Aware Query Evaluation Framework for the Many-Core Age"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2026
+    duanmeng
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/categories/technology">Technology</a></li><!--
+     --><!--
+       --><li><a href="/categories/life">Life</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Archives</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tags</a></li><!--
+     --><!--
+       --><li><a href="/about">About</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+
+  <script src='https://unpkg.com/mermaid@10.3.0/dist/mermaid.min.js'></script>
+  <script>
+    if (window.mermaid) {
+      mermaid.initialize({theme: 'forest'});
+    }
+  </script>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

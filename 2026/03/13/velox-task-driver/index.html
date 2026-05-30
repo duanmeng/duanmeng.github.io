@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="一、Task 的设计与实现1.1 Task 是什么Task 代表一个查询片段（PlanFragment）的完整执行单元，是 Velox 执行层最顶层的对象，负责：  将 PlanFragment 翻译成若干 Pipeline（DriverFactory）； 创建并管理所有 Driver； 管理 Split（数据分片）的分发； 维护跨 Driver 共享的桥接结构（JoinBridge、LocalE">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Velox Task &amp; Driver">
+<meta property="og:url" content="http://example.com/2026/03/13/velox-task-driver/index.html">
+<meta property="og:site_name" content="Macduan Notes">
+<meta property="og:description" content="一、Task 的设计与实现1.1 Task 是什么Task 代表一个查询片段（PlanFragment）的完整执行单元，是 Velox 执行层最顶层的对象，负责：  将 PlanFragment 翻译成若干 Pipeline（DriverFactory）； 创建并管理所有 Driver； 管理 Split（数据分片）的分发； 维护跨 Driver 共享的桥接结构（JoinBridge、LocalE">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2026-03-13T04:22:17.000Z">
+<meta property="article:modified_time" content="2026-05-30T11:27:01.261Z">
+<meta property="article:author" content="duanmeng">
+<meta property="article:tag" content="QueryExecution">
+<meta property="article:tag" content="Velox">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Velox Task &amp; Driver</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/categories/technology">Technology</a></li><!--
+     --><!--
+       --><li><a href="/categories/life">Life</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Archives</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tags</a></li><!--
+     --><!--
+       --><li><a href="/about">About</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2026/05/30/velox-hash-table/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2026/03/02/velox-memory-pool-arbitration/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2026/03/13/velox-task-driver/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2026/03/13/velox-task-driver/&text=Velox Task &amp; Driver"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2026/03/13/velox-task-driver/&title=Velox Task &amp; Driver"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2026/03/13/velox-task-driver/&is_video=false&description=Velox Task &amp; Driver"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Velox Task &amp; Driver&body=Check out this article: http://example.com/2026/03/13/velox-task-driver/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2026/03/13/velox-task-driver/&title=Velox Task &amp; Driver"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2026/03/13/velox-task-driver/&title=Velox Task &amp; Driver"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2026/03/13/velox-task-driver/&title=Velox Task &amp; Driver"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2026/03/13/velox-task-driver/&title=Velox Task &amp; Driver"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2026/03/13/velox-task-driver/&name=Velox Task &amp; Driver&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2026/03/13/velox-task-driver/&t=Velox Task &amp; Driver"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81Task-%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0"><span class="toc-number">1.</span> <span class="toc-text">一、Task 的设计与实现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-Task-%E6%98%AF%E4%BB%80%E4%B9%88"><span class="toc-number">1.1.</span> <span class="toc-text">1.1 Task 是什么</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-Task-%E7%8A%B6%E6%80%81%E6%9C%BA"><span class="toc-number">1.2.</span> <span class="toc-text">1.2 Task 状态机</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3-%E6%A0%B8%E5%BF%83%E6%95%B0%E6%8D%AE%E6%88%90%E5%91%98"><span class="toc-number">1.3.</span> <span class="toc-text">1.3 核心数据成员</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-4-Task-%E7%9A%84%E6%89%A7%E8%A1%8C%E6%A8%A1%E5%BC%8F"><span class="toc-number">1.4.</span> <span class="toc-text">1.4 Task 的执行模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-5-Task-%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B"><span class="toc-number">1.5.</span> <span class="toc-text">1.5 Task 启动流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-6-Split-%E5%88%86%E5%8F%91"><span class="toc-number">1.6.</span> <span class="toc-text">1.6 Split 分发</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-7-allPeersFinished-%E2%80%94%E2%80%94-Hash-Join-Build-%E5%90%8C%E6%AD%A5%E5%B1%8F%E9%9A%9C"><span class="toc-number">1.7.</span> <span class="toc-text">1.7 allPeersFinished —— Hash Join Build 同步屏障</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-8-Task-terminate-%E2%80%94%E2%80%94-%E7%BB%9F%E4%B8%80%E7%BB%88%E6%AD%A2%E8%B7%AF%E5%BE%84"><span class="toc-number">1.8.</span> <span class="toc-text">1.8 Task::terminate —— 统一终止路径</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81Driver-%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0"><span class="toc-number">2.</span> <span class="toc-text">二、Driver 的设计与实现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-Driver-%E6%98%AF%E4%BB%80%E4%B9%88"><span class="toc-number">2.1.</span> <span class="toc-text">2.1 Driver 是什么</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-Driver-%E7%9A%84%E6%A0%B8%E5%BF%83%E7%BB%84%E6%88%90"><span class="toc-number">2.2.</span> <span class="toc-text">2.2 Driver 的核心组成</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-ThreadState-%E2%80%94%E2%80%94-Driver-%E7%9A%84%E7%8A%B6%E6%80%81"><span class="toc-number">2.3.</span> <span class="toc-text">2.3 ThreadState —— Driver 的状态</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-Driver-%E7%8A%B6%E6%80%81%E6%B5%81%E8%BD%AC"><span class="toc-number">2.4.</span> <span class="toc-text">2.4 Driver 状态流转</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-5-Driver-runInternal-%E2%80%94%E2%80%94-%E6%A0%B8%E5%BF%83%E6%89%A7%E8%A1%8C%E5%BE%AA%E7%8E%AF"><span class="toc-number">2.5.</span> <span class="toc-text">2.5 Driver::runInternal —— 核心执行循环</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-6-blockDriver-%E2%80%94%E2%80%94-%E8%BF%9B%E5%85%A5-Blocked-%E7%8A%B6%E6%80%81"><span class="toc-number">2.6.</span> <span class="toc-text">2.6 blockDriver —— 进入 Blocked 状态</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-7-CancelGuard-%E2%80%94%E2%80%94-%E7%BA%BF%E7%A8%8B%E5%AE%89%E5%85%A8%E7%9A%84%E6%B8%85%E7%90%86%E4%BF%9D%E8%AF%81"><span class="toc-number">2.7.</span> <span class="toc-text">2.7 CancelGuard —— 线程安全的清理保证</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-8-Driver-close-%E2%80%94%E2%80%94-%E6%AD%A3%E5%B8%B8%E5%85%B3%E9%97%AD%E8%B7%AF%E5%BE%84"><span class="toc-number">2.8.</span> <span class="toc-text">2.8 Driver::close —— 正常关闭路径</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81Task-%E4%B8%8E-Driver-%E7%9A%84%E4%BA%A4%E4%BA%92%E4%B8%8E%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F"><span class="toc-number">3.</span> <span class="toc-text">三、Task 与 Driver 的交互与生命周期</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-%E5%BC%95%E7%94%A8%E5%85%B3%E7%B3%BB%E5%9B%BE"><span class="toc-number">3.1.</span> <span class="toc-text">3.1 引用关系图</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-%E5%AE%8C%E6%95%B4%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F"><span class="toc-number">3.2.</span> <span class="toc-text">3.2 完整生命周期</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-Task-enter-x2F-leave-%E2%80%94%E2%80%94-Driver-%E7%BA%BF%E7%A8%8B%E6%B3%A8%E5%86%8C%E5%8D%8F%E8%AE%AE"><span class="toc-number">3.3.</span> <span class="toc-text">3.3 Task::enter &#x2F; leave —— Driver 线程注册协议</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4-Suspended-%E7%8A%B6%E6%80%81%E7%9A%84%E7%94%A8%E9%80%94"><span class="toc-number">3.4.</span> <span class="toc-text">3.4 Suspended 状态的用途</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-5-Split-Group-%E5%B9%B6%E5%8F%91%E6%8E%A7%E5%88%B6"><span class="toc-number">3.5.</span> <span class="toc-text">3.5 Split Group 并发控制</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81TaskDriverOperatorLifecycle-md-%E4%B8%AD%E6%96%87%E7%BF%BB%E8%AF%91"><span class="toc-number">4.</span> <span class="toc-text">四、TaskDriverOperatorLifecycle.md 中文翻译</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Task%E3%80%81Driver%E3%80%81Operator-%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F"><span class="toc-number"></span> <span class="toc-text">Task、Driver、Operator 生命周期</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#OutputBufferManager"><span class="toc-number">1.</span> <span class="toc-text">OutputBufferManager</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Operator"><span class="toc-number">2.</span> <span class="toc-text">Operator</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Driver-%E4%B8%8E-Task"><span class="toc-number">3.</span> <span class="toc-text">Driver 与 Task</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%93%81%E5%91%B3%E3%80%81%E4%BB%A3%E7%A0%81%E5%93%81%E5%91%B3%E4%B8%8E%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E8%8C%83%E5%BC%8F"><span class="toc-number">4.</span> <span class="toc-text">五、架构设计品味、代码品味与多线程编程范式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%93%81%E5%91%B3"><span class="toc-number">4.1.</span> <span class="toc-text">5.1 架构设计品味</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#5-1-1-%E2%80%9C%E5%8D%8F%E4%BD%9C%E5%BC%8F%E8%B0%83%E5%BA%A6%E2%80%9D%E8%80%8C%E9%9D%9E%E2%80%9D%E6%8A%A2%E5%8D%A0%E5%BC%8F%E7%BA%BF%E7%A8%8B%E2%80%9D"><span class="toc-number">4.1.1.</span> <span class="toc-text">5.1.1 “协作式调度”而非”抢占式线程”</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-1-2-%E5%8D%95%E4%B8%80%E7%BB%88%E6%AD%A2%E6%BC%8F%E6%96%97%EF%BC%88terminate-as-a-funnel%EF%BC%89"><span class="toc-number">4.1.2.</span> <span class="toc-text">5.1.2 单一终止漏斗（terminate as a funnel）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-1-3-%E6%89%80%E6%9C%89%E6%9D%83%E6%96%B9%E5%90%91%E4%B8%8E%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E7%9A%84%E2%80%9D%E5%8D%95%E8%B0%83%E6%80%A7%E2%80%9D"><span class="toc-number">4.1.3.</span> <span class="toc-text">5.1.3 所有权方向与生命周期的”单调性”</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-1-4-%E5%BE%AA%E7%8E%AF%E5%BC%95%E7%94%A8%E7%9A%84%E2%80%9D%E5%8F%97%E6%8E%A7%E6%B3%84%E6%BC%8F%E2%80%9D"><span class="toc-number">4.1.4.</span> <span class="toc-text">5.1.4 循环引用的”受控泄漏”</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-1-5-%E7%AA%84%E6%8E%A5%E5%8F%A3%E7%BB%9F%E4%B8%80%E5%BC%82%E6%9E%84%E7%AD%89%E5%BE%85%E2%80%94%E2%80%94isBlocked-%E4%BD%9C%E4%B8%BA%E5%94%AF%E4%B8%80%E7%9A%84%E2%80%9D%E6%8C%82%E8%B5%B7-%E5%94%A4%E9%86%92%E2%80%9D%E6%8A%BD%E8%B1%A1"><span class="toc-number">4.1.5.</span> <span class="toc-text">5.1.5 窄接口统一异构等待——isBlocked 作为唯一的”挂起-唤醒”抽象</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-%E4%BB%A3%E7%A0%81%E5%93%81%E5%91%B3"><span class="toc-number">4.2.</span> <span class="toc-text">5.2 代码品味</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#5-2-1-%E5%BF%AB%E8%B7%AF%E5%BE%84%E6%97%A0%E9%94%81%EF%BC%8C%E6%85%A2%E8%B7%AF%E5%BE%84%E5%8A%A0%E9%94%81"><span class="toc-number">4.2.1.</span> <span class="toc-text">5.2.1 快路径无锁，慢路径加锁</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-2-2-%E2%80%9CLocked-%E5%90%8E%E7%BC%80%E2%80%9D%E7%BA%A6%E5%AE%9A%E2%80%94%E2%80%94%E6%8A%8A%E9%94%81%E5%A5%91%E7%BA%A6%E7%BC%96%E7%A0%81%E8%BF%9B%E5%87%BD%E6%95%B0%E5%90%8D"><span class="toc-number">4.2.2.</span> <span class="toc-text">5.2.2 “Locked 后缀”约定——把锁契约编码进函数名</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-2-3-RAII-%E5%85%9C%E5%BA%95%E4%B8%80%E5%88%87"><span class="toc-number">4.2.3.</span> <span class="toc-text">5.2.3 RAII 兜底一切</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-2-4-%E7%BB%9F%E8%AE%A1%E7%9A%84%E5%8F%8C%E4%BF%9D%E9%99%A9"><span class="toc-number">4.2.4.</span> <span class="toc-text">5.2.4 统计的双保险</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-2-5-%E4%B8%BB%E5%BE%AA%E7%8E%AF%E5%86%99%E5%BE%97%E6%9E%81%E8%87%B4%E7%B4%A7%E5%87%91"><span class="toc-number">4.2.5.</span> <span class="toc-text">5.2.5 主循环写得极致紧凑</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-2-6-%E5%BB%B6%E8%BF%9F%E6%8A%A5%E5%91%8A%E6%A8%A1%E5%BC%8F%E2%80%94%E2%80%94%E9%98%BB%E5%A1%9E%E5%9C%A8%E6%95%B0%E6%8D%AE%E6%93%8D%E4%BD%9C%E9%87%8C%E5%8F%91%E7%8E%B0%EF%BC%8C%E5%9C%A8%E4%B8%8B%E4%B8%80%E8%BD%AE-isBlocked-%E6%8A%A5%E5%91%8A"><span class="toc-number">4.2.6.</span> <span class="toc-text">5.2.6 延迟报告模式——阻塞在数据操作里发现，在下一轮 isBlocked 报告</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-2-7-future-%E7%BB%84%E5%90%88%E8%AF%AD%E4%B9%89%E5%BF%85%E9%A1%BB%E5%8C%B9%E9%85%8D%E7%AD%89%E5%BE%85%E8%AF%AD%E4%B9%89%E2%80%94%E2%80%94collectAny-vs-collectAll"><span class="toc-number">4.2.7.</span> <span class="toc-text">5.2.7 future 组合语义必须匹配等待语义——collectAny vs collectAll</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-3-%E6%B6%89%E5%8F%8A%E7%9A%84%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E8%8C%83%E5%BC%8F"><span class="toc-number">4.3.</span> <span class="toc-text">5.3 涉及的多线程编程范式</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%80%E6%9D%A1%E8%B4%AF%E7%A9%BF%E5%85%A8%E5%B1%80%E7%9A%84%E4%B8%BB%E7%BA%BF"><span class="toc-number">4.3.1.</span> <span class="toc-text">一条贯穿全局的主线</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AD%E3%80%81runInternal-%E7%9A%84%E6%89%A7%E8%A1%8C%E6%A8%A1%E5%9E%8B%EF%BC%9A%E4%B8%8D%E6%98%AF-Volcano%EF%BC%8C%E4%B9%9F%E4%B8%8D%E6%98%AF%E6%95%99%E7%A7%91%E4%B9%A6%E5%BC%8F-push"><span class="toc-number">5.</span> <span class="toc-text">六、runInternal 的执行模型：不是 Volcano，也不是教科书式 push</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#6-1-%E6%8E%A7%E5%88%B6%E6%B5%81%EF%BC%9ADriver-%E6%98%AF%E5%94%AF%E4%B8%80%E7%9A%84%E8%B0%83%E5%BA%A6%E5%99%A8"><span class="toc-number">5.1.</span> <span class="toc-text">6.1 控制流：Driver 是唯一的调度器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-2-%E8%B0%83%E5%BA%A6%E6%89%AB%E6%8F%8F%E6%96%B9%E5%90%91%EF%BC%9A%E4%BB%8E-sink-%E5%BE%80-source-%E6%89%BE%E2%80%9D%E8%B0%81%E8%83%BD%E5%B9%B2%E6%B4%BB%E2%80%9D"><span class="toc-number">5.2.</span> <span class="toc-text">6.2 调度扫描方向：从 sink 往 source 找”谁能干活”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-3-demand-gated%EF%BC%88%E9%9C%80%E6%B1%82%E9%97%A8%E6%8E%A7%EF%BC%89"><span class="toc-number">5.3.</span> <span class="toc-text">6.3 demand-gated（需求门控）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-4-%E4%B8%BA%E4%BB%80%E4%B9%88%E2%80%9D%E6%89%81%E5%B9%B3%E5%BE%AA%E7%8E%AF-Driver-%E8%B0%83%E5%BA%A6%E2%80%9D%E6%98%AF%E5%8D%8F%E4%BD%9C%E5%BC%8F%E8%B0%83%E5%BA%A6%E7%9A%84%E5%89%8D%E6%8F%90"><span class="toc-number">5.4.</span> <span class="toc-text">6.4 为什么”扁平循环 + Driver 调度”是协作式调度的前提</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-5-%E5%B0%8F%E7%BB%93"><span class="toc-number">5.5.</span> <span class="toc-text">6.5 小结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%83%E3%80%81runInternal-%E8%B0%83%E5%BA%A6%E5%AE%9E%E4%BE%8B%EF%BC%9A%E4%B8%89%E7%AE%97%E5%AD%90-pipeline-%E5%85%A8%E8%BF%87%E7%A8%8B"><span class="toc-number">6.</span> <span class="toc-text">七、runInternal 调度实例：三算子 pipeline 全过程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#7-0-%E7%AE%97%E5%AD%90%E6%8E%A5%E5%8F%A3%E8%AF%AD%E4%B9%89"><span class="toc-number">6.1.</span> <span class="toc-text">7.0 算子接口语义</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-1-%E9%98%B6%E6%AE%B5%E4%B8%80%EF%BC%9A%E5%86%B7%E5%90%AF%E5%8A%A8%E2%80%94%E2%80%94%E4%BB%8E-sink-%E5%BE%80-source-%E2%80%9C%E6%89%BE%E6%B4%BB%E5%B9%B2%E2%80%9D"><span class="toc-number">6.2.</span> <span class="toc-text">7.1 阶段一：冷启动——从 sink 往 source “找活干”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-2-%E9%98%B6%E6%AE%B5%E4%BA%8C%EF%BC%9A%E6%95%B0%E6%8D%AE%E6%8E%A8%E8%BF%9B%E2%80%94%E2%80%94i-2-%E7%9A%84%E7%B2%BE%E5%A6%99%E4%B9%8B%E5%A4%84"><span class="toc-number">6.3.</span> <span class="toc-text">7.2 阶段二：数据推进——i +&#x3D; 2 的精妙之处</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-3-%E9%98%B6%E6%AE%B5%E4%B8%89%EF%BC%9A%E7%A8%B3%E6%80%81%E5%BE%AA%E7%8E%AF"><span class="toc-number">6.4.</span> <span class="toc-text">7.3 阶段三：稳态循环</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-4-%E9%98%B6%E6%AE%B5%E5%9B%9B%EF%BC%9A%E9%98%BB%E5%A1%9E%E5%9C%BA%E6%99%AF%E2%80%94%E2%80%94blockDriver-%E8%AE%A9%E5%87%BA%E7%BA%BF%E7%A8%8B"><span class="toc-number">6.5.</span> <span class="toc-text">7.4 阶段四：阻塞场景——blockDriver 让出线程</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9C%BA%E6%99%AF-A%EF%BC%9AOutputBuffer-%E6%BB%A1%EF%BC%88%E4%B8%8B%E6%B8%B8%E6%B6%88%E8%B4%B9%E8%B7%9F%E4%B8%8D%E4%B8%8A%EF%BC%89"><span class="toc-number">6.5.1.</span> <span class="toc-text">场景 A：OutputBuffer 满（下游消费跟不上）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9C%BA%E6%99%AF-B%EF%BC%9ATableScan-%E7%AD%89-split"><span class="toc-number">6.5.2.</span> <span class="toc-text">场景 B：TableScan 等 split</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-5-%E9%98%B6%E6%AE%B5%E4%BA%94%EF%BC%9A%E6%94%B6%E5%B0%BE%E2%80%94%E2%80%94noMoreInput-%E9%93%BE%E5%BC%8F%E4%BC%A0%E6%92%AD-%E2%86%92-close"><span class="toc-number">6.6.</span> <span class="toc-text">7.5 阶段五：收尾——noMoreInput 链式传播 → close</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-6-%E6%97%B6%E9%97%B4%E7%BA%BF%E6%B1%87%E6%80%BB"><span class="toc-number">6.7.</span> <span class="toc-text">7.6 时间线汇总</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AB%E3%80%81isBlocked-%E4%B8%8E%E4%B8%89%E7%A7%8D%E8%AE%A9%E5%87%BA%E6%9C%BA%E5%88%B6%EF%BC%9A%E7%BB%93%E5%90%88%E5%85%B8%E5%9E%8B%E7%AE%97%E5%AD%90%E8%A7%A3%E8%AF%BB"><span class="toc-number">7.</span> <span class="toc-text">八、isBlocked 与三种让出机制：结合典型算子解读</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#8-1-isBlocked-%E7%9A%84%E8%A7%92%E8%89%B2%EF%BC%9A%E5%A3%B0%E6%98%8E%E9%98%BB%E5%A1%9E%E6%84%8F%E6%84%BF-%E4%BA%A4%E5%87%BA%E5%94%A4%E9%86%92%E5%8F%A5%E6%9F%84"><span class="toc-number">7.1.</span> <span class="toc-text">8.1 isBlocked 的角色：声明阻塞意愿 + 交出唤醒句柄</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-2-%E4%B8%89%E7%A7%8D%E8%AE%A9%E5%87%BA%E7%BA%BF%E7%A8%8B%E7%9A%84%E6%96%B9%E5%BC%8F"><span class="toc-number">7.2.</span> <span class="toc-text">8.2 三种让出线程的方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-3-%E5%85%B8%E5%9E%8B%E7%AE%97%E5%AD%90%E7%9A%84-isBlocked-%E8%A7%A3%E8%AF%BB"><span class="toc-number">7.3.</span> <span class="toc-text">8.3 典型算子的 isBlocked 解读</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-CallbackSink-%E2%80%94%E2%80%94-sink-%E7%9A%84%E4%B8%8B%E6%B8%B8%E5%8F%8D%E5%8E%8B%EF%BC%88%E5%BB%B6%E8%BF%9F%E6%8A%A5%E5%91%8A%E6%A8%A1%E5%BC%8F%EF%BC%89"><span class="toc-number">7.3.1.</span> <span class="toc-text">(1) CallbackSink —— sink 的下游反压（延迟报告模式）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-LocalExchange-%E2%80%94%E2%80%94-%E6%9C%AC%E5%9C%B0%E4%BA%A4%E6%8D%A2-source%EF%BC%88getOutput-%E6%8E%A2%E6%B5%8B-isBlocked-%E6%8A%A5%E5%91%8A%EF%BC%89"><span class="toc-number">7.3.2.</span> <span class="toc-text">(2) LocalExchange —— 本地交换 source（getOutput 探测 + isBlocked 报告）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-Exchange-%E2%80%94%E2%80%94-%E8%BF%9C%E7%A8%8B%E4%BA%A4%E6%8D%A2-source%EF%BC%88isBlocked-%E9%87%8C%E5%B9%B2%E5%AE%9E%E6%B4%BB-collectAny%EF%BC%89"><span class="toc-number">7.3.3.</span> <span class="toc-text">(3) Exchange —— 远程交换 source（isBlocked 里干实活 + collectAny）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-Merge-x2F-LocalMerge-%E2%80%94%E2%80%94-%E5%A4%9A%E6%BA%90%E5%BD%92%E5%B9%B6%EF%BC%88kWaitForProducer%EF%BC%89"><span class="toc-number">7.3.4.</span> <span class="toc-text">(4) Merge &#x2F; LocalMerge —— 多源归并（kWaitForProducer）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-LocalPartition-%E2%80%94%E2%80%94-%E5%A4%9A%E4%B8%8B%E6%B8%B8-sink%EF%BC%88collectAll%EF%BC%89"><span class="toc-number">7.3.5.</span> <span class="toc-text">(5) LocalPartition —— 多下游 sink（collectAll）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#6-HashProbe-%E2%80%94%E2%80%94-join-probe%EF%BC%88%E7%8A%B6%E6%80%81%E6%9C%BA%E9%A9%B1%E5%8A%A8-kWaitForJoinBuild%EF%BC%89"><span class="toc-number">7.3.6.</span> <span class="toc-text">(6) HashProbe —— join probe（状态机驱动 + kWaitForJoinBuild）</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-4-%E4%B8%A4%E7%A7%8D-future-%E7%BB%84%E5%90%88%E8%AF%AD%E4%B9%89%EF%BC%9AcollectAny-vs-collectAll"><span class="toc-number">7.4.</span> <span class="toc-text">8.4 两种 future 组合语义：collectAny vs collectAll</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-5-%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E6%80%BB%E7%BB%93"><span class="toc-number">7.5.</span> <span class="toc-text">8.5 设计模式总结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B9%9D%E3%80%81%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BA%A7%E5%87%BA%E7%BB%9F%E4%B8%80%E4%BB%8E-getOutput-%E5%8F%91%E8%B5%B7"><span class="toc-number">8.</span> <span class="toc-text">九、为什么产出统一从 getOutput 发起</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#9-1-%E6%A0%B8%E5%BF%83%E5%8E%9F%E5%9B%A0%EF%BC%9A%E8%A7%A3%E8%80%A6%E2%80%9D%E6%B6%88%E8%B4%B9%E8%BE%93%E5%85%A5%E9%80%9F%E7%8E%87%E2%80%9D%E4%B8%8E%E2%80%9D%E4%BA%A7%E7%94%9F%E8%BE%93%E5%87%BA%E9%80%9F%E7%8E%87%E2%80%9D"><span class="toc-number">8.1.</span> <span class="toc-text">9.1 核心原因：解耦”消费输入速率”与”产生输出速率”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-2-getOutput-%E8%BF%94%E5%9B%9E-null-%E6%98%AF%E5%B9%B2%E5%87%80%E7%9A%84%E3%80%81%E5%8F%AF%E8%AE%A9%E5%87%BA%E7%9A%84%E4%BF%A1%E5%8F%B7"><span class="toc-number">8.2.</span> <span class="toc-text">9.2 getOutput 返回 null 是干净的、可让出的信号</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-3-%E7%BB%9F%E4%B8%80%E6%80%A7%EF%BC%9Asource-x2F-%E4%B8%AD%E9%97%B4-x2F-%E6%94%92%E6%89%B9%E7%AE%97%E5%AD%90%EF%BC%8CDriver-%E4%B8%80%E8%A7%86%E5%90%8C%E4%BB%81"><span class="toc-number">8.3.</span> <span class="toc-text">9.3 统一性：source &#x2F; 中间 &#x2F; 攒批算子，Driver 一视同仁</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-4-%E4%B8%8E-demand-gated-push-%E7%9A%84%E5%85%B3%E7%B3%BB%EF%BC%9Apull-%E8%A7%A6%E5%8F%91%EF%BC%8Cpush-%E4%BC%A0%E9%80%92"><span class="toc-number">8.4.</span> <span class="toc-text">9.4 与 demand-gated push 的关系：pull 触发，push 传递</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-5-%E5%B0%8F%E7%BB%93"><span class="toc-number">8.5.</span> <span class="toc-text">9.5 小结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%81%E3%80%81Task-%E7%9A%84%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86%EF%BC%9Aterminate-%E6%B5%81%E7%A8%8B%E4%B8%8E%E8%B5%84%E6%BA%90%E5%9B%9E%E6%94%B6"><span class="toc-number">9.</span> <span class="toc-text">十、Task 的资源管理：terminate 流程与资源回收</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#10-1-Memory-Pool-%E6%A0%91%EF%BC%9A%E5%B1%82%E7%BA%A7%E3%80%81%E6%89%80%E6%9C%89%E6%9D%83%E4%B8%8E%E2%80%9D%E5%88%BB%E6%84%8F%E4%BF%9D%E6%B4%BB%E2%80%9D"><span class="toc-number">9.1.</span> <span class="toc-text">10.1 Memory Pool 树：层级、所有权与”刻意保活”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-2-Happy-Path%EF%BC%9A%E8%87%AA%E7%84%B6%E5%AE%8C%E6%88%90"><span class="toc-number">9.2.</span> <span class="toc-text">10.2 Happy Path：自然完成</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-3-%E5%BC%82%E5%B8%B8-Path%EF%BC%9A%E9%94%99%E8%AF%AF-x2F-%E5%8F%96%E6%B6%88-x2F-%E4%B8%AD%E6%AD%A2"><span class="toc-number">9.3.</span> <span class="toc-text">10.3 异常 Path：错误 &#x2F; 取消 &#x2F; 中止</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-4-terminate%EF%BC%9A%E7%BB%9F%E4%B8%80%E6%B8%85%E7%90%86%E6%BC%8F%E6%96%97%EF%BC%88happy-x2F-error-%E5%85%B1%E7%94%A8%EF%BC%89"><span class="toc-number">9.4.</span> <span class="toc-text">10.4 terminate：统一清理漏斗（happy&#x2F;error 共用）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-5-%E6%9C%80%E7%BB%88%E5%9B%9E%E6%94%B6%EF%BC%9A-Task"><span class="toc-number">9.5.</span> <span class="toc-text">10.5 最终回收：~Task()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-6-%E8%B5%84%E6%BA%90%E5%9B%9E%E6%94%B6%E6%97%B6%E6%9C%BA%E6%B1%87%E6%80%BB"><span class="toc-number">9.6.</span> <span class="toc-text">10.6 资源回收时机汇总</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-7-%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9"><span class="toc-number">9.7.</span> <span class="toc-text">10.7 设计要点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%81%E4%B8%80%E3%80%81Future-x2F-Promise-%E7%AE%A1%E7%90%86%EF%BC%9A%E9%81%BF%E5%85%8D-Driver-%E6%B3%84%E6%BC%8F%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0"><span class="toc-number">10.</span> <span class="toc-text">十一、Future&#x2F;Promise 管理：避免 Driver 泄漏的设计与实现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#11-1-%E4%B8%BA%E4%BB%80%E4%B9%88-future-x2F-promise-%E5%9C%A8%E8%BF%99%E9%87%8C%E7%89%B9%E5%88%AB%E5%8D%B1%E9%99%A9"><span class="toc-number">10.1.</span> <span class="toc-text">11.1 为什么 future&#x2F;promise 在这里特别危险</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#11-2-%E5%85%A8%E6%99%AF%EF%BC%9ATask-x2F-Driver-%E4%B8%AD%E7%9A%84-promise-x2F-future"><span class="toc-number">10.2.</span> <span class="toc-text">11.2 全景：Task&#x2F;Driver 中的 promise&#x2F;future</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#11-3-%E9%99%B7%E9%98%B1%E4%B8%80%EF%BC%9A%E6%8C%81%E9%94%81%E5%85%91%E7%8E%B0-promise-%E2%86%92-%E6%AD%BB%E9%94%81"><span class="toc-number">10.3.</span> <span class="toc-text">11.3 陷阱一：持锁兑现 promise → 死锁</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#11-4-%E9%99%B7%E9%98%B1%E4%BA%8C%EF%BC%9Afuture-%E6%B0%B8%E4%B8%8D%E5%85%91%E7%8E%B0-%E2%86%92-Driver-%E6%B3%84%E6%BC%8F-%E2%86%92-terminate-%E4%BD%9C%E2%80%9D%E6%80%BB%E6%B8%85%E7%AE%97%E2%80%9D"><span class="toc-number">10.4.</span> <span class="toc-text">11.4 陷阱二：future 永不兑现 → Driver 泄漏 → terminate 作”总清算”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#11-5-%E9%99%B7%E9%98%B1%E4%B8%89%EF%BC%9Adouble-resume-x2F-%E4%B8%A4%E4%B8%AA%E7%BA%BF%E7%A8%8B%E8%BF%9B%E5%90%8C%E4%B8%80%E4%B8%AA-Driver"><span class="toc-number">10.5.</span> <span class="toc-text">11.5 陷阱三：double-resume &#x2F; 两个线程进同一个 Driver</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#11-6-%E5%8F%AF%E8%A7%82%E6%B5%8B%E6%80%A7%EF%BC%9A%E8%AE%A9%E6%B3%84%E6%BC%8F%E2%80%9D%E7%9C%8B%E5%BE%97%E8%A7%81%E2%80%9D"><span class="toc-number">10.6.</span> <span class="toc-text">11.6 可观测性：让泄漏”看得见”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#11-7-%E8%AE%BE%E8%AE%A1%E5%93%B2%E5%AD%A6%E6%80%BB%E7%BB%93"><span class="toc-number">10.7.</span> <span class="toc-text">11.7 设计哲学总结</span></a></li></ol></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Velox Task &amp; Driver
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">duanmeng</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2026-03-13T04:22:17.000Z" itemprop="datePublished">2026-03-13</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/QueryExecution/" rel="tag">QueryExecution</a>, <a class="tag-link-link" href="/tags/Velox/" rel="tag">Velox</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="一、Task-的设计与实现"><a href="#一、Task-的设计与实现" class="headerlink" title="一、Task 的设计与实现"></a>一、Task 的设计与实现</h2><h3 id="1-1-Task-是什么"><a href="#1-1-Task-是什么" class="headerlink" title="1.1 Task 是什么"></a>1.1 Task 是什么</h3><p>Task 代表一个<strong>查询片段（PlanFragment）的完整执行单元</strong>，是 Velox 执行层最顶层的对象，负责：</p>
+<ul>
+<li>将 PlanFragment 翻译成若干 Pipeline（DriverFactory）；</li>
+<li>创建并管理所有 Driver；</li>
+<li>管理 Split（数据分片）的分发；</li>
+<li>维护跨 Driver 共享的桥接结构（JoinBridge、LocalExchange 等）；</li>
+<li>协调终止、暂停、取消等控制流。</li>
+</ul>
+<p>定义在 <code>velox/exec/Task.h:43</code>。</p>
+<h3 id="1-2-Task-状态机"><a href="#1-2-Task-状态机" class="headerlink" title="1.2 Task 状态机"></a>1.2 Task 状态机</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">TaskState（velox/exec/TaskStructs.h:44）</span><br><span class="line"></span><br><span class="line">kRunning(0) ──── 正常结束 ──────────────────► kFinished(1)</span><br><span class="line">    │          ──── requestCancel() ──────────► kCanceled(2)</span><br><span class="line">    │          ──── requestAbort()  ──────────► kAborted(3)</span><br><span class="line">    │          ──── setError()      ──────────► kFailed(4)</span><br><span class="line">    └─── 所有路径均通过 Task::terminate(terminalState) 实现</span><br></pre></td></tr></table></figure>
+
+<p>状态转换核心代码（<code>Task.cpp:2516</code>）：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">state_ = terminalState;</span><br><span class="line">terminateRequested_ = <span class="literal">true</span>;</span><br></pre></td></tr></table></figure>
+
+<h3 id="1-3-核心数据成员"><a href="#1-3-核心数据成员" class="headerlink" title="1.3 核心数据成员"></a>1.3 核心数据成员</h3><table>
+<thead>
+<tr>
+<th>成员</th>
+<th>类型</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>drivers_</code></td>
+<td><code>vector&lt;shared_ptr&lt;Driver&gt;&gt;</code></td>
+<td>拥有所有 Driver（<code>Task.h:1250</code>）</td>
+</tr>
+<tr>
+<td><code>driverFactories_</code></td>
+<td><code>vector&lt;unique_ptr&lt;DriverFactory&gt;&gt;</code></td>
+<td>每条 Pipeline 一个，描述如何创建 Driver</td>
+</tr>
+<tr>
+<td><code>splitGroupStates_</code></td>
+<td><code>unordered_map&lt;uint32_t, SplitGroupState&gt;</code></td>
+<td>每个 split group 的跨算子共享状态（JoinBridge、LocalExchange、Barrier）</td>
+</tr>
+<tr>
+<td><code>splitsStates_</code></td>
+<td><code>unordered_map&lt;PlanNodeId, SplitsState&gt;</code></td>
+<td>每个 source node 的 Split 队列</td>
+</tr>
+<tr>
+<td><code>numThreads_</code></td>
+<td><code>int32_t</code></td>
+<td>当前在线程上运行的 Driver 数量</td>
+</tr>
+<tr>
+<td><code>terminateRequested_</code></td>
+<td><code>atomic_bool</code></td>
+<td>是否请求终止，Driver 会频繁轮询</td>
+</tr>
+<tr>
+<td><code>pauseRequested_</code></td>
+<td><code>atomic_bool</code></td>
+<td>是否请求暂停</td>
+</tr>
+<tr>
+<td><code>mutex_</code></td>
+<td><code>timed_mutex</code></td>
+<td>保护所有状态字段</td>
+</tr>
+</tbody></table>
+<h3 id="1-4-Task-的执行模式"><a href="#1-4-Task-的执行模式" class="headerlink" title="1.4 Task 的执行模式"></a>1.4 Task 的执行模式</h3><p><code>Task.h:46</code> 定义了两种模式：</p>
+<ul>
+<li><strong>kParallel</strong>：通过 <code>Task::start()</code> 启动，把 Driver 提交到 Executor 并行执行（生产用途）。</li>
+<li><strong>kSerial</strong>：通过 <code>Task::next()</code> 在调用线程上单步执行，用于测试或嵌入式查询。</li>
+</ul>
+<h3 id="1-5-Task-启动流程"><a href="#1-5-Task-启动流程" class="headerlink" title="1.5 Task 启动流程"></a>1.5 Task 启动流程</h3><p>调用链：<code>Task::start()</code> → <code>createDriverFactoriesLocked()</code> → <code>initializePartitionOutput()</code> → <code>createAndStartDrivers()</code></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Task.cpp:982 — Task::start()</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">Task::start</span><span class="params">(<span class="type">uint32_t</span> maxDrivers, <span class="type">uint32_t</span> concurrentSplitGroups)</span> </span>&#123;</span><br><span class="line">  <span class="comment">// 1. 通过 LocalPlanner::plan() 将 PlanFragment 切分成 DriverFactory 列表</span></span><br><span class="line">  <span class="built_in">createDriverFactoriesLocked</span>(maxDrivers);</span><br><span class="line">  <span class="comment">// 2. 初始化 PartitionedOutput buffer（如果有 PartitionedOutputNode）</span></span><br><span class="line">  <span class="built_in">initializePartitionOutput</span>();</span><br><span class="line">  <span class="comment">// 3. 为 ungrouped execution 创建 Driver，为 grouped execution 按需创建</span></span><br><span class="line">  <span class="built_in">createAndStartDrivers</span>(concurrentSplitGroups);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>createAndStartDrivers()</code>（<code>Task.cpp:1070</code>）：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 为 ungrouped execution 创建并入队所有 Driver</span></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">auto</span> it = drivers_.<span class="built_in">end</span>() - numDriversUngrouped_; it != drivers_.<span class="built_in">end</span>(); ++it) &#123;</span><br><span class="line">  ++numRunningDrivers_;</span><br><span class="line">  Driver::<span class="built_in">enqueue</span>(*it);   <span class="comment">// 提交到线程池</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 如果有 grouped execution，调用 ensureSplitGroupsAreBeingProcessedLocked()</span></span><br><span class="line"><span class="comment">// 按 concurrentSplitGroups_ 上限，为已有 split 的 group 创建 Driver</span></span><br></pre></td></tr></table></figure>
+
+<p><code>drivers_</code> 的内存布局（Grouped Execution）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">drivers_[0 .. numDriversPerSplitGroup_*concurrentSplitGroups_-1]   ← grouped execution 槽位</span><br><span class="line">drivers_[numDriversPerSplitGroup_*concurrentSplitGroups_ ..]       ← ungrouped execution Driver</span><br></pre></td></tr></table></figure>
+
+<p>Grouped execution 的槽位在 split group 完成后置 <code>nullptr</code>，新 split group 的 Driver 复用这些槽位。</p>
+<h3 id="1-6-Split-分发"><a href="#1-6-Split-分发" class="headerlink" title="1.6 Split 分发"></a>1.6 Split 分发</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Task::addSplit() → addSplitLocked() → SplitsStore::addSplit()</span><br><span class="line">→ 唤醒所有等待 split 的 Driver（通过 ContinuePromise）</span><br></pre></td></tr></table></figure>
+
+<p>Driver 通过 <code>Task::getSplitOrFuture()</code>（<code>Task.h:442</code>）从 <code>SplitsStore</code> 取 split。如果没有 split，返回<br><code>kWaitForSplit</code>，Driver 进入 Blocked 状态。</p>
+<h3 id="1-7-allPeersFinished-——-Hash-Join-Build-同步屏障"><a href="#1-7-allPeersFinished-——-Hash-Join-Build-同步屏障" class="headerlink" title="1.7 allPeersFinished —— Hash Join Build 同步屏障"></a>1.7 allPeersFinished —— Hash Join Build 同步屏障</h3><p><code>Task.h:526</code>：所有并发的 build driver 都执行完后，最后一个 driver 收到 <code>true</code>，其他 driver 通过<br><code>ContinueFuture</code> 阻塞等待。这是 HashJoin 多线程 build 的协调机制。</p>
+<p><code>SplitGroupState::barriers</code>（<code>TaskStructs.h:213</code>）存储这些屏障状态，持有 Driver 的 <code>shared_ptr</code>，形成一个引用环——<br>该引用环在 <code>allPeersFinished</code> 正常路径或 <code>Task::terminate</code> 异常路径中被清理。</p>
+<h3 id="1-8-Task-terminate-——-统一终止路径"><a href="#1-8-Task-terminate-——-统一终止路径" class="headerlink" title="1.8 Task::terminate —— 统一终止路径"></a>1.8 Task::terminate —— 统一终止路径</h3><p><code>Task.cpp:2502</code> 是所有终止的汇聚点：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">terminate(terminalState) &#123;</span><br><span class="line">  1. 加锁，将 state_ 设置为终态</span><br><span class="line">  2. terminateRequested_ = true（Driver 循环会看到）</span><br><span class="line">  3. numRunningDrivers_ = 0</span><br><span class="line">  4. 对所有 drivers_：</span><br><span class="line">       enterForTerminateLocked() → 不在线程上的 Driver 直接标 isTerminated，</span><br><span class="line">       收集到 offThreadDrivers（需在锁外 closeByTask()）</span><br><span class="line">  5. 解锁后:</span><br><span class="line">       offThreadDrivers.closeByTask()        // 关闭不在线程的 Driver</span><br><span class="line">       maybeRemoveFromOutputBufferManager()  // 清理输出 buffer</span><br><span class="line">       关闭 ExchangeClient</span><br><span class="line">       清理 splitGroupStates（bridges、barriers、localExchanges）</span><br><span class="line">       兑现所有 splitPromises（让等待 split 的 Driver 感知终止）</span><br><span class="line">       cancel 所有 JoinBridge</span><br><span class="line">  6. 返回 future，调用方 await 等待所有线程退出</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="二、Driver-的设计与实现"><a href="#二、Driver-的设计与实现" class="headerlink" title="二、Driver 的设计与实现"></a>二、Driver 的设计与实现</h2><h3 id="2-1-Driver-是什么"><a href="#2-1-Driver-是什么" class="headerlink" title="2.1 Driver 是什么"></a>2.1 Driver 是什么</h3><p>Driver 是<strong>单条 Pipeline 的单线程执行引擎</strong>。每个 Driver 持有一组串联的 Operator，从 source operator<br>（TableScan、Exchange 等）拉数据，逐级传递给 sink operator（PartitionedOutput、CallbackSink 等）。</p>
+<p>定义在 <code>velox/exec/Driver.h:353</code>。</p>
+<h3 id="2-2-Driver-的核心组成"><a href="#2-2-Driver-的核心组成" class="headerlink" title="2.2 Driver 的核心组成"></a>2.2 Driver 的核心组成</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Driver</span><br><span class="line">  ├── ctx_: unique_ptr&lt;DriverCtx&gt;               // 持有 Task shared_ptr（引用环的一侧）</span><br><span class="line">  ├── operators_: vector&lt;unique_ptr&lt;Operator&gt;&gt;  // 独占所有算子</span><br><span class="line">  ├── state_: ThreadState                       // 线程状态，由 Task::mutex_ 保护</span><br><span class="line">  ├── barrier_: BarrierState                    // Barrier 处理状态</span><br><span class="line">  └── blockingReason_: BlockingReason           // 当前阻塞原因</span><br></pre></td></tr></table></figure>
+
+<p><code>DriverCtx</code>（<code>Driver.h:231</code>）：Driver 的执行上下文，是 Driver 与 Task 之间的接口层。它持有<br><code>shared_ptr&lt;Task&gt;</code>，这是 Driver → Task 引用的唯一路径。</p>
+<h3 id="2-3-ThreadState-——-Driver-的状态"><a href="#2-3-ThreadState-——-Driver-的状态" class="headerlink" title="2.3 ThreadState —— Driver 的状态"></a>2.3 ThreadState —— Driver 的状态</h3><p><code>Driver.h:97</code> 定义了 <code>ThreadState</code>：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">ThreadState</span> &#123;</span><br><span class="line">  atomic&lt;thread::id&gt; thread;            <span class="comment">// 正在运行的线程 id（非空 = 在线程上）</span></span><br><span class="line">  atomic&lt;<span class="type">bool</span>&gt; isEnqueued;              <span class="comment">// 已提交到 Executor 但还未开始运行</span></span><br><span class="line">  atomic&lt;<span class="type">bool</span>&gt; isTerminated;            <span class="comment">// 已终止，终态</span></span><br><span class="line">  tsan_atomic&lt;<span class="type">bool</span>&gt; hasBlockingFuture;  <span class="comment">// 有待兑现的 future（Blocked 状态）</span></span><br><span class="line">  atomic&lt;<span class="type">uint32_t</span>&gt; numSuspensions;      <span class="comment">// Suspended 层数（&gt; 0 = suspended）</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-4-Driver-状态流转"><a href="#2-4-Driver-状态流转" class="headerlink" title="2.4 Driver 状态流转"></a>2.4 Driver 状态流转</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">                   创建后</span><br><span class="line">                     │</span><br><span class="line">                ┌────▼────┐</span><br><span class="line">                │ Created │  初始状态：所有 flag 均 false</span><br><span class="line">                └────┬────┘</span><br><span class="line">                     │ Driver::enqueue()</span><br><span class="line">                ┌────▼──────┐</span><br><span class="line">                │ Enqueued  │  isEnqueued=true，已提交到线程池</span><br><span class="line">                └────┬──────┘</span><br><span class="line">                     │ Executor 调度到线程，Task::enter() → kNone</span><br><span class="line">                ┌────▼──────────┐</span><br><span class="line">            ┌──►│  On Thread    │  thread 字段被设置，numThreads_++</span><br><span class="line">            │   └──┬──┬──┬──┬──┘</span><br><span class="line">            │      │  │  │  │</span><br><span class="line">            │  kBlock │ kYield │ kPause/kTerminate</span><br><span class="line">            │      │  │      │</span><br><span class="line">            │  ┌───▼─┐│  ┌───▼──────┐</span><br><span class="line">            │  │Blocked││  │Terminated│ isTerminated=true，终态</span><br><span class="line">            │  │hasBlk=││  └──────────┘</span><br><span class="line">            │  │true   ││</span><br><span class="line">            │  └───┬───┘│</span><br><span class="line">   future兑现│      │    │ Driver::enqueue() → 重新入队</span><br><span class="line">setResume() │      │    │</span><br><span class="line">            └──────┘    │</span><br><span class="line">            └───────────┘ (kYield → 重新入队)</span><br><span class="line"></span><br><span class="line">            kPause → Off Thread（等待 resume）</span><br><span class="line">            kBlock + Suspended → Suspended（numSuspensions&gt;0，仍在线程）</span><br></pre></td></tr></table></figure>
+
+<p>状态说明（对应代码注释 <code>Driver.h:72</code>）：</p>
+<table>
+<thead>
+<tr>
+<th>状态</th>
+<th>判断条件</th>
+<th>进入方式</th>
+<th>退出方式</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Created</td>
+<td>所有 flag 为 false</td>
+<td><code>Task::createDriversLocked</code></td>
+<td>enqueue</td>
+</tr>
+<tr>
+<td><strong>Enqueued</strong></td>
+<td><code>isEnqueued=true</code></td>
+<td><code>Driver::enqueue()</code></td>
+<td>Executor 调度到线程</td>
+</tr>
+<tr>
+<td><strong>On Thread</strong></td>
+<td><code>thread</code> 字段非空</td>
+<td><code>Task::enter()</code> 返回 kNone</td>
+<td>返回 kBlock&#x2F;kYield&#x2F;kPause&#x2F;kTerminate</td>
+</tr>
+<tr>
+<td><strong>Blocked</strong></td>
+<td><code>hasBlockingFuture=true</code></td>
+<td><code>BlockingState</code> 构造时设置</td>
+<td>future 兑现 → <code>BlockingState::setResume()</code> → enqueue</td>
+</tr>
+<tr>
+<td><strong>Suspended</strong></td>
+<td><code>numSuspensions &gt; 0</code></td>
+<td><code>Task::enterSuspended()</code></td>
+<td><code>Task::leaveSuspended()</code></td>
+</tr>
+<tr>
+<td><strong>Terminated</strong></td>
+<td><code>isTerminated=true</code></td>
+<td><code>Task::enter()</code> 返回 kTerminate，或 <code>Task::leave()</code></td>
+<td>无（终态）</td>
+</tr>
+</tbody></table>
+<h3 id="2-5-Driver-runInternal-——-核心执行循环"><a href="#2-5-Driver-runInternal-——-核心执行循环" class="headerlink" title="2.5 Driver::runInternal —— 核心执行循环"></a>2.5 Driver::runInternal —— 核心执行循环</h3><p><code>Driver.cpp:519</code> 是 Driver 的心脏（详细的执行模型分析见第六章）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">runInternal() &#123;</span><br><span class="line">  1. 记录 queue 时间，设置 onThreadStartUs_</span><br><span class="line">  2. Task::enter(state_)        // 向 Task 注册&quot;我上线了&quot;</span><br><span class="line">     → kTerminate: 设置 task error，返回</span><br><span class="line">     → kNone: 继续</span><br><span class="line">  3. 安装 CancelGuard（析构时调用 Task::leave + Driver::close）</span><br><span class="line">  4. initializeOperators()      // 第一次执行时初始化所有算子</span><br><span class="line">  5. 主循环 for(;;):</span><br><span class="line">       for (i = startingOperator(=sink); i &gt;= 0; --i):  // 从 sink 往 source 扫描</span><br><span class="line">         a. task()-&gt;shouldStop()       // 检查终止/暂停/yield</span><br><span class="line">         b. shouldYield()              // CPU 时间片耗尽则返回 kYield</span><br><span class="line">         c. checkUnderArbitration()    // 内存仲裁中则 block</span><br><span class="line">         d. op-&gt;isBlocked()            // 算子阻塞则 blockDriver()</span><br><span class="line">         e. 若下游 (i+1) needsInput:</span><br><span class="line">              op-&gt;getOutput() → 有数据 → nextOp-&gt;addInput() → i+=2（向下游推进）</span><br><span class="line">              op-&gt;getOutput() → null   → op-&gt;isFinished() → nextOp-&gt;noMoreInput()</span><br><span class="line">         f. 若 i 为 sink: getOutput() 返回非空 → kBlock（串行模式）</span><br><span class="line">                          isFinished() → close() → kAtEnd</span><br><span class="line">  6. catch → task()-&gt;setError()，返回 kAlreadyTerminated</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-6-blockDriver-——-进入-Blocked-状态"><a href="#2-6-blockDriver-——-进入-Blocked-状态" class="headerlink" title="2.6 blockDriver —— 进入 Blocked 状态"></a>2.6 blockDriver —— 进入 Blocked 状态</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Driver.cpp:669（声明 Driver.h:669）</span></span><br><span class="line"><span class="function">StopReason <span class="title">blockDriver</span><span class="params">(...)</span> </span>&#123;</span><br><span class="line">  blockingState = <span class="built_in">make_shared</span>&lt;BlockingState&gt;(self, <span class="built_in">move</span>(future), op, reason);</span><br><span class="line">  guard.<span class="built_in">notThrown</span>();          <span class="comment">// 避免 CancelGuard 触发 close</span></span><br><span class="line">  <span class="keyword">return</span> StopReason::kBlock;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// Driver::run() 中：</span></span><br><span class="line"><span class="keyword">case</span> StopReason::kBlock:</span><br><span class="line">  BlockingState::<span class="built_in">setResume</span>(blockingState);  <span class="comment">// 注册 future 回调</span></span><br><span class="line">  <span class="keyword">return</span>;</span><br></pre></td></tr></table></figure>
+
+<p><code>BlockingState::setResume()</code>（<code>Driver.cpp:227</code>）：future 兑现时（通过 <code>QueuedImmediateExecutor</code>）记录算子<br>blocking 时间、<code>hasBlockingFuture = false</code>，若 task 未 pause 则 <code>Driver::enqueue(driver)</code> 重新入队。</p>
+<h3 id="2-7-CancelGuard-——-线程安全的清理保证"><a href="#2-7-CancelGuard-——-线程安全的清理保证" class="headerlink" title="2.7 CancelGuard —— 线程安全的清理保证"></a>2.7 CancelGuard —— 线程安全的清理保证</h3><p><code>Driver.h:563</code>，RAII 对象。<code>runInternal</code> 正常结束时调用 <code>notThrown()</code>；若发生异常，guard 析构会调用<br><code>Task::leave()</code> 和 <code>Driver::close()</code>，确保 Driver 干净退出。</p>
+<h3 id="2-8-Driver-close-——-正常关闭路径"><a href="#2-8-Driver-close-——-正常关闭路径" class="headerlink" title="2.8 Driver::close —— 正常关闭路径"></a>2.8 Driver::close —— 正常关闭路径</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Driver.cpp:1063</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">Driver::close</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (!closed_.<span class="built_in">exchange</span>(<span class="literal">true</span>)) &#123;       <span class="comment">// 幂等</span></span><br><span class="line">    <span class="built_in">closeOperators</span>();                  <span class="comment">// 关闭所有算子，上报统计</span></span><br><span class="line">    Task::<span class="built_in">removeDriver</span>(<span class="built_in">task</span>(), <span class="keyword">this</span>);  <span class="comment">// 从 Task 中移除自己</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>closeOperators()</code>（<code>Driver.cpp:898</code>）：关闭所有算子、将 driver 生命周期统计（queued&#x2F;on-thread&#x2F;blocked<br>时间）与算子统计上报到 Task。</p>
+<hr>
+<h2 id="三、Task-与-Driver-的交互与生命周期"><a href="#三、Task-与-Driver-的交互与生命周期" class="headerlink" title="三、Task 与 Driver 的交互与生命周期"></a>三、Task 与 Driver 的交互与生命周期</h2><h3 id="3-1-引用关系图"><a href="#3-1-引用关系图" class="headerlink" title="3.1 引用关系图"></a>3.1 引用关系图</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">Task ──── shared_ptr ────► Driver (drivers_[i])</span><br><span class="line">  ▲                           │</span><br><span class="line">  │                      unique_ptr</span><br><span class="line">  │                           │</span><br><span class="line">  │                        DriverCtx</span><br><span class="line">  │                           │</span><br><span class="line">  └─── shared_ptr ────────────┘ (ctx_-&gt;task)</span><br><span class="line"></span><br><span class="line">形成循环引用：Task → Driver → DriverCtx → Task</span><br><span class="line"></span><br><span class="line">解除循环引用的时机：</span><br><span class="line">  drivers_[i] = nullptr  （Task::removeDriver 或 Task::terminate 中）</span><br><span class="line">  → 此后 Driver 只剩 DriverCtx 持有的 Task 引用</span><br><span class="line">  → Driver 析构后，Task 引用计数归零（若外部也无引用）</span><br></pre></td></tr></table></figure>
+
+<p>额外的两个 Driver 引用：</p>
+<ol>
+<li><strong>BlockingState</strong> 中：<code>std::shared_ptr&lt;Driver&gt; driver_</code>，在 future 未兑现期间延长 Driver 生命。</li>
+<li><strong>Executor 队列 lambda</strong> 中：<code>[driver]() &#123; Driver::run(driver); &#125;</code>。</li>
+</ol>
+<h3 id="3-2-完整生命周期"><a href="#3-2-完整生命周期" class="headerlink" title="3.2 完整生命周期"></a>3.2 完整生命周期</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">Task::create()</span><br><span class="line">    │</span><br><span class="line">Task::start() / Task::next()</span><br><span class="line">    │  createDriverFactoriesLocked()   — LocalPlanner 把 PlanFragment 切成 DriverFactory</span><br><span class="line">    │  initializePartitionOutput()     — 初始化输出 buffer</span><br><span class="line">    │  createAndStartDrivers()         — 创建 Driver，调用 Driver::enqueue()</span><br><span class="line">    ▼</span><br><span class="line">[所有 Driver 在 Executor 上并发运行]</span><br><span class="line">    │</span><br><span class="line">    ├── 正常路径：runInternal() → kAtEnd → Driver::close() → Task::removeDriver()</span><br><span class="line">    │       → checkIfFinishedLocked() → 所有 driver 完成 + output consumed</span><br><span class="line">    │       → Task::terminate(kFinished)</span><br><span class="line">    │</span><br><span class="line">    ├── 错误路径：operator 抛异常 → task()-&gt;setError() → Task::terminate(kFailed)</span><br><span class="line">    │       → on-thread Driver 在下次 shouldStop() 看到 kTerminate，退出循环，</span><br><span class="line">    │         CancelGuard 触发 close()；off-thread Driver 直接 closeByTask()</span><br><span class="line">    │</span><br><span class="line">    └── 外部取消：requestCancel()/requestAbort() → terminate(kCanceled/kAborted)（同错误路径）</span><br><span class="line"></span><br><span class="line">Task 析构 → pool_ 等资源释放 → taskDeletionPromises_ 被 fulfill</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-3-Task-enter-x2F-leave-——-Driver-线程注册协议"><a href="#3-3-Task-enter-x2F-leave-——-Driver-线程注册协议" class="headerlink" title="3.3 Task::enter &#x2F; leave —— Driver 线程注册协议"></a>3.3 Task::enter &#x2F; leave —— Driver 线程注册协议</h3><p><code>Task::enter(state)</code>（<code>Task.cpp:3341</code>）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">加锁</span><br><span class="line">isEnqueued = false</span><br><span class="line">若 isTerminated → kAlreadyTerminated</span><br><span class="line">shouldStopLocked() 检查 terminateRequested_/pauseRequested_/toYield_</span><br><span class="line">若 kNone: ++numThreads_; state.setThread()</span><br><span class="line">返回 StopReason</span><br></pre></td></tr></table></figure>
+
+<p><code>Task::leave(state, driverCb)</code>（<code>Task.cpp:3382</code>）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">加锁，检查 shouldStop（此时可能收到 terminate 请求）</span><br><span class="line">若 kTerminate 且有 driverCb：</span><br><span class="line">  解锁，调用 driverCb(kTerminate)   // 在 driver 线程上关闭 driver</span><br><span class="line">  再加锁</span><br><span class="line">--numThreads_</span><br><span class="line">若 numThreads_ == 0 → fulfill threadFinishPromises_（解除 pause/terminate 的等待）</span><br><span class="line">state.clearThread()</span><br></pre></td></tr></table></figure>
+
+<p>该设计确保 <strong>Driver 的 close() 总在 driver 线程上执行</strong>，避免 driver close 与 operator abort 之间的竞态。</p>
+<h3 id="3-4-Suspended-状态的用途"><a href="#3-4-Suspended-状态的用途" class="headerlink" title="3.4 Suspended 状态的用途"></a>3.4 Suspended 状态的用途</h3><p>当 Driver 需等待外部 IO、内存仲裁决策时，不能简单 block（会丢失调用栈），而是进入 <strong>Suspended</strong> 状态：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Task::enterSuspended()：</span></span><br><span class="line"><span class="comment">//   --numThreads_（让 Task 认为没有线程在跑，满足 pause 条件）</span></span><br><span class="line"><span class="comment">//   numSuspensions++（Driver 仍持有线程栈）</span></span><br><span class="line"><span class="comment">// 等待外部事件...</span></span><br><span class="line"><span class="comment">// Task::leaveSuspended()：</span></span><br><span class="line"><span class="comment">//   若 pause 中，sleep 等待 resume；否则 ++numThreads_，--numSuspensions</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="3-5-Split-Group-并发控制"><a href="#3-5-Split-Group-并发控制" class="headerlink" title="3.5 Split Group 并发控制"></a>3.5 Split Group 并发控制</h3><p>Grouped Execution 模式下，Task 按 <code>concurrentSplitGroups_</code> 控制并发处理的 split group 数量。每当一个 split<br>group 的所有 Driver 完成，<code>Task::removeDriver()</code> → <code>ensureSplitGroupsAreBeingProcessedLocked()</code><br>（<code>Task.cpp:1503</code>）为下一个 queued split group 创建新 Driver。</p>
+<hr>
+<h2 id="四、TaskDriverOperatorLifecycle-md-中文翻译"><a href="#四、TaskDriverOperatorLifecycle-md-中文翻译" class="headerlink" title="四、TaskDriverOperatorLifecycle.md 中文翻译"></a>四、TaskDriverOperatorLifecycle.md 中文翻译</h2><blockquote>
+<p>以下为 <code>velox/exec/TaskDriverOperatorLifecycle.md</code> 的完整翻译。</p>
+</blockquote>
+<h1 id="Task、Driver、Operator-生命周期"><a href="#Task、Driver、Operator-生命周期" class="headerlink" title="Task、Driver、Operator 生命周期"></a>Task、Driver、Operator 生命周期</h1><p><strong>摘要</strong>：Task 的生命周期长于 Driver 和 Operator。Task 与 Driver 之间存在循环引用，这些循环引用在 Task<br>释放对 Driver 的引用时被解除。<code>Task::terminate</code> 包含了兜底逻辑，用于在异常或提前终止时清理所有资源。</p>
+<h2 id="OutputBufferManager"><a href="#OutputBufferManager" class="headerlink" title="OutputBufferManager"></a>OutputBufferManager</h2><p>OutputBuffer 持有对 Task 的引用。这个引用用于在所有输出数据被消费完毕时，通过调用<br><code>task-&gt;setAllOutputConsumed()</code>（从 <code>OutputBuffer::deleteResults</code> 触发）来通知 Task。</p>
+<p>该引用在 OutputBuffer 被销毁时释放，销毁发生在两个地方：(1) <code>OutputBufferManager::deleteResults</code>（正常路径）；<br>(2) <code>OutputBufferManager::removeTask</code>（错误路径）。</p>
+<p>在 Prestissimo 应用中，<code>OutputBufferManager::deleteResults</code> 由 <code>TaskManager::abortResults</code> 调用，后者由<br><code>TaskResource::abortResults</code>（挂载在 HTTP DELETE <code>/v1/task/&#123;id&#125;/results/&#123;id&#125;</code> 路由）触发。</p>
+<p><code>OutputBufferManager::removeTask</code> 则由 <code>Task::terminate</code> 调用。</p>
+<h2 id="Operator"><a href="#Operator" class="headerlink" title="Operator"></a>Operator</h2><p>Operator 不直接持有对 Task 的引用。它通过 <code>DriverCtx</code> 间接访问 Task。</p>
+<h2 id="Driver-与-Task"><a href="#Driver-与-Task" class="headerlink" title="Driver 与 Task"></a>Driver 与 Task</h2><p><code>DriverCtx</code> 存储了一个指向 Task 的 <code>shared_ptr</code>。Driver 独占拥有 <code>DriverCtx</code>，并通过 <code>DriverCtx</code> 间接持有对<br>Task 的引用。Operator 则通过裸指针引用 <code>DriverCtx</code>。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Driver 侧：</span></span><br><span class="line">std::unique_ptr&lt;DriverCtx&gt; ctx_;</span><br><span class="line"><span class="comment">// DriverCtx 侧：</span></span><br><span class="line">std::shared_ptr&lt;Task&gt; task;</span><br></pre></td></tr></table></figure>
+
+<p>Driver 对 Task 的引用<strong>只有在 Driver 析构时才会释放</strong>。</p>
+<p>Task 共享拥有所有 Driver：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">std::vector&lt;std::shared_ptr&lt;Driver&gt;&gt; drivers_;</span><br></pre></td></tr></table></figure>
+
+<p>Task 在两个地方存储对 Driver 的引用：(1) <code>drivers_</code> 成员变量，存储所有 Driver；(2)<br><code>SplitGroupState.barriers</code>，存储包含 join build 的 Driver（用于 <code>Task::allPeersFinished</code>）。</p>
+<p><code>drivers_</code> 的引用在以下两处被清理：(1) <code>Task::removeDriver</code>——由 <code>Driver::close</code> 调用；(2) <code>Task::terminate</code>。</p>
+<p><code>barriers</code> 中存储的 Driver 引用在以下情况下被清理：(1) <code>Task::removeDriver</code> 中，通过<br><code>SplitGroupState::clear()</code>；(2) <code>Task::allPeersFinished</code>，在所有 join build 流水线完成时；(3)<br><code>Task::terminate</code> 中，通过 <code>SplitGroupState::clear()</code>。</p>
+<p><code>Task::removeDriver</code> 和 <code>Task::allPeersFinished</code> 在正常路径（包括 Driver 自身遇到错误并主动关闭的路径）中被调用。<br><code>Task::terminate</code> 则在错误路径中被调用。</p>
+<p>Task 与 Driver 之间存在循环引用：Task 引用 Driver，Driver 引用 Task。<strong>这些循环引用在 Task 释放对 Driver 的引用时被解除。</strong><br>Driver 至少通过 <code>DriverCtx::task</code> 持有一个 Task 引用，直到析构为止。因此，<strong>Driver 的生命周期不可能超过 Task 的生命周期</strong>。<br>此外，Driver 独占拥有其所有 Operator，所以 <strong>Operator 的生命周期也不可能超过 Driver</strong>。总结：Task 的寿命 ≥ Driver<br>的寿命 ≥ Operator 的寿命。</p>
+<p><code>BlockedState</code> 结构体中也持有对 Driver 的引用。该结构体在 Driver 进入 Blocked 状态时创建，被存储在挂载到阻塞<br>future 的回调 lambda 中。它仅在 future 兑现且回调执行完毕后才会销毁。详见 <code>BlockingState::setResume</code>。<strong>如果 future<br>永远不兑现，Driver 和 Task 将发生泄漏。</strong></p>
+<p>Executor 队列中的 lambda 同样持有对 Driver 的引用：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// static</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">Driver::enqueue</span><span class="params">(std::shared_ptr&lt;Driver&gt; driver)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 预期在 Driver 所属 Task 的互斥锁保护下调用。</span></span><br><span class="line">    driver-&gt;<span class="built_in">enqueueInternal</span>();</span><br><span class="line">    <span class="keyword">if</span> (closed_) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">task</span>()-&gt;<span class="built_in">queryCtx</span>()-&gt;<span class="built_in">executor</span>()-&gt;<span class="built_in">add</span>([driver]() &#123; Driver::<span class="built_in">run</span>(driver); &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Driver 从以下几处被加入 Executor 队列：</p>
+<ul>
+<li><code>Task::start</code>：开始运行；</li>
+<li><code>BlockingState::setResume</code>：阻塞 future 兑现后继续运行；</li>
+<li><code>Task::ensureSplitGroupsAreBeingProcessedLocked</code>：在 Grouped Execution 中启动新的 split group；</li>
+<li><code>Task::resume</code>：此路径目前未被使用；</li>
+<li><code>Driver::run</code> 被 <code>Task::requestYield</code> 触发：此路径目前未被使用。</li>
+</ul>
+<hr>
+<h2 id="五、架构设计品味、代码品味与多线程编程范式"><a href="#五、架构设计品味、代码品味与多线程编程范式" class="headerlink" title="五、架构设计品味、代码品味与多线程编程范式"></a>五、架构设计品味、代码品味与多线程编程范式</h2><h3 id="5-1-架构设计品味"><a href="#5-1-架构设计品味" class="headerlink" title="5.1 架构设计品味"></a>5.1 架构设计品味</h3><h4 id="5-1-1-“协作式调度”而非”抢占式线程”"><a href="#5-1-1-“协作式调度”而非”抢占式线程”" class="headerlink" title="5.1.1 “协作式调度”而非”抢占式线程”"></a>5.1.1 “协作式调度”而非”抢占式线程”</h4><p>整个设计中最高层次的品味。朴素实现是每个 Pipeline 绑定一个 OS 线程、阻塞在 IO&#x2F;锁上靠操作系统调度；Velox 反其道而行——<br>**Driver 不拥有线程，而是被调度到线程池上的一段段”执行片”**：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Driver 不是线程，而是一个可被反复&quot;挂起/恢复&quot;的状态机。</span><br><span class="line">线程是稀缺资源（CPUThreadPoolExecutor），Driver 是廉价的逻辑单元。</span><br></pre></td></tr></table></figure>
+
+<p>收益：</p>
+<ul>
+<li><strong>M 个 Driver 复用 N 个线程</strong>（M ≫ N），一台机器可同时承载成千上万个 Pipeline 而不会线程爆炸；</li>
+<li>阻塞（等 split、等 join build、等下游消费、等内存仲裁）时，Driver <strong>主动让出线程</strong>（<code>kBlock</code> → <code>setResume</code>），线程立刻去跑别的 Driver；</li>
+<li>CPU 时间片到期主动 <code>kYield</code>，实现公平性。</li>
+</ul>
+<p>本质上是把<strong>操作系统的线程调度，下沉为应用层的协程调度</strong>。<code>StopReason</code> 枚举就是这套协程调度的”返回码协议”。</p>
+<h4 id="5-1-2-单一终止漏斗（terminate-as-a-funnel）"><a href="#5-1-2-单一终止漏斗（terminate-as-a-funnel）" class="headerlink" title="5.1.2 单一终止漏斗（terminate as a funnel）"></a>5.1.2 单一终止漏斗（terminate as a funnel）</h4><p>无论是正常完成（<code>kFinished</code>）、用户取消（<code>kCanceled</code>）、外部错误（<code>kAborted</code>）、还是自身算子抛异常（<code>kFailed</code>），<br><strong>所有路径最终都汇聚到 <code>Task::terminate(terminalState)</code> 这一个函数</strong>。资源清理逻辑只写一遍，杜绝”正常路径清理了<br>A 忘了 B，异常路径清理了 B 忘了 A”的经典 bug。</p>
+<h4 id="5-1-3-所有权方向与生命周期的”单调性”"><a href="#5-1-3-所有权方向与生命周期的”单调性”" class="headerlink" title="5.1.3 所有权方向与生命周期的”单调性”"></a>5.1.3 所有权方向与生命周期的”单调性”</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Task ⊇ Driver ⊇ Operator   （寿命包含关系）</span><br></pre></td></tr></table></figure>
+
+<p>这个不变量靠<strong>所有权结构强制</strong>：Driver 通过 <code>DriverCtx::task</code> 这个 <code>shared_ptr</code> 死死拽住 Task 直到自己析构；<br>Driver 用 <code>unique_ptr</code> 独占 Operator。于是 Operator 里可以放心地用裸指针访问 DriverCtx、Task，<br><strong>不需要任何 weak_ptr &#x2F; 生命周期检查</strong>——类型系统已经证明了它们一定还活着。</p>
+<h4 id="5-1-4-循环引用的”受控泄漏”"><a href="#5-1-4-循环引用的”受控泄漏”" class="headerlink" title="5.1.4 循环引用的”受控泄漏”"></a>5.1.4 循环引用的”受控泄漏”</h4><p>Task ↔ Driver 是明知故犯的循环引用。设计者没有用 <code>weak_ptr</code> 打破它，而是选择<strong>在一个确定的点手动切断</strong><br>（<code>drivers_[i] = nullptr</code>）。原因：执行期间 Task 必须强引用 Driver，Driver 也必须强引用 Task，weak_ptr 会引入<br>“每次访问都要 lock() 检查”的开销。这里用一个明确的手动切断点，换取运行期的零开销与代码简洁；代价是 lifecycle.md<br>末尾那句警告——若 future 永不兑现就会泄漏。设计者清楚代价并写进了文档。</p>
+<h4 id="5-1-5-窄接口统一异构等待——isBlocked-作为唯一的”挂起-唤醒”抽象"><a href="#5-1-5-窄接口统一异构等待——isBlocked-作为唯一的”挂起-唤醒”抽象" class="headerlink" title="5.1.5 窄接口统一异构等待——isBlocked 作为唯一的”挂起-唤醒”抽象"></a>5.1.5 窄接口统一异构等待——<code>isBlocked</code> 作为唯一的”挂起-唤醒”抽象</h4><p>整个执行引擎里，算子要等的外部事件五花八门：等 split（TableScan）、等远程数据（Exchange）、等本地 queue<br>（LocalExchange）、等 join build（HashProbe）、等内存仲裁、等 RPC……但 Driver 调度循环<strong>只认识一种东西</strong>：<br><code>isBlocked</code> 返回的 <code>(BlockingReason, ContinueFuture)</code> 二元组（<code>Operator.h:284</code>）。</p>
+<p>这是极有品味的架构收敛：<strong>用一个窄接口把所有异构的异步等待归一化。</strong> Driver 不需要知道”等的是什么”，只需要<br>“reason 非 kNotBlocked 就让出、future 兑现就唤醒”。新增一种等待来源（如后来的 <code>kWaitForRPC</code>）不需要改动调度核心，<br>只需让对应算子在 <code>isBlocked</code> 里返回新的 reason + future。<code>BlockingReason</code> 枚举（<code>BlockingReason.h</code>）只是诊断&#x2F;统计用的<br>标签，<strong>对调度逻辑而言所有 reason 等价</strong>。详见第八章。</p>
+<blockquote>
+<p>这条与 5.1.1 的”协作式调度”互为表里：5.1.1 讲 Driver 如何让出线程，5.1.5 讲算子如何统一地告诉 Driver”该让出了”。</p>
+</blockquote>
+<h3 id="5-2-代码品味"><a href="#5-2-代码品味" class="headerlink" title="5.2 代码品味"></a>5.2 代码品味</h3><h4 id="5-2-1-快路径无锁，慢路径加锁"><a href="#5-2-1-快路径无锁，慢路径加锁" class="headerlink" title="5.2.1 快路径无锁，慢路径加锁"></a>5.2.1 快路径无锁，慢路径加锁</h4><p><code>Task::shouldStop()</code>（<code>Task.cpp:3505</code>）被 Driver 主循环每个算子每轮调用：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">StopReason <span class="title">Task::shouldStop</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (pauseRequested_) <span class="keyword">return</span> StopReason::kPause;          <span class="comment">// atomic 读，无锁</span></span><br><span class="line">  <span class="keyword">if</span> (terminateRequested_) <span class="keyword">return</span> StopReason::kTerminate;  <span class="comment">// atomic 读，无锁</span></span><br><span class="line">  <span class="keyword">if</span> (toYield_) &#123;                                          <span class="comment">// 只有 yield 才加锁</span></span><br><span class="line">    <span class="function">std::lock_guard&lt;std::timed_mutex&gt; <span class="title">l</span><span class="params">(mutex_)</span></span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">shouldStopLocked</span>();</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> StopReason::kNone;                                <span class="comment">// 绝大多数走到这里</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>Task.h:1414</code> 注释明确解释了为何这些字段是 atomic：为了让 ThreadSanitizer 不误报，同时表明”在锁外读 0&#x2F;false 是安全的”。</p>
+<h4 id="5-2-2-“Locked-后缀”约定——把锁契约编码进函数名"><a href="#5-2-2-“Locked-后缀”约定——把锁契约编码进函数名" class="headerlink" title="5.2.2 “Locked 后缀”约定——把锁契约编码进函数名"></a>5.2.2 “Locked 后缀”约定——把锁契约编码进函数名</h4><p><code>foo()</code>（自己加锁）与 <code>fooLocked()</code>（调用者必须已持锁）成对出现，把”调用前必须持有 mutex_”这一契约<strong>固化进函数签名</strong>。</p>
+<h4 id="5-2-3-RAII-兜底一切"><a href="#5-2-3-RAII-兜底一切" class="headerlink" title="5.2.3 RAII 兜底一切"></a>5.2.3 RAII 兜底一切</h4><p><code>CancelGuard</code>（<code>Driver.h:563</code>）保证 Driver 无论正常返回还是抛异常都会 <code>Task::leave</code> + <code>close()</code>。promise 的兑现也用<br><code>folly::makeGuard</code> 包裹。<strong>关键细节</strong>：promise 的 <code>setValue()</code> 会同步触发 future 回调，回调里可能又抢 <code>mutex_</code>，<br>所以代码刻意<strong>在锁内把 promise&#x2F;driver <code>swap</code> 到局部变量，出锁后再 setValue&#x2F;closeByTask</strong>，避免”持锁触发回调 → 回调抢同一把锁 → 死锁”。这个”锁内收集、锁外执行副作用”的模式在 <code>Task::leave</code>、<code>Task::terminate</code> 中反复出现。</p>
+<h4 id="5-2-4-统计的双保险"><a href="#5-2-4-统计的双保险" class="headerlink" title="5.2.4 统计的双保险"></a>5.2.4 统计的双保险</h4><p><code>Driver.cpp:533</code> 的 on-thread 时间统计，既在 <code>closeOperators()</code> 手动 finalize，又有 scope guard 兜底，并用<br><code>onThreadStartUs_ = 0</code> 哨兵值防止重复计数。两条路径都覆盖且防双计。</p>
+<h4 id="5-2-5-主循环写得极致紧凑"><a href="#5-2-5-主循环写得极致紧凑" class="headerlink" title="5.2.5 主循环写得极致紧凑"></a>5.2.5 主循环写得极致紧凑</h4><p><code>runInternal</code> 用一个 <code>for</code> 配合 <code>i += 2; continue;</code> 实现数据流调度，没有递归、没有 goto（符合 CODING_STYLE）。<br><strong>注意：扁平循环不仅是风格，更是协作式调度的前提——详见第六章。</strong></p>
+<h4 id="5-2-6-延迟报告模式——阻塞在数据操作里发现，在下一轮-isBlocked-报告"><a href="#5-2-6-延迟报告模式——阻塞在数据操作里发现，在下一轮-isBlocked-报告" class="headerlink" title="5.2.6 延迟报告模式——阻塞在数据操作里发现，在下一轮 isBlocked 报告"></a>5.2.6 延迟报告模式——阻塞在数据操作里发现，在下一轮 isBlocked 报告</h4><p>多数算子并不在 <code>isBlocked</code> 里现场探测阻塞，而是在 <code>addInput</code>&#x2F;<code>getOutput</code> 真正干活时就拿到了 future 与 reason，<br>存进成员变量（<code>blockingReason_</code> &#x2F; <code>future_</code>），<strong>等下一轮 Driver 循环调用 <code>isBlocked</code> 时才报告出来</strong>。<br><code>CallbackSink</code>（<code>CallbackSink.cpp:20,48</code>，在 <code>addInput</code> 里记录）与 <code>LocalExchange</code>（<code>LocalPartition.cpp:286,275</code>，<br>在 <code>getOutput</code> 里记录）是对称的两例。</p>
+<p>这不是绕路，而是<strong>与 Driver 循环顺序严丝合缝</strong>：第七章已述，循环里 <code>isBlocked</code> 在 <code>getOutput</code>&#x2F;<code>addInput</code><br>之前调用，所以本轮产生的阻塞天然只能由下一轮的 <code>isBlocked</code> 暴露。把”发现”和”报告”拆成两个时点，是这套调度<br>节拍下最自然的写法。详见第八章 8.3。</p>
+<h4 id="5-2-7-future-组合语义必须匹配等待语义——collectAny-vs-collectAll"><a href="#5-2-7-future-组合语义必须匹配等待语义——collectAny-vs-collectAll" class="headerlink" title="5.2.7 future 组合语义必须匹配等待语义——collectAny vs collectAll"></a>5.2.7 future 组合语义必须匹配等待语义——collectAny vs collectAll</h4><p>当一个算子同时等多个 future 时，用哪种组合<strong>不是风格而是正确性</strong>：</p>
+<ul>
+<li><code>folly::collectAny</code>：<strong>任一</strong>就绪即唤醒。用于”任何一边推进都值得重试”——<code>Exchange</code> 同时等数据和等 split<br>（<code>Exchange.cpp:171</code>）。</li>
+<li><code>folly::collectAll</code>：<strong>全部</strong>就绪才唤醒。用于”必须所有阻塞条件都解除”——<code>LocalPartition</code> 扇出到多个下游 queue，<br>必须等所有满的下游都腾出空间（<code>LocalPartition.cpp:633</code>）。</li>
+</ul>
+<p>选错有真实后果：扇出 sink 若用 <code>collectAny</code> 会在仍满的下游上”唤醒→立刻又阻塞”空转；source 若用 <code>collectAll</code><br>会在数据已到但 split 未到时白等。详见第八章 8.4。</p>
+<h3 id="5-3-涉及的多线程编程范式"><a href="#5-3-涉及的多线程编程范式" class="headerlink" title="5.3 涉及的多线程编程范式"></a>5.3 涉及的多线程编程范式</h3><table>
+<thead>
+<tr>
+<th>范式</th>
+<th>体现</th>
+<th>文件&#x2F;行</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>协作式调度（无栈协程）</strong></td>
+<td>Driver 主动返回 <code>StopReason</code> 让出线程，现场压缩成几个标量后可重入</td>
+<td><code>runInternal</code></td>
+</tr>
+<tr>
+<td><strong>三种让出语义区分</strong></td>
+<td>Block（等外部事件，需 future）&#x2F; Yield（时间片，回队尾）&#x2F; Suspend（保留栈，原地等）</td>
+<td>第八章 8.2</td>
+</tr>
+<tr>
+<td><strong>Future&#x2F;Promise 续延</strong></td>
+<td>阻塞→<code>ContinueFuture</code>，兑现时 <code>thenValue</code> 重新入队</td>
+<td><code>BlockingState::setResume</code> <code>Driver.cpp:227</code></td>
+</tr>
+<tr>
+<td><strong>窄接口统一异步等待</strong></td>
+<td>异构等待全部归一成 <code>(BlockingReason, ContinueFuture)</code> 二元组</td>
+<td><code>Operator::isBlocked</code> <code>Operator.h:284</code></td>
+</tr>
+<tr>
+<td><strong>唤醒句柄所有权</strong></td>
+<td>谁掌握”事件就绪”的知情权（queue&#x2F;exchangeClient&#x2F;JoinBridge&#x2F;consumer）谁负责兑现 future</td>
+<td>第八章 8.3</td>
+</tr>
+<tr>
+<td><strong>future 组合语义</strong></td>
+<td><code>collectAny</code>（任一就绪即重试）vs <code>collectAll</code>（全部解除才继续）</td>
+<td><code>Exchange.cpp:171</code> &#x2F; <code>LocalPartition.cpp:633</code></td>
+</tr>
+<tr>
+<td><strong>状态机驱动的异步</strong></td>
+<td><code>isBlocked</code> 推进算子内部状态机，跨状态挂起&#x2F;恢复</td>
+<td><code>HashProbe::isBlocked</code> <code>HashProbe.cpp:651</code></td>
+</tr>
+<tr>
+<td><strong>同步屏障</strong></td>
+<td>join build 多线程汇合，最后一个 fulfill 其余 promise</td>
+<td><code>Task::allPeersFinished</code> <code>Task.h:542</code></td>
+</tr>
+<tr>
+<td><strong>线程计数 + 等待信号</strong></td>
+<td><code>numThreads_</code> 归零时 fulfill <code>threadFinishPromises_</code></td>
+<td><code>allThreadsFinishedLocked</code> <code>Task.cpp:3532</code></td>
+</tr>
+<tr>
+<td><strong>可重入挂起</strong></td>
+<td><code>numSuspensions</code> 递归计数，保留调用栈让出线程占用</td>
+<td><code>enterSuspended</code>&#x2F;<code>leaveSuspended</code> <code>Task.cpp:3424</code></td>
+</tr>
+<tr>
+<td><strong>快慢路径分离（lock elision）</strong></td>
+<td>atomic flag 走无锁快路径</td>
+<td><code>shouldStop</code> <code>Task.cpp:3505</code></td>
+</tr>
+<tr>
+<td><strong>RAII 资源&#x2F;信号管理</strong></td>
+<td>CancelGuard、makeGuard 兑现 promise</td>
+<td>贯穿 Driver.cpp &#x2F; Task.cpp</td>
+</tr>
+<tr>
+<td><strong>锁内收集、锁外触发副作用</strong></td>
+<td>swap 到局部变量出锁再执行</td>
+<td><code>Task::leave</code>、<code>Task::terminate</code></td>
+</tr>
+<tr>
+<td><strong>协作式取消</strong></td>
+<td><code>terminateRequested_</code> 标志 + 轮询，并桥接 <code>folly::CancellationToken</code></td>
+<td><code>Task::terminate</code>、<code>getCancellationToken</code></td>
+</tr>
+<tr>
+<td><strong>单写者所有权消除竞态</strong></td>
+<td>Driver <code>unique_ptr</code> 独占 Operator</td>
+<td><code>operators_</code> <code>Driver.h:732</code></td>
+</tr>
+</tbody></table>
+<h4 id="一条贯穿全局的主线"><a href="#一条贯穿全局的主线" class="headerlink" title="一条贯穿全局的主线"></a>一条贯穿全局的主线</h4><blockquote>
+<p><strong>让”线程”成为可被任意复用的纯计算资源，让”Driver”成为可被反复挂起&#x2F;恢复&#x2F;取消的轻量状态机，并用所有权结构 +<br>单一终止漏斗 + RAII，把并发正确性从”靠程序员小心”转化为”靠类型与结构保证”。</strong></p>
+</blockquote>
+<p><code>StopReason</code> 是这套协程调度的指令集，<code>ThreadState</code> 是协程的寄存器现场，<code>Task::mutex_</code> 是唯一的串行化点，<br><code>ContinueFuture/Promise</code> 是协程之间的唤醒总线，而 <code>isBlocked</code> 返回的 <code>(BlockingReason, ContinueFuture)</code><br>二元组则是算子向调度器递交的统一”挂起申请单”——五花八门的外部等待经它归一，才让上面这套协程模型得以用一份代码服务所有算子。</p>
+<hr>
+<h2 id="六、runInternal-的执行模型：不是-Volcano，也不是教科书式-push"><a href="#六、runInternal-的执行模型：不是-Volcano，也不是教科书式-push" class="headerlink" title="六、runInternal 的执行模型：不是 Volcano，也不是教科书式 push"></a>六、runInternal 的执行模型：不是 Volcano，也不是教科书式 push</h2><blockquote>
+<p>准确说法：<strong>这是一个由 Driver 集中调度的、单栈帧的、demand-gated（需求门控的）push 执行模型。</strong><br>第 2.5 &#x2F; 5.2.5 节用了”主循环”的笼统措辞，本章给出精确语义。</p>
+</blockquote>
+<h3 id="6-1-控制流：Driver-是唯一的调度器"><a href="#6-1-控制流：Driver-是唯一的调度器" class="headerlink" title="6.1 控制流：Driver 是唯一的调度器"></a>6.1 控制流：Driver 是唯一的调度器</h3><p><code>operators_</code> 是一个<strong>扁平数组</strong>，索引含义固定：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">operators_[0]    = source（TableScan / Exchange）   ← 最上游</span><br><span class="line">...</span><br><span class="line">operators_[N-1]  = sink（PartitionedOutput / CallbackSink） ← 最下游</span><br><span class="line">数据流向： 0 ──► 1 ──► 2 ──► ... ──► N-1</span><br></pre></td></tr></table></figure>
+
+<p><strong>关键事实：算子之间从不互相调用。</strong> 所有算子方法（<code>isBlocked</code> &#x2F; <code>needsInput</code> &#x2F; <code>getOutput</code> &#x2F; <code>addInput</code> &#x2F;<br><code>isFinished</code> &#x2F; <code>noMoreInput</code>）全部由 Driver 在同一个栈帧里直接调用。算子只是一组被动回调，Driver 是中央调度器。</p>
+<p>与 Volcano 的本质区别：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Volcano（经典 pull）</th>
+<th>Velox Driver</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>谁驱动执行</td>
+<td>根算子 <code>next()</code> 递归调用孩子的 <code>next()</code></td>
+<td>单个 Driver 循环调用所有算子</td>
+</tr>
+<tr>
+<td>调用栈</td>
+<td>深递归：sink→…→source，每批一层套一层</td>
+<td>扁平：一个栈帧 + 对算子数组的循环</td>
+</tr>
+<tr>
+<td>算子间耦合</td>
+<td>算子 A 直接调用算子 B</td>
+<td>算子互不调用，全由 Driver 中转</td>
+</tr>
+<tr>
+<td>数据传递</td>
+<td>孩子把行<strong>返回</strong>给父亲（返回值上溯）</td>
+<td>生产者 <code>getOutput()</code> → Driver → 消费者 <code>addInput()</code></td>
+</tr>
+</tbody></table>
+<h3 id="6-2-调度扫描方向：从-sink-往-source-找”谁能干活”"><a href="#6-2-调度扫描方向：从-sink-往-source-找”谁能干活”" class="headerlink" title="6.2 调度扫描方向：从 sink 往 source 找”谁能干活”"></a>6.2 调度扫描方向：从 sink 往 source 找”谁能干活”</h3><p><code>getStartingOperator()</code>（<code>Driver.cpp:1401</code>）返回 <code>operators_.size() - 1</code>，即<strong>从 sink 开始</strong>：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int32_t</span> startingOperator = <span class="built_in">getStartingOperator</span>();          <span class="comment">// = N-1，即 sink</span></span><br><span class="line"><span class="keyword">for</span> (;;) &#123;</span><br><span class="line">  <span class="keyword">for</span> (<span class="type">int32_t</span> i = startingOperator; i &gt;= <span class="number">0</span>; --i) &#123;        <span class="comment">// sink → source 递减</span></span><br><span class="line">    <span class="keyword">auto</span>* op = operators_[i].<span class="built_in">get</span>();</span><br><span class="line">    <span class="keyword">if</span> (i &lt; operators_.<span class="built_in">size</span>() - <span class="number">1</span>) &#123;</span><br><span class="line">      Operator* nextOp = operators_[i + <span class="number">1</span>].<span class="built_in">get</span>();          <span class="comment">// i+1 是 i 的下游</span></span><br><span class="line">      <span class="keyword">if</span> (nextOp-&gt;<span class="built_in">needsInput</span>()) &#123;                          <span class="comment">// ← 下游发出&quot;需求信号&quot;</span></span><br><span class="line">        <span class="built_in">getOutput</span>(op, intermediateResult);                 <span class="comment">// 从上游 op 取一批</span></span><br><span class="line">        <span class="keyword">if</span> (intermediateResult) &#123;</span><br><span class="line">          <span class="built_in">addInput</span>(nextOp, intermediateResult);            <span class="comment">// 推给下游</span></span><br><span class="line">          i += <span class="number">2</span>; <span class="keyword">continue</span>;                                <span class="comment">// 回头看下游能否再往前推</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="comment">// i == sink：串行模式产出结果 / 判断 isFinished</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>要分清<strong>两个方向</strong>：</p>
+<ul>
+<li><strong>调度扫描方向</strong>：下游 → 上游（找活干）；</li>
+<li><strong>数据流动方向</strong>：上游 → 下游（push）。</li>
+</ul>
+<p><code>i += 2</code> 配合 for 的 <code>--i</code>，净效果是 <code>i+1</code>——回头去看刚收到数据的那个下游算子，能否把它的产出再往前推一步。<br>于是数据一步步被 push 向 sink。<strong>数据是被 push 的，不是被 pull 上来的。</strong></p>
+<h3 id="6-3-demand-gated（需求门控）"><a href="#6-3-demand-gated（需求门控）" class="headerlink" title="6.3 demand-gated（需求门控）"></a>6.3 demand-gated（需求门控）</h3><p>Driver 在 push 之前先问下游 <code>nextOp-&gt;needsInput()</code>。若下游说”不需要”（如 HashBuild 还在攒数据、下游缓冲已满），<br>Driver 就<strong>不会</strong>从上游取数据。这是<strong>单条 Pipeline 内部的反压机制</strong>——push，但每一步都被下游需求信号闸住，<br>属于 HyPer 一系的 morsel-driven &#x2F; push-with-backpressure 思路。</p>
+<blockquote>
+<p>跨 Pipeline 的反压则通过 <code>BlockingReason::kWaitForConsumer</code> + <code>ContinueFuture</code>，让整个 Driver 下线等待。</p>
+</blockquote>
+<h3 id="6-4-为什么”扁平循环-Driver-调度”是协作式调度的前提"><a href="#6-4-为什么”扁平循环-Driver-调度”是协作式调度的前提" class="headerlink" title="6.4 为什么”扁平循环 + Driver 调度”是协作式调度的前提"></a>6.4 为什么”扁平循环 + Driver 调度”是协作式调度的前提</h3><p><strong>深递归的 Volcano 调用栈无法被挂起&#x2F;恢复；扁平循环可以。</strong> 这是把全文串起来的枢纽：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">扁平循环 + Driver 中央调度（无算子间递归）</span><br><span class="line">        │</span><br><span class="line">        ▼</span><br><span class="line">Driver 现场可压缩成几个标量（curOperatorId_ / blockedOperatorId_ /</span><br><span class="line">                            blockingReason_ / traceInput_），可在算子边界随时 return</span><br><span class="line">        │</span><br><span class="line">        ▼</span><br><span class="line">StopReason 协议（kBlock/kYield/kPause/kTerminate）得以成立</span><br><span class="line">        │</span><br><span class="line">        ▼</span><br><span class="line">协作式调度：M 个 Driver 复用 N 个线程，阻塞即让出</span><br></pre></td></tr></table></figure>
+
+<p>若是 Volcano 的 <code>sink.next() → … → source.next()</code> 深递归，想”暂停在第 3 层算子并保存现场”几乎不可能（需冻结整个<br>C++ 调用栈，这正是有栈协程要解决的难题）。而 Velox 的扁平循环里，<code>return kBlock</code> 直接退出，下次 <code>runInternal</code><br>重新进入 <code>for</code> 循环即可恢复。<strong>整个 Driver 因此变成一个无栈协程（stackless coroutine）。</strong></p>
+<h3 id="6-5-小结"><a href="#6-5-小结" class="headerlink" title="6.5 小结"></a>6.5 小结</h3><ul>
+<li>Driver 是调度器，模型是 push，不是 Volcano 的顶层 <code>next()</code> 递归；</li>
+<li>push 的同时有<strong>下游 <code>needsInput()</code> 的需求门控</strong>（单 Pipeline 内反压），是 demand-gated push 而非无脑灌；</li>
+<li>选择”Driver 集中调度 + 扁平循环”而非递归 pull，<strong>根本目的是让 Driver 可挂起</strong>——这是 Velox 整个协作式线程复用模型能成立的地基。</li>
+</ul>
+<hr>
+<h2 id="七、runInternal-调度实例：三算子-pipeline-全过程"><a href="#七、runInternal-调度实例：三算子-pipeline-全过程" class="headerlink" title="七、runInternal 调度实例：三算子 pipeline 全过程"></a>七、runInternal 调度实例：三算子 pipeline 全过程</h2><p>用一条最经典的流水线 <code>TableScan → FilterProject → PartitionedOutput</code> 来逐步 trace<br><code>runInternal</code>（<code>Driver.cpp:519</code>）的调度过程。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">operators_[0] = TableScan         (source，从 split 读数据)</span><br><span class="line">operators_[1] = FilterProject     (中间算子，过滤+投影，逐批无状态)</span><br><span class="line">operators_[2] = PartitionedOutput (sink，写 OutputBuffer)</span><br><span class="line">N = 3，startingOperator = N-1 = 2</span><br></pre></td></tr></table></figure>
+
+<h3 id="7-0-算子接口语义"><a href="#7-0-算子接口语义" class="headerlink" title="7.0 算子接口语义"></a>7.0 算子接口语义</h3><table>
+<thead>
+<tr>
+<th>方法</th>
+<th>TableScan</th>
+<th>FilterProject</th>
+<th>PartitionedOutput</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>isBlocked()</code></td>
+<td>无 split 可读且 noMoreSplits 未到 → <code>kWaitForSplit</code></td>
+<td>不阻塞</td>
+<td>OutputBuffer 满 → <code>kWaitForConsumer</code></td>
+</tr>
+<tr>
+<td><code>needsInput()</code></td>
+<td>—（source 无上游）</td>
+<td>缓存空时 true</td>
+<td>buffer 未满时 true</td>
+</tr>
+<tr>
+<td><code>getOutput()</code></td>
+<td>读出一批；读完返回 null</td>
+<td>处理完输入产出一批；无输入返回 null</td>
+<td>并行模式写 buffer 后<strong>返回 null</strong></td>
+</tr>
+<tr>
+<td><code>addInput()</code></td>
+<td>——</td>
+<td>接收一批待处理</td>
+<td>接收一批待写出</td>
+</tr>
+<tr>
+<td><code>isFinished()</code></td>
+<td>noMoreSplits 且无数据 → true</td>
+<td>收到 noMoreInput 且缓存空 → true</td>
+<td>noMoreInput 且全部写出 → true</td>
+</tr>
+</tbody></table>
+<h3 id="7-1-阶段一：冷启动——从-sink-往-source-“找活干”"><a href="#7-1-阶段一：冷启动——从-sink-往-source-“找活干”" class="headerlink" title="7.1 阶段一：冷启动——从 sink 往 source “找活干”"></a>7.1 阶段一：冷启动——从 sink 往 source “找活干”</h3><p>Driver 刚上线，所有算子都还没有数据。内层循环 <code>for (i = 2; i &gt;= 0; --i)</code>：</p>
+<p><strong>i &#x3D; 2（sink, PartitionedOutput）</strong> → <code>i == N-1</code>，走 else 分支</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">getOutput(sink) → null   // 还没人喂它</span><br><span class="line">isFinished()?   → false</span><br><span class="line">continue → --i → i=1</span><br></pre></td></tr></table></figure>
+
+<p><strong>i &#x3D; 1（FilterProject）</strong> → <code>i &lt; N-1</code>，走 if 分支</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">nextOp = operators_[2] (sink)</span><br><span class="line">nextOp-&gt;isBlocked()?  → 否</span><br><span class="line">nextOp-&gt;needsInput()? → true   // sink 要数据</span><br><span class="line">getOutput(FilterProject) → null   // FilterProject 还没收到输入</span><br><span class="line">  → else 分支：isFinished(FilterProject)? → false</span><br><span class="line">  → 既无数据也未结束，不 break，继续 --i → i=0</span><br></pre></td></tr></table></figure>
+
+<p><strong>i &#x3D; 0（TableScan）</strong> → if 分支</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">nextOp = operators_[1] (FilterProject)</span><br><span class="line">nextOp-&gt;needsInput()? → true</span><br><span class="line">getOutput(TableScan) → batch1   // 终于从 split 读出真实数据！</span><br><span class="line">  intermediateResult 非空：</span><br><span class="line">  addInput(FilterProject, batch1)   // ← 数据被 push 给 FilterProject</span><br><span class="line">  i += 2 → i=2; continue → --i → i=1</span><br></pre></td></tr></table></figure>
+
+<p><strong>关键点</strong>：冷启动时扫描从 sink 一路走到 source（i: 2→1→0），目的是**自下而上确认”谁此刻能产出数据”**。<br>最终落到 TableScan 这个真正的数据来源，拿到第一批数据。</p>
+<h3 id="7-2-阶段二：数据推进——i-2-的精妙之处"><a href="#7-2-阶段二：数据推进——i-2-的精妙之处" class="headerlink" title="7.2 阶段二：数据推进——i += 2 的精妙之处"></a>7.2 阶段二：数据推进——<code>i += 2</code> 的精妙之处</h3><p>刚才在 i&#x3D;0 喂完 FilterProject，<code>i += 2</code> 然后 for 的 <code>--i</code>，净效果 <strong>i &#x3D; 1</strong>，回头去看刚收到数据的 FilterProject：</p>
+<p><strong>i &#x3D; 1（FilterProject）再次</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">nextOp = sink, needsInput? → true</span><br><span class="line">getOutput(FilterProject) → batch1&#x27;   // 它有输入了，过滤投影后产出</span><br><span class="line">addInput(sink, batch1&#x27;)              // ← 数据 push 给 sink</span><br><span class="line">i += 2 → i=3; continue → --i → i=2</span><br></pre></td></tr></table></figure>
+
+<p><strong>i &#x3D; 2（sink）</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">getOutput(sink) → null   // PartitionedOutput 把 batch1&#x27; 写进 OutputBuffer，并行模式不返回数据</span><br><span class="line">isFinished()? → false</span><br><span class="line">continue → --i → i=1</span><br></pre></td></tr></table></figure>
+
+<p><code>i += 2</code> 的设计意图：<strong>一批数据刚喂给 <code>operators_[i+1]</code>，下一步立刻回到 <code>operators_[i+1]</code> 看它能否把这批数据继续往下游推</strong>。<br>这样一批数据会被”连续地”沿 pipeline 推到底，而不是每次都从头扫描。数据流向始终是 <code>0 → 1 → 2</code>（push），而扫描指针在局部上下跳动。</p>
+<h3 id="7-3-阶段三：稳态循环"><a href="#7-3-阶段三：稳态循环" class="headerlink" title="7.3 阶段三：稳态循环"></a>7.3 阶段三：稳态循环</h3><p>batch1 推到底后，i 回到 1，FilterProject 已无缓存数据：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">i=1: getOutput(FilterProject) → null → isFinished? false → --i → i=0</span><br><span class="line">i=0: getOutput(TableScan) → batch2 → addInput(FilterProject) → 推进...</span><br></pre></td></tr></table></figure>
+
+<p>于是稳定在 <code>i=1 ↔ i=0 ↔ i=2</code> 之间往复，每轮从 TableScan 拉一批、过滤、写出。**注意每个算子调用前循环顶部都会执行<br><code>task()-&gt;shouldStop()</code>（检查终止&#x2F;暂停&#x2F;yield）和 <code>op-&gt;isBlocked()</code>**——这是协作式调度的轮询点。</p>
+<h3 id="7-4-阶段四：阻塞场景——blockDriver-让出线程"><a href="#7-4-阶段四：阻塞场景——blockDriver-让出线程" class="headerlink" title="7.4 阶段四：阻塞场景——blockDriver 让出线程"></a>7.4 阶段四：阻塞场景——blockDriver 让出线程</h3><h4 id="场景-A：OutputBuffer-满（下游消费跟不上）"><a href="#场景-A：OutputBuffer-满（下游消费跟不上）" class="headerlink" title="场景 A：OutputBuffer 满（下游消费跟不上）"></a>场景 A：OutputBuffer 满（下游消费跟不上）</h4><p>某轮 i&#x3D;1，准备喂 sink 时：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">i=<span class="number">1</span>: nextOp = sink</span><br><span class="line">     nextOp-&gt;<span class="built_in">isBlocked</span>(&amp;future) → kWaitForConsumer   <span class="comment">// buffer 满了</span></span><br><span class="line">     blockingReason_ != kNotBlocked</span><br><span class="line">     → <span class="keyword">return</span> <span class="built_in">blockDriver</span>(self, <span class="comment">/*blockedOperatorId=*/</span>i+<span class="number">1</span>=<span class="number">2</span>, future, ...)</span><br></pre></td></tr></table></figure>
+<p><code>blockDriver</code>（<code>Driver.cpp:669</code>）构造 <code>BlockingState</code>（设 <code>hasBlockingFuture=true</code>），返回 <code>kBlock</code>。<br><code>Driver::run</code>（<code>Driver.cpp:861</code>）收到 kBlock → <code>BlockingState::setResume(blockingState)</code> → <strong>driver 下线，线程去跑别的 Driver</strong>。</p>
+<p>当下游消费了 buffer → future 兑现 → <code>setResume</code> 回调（<code>Driver.cpp:227</code>）→ <code>Driver::enqueue</code> 重新入队 →<br>再次进入 <code>runInternal</code>，<strong>从 <code>startingOperator=2</code> 重新扫描</strong>。</p>
+<h4 id="场景-B：TableScan-等-split"><a href="#场景-B：TableScan-等-split" class="headerlink" title="场景 B：TableScan 等 split"></a>场景 B：TableScan 等 split</h4><p>某轮 i&#x3D;0，循环顶部：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">i=<span class="number">0</span>: op = TableScan</span><br><span class="line">     op-&gt;<span class="built_in">isBlocked</span>(&amp;future) → kWaitForSplit   <span class="comment">// 无 split 且 noMoreSplits 未到</span></span><br><span class="line">     → <span class="keyword">return</span> <span class="built_in">blockDriver</span>(self, <span class="comment">/*blockedOperatorId=*/</span><span class="number">0</span>, future, ...)</span><br></pre></td></tr></table></figure>
+<p>同样下线，等 <code>Task::addSplit()</code> 兑现 promise 后被唤醒。</p>
+<blockquote>
+<p>这两个就是第六章讲的两类反压：<strong>B 是上游缺数据，A 是下游消费慢</strong>，都通过同一套<br><code>kBlock + ContinueFuture</code> 机制把整个 Driver 挂起。</p>
+</blockquote>
+<h3 id="7-5-阶段五：收尾——noMoreInput-链式传播-→-close"><a href="#7-5-阶段五：收尾——noMoreInput-链式传播-→-close" class="headerlink" title="7.5 阶段五：收尾——noMoreInput 链式传播 → close"></a>7.5 阶段五：收尾——noMoreInput 链式传播 → close</h3><p>假设 <code>noMoreSplits</code> 已到，TableScan 读完最后一批。某轮 i&#x3D;0：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">i=<span class="number">0</span>: nextOp=FilterProject, needsInput? <span class="literal">true</span></span><br><span class="line">     <span class="built_in">getOutput</span>(TableScan) → null              <span class="comment">// 没数据了</span></span><br><span class="line">     → <span class="keyword">else</span> 分支：</span><br><span class="line">       <span class="built_in">isBlocked</span>(TableScan)? → 否              <span class="comment">// 不是阻塞，是真的结束</span></span><br><span class="line">       <span class="built_in">isFinished</span>(TableScan)? → <span class="literal">true</span></span><br><span class="line">       nextOp-&gt;<span class="built_in">noMoreInput</span>()  → FilterProject.<span class="built_in">noMoreInput</span>()  <span class="comment">// 通知下游：上游收工</span></span><br><span class="line">       <span class="keyword">break</span>                  → 跳出内层 <span class="keyword">for</span>，回到 <span class="keyword">for</span>(;;)，重新 i=<span class="number">2</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>重新 i&#x3D;2（sink）</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">getOutput(sink) → null; isFinished? false → --i → i=1</span><br></pre></td></tr></table></figure>
+
+<p><strong>i&#x3D;1（FilterProject）</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">nextOp=sink, needsInput? true</span><br><span class="line">getOutput(FilterProject) → null              // 收到 noMoreInput，已无缓存可 flush</span><br><span class="line">→ else：isFinished(FilterProject)? → true     // 它也结束了</span><br><span class="line">  nextOp-&gt;noMoreInput() → PartitionedOutput.noMoreInput()  // 继续向下游传播</span><br><span class="line">  break → 回到 for(;;)，i=2</span><br></pre></td></tr></table></figure>
+
+<p><strong>i&#x3D;2（sink）</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">getOutput(sink) → null     // PartitionedOutput flush 剩余、标记 buffer 结束</span><br><span class="line">isFinished(PartitionedOutput)? → true</span><br><span class="line">close();                   // 关闭所有算子、上报统计、Task::removeDriver()</span><br><span class="line">return StopReason::kAtEnd;  // driver 正常终结</span><br></pre></td></tr></table></figure>
+
+<p><code>kAtEnd</code> 让 <code>Driver::run</code> 直接 return（<code>Driver.cpp:877</code>），driver 彻底退出。<code>close()</code> 里的<br><code>Task::removeDriver</code> 会触发 <code>checkIfFinishedLocked</code>，若是最后一个 driver 且 output 已被消费，则<br><code>Task::terminate(kFinished)</code>。</p>
+<p><strong>结束信号的传播链</strong>很清晰：<code>noMoreInput</code> 沿 pipeline 自上游向下游逐级传递<br>（TableScan→FilterProject→PartitionedOutput），每个算子先把自己的剩余缓存 flush 完（<code>isFinished</code> 返回 true<br>前的 <code>getOutput</code>），再把”收工”信号交给下一级。每传一级就 <code>break</code> 重启外层循环，确保从 sink 重新评估全局状态。</p>
+<h3 id="7-6-时间线汇总"><a href="#7-6-时间线汇总" class="headerlink" title="7.6 时间线汇总"></a>7.6 时间线汇总</h3><table>
+<thead>
+<tr>
+<th>轮次</th>
+<th>i 序列</th>
+<th>发生的事</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>冷启动</td>
+<td>2→1→0</td>
+<td>自下而上找到 TableScan，读出 batch1，喂 FilterProject</td>
+</tr>
+<tr>
+<td>推进</td>
+<td>1→2</td>
+<td>FilterProject 产出 batch1’，喂 sink，sink 写 buffer</td>
+</tr>
+<tr>
+<td>稳态</td>
+<td>1→0→1→2…</td>
+<td>反复拉取-过滤-写出</td>
+</tr>
+<tr>
+<td>阻塞 A</td>
+<td>1</td>
+<td>sink buffer 满 → kBlock 下线，等消费</td>
+</tr>
+<tr>
+<td>阻塞 B</td>
+<td>0</td>
+<td>TableScan 无 split → kBlock 下线，等 addSplit</td>
+</tr>
+<tr>
+<td>收尾</td>
+<td>0(break)→2→1(break)→2</td>
+<td>noMoreInput 逐级传播 → isFinished → close → kAtEnd</td>
+</tr>
+</tbody></table>
+<p>一句话概括这套调度：<strong>指针从 sink 往 source 扫描以”定位能产出数据的最上游算子”，一旦取到数据就靠 <code>i+=2</code><br>把它连续推向 sink；每个算子边界都轮询 stop&#x2F;block，需要等待时整条 Driver 作为无栈协程挂起，被唤醒后从 sink 重新扫描。</strong></p>
+<hr>
+<h2 id="八、isBlocked-与三种让出机制：结合典型算子解读"><a href="#八、isBlocked-与三种让出机制：结合典型算子解读" class="headerlink" title="八、isBlocked 与三种让出机制：结合典型算子解读"></a>八、isBlocked 与三种让出机制：结合典型算子解读</h2><h3 id="8-1-isBlocked-的角色：声明阻塞意愿-交出唤醒句柄"><a href="#8-1-isBlocked-的角色：声明阻塞意愿-交出唤醒句柄" class="headerlink" title="8.1 isBlocked 的角色：声明阻塞意愿 + 交出唤醒句柄"></a>8.1 isBlocked 的角色：声明阻塞意愿 + 交出唤醒句柄</h3><p><code>isBlocked</code> 是 Velox 把”异步等待”嵌进协作式调度的核心接口。看签名（<code>Operator.h:284</code>）：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// 返回 kNotBlocked 表示可以继续；否则返回原因，并把 &#x27;future&#x27; 设为一个在</span></span><br><span class="line"><span class="comment">/// 阻塞原因消失时兑现的 future。调用者必须等 future 完成才能再次调用。</span></span><br><span class="line"><span class="function"><span class="keyword">virtual</span> BlockingReason <span class="title">isBlocked</span><span class="params">(ContinueFuture* future)</span> </span>= <span class="number">0</span>;</span><br></pre></td></tr></table></figure>
+
+<p>要点：**<code>isBlocked</code> 不是 Driver 探测算子状态的工具，而是算子主动声明”我要等外部事件、请让出线程”并交出唤醒句柄的接口。**<br>它干两件事：</p>
+<ol>
+<li>**返回 <code>BlockingReason</code>**（<code>BlockingReason.h</code>）：语义标签，如 <code>kWaitForSplit</code>、<code>kWaitForConsumer</code>、<br><code>kWaitForProducer</code>、<code>kWaitForJoinBuild</code>、<code>kWaitForArbitration</code>、<code>kWaitForRPC</code> 等；</li>
+<li>**通过 <code>future</code> 出参交出”唤醒句柄”**：这个 <code>ContinueFuture</code> 是算子与外部世界之间的”门铃”，外部事件就绪时谁兑现它谁就负责唤醒 Driver。</li>
+</ol>
+<p>没有这个 future，<code>isBlocked</code> 就只是个布尔探测，Driver 让出后将永远不知道何时回来。正是 future 把”让出”和”恢复”两端接上。</p>
+<p>让出 CPU 的动作链（<code>isBlocked</code> 是起点和唤醒源，但”让出”由 Driver 的 <code>return kBlock</code> 完成）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">op-&gt;isBlocked(&amp;future) → reason != kNotBlocked</span><br><span class="line">        │</span><br><span class="line">        ▼</span><br><span class="line">blockDriver(self, opId, future, ...)              // Driver.cpp:669</span><br><span class="line">   构造 BlockingState(driver, future, op, reason)  // 持有 future + driver 的 shared_ptr</span><br><span class="line">   return kBlock</span><br><span class="line">        │</span><br><span class="line">        ▼</span><br><span class="line">Driver::run 收到 kBlock → BlockingState::setResume  // Driver.cpp:227,861</span><br><span class="line">   future.via(executor).thenValue([state]&#123;</span><br><span class="line">      driver-&gt;state().hasBlockingFuture = false;</span><br><span class="line">      Driver::enqueue(driver);                      // future 兑现 → 重新入队唤醒</span><br><span class="line">   &#125;)</span><br><span class="line">   ← runInternal 已 return，线程归还线程池去跑别的 Driver</span><br></pre></td></tr></table></figure>
+
+<h3 id="8-2-三种让出线程的方式"><a href="#8-2-三种让出线程的方式" class="headerlink" title="8.2 三种让出线程的方式"></a>8.2 三种让出线程的方式</h3><table>
+<thead>
+<tr>
+<th>让出方式</th>
+<th>触发</th>
+<th>是否需要唤醒句柄</th>
+<th>恢复方式</th>
+<th>语义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Block</strong>（<code>isBlocked</code>）</td>
+<td>算子等<strong>外部事件</strong></td>
+<td><strong>需要 future</strong></td>
+<td>future 兑现 → enqueue</td>
+<td>异步等待的核心</td>
+</tr>
+<tr>
+<td><strong>Yield</strong>（<code>shouldYield</code>）</td>
+<td>CPU 时间片耗尽</td>
+<td>不需要</td>
+<td>立即重新 enqueue 到队尾</td>
+<td>公平性，不是等待</td>
+</tr>
+<tr>
+<td><strong>Suspend</strong>（<code>enterSuspended</code>）</td>
+<td>等 IO &#x2F; 内存仲裁，<strong>保留调用栈</strong></td>
+<td>不需要（同步等）</td>
+<td><code>leaveSuspended</code> 原地恢复</td>
+<td>让出线程占用但栈不丢</td>
+</tr>
+</tbody></table>
+<p>只有 <strong>Block</strong> 是真正的”挂起-异步唤醒”——它把 Driver 退出栈、压缩成几个标量、靠 future 回调复活，这才是异步编程的关键。<br>Yield 不是等待（马上回队列重排，防霸占线程）；Suspend 保留 C++ 调用栈（不退出 runInternal），用于”必须原地等完”的同步阻塞。</p>
+<h3 id="8-3-典型算子的-isBlocked-解读"><a href="#8-3-典型算子的-isBlocked-解读" class="headerlink" title="8.3 典型算子的 isBlocked 解读"></a>8.3 典型算子的 isBlocked 解读</h3><p>不同算子等待的”外部事件”不同，<code>isBlocked</code> 的写法因此分化出几种鲜明的模式。</p>
+<h4 id="1-CallbackSink-——-sink-的下游反压（延迟报告模式）"><a href="#1-CallbackSink-——-sink-的下游反压（延迟报告模式）" class="headerlink" title="(1) CallbackSink —— sink 的下游反压（延迟报告模式）"></a>(1) CallbackSink —— sink 的下游反压（延迟报告模式）</h4><p><code>CallbackSink</code>（<code>CallbackSink.cpp:48</code>）是 sink 算子，把数据交给 consumer 回调（下游 pipeline 的<br><code>LocalExchangeQueue</code> 或 <code>OutputBuffer</code>）：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">CallbackSink::addInput</span><span class="params">(RowVectorPtr input)</span> </span>&#123;</span><br><span class="line">  <span class="comment">// 推给 consumer；若 consumer 满了，consumeCb_ 返回 future 并记录到成员</span></span><br><span class="line">  blockingReason_ = <span class="built_in">consumeCb_</span>(std::<span class="built_in">move</span>(input), <span class="literal">false</span>, &amp;future_);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">BlockingReason <span class="title">CallbackSink::isBlocked</span><span class="params">(ContinueFuture* future)</span> </span>&#123;</span><br><span class="line">  ...</span><br><span class="line">  <span class="keyword">if</span> (blockingReason_ != BlockingReason::kNotBlocked) &#123;</span><br><span class="line">    *future = std::<span class="built_in">move</span>(future_);                 <span class="comment">// 把上次 addInput 记录的 future 报出来</span></span><br><span class="line">    blockingReason_ = BlockingReason::kNotBlocked;</span><br><span class="line">    <span class="keyword">return</span> BlockingReason::kWaitForConsumer;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> BlockingReason::kNotBlocked;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>模式：延迟报告。</strong> 真正发现”下游满了”是在 <code>addInput</code> 里（拿到 <code>future_</code> 和 <code>blockingReason_</code> 存进成员），但要等<br><strong>下一轮</strong> Driver 循环调用 <code>isBlocked</code> 时才报告出来。原因见第七章：Driver 循环里 <code>isBlocked</code> 在 <code>getOutput</code>&#x2F;<code>addInput</code><br>之前调用，所以这一轮产生的阻塞只能下一轮才暴露。<code>kWaitForConsumer</code> 对应第七章「场景 A：OutputBuffer 满」。</p>
+<h4 id="2-LocalExchange-——-本地交换-source（getOutput-探测-isBlocked-报告）"><a href="#2-LocalExchange-——-本地交换-source（getOutput-探测-isBlocked-报告）" class="headerlink" title="(2) LocalExchange —— 本地交换 source（getOutput 探测 + isBlocked 报告）"></a>(2) LocalExchange —— 本地交换 source（getOutput 探测 + isBlocked 报告）</h4><p><code>LocalExchange</code>（<code>LocalPartition.cpp:275</code>）从本地 <code>LocalExchangeQueue</code> 拉数据：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">RowVectorPtr <span class="title">LocalExchange::getOutput</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  ...</span><br><span class="line">  blockingReason_ = queue_-&gt;<span class="built_in">next</span>(&amp;future_, <span class="built_in">pool</span>(), &amp;data, drained);  <span class="comment">// queue 空则记录 future</span></span><br><span class="line">  <span class="keyword">if</span> (blockingReason_ != BlockingReason::kNotBlocked) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">nullptr</span>;                                                   <span class="comment">// 没数据，先返回 null</span></span><br><span class="line">  &#125;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">BlockingReason <span class="title">LocalExchange::isBlocked</span><span class="params">(ContinueFuture* future)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (blockingReason_ != BlockingReason::kNotBlocked) &#123;</span><br><span class="line">    *future = std::<span class="built_in">move</span>(future_);                                     <span class="comment">// 报告上次记录的 future</span></span><br><span class="line">    <span class="keyword">auto</span> reason = blockingReason_;</span><br><span class="line">    blockingReason_ = BlockingReason::kNotBlocked;</span><br><span class="line">    <span class="keyword">return</span> reason;                                                    <span class="comment">// 通常是 kWaitForProducer</span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> BlockingReason::kNotBlocked;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>模式：getOutput 探测、isBlocked 报告——同样是延迟报告。</strong> 与 CallbackSink 对称：sink 在 <code>addInput</code> 探测下游，<br>source 在 <code>getOutput</code> 探测上游 queue。等待的事件是”本地上游 producer 还没产出数据”（<code>kWaitForProducer</code>）。</p>
+<h4 id="3-Exchange-——-远程交换-source（isBlocked-里干实活-collectAny）"><a href="#3-Exchange-——-远程交换-source（isBlocked-里干实活-collectAny）" class="headerlink" title="(3) Exchange —— 远程交换 source（isBlocked 里干实活 + collectAny）"></a>(3) Exchange —— 远程交换 source（isBlocked 里干实活 + collectAny）</h4><p><code>Exchange</code>（<code>Exchange.cpp:142</code>）从远程 worker 拉数据，是少数<strong>在 isBlocked 里直接干活</strong>的算子：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">BlockingReason <span class="title">Exchange::isBlocked</span><span class="params">(ContinueFuture* future)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (!currentPages_.<span class="built_in">empty</span>() || atEnd_) <span class="keyword">return</span> BlockingReason::kNotBlocked;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (!splitFuture_.<span class="built_in">valid</span>()) <span class="built_in">getSplits</span>(&amp;splitFuture_);               <span class="comment">// 主动拉取 split</span></span><br><span class="line"></span><br><span class="line">  ContinueFuture dataFuture;</span><br><span class="line">  currentPages_ = exchangeClient_-&gt;<span class="built_in">next</span>(driverId_, ..., &amp;dataFuture);  <span class="comment">// 主动拉一批 page</span></span><br><span class="line">  <span class="keyword">if</span> (!currentPages_.<span class="built_in">empty</span>() || atEnd_) <span class="keyword">return</span> BlockingReason::kNotBlocked;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (splitFuture_.<span class="built_in">valid</span>()) &#123;</span><br><span class="line">    <span class="comment">// 同时在等数据 OR 等更多 split —— 任一就绪即唤醒</span></span><br><span class="line">    std::vector&lt;ContinueFuture&gt; futures;</span><br><span class="line">    futures.<span class="built_in">push_back</span>(std::<span class="built_in">move</span>(splitFuture_));</span><br><span class="line">    futures.<span class="built_in">push_back</span>(std::<span class="built_in">move</span>(dataFuture));</span><br><span class="line">    *future = folly::<span class="built_in">collectAny</span>(futures).<span class="built_in">unit</span>();                     <span class="comment">// ← collectAny</span></span><br><span class="line">    <span class="keyword">return</span> BlockingReason::kWaitForSplit;</span><br><span class="line">  &#125;</span><br><span class="line">  *future = std::<span class="built_in">move</span>(dataFuture);</span><br><span class="line">  <span class="keyword">return</span> BlockingReason::kWaitForProducer;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>模式：isBlocked 即工作点 + 多 future 用 <code>collectAny</code> 合并。</strong> 它不只是检查，还触发异步预取。这里同时等两件事<br>（数据到达、新 split 到达），用 <code>folly::collectAny</code>——<strong>任一就绪即唤醒</strong>，因为有任何一边推进都值得 Driver 重新尝试。</p>
+<h4 id="4-Merge-x2F-LocalMerge-——-多源归并（kWaitForProducer）"><a href="#4-Merge-x2F-LocalMerge-——-多源归并（kWaitForProducer）" class="headerlink" title="(4) Merge &#x2F; LocalMerge —— 多源归并（kWaitForProducer）"></a>(4) Merge &#x2F; LocalMerge —— 多源归并（kWaitForProducer）</h4><p><code>Merge</code>（<code>Merge.cpp:75</code>）要从多个有序 source 做归并排序，必须每个 source 都有数据才能比较：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">BlockingReason <span class="title">Merge::isBlocked</span><span class="params">(ContinueFuture* future)</span> </span>&#123;</span><br><span class="line">  <span class="type">const</span> <span class="keyword">auto</span> reason = <span class="built_in">addMergeSources</span>(future);          <span class="comment">// 先确保所有 source 就位</span></span><br><span class="line">  <span class="keyword">if</span> (reason != BlockingReason::kNotBlocked) <span class="keyword">return</span> reason;</span><br><span class="line">  ...</span><br><span class="line">  <span class="keyword">if</span> (sourceMerger_ != <span class="literal">nullptr</span>) &#123;</span><br><span class="line">    sourceMerger_-&gt;<span class="built_in">isBlocked</span>(sourceBlockingFutures_);    <span class="comment">// 收集所有 source 的阻塞 future</span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> (sourceBlockingFutures_.<span class="built_in">empty</span>()) <span class="keyword">return</span> BlockingReason::kNotBlocked;</span><br><span class="line"></span><br><span class="line">  *future = std::<span class="built_in">move</span>(sourceBlockingFutures_.<span class="built_in">back</span>());    <span class="comment">// 任一 source 没数据就整体阻塞</span></span><br><span class="line">  sourceBlockingFutures_.<span class="built_in">pop_back</span>();</span><br><span class="line">  <span class="keyword">return</span> BlockingReason::kWaitForProducer;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>模式：归并算子受限于最慢的 source。</strong> 任何一个参与归并的 source 没数据，整个归并都无法推进（否则破坏全局有序性），<br>所以报 <code>kWaitForProducer</code> 等待该 source。</p>
+<h4 id="5-LocalPartition-——-多下游-sink（collectAll）"><a href="#5-LocalPartition-——-多下游-sink（collectAll）" class="headerlink" title="(5) LocalPartition —— 多下游 sink（collectAll）"></a>(5) LocalPartition —— 多下游 sink（collectAll）</h4><p><code>LocalPartition</code>（<code>LocalPartition.cpp:630</code>）把数据按分区扇出到 N 个下游 queue，与 Exchange 形成鲜明对比：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">BlockingReason <span class="title">LocalPartition::isBlocked</span><span class="params">(ContinueFuture* future)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (!futures_.<span class="built_in">empty</span>()) &#123;</span><br><span class="line">    <span class="keyword">auto</span> blockingReason = blockingReasons_.<span class="built_in">front</span>();</span><br><span class="line">    *future = folly::<span class="built_in">collectAll</span>(futures_.<span class="built_in">begin</span>(), futures_.<span class="built_in">end</span>()).<span class="built_in">unit</span>();  <span class="comment">// ← collectAll</span></span><br><span class="line">    futures_.<span class="built_in">clear</span>();</span><br><span class="line">    blockingReasons_.<span class="built_in">clear</span>();</span><br><span class="line">    <span class="keyword">return</span> blockingReason;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> BlockingReason::kNotBlocked;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>模式：扇出 sink 用 <code>collectAll</code> 合并。</strong> 当多个下游 queue 满时，必须等<strong>所有</strong>满的下游都腾出空间才能继续推<br>（否则又会立刻在某个满的 queue 上卡住），所以用 <code>collectAll</code>——<strong>全部就绪才唤醒</strong>。</p>
+<h4 id="6-HashProbe-——-join-probe（状态机驱动-kWaitForJoinBuild）"><a href="#6-HashProbe-——-join-probe（状态机驱动-kWaitForJoinBuild）" class="headerlink" title="(6) HashProbe —— join probe（状态机驱动 + kWaitForJoinBuild）"></a>(6) HashProbe —— join probe（状态机驱动 + kWaitForJoinBuild）</h4><p><code>HashProbe</code>（<code>HashProbe.cpp:651</code>）的 <code>isBlocked</code> 是一个<strong>内部状态机的推进器</strong>：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">BlockingReason <span class="title">HashProbe::isBlocked</span><span class="params">(ContinueFuture* future)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">switch</span> (state_) &#123;</span><br><span class="line">    <span class="keyword">case</span> ProbeOperatorState::kWaitForBuild:           <span class="comment">// 等 build 侧建好哈希表</span></span><br><span class="line">      <span class="keyword">if</span> (!future_.<span class="built_in">valid</span>()) &#123; <span class="built_in">setRunning</span>(); <span class="built_in">asyncWaitForHashTable</span>(); &#125;</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">case</span> ProbeOperatorState::kWaitForPeers:           <span class="comment">// 等其他 probe 完成（spill 场景）</span></span><br><span class="line">      <span class="keyword">if</span> (!future_.<span class="built_in">valid</span>()) <span class="built_in">setRunning</span>();</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">    ...</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> (future_.<span class="built_in">valid</span>()) &#123; *future = std::<span class="built_in">move</span>(future_); <span class="keyword">return</span> ...; &#125;  <span class="comment">// kWaitForJoinBuild 等</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>模式：isBlocked 驱动算子状态机。</strong> probe 在 build 完成前处于 <code>kWaitForBuild</code>，它通过<br><code>asyncWaitForHashTable()</code> 拿到一个挂在 <code>HashJoinBridge</code> 上的 future（与第一章 <code>allPeersFinished</code> 的屏障机制呼应），<br>建好后才转入 <code>kRunning</code>。</p>
+<h3 id="8-4-两种-future-组合语义：collectAny-vs-collectAll"><a href="#8-4-两种-future-组合语义：collectAny-vs-collectAll" class="headerlink" title="8.4 两种 future 组合语义：collectAny vs collectAll"></a>8.4 两种 future 组合语义：collectAny vs collectAll</h3><p>上面 Exchange 与 LocalPartition 的对比揭示了一个值得记住的设计准则：</p>
+<table>
+<thead>
+<tr>
+<th>组合</th>
+<th>唤醒条件</th>
+<th>适用场景</th>
+<th>例子</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>folly::collectAny</code></td>
+<td><strong>任一</strong> future 就绪</td>
+<td>等多个独立来源中任何一个推进就值得重试</td>
+<td>Exchange：等数据 OR 等 split</td>
+</tr>
+<tr>
+<td><code>folly::collectAll</code></td>
+<td><strong>全部</strong> future 就绪</td>
+<td>必须所有阻塞条件都解除才能继续</td>
+<td>LocalPartition：等所有满的下游腾空间</td>
+</tr>
+</tbody></table>
+<p>选错会有真实后果：扇出 sink 若用 <code>collectAny</code>，会在某个仍满的下游上反复”唤醒→立刻又阻塞”空转；source 若用<br><code>collectAll</code>，会在数据已到但 split 未到时白白多等。</p>
+<h3 id="8-5-设计模式总结"><a href="#8-5-设计模式总结" class="headerlink" title="8.5 设计模式总结"></a>8.5 设计模式总结</h3><table>
+<thead>
+<tr>
+<th>算子</th>
+<th>等待事件</th>
+<th>BlockingReason</th>
+<th>future 来源</th>
+<th>模式</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>CallbackSink</td>
+<td>下游 consumer 满</td>
+<td>kWaitForConsumer</td>
+<td>consumeCb_ 回调</td>
+<td>延迟报告（addInput 探测）</td>
+</tr>
+<tr>
+<td>LocalExchange</td>
+<td>本地上游无数据</td>
+<td>kWaitForProducer</td>
+<td>queue_-&gt;next</td>
+<td>延迟报告（getOutput 探测）</td>
+</tr>
+<tr>
+<td>Exchange</td>
+<td>远程数据&#x2F;split</td>
+<td>kWaitForSplit&#x2F;Producer</td>
+<td>exchangeClient_</td>
+<td>isBlocked 干活 + collectAny</td>
+</tr>
+<tr>
+<td>Merge&#x2F;LocalMerge</td>
+<td>任一归并源无数据</td>
+<td>kWaitForProducer</td>
+<td>各 MergeSource</td>
+<td>受限于最慢 source</td>
+</tr>
+<tr>
+<td>LocalPartition</td>
+<td>所有满的下游</td>
+<td>kWaitForConsumer 类</td>
+<td>各下游 queue</td>
+<td>扇出 + collectAll</td>
+</tr>
+<tr>
+<td>HashProbe</td>
+<td>build 完成&#x2F;peer 完成</td>
+<td>kWaitForJoinBuild 等</td>
+<td>HashJoinBridge</td>
+<td>状态机驱动</td>
+</tr>
+</tbody></table>
+<p>贯穿这些算子的共同点：</p>
+<ul>
+<li><strong>算子自报，Driver 不探测</strong>——<code>isBlocked</code> 由算子根据自身与外部资源的状态决定返回值；</li>
+<li><strong>future 是唯一的复活路径</strong>——谁持有”事件就绪”的知情权（queue、exchangeClient、JoinBridge、consumer），谁负责兑现 future；</li>
+<li><strong>延迟报告是常态</strong>——多数算子在 <code>addInput</code>&#x2F;<code>getOutput</code> 里就拿到了 future，存入成员，下一轮 <code>isBlocked</code> 才报告，这与第七章的 Driver 循环顺序（<code>isBlocked</code> 先于数据操作）严丝合缝；</li>
+<li><strong>future 组合语义要匹配语义</strong>——<code>collectAny</code>（任一推进即重试）vs <code>collectAll</code>（全部解除才继续）。</li>
+</ul>
+<p>这就是 <code>isBlocked</code> 作为”协作式异步关键接口”的全貌：它让每个算子用统一的 <code>(BlockingReason, ContinueFuture)</code> 二元组，把<br>五花八门的外部等待（split、远程数据、本地 queue、join build、内存仲裁、RPC）翻译成 Driver 能统一处理的”挂起-唤醒”信号。</p>
+<hr>
+<h2 id="九、为什么产出统一从-getOutput-发起"><a href="#九、为什么产出统一从-getOutput-发起" class="headerlink" title="九、为什么产出统一从 getOutput 发起"></a>九、为什么产出统一从 getOutput 发起</h2><p>观察 <code>runInternal</code>（<code>Driver.cpp</code>）会发现：<strong>所有”产出新数据”的动作都从 <code>getOutput()</code> 发起，<code>addInput()</code> 只负责投喂、从不产出。</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 中间算子（Driver.cpp:668 附近）</span></span><br><span class="line"><span class="built_in">getOutput</span>(op, intermediateResult);    <span class="comment">// 上游产出</span></span><br><span class="line"><span class="built_in">addInput</span>(nextOp, intermediateResult); <span class="comment">// 推给下游（下游只是接收）</span></span><br><span class="line"><span class="comment">// sink（Driver.cpp:772 附近）</span></span><br><span class="line"><span class="built_in">getOutput</span>(op, result);</span><br></pre></td></tr></table></figure>
+
+<p><code>addInput</code> 的契约是”收下、缓冲、更新内部状态”，<strong>计算与产出一律在 <code>getOutput</code> 里发生</strong>。这是刻意的设计决定。</p>
+<h3 id="9-1-核心原因：解耦”消费输入速率”与”产生输出速率”"><a href="#9-1-核心原因：解耦”消费输入速率”与”产生输出速率”" class="headerlink" title="9.1 核心原因：解耦”消费输入速率”与”产生输出速率”"></a>9.1 核心原因：解耦”消费输入速率”与”产生输出速率”</h3><p>若把计算放进 <code>addInput</code>（纯 push），<code>addInput</code> 就必须能”立即算出结果并推给下游”。但<strong>很多算子的输入批次与输出批次不是 1:1 的</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>算子</th>
+<th>输入 → 输出映射</th>
+<th>计算若在 addInput 的问题</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>FilterProject</td>
+<td>1 输入 → 0 或 1 输出（可能全被过滤）</td>
+<td>尚可</td>
+</tr>
+<tr>
+<td><strong>Aggregation</strong></td>
+<td>N 输入 → 攒到 <code>noMoreInput</code> 后才吐 M 个输出</td>
+<td>addInput 时根本无输出可推</td>
+</tr>
+<tr>
+<td><strong>Unnest</strong></td>
+<td>1 输入行 → 爆炸成很多输出行（可能多批吐出）</td>
+<td>addInput 得”产出多批并逐个 push”，控制流失控</td>
+</tr>
+<tr>
+<td><strong>HashProbe</strong></td>
+<td>1 probe 批 → 0..N 个输出批（一行匹配多行）</td>
+<td>一次输入要触发多次产出</td>
+</tr>
+<tr>
+<td><strong>Limit</strong></td>
+<td>N 输入 → 截断后提前结束</td>
+<td>需在投喂中途叫停</td>
+</tr>
+</tbody></table>
+<p><code>getOutput</code> 把”产出”变成一个<strong>可被反复询问</strong>的动作：”你现在能给一批吗？能就给，给不出返回 <code>null</code>。” 于是：</p>
+<ul>
+<li>**一次 <code>addInput</code> 可以对应 0..N 次 <code>getOutput</code>**——算子按自己的节奏产出。Aggregation 在 <code>addInput</code> 里只更新哈希表、<br>到 <code>getOutput</code> 才吐结果；Unnest 可以连续多次 <code>getOutput</code> 把一行的多行逐批吐完；</li>
+<li>输入&#x2F;输出的批大小、批数量彻底解耦，算子内部可自由缓冲、攒批、spill。</li>
+</ul>
+<p>纯 push 做不到这点——它强制输入输出对齐，遇到 N:M 映射就得在 <code>addInput</code> 里递归往下游推，无法在批次边界停下来。</p>
+<h3 id="9-2-getOutput-返回-null-是干净的、可让出的信号"><a href="#9-2-getOutput-返回-null-是干净的、可让出的信号" class="headerlink" title="9.2 getOutput 返回 null 是干净的、可让出的信号"></a>9.2 getOutput 返回 null 是干净的、可让出的信号</h3><p><code>getOutput</code> 返回值有明确的双重语义（<code>Operator.h:271</code>）：<strong>非空</strong> &#x3D; “这是一批输出”；**<code>null</code>** &#x3D; “我现在产不出更多了<br>（需要更多输入，或被外部阻塞，用 <code>isBlocked</code> 区分）”。这个 <code>null</code> 正是 Driver 的调度节拍点：拿到 <code>null</code> 就往上游走喂更多<br>输入（第七章里 i 往 source 递减）。<strong>每次 <code>getOutput</code> 产出一批，就是一个天然的让出&#x2F;背压&#x2F;检查取消边界</strong>——Driver 在每批<br>之间跑 <code>shouldStop()</code>&#x2F;<code>shouldYield()</code>&#x2F;<code>isBlocked()</code>。计算若埋在 <code>addInput</code> 内部循环里，这些边界就消失了。</p>
+<h3 id="9-3-统一性：source-x2F-中间-x2F-攒批算子，Driver-一视同仁"><a href="#9-3-统一性：source-x2F-中间-x2F-攒批算子，Driver-一视同仁" class="headerlink" title="9.3 统一性：source &#x2F; 中间 &#x2F; 攒批算子，Driver 一视同仁"></a>9.3 统一性：source &#x2F; 中间 &#x2F; 攒批算子，Driver 一视同仁</h3><p><code>getOutput</code> 让 Driver <strong>无需区分算子类型</strong>：</p>
+<ul>
+<li><strong>TableScan</strong>（source）无上游，<code>addInput</code> 永不被调用——数据在 <code>getOutput</code> 里”凭空”从 split 读出；</li>
+<li><strong>FilterProject</strong>（中间）在 <code>getOutput</code> 里消费缓冲输入产出；</li>
+<li><strong>Aggregation</strong>（攒批）在 <code>getOutput</code> 里吐累积结果。</li>
+</ul>
+<p>对 Driver 而言它们完全一样：**”调 <code>getOutput</code> 看有没有货”**。循环里唯一的区分只是 source（i&#x3D;0）没有 i-1、无需先<br><code>addInput</code>。这与 5.1.5 的 <code>isBlocked</code> 统一抽象是同一种品味——用统一窄接口（<code>getOutput</code> 产出 &#x2F; <code>addInput</code> 投喂 &#x2F;<br><code>isBlocked</code> 等待 &#x2F; <code>isFinished</code> 结束）让一份调度代码驱动所有算子。</p>
+<h3 id="9-4-与-demand-gated-push-的关系：pull-触发，push-传递"><a href="#9-4-与-demand-gated-push-的关系：pull-触发，push-传递" class="headerlink" title="9.4 与 demand-gated push 的关系：pull 触发，push 传递"></a>9.4 与 demand-gated push 的关系：pull 触发，push 传递</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">下游 needsInput()=true       （需求信号，pull 味道）</span><br><span class="line">        │</span><br><span class="line">        ▼</span><br><span class="line">Driver 调上游 getOutput()    （按需触发一次产出）</span><br><span class="line">        │</span><br><span class="line">        ▼</span><br><span class="line">Driver 调下游 addInput()     （把产出 push 下去）</span><br></pre></td></tr></table></figure>
+
+<p>“从 getOutput 发起” &#x3D; <strong>由下游需求触发的、按批产出</strong>。它既不是纯 pull（不是下游递归调上游 <code>next()</code>），也不是纯 push<br>（不是上游来数据就无脑灌），而是 Driver 居中、以 <code>getOutput</code> 为产出节拍器的 demand-gated push（呼应第六章）。</p>
+<h3 id="9-5-小结"><a href="#9-5-小结" class="headerlink" title="9.5 小结"></a>9.5 小结</h3><p>把”产出”统一收敛到 <code>getOutput</code>、让 <code>addInput</code> 只投喂，本质是为了：(1) <strong>解耦输入&#x2F;输出速率</strong>（支持 1:N、N:M、延迟产出、<br>攒批），这是 push 模型做不到的；(2) 让 <code>getOutput</code> 返回 <code>null</code> 成为<strong>干净的让出&#x2F;背压边界</strong>；(3) 用<strong>统一入口</strong>抹平<br>source &#x2F; 中间 &#x2F; 攒批算子差异，让一份 Driver 代码驱动所有算子；(4) 与 demand-gated push 自洽：<strong>需求触发 <code>getOutput</code>，<br><code>getOutput</code> 产出后 <code>addInput</code> 传递</strong>。</p>
+<hr>
+<h2 id="十、Task-的资源管理：terminate-流程与资源回收"><a href="#十、Task-的资源管理：terminate-流程与资源回收" class="headerlink" title="十、Task 的资源管理：terminate 流程与资源回收"></a>十、Task 的资源管理：terminate 流程与资源回收</h2><p>Task 是所有执行期资源的<strong>根持有者</strong>：memory pool 树、Driver、ExchangeClient、JoinBridge、OutputBuffer、spill 目录、<br>各类 promise。本章梳理这些资源在 happy path 与异常 path 下如何被有序回收。</p>
+<h3 id="10-1-Memory-Pool-树：层级、所有权与”刻意保活”"><a href="#10-1-Memory-Pool-树：层级、所有权与”刻意保活”" class="headerlink" title="10.1 Memory Pool 树：层级、所有权与”刻意保活”"></a>10.1 Memory Pool 树：层级、所有权与”刻意保活”</h3><p>Task 构造时建立内存池树（<code>Task.cpp:710</code> 起）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">queryCtx_-&gt;pool()                                    （query 级，aggregate）</span><br><span class="line">   └── pool_  = &quot;task.&lt;taskId&gt;&quot;                       （task 级，aggregate）   initTaskPool()</span><br><span class="line">         └── childPools_[k] = &quot;node.&lt;planNodeId&gt;&quot;      （node 级，aggregate）   getOrAddNodePool()</span><br><span class="line">               └── childPools_[m] = &quot;op.&lt;id&gt;.&lt;pipe&gt;.&lt;driver&gt;.&lt;type&gt;&quot;  （operator 级，leaf）  addOperatorPool()</span><br></pre></td></tr></table></figure>
+
+<p>所有权要点：</p>
+<ul>
+<li><code>pool_</code>（<code>Task.h:1205</code>）是 task root，<strong>aggregate 类型</strong>（只聚合不直接分配）；</li>
+<li><code>childPools_</code>（<code>Task.h:1209</code>，<code>vector&lt;shared_ptr&lt;MemoryPool&gt;&gt;</code>）<strong>持有所有 node &#x2F; operator &#x2F; connector &#x2F; exchange 池的所有权</strong>；</li>
+<li><code>nodePools_</code>（<code>Task.h:1215</code>，<code>map&lt;id, MemoryPool*&gt;</code>）只存裸指针，用于按 plan node 复用 node 池；</li>
+<li>Operator &#x2F; connector 池都是 leaf 或 aggregate child，由 <code>addOperatorPool</code>（<code>Task.cpp:781</code>）等创建后 <code>push_back</code> 进 <code>childPools_</code>。</li>
+</ul>
+<p><strong>关键设计——刻意保活</strong>（<code>Task.h:1207</code> 注释）：</p>
+<blockquote>
+<p>“Keep plan node and operator memory pools alive for the duration of the task to allow for sharing vectors across drivers without copy.”</p>
+</blockquote>
+<p>即：算子内存池的生命周期<strong>不随 Driver 结束而结束，而是一直存活到 Task 析构</strong>。原因是 Velox 大量使用零拷贝向量共享<br>（一个 Driver 产出的 <code>RowVector</code> 可能被另一个 Driver 引用），若算子池随 Driver 立即销毁，这些跨 Driver 共享的 buffer<br>就会悬空。所以 Driver close 只释放算子的<strong>逻辑状态</strong>（<code>Operator::close</code>），其底层 buffer 所在的内存池对象由<br><code>childPools_</code> 兜住，直到 <code>~Task()</code>。</p>
+<h3 id="10-2-Happy-Path：自然完成"><a href="#10-2-Happy-Path：自然完成" class="headerlink" title="10.2 Happy Path：自然完成"></a>10.2 Happy Path：自然完成</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">某 Driver 的 runInternal() → sink isFinished() → kAtEnd</span><br><span class="line">        │</span><br><span class="line">        ▼</span><br><span class="line">Driver::close()                                   // Driver.cpp:1063（仅允许在 driver 线程）</span><br><span class="line">   closeOperators()        // 逐个 Operator::close()，释放算子逻辑状态、上报 stats</span><br><span class="line">   updateStats()</span><br><span class="line">   closed_ = true</span><br><span class="line">   Task::removeDriver(task, this)                 // Task.cpp:1440</span><br><span class="line">        │</span><br><span class="line">        ▼</span><br><span class="line">Task::removeDriver</span><br><span class="line">   drivers_[i] = nullptr                          // ← 切断 Task→Driver 的 shared_ptr（解循环引用）</span><br><span class="line">   driverClosedLocked()  → ++numFinishedDrivers_</span><br><span class="line">   splitGroupState.numRunningDrivers-- / numFinishedOutputDrivers++</span><br><span class="line">   allFinished = checkIfFinishedLocked()          // 所有 driver 完成 + output 已消费？</span><br><span class="line">        │</span><br><span class="line">        ▼ (若 allFinished)</span><br><span class="line">Task::terminate(TaskState::kFinished)             // 见 10.4 的统一清理</span><br></pre></td></tr></table></figure>
+
+<p><code>checkIfFinishedLocked</code>（<code>Task.cpp:2237</code>）的判定：<code>numFinishedDrivers_ == numTotalDrivers_</code>（或 ungrouped 下输出<br>pipeline 的 driver 全部完成），<strong>且</strong> <code>!hasPartitionedOutput() || partitionedOutputConsumed_</code>（结果已被下游取走）。<br>注意输出是否被消费由 <code>OutputBuffer</code> 经 <code>setAllOutputConsumed()</code> 异步通知——所以最后一个 driver 完成时若 output 还没被<br>取走，会先返回 false，待 <code>setAllOutputConsumed</code> 再触发 finish。</p>
+<h3 id="10-3-异常-Path：错误-x2F-取消-x2F-中止"><a href="#10-3-异常-Path：错误-x2F-取消-x2F-中止" class="headerlink" title="10.3 异常 Path：错误 &#x2F; 取消 &#x2F; 中止"></a>10.3 异常 Path：错误 &#x2F; 取消 &#x2F; 中止</h3><p>三种非正常终结都走同一入口，最终汇聚到 <code>terminate</code>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">算子抛异常 → runInternal catch → task()-&gt;setError(eptr)   // Driver.cpp:810</span><br><span class="line">用户取消    → Task::requestCancel() → terminate(kCanceled)</span><br><span class="line">外部错误    → Task::requestAbort()  → terminate(kAborted)</span><br><span class="line"></span><br><span class="line">setError（Task.cpp:3304）:</span><br><span class="line">   加锁；若已非 running 或已有 exception_ 则直接返回（保证只第一个错误生效）</span><br><span class="line">   exception_ = exception</span><br><span class="line">   解锁</span><br><span class="line">   terminate(TaskState::kFailed)</span><br><span class="line">   onError_(exception_)    // 回调通知应用层</span><br></pre></td></tr></table></figure>
+
+<p>与 happy path 的关键差异：<strong>Driver 此刻可能正在线程上跑</strong>。<code>terminate</code> 因此要分两类处理 Driver（见下）。</p>
+<h3 id="10-4-terminate：统一清理漏斗（happy-x2F-error-共用）"><a href="#10-4-terminate：统一清理漏斗（happy-x2F-error-共用）" class="headerlink" title="10.4 terminate：统一清理漏斗（happy&#x2F;error 共用）"></a>10.4 terminate：统一清理漏斗（happy&#x2F;error 共用）</h3><p><code>terminate(terminalState)</code>（<code>Task.cpp:2502</code>）是所有终结的汇聚点，分”锁内”与”锁外”两段：</p>
+<p><strong>锁内（持 <code>mutex_</code>）：</strong></p>
+<ol>
+<li>若已非 running，直接返回 <code>makeFinishFutureLocked</code>（幂等）；</li>
+<li><code>state_ = terminalState</code>；记录 <code>terminationTimeMs</code>；取消&#x2F;中止时构造 <code>exception_</code>；</li>
+<li><code>terminateRequested_ = true</code>（on-thread 的 Driver 下次 <code>shouldStop()</code> 会看到）；<code>numRunningDrivers_ = 0</code>；</li>
+<li>遍历 <code>drivers_</code>，对每个非空 driver 调 <code>enterForTerminateLocked</code>（<code>Task.cpp:3367</code>）：<ul>
+<li><strong>不在线程上</strong> → 返回 <code>kTerminate</code>，driver 被移入 <code>offThreadDrivers</code>，<code>driverClosedLocked()</code>；</li>
+<li><strong>在线程上 &#x2F; 已 pause</strong> → 返回 <code>kAlreadyOnThread</code> &#x2F; <code>kPause</code>，<strong>不在这里关</strong>，留给 driver 自己的 <code>leave</code> 路径关；</li>
+</ul>
+</li>
+<li>把 <code>exchangeClients_</code>、<code>barrierFinishPromises_</code> swap 到局部变量；<code>barrierRequested_ = false</code>。</li>
+</ol>
+<p><strong>锁外（避免持锁触发回调死锁，见 5.2.3）：</strong></p>
+<ol start="6">
+<li><code>taskCompletionNotifier.notify()</code> &#x2F; <code>stateChangeNotifier.notify()</code>——兑现完成&#x2F;状态变更 promise；</li>
+<li>对 <code>offThreadDrivers</code> 逐个 <code>driver-&gt;closeByTask()</code>（<code>Driver.cpp:1077</code>，在”已 terminate + 仿在线程”语境下关闭算子）；</li>
+<li><code>maybeRemoveFromOutputBufferManager()</code>——删除 OutputBuffer（释放它对 Task 的反向引用）；</li>
+<li>关闭并清空 <code>exchangeClients</code>——停止远程取数、避免重发请求；</li>
+<li>收集并清空所有 <code>SplitsStore</code> 的待发 split promise、处理剩余 remote split；</li>
+<li><code>splitGroupState.clear()</code>——清 JoinBridge、LocalExchange、barriers；</li>
+<li>兑现 <code>splitPromises</code>（唤醒等 split 的 driver，让它们感知终止）、<code>bridge-&gt;cancel()</code>、关闭 <code>preloadingSplits_</code>、兑现<br><code>barrierPromises</code>；</li>
+<li>返回 <code>makeFinishFuture</code>——调用方 await 该 future 即”所有线程已退出”。</li>
+</ol>
+<p><strong>on-thread 的 Driver 怎么收尾？</strong> 它们不在 terminate 里关闭，而是：下次循环顶部 <code>shouldStop()</code> 看到<br><code>terminateRequested_</code> → 返回 <code>kTerminate</code> → <code>runInternal</code> 退出 → <code>CancelGuard</code> 析构 → <code>Task::leave</code> 检测到<br><code>kTerminate</code> 且有 <code>driverCb</code> → 在 driver 线程上调 <code>close()</code>（<code>Task.cpp:3415</code>）。这保证 <strong>Driver 的 close 永远在 driver<br>自己的线程上执行</strong>，避免与算子的 abort 竞态（见 3.3）。</p>
+<h3 id="10-5-最终回收：-Task"><a href="#10-5-最终回收：-Task" class="headerlink" title="10.5 最终回收：~Task()"></a>10.5 最终回收：<code>~Task()</code></h3><p>当最后一个引用 Task 的 <code>shared_ptr</code> 释放（drivers_ 已清空解了循环引用、外部持有者也释放后），<code>~Task()</code><br>（<code>Task.cpp:452</code>）执行：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">removeSpillDirectoryIfExists</span>();        <span class="comment">// 删除 spill 目录（若曾创建）  Task.cpp:691</span></span><br><span class="line"><span class="comment">// 按固定顺序逐项 clear，便于定位析构期崩溃：</span></span><br><span class="line">threadFinishPromises_.<span class="built_in">clear</span>(); splitGroupStates_.<span class="built_in">clear</span>(); taskStats_ = &#123;&#125;;</span><br><span class="line">stateChangePromises_.<span class="built_in">clear</span>(); taskCompletionPromises_.<span class="built_in">clear</span>(); splitsStates_.<span class="built_in">clear</span>();</span><br><span class="line">drivers_.<span class="built_in">clear</span>();              <span class="comment">// 此时通常已空</span></span><br><span class="line">driverFactories_.<span class="built_in">clear</span>(); exchangeClientByPlanNode_.<span class="built_in">clear</span>(); exchangeClients_.<span class="built_in">clear</span>();</span><br><span class="line">nodePools_.<span class="built_in">clear</span>();            <span class="comment">// 先清裸指针 map</span></span><br><span class="line">childPools_.<span class="built_in">clear</span>();           <span class="comment">// ← 释放所有 node/operator 内存池（10.1 的刻意保活在此终结）</span></span><br><span class="line">pool_.<span class="built_in">reset</span>();                 <span class="comment">// ← 最后释放 task root 池</span></span><br><span class="line">queryCtx_.<span class="built_in">reset</span>();</span><br><span class="line"><span class="comment">// 最后兑现 taskDeletionPromises_（taskDeletionFuture 的等待方在此被唤醒）</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>内存池的销毁顺序很关键</strong>：必须先 <code>childPools_.clear()</code>（leaf&#x2F;node 池）再 <code>pool_.reset()</code>（root），因为 aggregate<br>父池要求子池先于自己销毁。<code>removeFromTaskList()</code>（从全局运行任务表摘除）通过 <code>SCOPE_EXIT</code> 保证最先注册、最后执行。</p>
+<h3 id="10-6-资源回收时机汇总"><a href="#10-6-资源回收时机汇总" class="headerlink" title="10.6 资源回收时机汇总"></a>10.6 资源回收时机汇总</h3><table>
+<thead>
+<tr>
+<th>资源</th>
+<th>释放时机</th>
+<th>代码位置</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>算子逻辑状态（哈希表、缓冲行等）</td>
+<td>Driver close 时 <code>Operator::close()</code></td>
+<td><code>Driver::closeOperators</code> <code>Driver.cpp:898</code></td>
+</tr>
+<tr>
+<td>Task→Driver 的 shared_ptr（解循环引用）</td>
+<td><code>removeDriver</code>（happy）&#x2F; <code>terminate</code>（error）</td>
+<td><code>Task.cpp:1464,2559</code></td>
+</tr>
+<tr>
+<td>OutputBuffer</td>
+<td><code>terminate</code> → <code>maybeRemoveFromOutputBufferManager</code></td>
+<td><code>Task.cpp:2590</code></td>
+</tr>
+<tr>
+<td>ExchangeClient</td>
+<td><code>terminate</code> 关闭并清空</td>
+<td><code>Task.cpp:2592</code></td>
+</tr>
+<tr>
+<td>JoinBridge &#x2F; LocalExchange &#x2F; barriers</td>
+<td><code>terminate</code> → <code>SplitGroupState::clear()</code></td>
+<td><code>TaskStructs.h:248</code></td>
+</tr>
+<tr>
+<td>待发 split promise &#x2F; preloading split</td>
+<td><code>terminate</code> 兑现 &#x2F; 关闭</td>
+<td><code>Task.cpp:2675,2683</code></td>
+</tr>
+<tr>
+<td><strong>算子 &#x2F; node 内存池</strong>（buffer 所在）</td>
+<td>**<code>~Task()</code> 的 <code>childPools_.clear()</code>**（刻意保活至此）</td>
+<td><code>Task.cpp:490</code></td>
+</tr>
+<tr>
+<td><strong>task root 内存池 <code>pool_</code></strong></td>
+<td>**<code>~Task()</code> 的 <code>pool_.reset()</code>**（最后）</td>
+<td><code>Task.cpp:491</code></td>
+</tr>
+<tr>
+<td>spill 目录</td>
+<td><code>~Task()</code> → <code>removeSpillDirectoryIfExists</code></td>
+<td><code>Task.cpp:470,691</code></td>
+</tr>
+</tbody></table>
+<h3 id="10-7-设计要点"><a href="#10-7-设计要点" class="headerlink" title="10.7 设计要点"></a>10.7 设计要点</h3><ul>
+<li><strong>terminate 是 happy &#x2F; error 共用的单一漏斗</strong>（呼应 5.1.2）——清理逻辑只写一遍，状态码不同而已；</li>
+<li><strong>内存池与 Driver 生命周期解耦</strong>——Driver close 只释放算子逻辑状态，内存池对象保活到 <code>~Task()</code>，支撑跨 Driver 零拷贝向量共享；</li>
+<li><strong>on-thread Driver 自己在自己的线程上 close</strong>——terminate 只关 off-thread 的，避免 close&#x2F;abort 竞态；</li>
+<li><strong>回收顺序受所有权约束</strong>——子池先于父池、<code>childPools_</code> 先于 <code>pool_</code>、<code>drivers_</code> 清空解循环引用后 Task 才可能析构；</li>
+<li><strong>析构期带调试探针</strong>——<code>~Task()</code> 用 <code>clearStage</code> 字符串逐步标记，便于定位 jemalloc 析构崩溃（源码 TODO 注释）。</li>
+</ul>
+<hr>
+<h2 id="十一、Future-x2F-Promise-管理：避免-Driver-泄漏的设计与实现"><a href="#十一、Future-x2F-Promise-管理：避免-Driver-泄漏的设计与实现" class="headerlink" title="十一、Future&#x2F;Promise 管理：避免 Driver 泄漏的设计与实现"></a>十一、Future&#x2F;Promise 管理：避免 Driver 泄漏的设计与实现</h2><p>Task&#x2F;Driver 里散布着十来组 promise&#x2F;future。它们是协作式调度的”唤醒总线”，但也是最危险的地方——<strong>一个永不兑现的 future<br>就能让一个 Driver（及它通过 DriverCtx 拽住的整个 Task）永久泄漏</strong>。本章解读这套机制的设计与背后的防泄漏思考。</p>
+<h3 id="11-1-为什么-future-x2F-promise-在这里特别危险"><a href="#11-1-为什么-future-x2F-promise-在这里特别危险" class="headerlink" title="11.1 为什么 future&#x2F;promise 在这里特别危险"></a>11.1 为什么 future&#x2F;promise 在这里特别危险</h3><p>回顾第三章的引用关系：Task ↔ Driver 是循环引用，靠 <code>drivers_[i] = nullptr</code> 手动切断。但 Driver 的 shared_ptr<br>**不只存在于 <code>drivers_</code>**，还藏在 future 的回调闭包里：</p>
+<ul>
+<li><strong>BlockingState</strong>（<code>Driver.cpp:184</code>，并行模式）：成员 <code>std::shared_ptr&lt;Driver&gt; driver_</code>，并把整个 <code>state</code><br>捕获进 <code>setResume</code> 的 <code>thenValue</code> 闭包（<code>Driver.cpp:232</code>）；</li>
+<li><strong>DriverBlockingState</strong>（<code>Task.cpp:3772</code>，串行模式）：闭包捕获 <code>driverHolder = driver_-&gt;shared_from_this()</code>；</li>
+<li><strong>Executor 队列</strong>：<code>[driver]() &#123; Driver::run(driver); &#125;</code>（<code>Driver.cpp:302</code>）。</li>
+</ul>
+<p>也就是说，<strong>一个阻塞中的 Driver，其生命被它正在等待的那个 future 兜住</strong>。推出核心不变量：</p>
+<blockquote>
+<p><strong>每个挂起 Driver 的 future 都必须有一条”终将兑现或出错”的路径。只要有一个 future 可能永不了结，对应的 Driver 和<br>Task 就会泄漏。</strong> 文档 <code>TaskDriverOperatorLifecycle.md</code> 末尾那句警告正是此意（见第四章）。</p>
+</blockquote>
+<p>这套设计的全部精力，就是保证这个不变量在所有路径（正常、阻塞、暂停、取消、错误、提前终止）下都成立。</p>
+<h3 id="11-2-全景：Task-x2F-Driver-中的-promise-x2F-future"><a href="#11-2-全景：Task-x2F-Driver-中的-promise-x2F-future" class="headerlink" title="11.2 全景：Task&#x2F;Driver 中的 promise&#x2F;future"></a>11.2 全景：Task&#x2F;Driver 中的 promise&#x2F;future</h3><table>
+<thead>
+<tr>
+<th>promise 组</th>
+<th>等待者</th>
+<th>兑现者</th>
+<th>兑现时机</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>BlockingState</code> &#x2F; <code>DriverBlockingState</code></td>
+<td>阻塞的 Driver</td>
+<td>外部事件（split&#x2F;数据&#x2F;buildbridge…）</td>
+<td>future 兑现 → 重新 enqueue</td>
+</tr>
+<tr>
+<td><code>SplitsStore::promises_</code></td>
+<td>等 split 的 Driver</td>
+<td><code>addSplit</code> &#x2F; <code>noMoreSplits</code> &#x2F; <code>terminate</code></td>
+<td>来 split &#x2F; 收工 &#x2F; 终止</td>
+</tr>
+<tr>
+<td><code>BarrierState::allPeersFinishedPromises</code></td>
+<td>join build 非末位 Driver</td>
+<td>末位 Driver（或 terminate）</td>
+<td>屏障完成</td>
+</tr>
+<tr>
+<td><code>threadFinishPromises_</code></td>
+<td>requestPause &#x2F; terminate 调用方</td>
+<td><code>allThreadsFinishedLocked</code></td>
+<td><code>numThreads_</code> 归零</td>
+</tr>
+<tr>
+<td><code>resumePromises_</code></td>
+<td><code>pauseRequested</code> 调用方</td>
+<td><code>Task::resume</code></td>
+<td>任务恢复</td>
+</tr>
+<tr>
+<td><code>taskCompletionPromises_</code></td>
+<td><code>taskCompletionFuture</code> 等待方</td>
+<td><code>terminate</code></td>
+<td>任务终结</td>
+</tr>
+<tr>
+<td><code>stateChangePromises_</code></td>
+<td><code>stateChangeFuture</code> 等待方</td>
+<td>removeDriver &#x2F; terminate</td>
+<td>状态变更</td>
+</tr>
+<tr>
+<td><code>taskDeletionPromises_</code></td>
+<td><code>taskDeletionFuture</code> 等待方</td>
+<td><code>~Task()</code></td>
+<td>任务析构</td>
+</tr>
+<tr>
+<td><code>barrierFinishPromises_</code></td>
+<td><code>requestBarrier</code> 调用方</td>
+<td>末位 barrier driver &#x2F; terminate</td>
+<td>barrier 完成</td>
+</tr>
+</tbody></table>
+<p>注意每一行的”兑现者”列<strong>都包含一条 terminate &#x2F; 析构兜底路径</strong>——这不是巧合，是 11.4 要讲的设计。</p>
+<h3 id="11-3-陷阱一：持锁兑现-promise-→-死锁"><a href="#11-3-陷阱一：持锁兑现-promise-→-死锁" class="headerlink" title="11.3 陷阱一：持锁兑现 promise → 死锁"></a>11.3 陷阱一：持锁兑现 promise → 死锁</h3><p><code>promise.setValue()</code> 会<strong>同步</strong>触发挂在 future 上的 continuation，而 continuation 往往要回头抢 <code>Task::mutex_</code><br>（例如 <code>BlockingState::setResume</code> 的回调里 <code>std::lock_guard l(task-&gt;mutex())</code>，<code>Driver.cpp:236</code>）。若在持锁时<br><code>setValue</code>，就是”持锁 → 触发回调 → 回调抢同一把锁”的自死锁。</p>
+<p>对策是贯穿全代码的**”锁内收集、锁外兑现”**模式。两种写法：</p>
+<p><strong>(a) swap 到局部变量，出锁再兑现</strong>（<code>allThreadsFinishedLocked</code>，<code>Task.cpp:3532</code>）：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">std::vector&lt;ContinuePromise&gt; <span class="title">Task::allThreadsFinishedLocked</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  std::vector&lt;ContinuePromise&gt; threadFinishPromises;</span><br><span class="line">  threadFinishPromises.<span class="built_in">swap</span>(threadFinishPromises_);   <span class="comment">// 锁内只搬走</span></span><br><span class="line">  <span class="keyword">return</span> threadFinishPromises;                          <span class="comment">// 调用方出锁后才 setValue</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>(b) <code>EventCompletionNotifier</code>——两段式 + 析构兜底</strong>（<code>Task.cpp:51</code>）：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">EventCompletionNotifier</span> &#123;</span><br><span class="line">  ~<span class="built_in">EventCompletionNotifier</span>() &#123; <span class="built_in">notify</span>(); &#125;              <span class="comment">// 析构兜底，幂等</span></span><br><span class="line">  <span class="function"><span class="type">void</span> <span class="title">activate</span><span class="params">(std::vector&lt;ContinuePromise&gt; promises,  <span class="comment">// 锁内：收集 promise + callback</span></span></span></span><br><span class="line"><span class="params"><span class="function">                std::function&lt;<span class="type">void</span>()&gt; callback = <span class="literal">nullptr</span>)</span></span>;</span><br><span class="line">  <span class="function"><span class="type">void</span> <span class="title">notify</span><span class="params">()</span> </span>&#123;                                       <span class="comment">// 锁外：兑现 + 回调，只生效一次</span></span><br><span class="line">    <span class="keyword">if</span> (active_) &#123; <span class="keyword">for</span> (<span class="keyword">auto</span>&amp; p : promises_) p.<span class="built_in">setValue</span>(); ... active_ = <span class="literal">false</span>; &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>用法（<code>terminate</code>，<code>Task.cpp:2545</code>）：锁内 <code>taskCompletionNotifier.activate(std::move(taskCompletionPromises_), ...)</code>，<br>出锁后 <code>taskCompletionNotifier.notify()</code>。即便中途异常提前 return，析构函数也会 <code>notify()</code>，且 <code>active_</code> 保证不重复兑现。</p>
+<h3 id="11-4-陷阱二：future-永不兑现-→-Driver-泄漏-→-terminate-作”总清算”"><a href="#11-4-陷阱二：future-永不兑现-→-Driver-泄漏-→-terminate-作”总清算”" class="headerlink" title="11.4 陷阱二：future 永不兑现 → Driver 泄漏 → terminate 作”总清算”"></a>11.4 陷阱二：future 永不兑现 → Driver 泄漏 → terminate 作”总清算”</h3><p>这是最致命的陷阱。一个 Driver 阻塞在某个 future 上（等 split、等 consumer、等 join build），如果任务因错误&#x2F;取消而中止，<br><strong>那些事件可能永远不会自然发生</strong>——split 不会再来、consumer 已死、build 永远完不成。若放任不管，这些 Driver 的<br><code>BlockingState</code> 闭包会永久持有 Driver→Task，泄漏。</p>
+<p><code>Task::terminate</code>（第十章 10.4）因此承担”promise 总清算”职责，<strong>把所有可能让 Driver 永远 block 的 promise 全部兑现</strong><br>（<code>Task.cpp:2502</code> 起）：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// terminate 锁外段，逐一兑现/取消，确保没有 Driver 留在 block 态：</span></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">auto</span>&amp; promise : splitPromises)   promise.<span class="built_in">setValue</span>();   <span class="comment">// 唤醒等 split 的 driver</span></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">auto</span>&amp; bridge  : oldBridges)      bridge-&gt;<span class="built_in">cancel</span>();     <span class="comment">// 取消 join，唤醒等 build 的 driver</span></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">auto</span>&amp; barrierPromise : barrierPromises) barrierPromise.<span class="built_in">setValue</span>();</span><br><span class="line"><span class="comment">// SplitsStore::noMoreSplits() 把每个 store 的 promises_ 全部收集后兑现</span></span><br></pre></td></tr></table></figure>
+
+<p>被唤醒的 Driver 重新上线后，循环顶部 <code>shouldStop()</code> 看到 <code>terminateRequested_</code> → 返回 <code>kTerminate</code> → 干净退出 →<br><code>close()</code> → <code>drivers_[i]=nullptr</code>，闭包随 future 兑现而析构，Driver 引用计数归零。**”唤醒”不是为了让它继续干活，而是为了<br>让它有机会发现该退出、从而释放自己。** 这就是为什么 11.2 表格里每组 promise 都有 terminate 兜底。</p>
+<blockquote>
+<p>对应地，<code>makeFinishFutureLocked</code>（<code>Task.cpp:2710</code>）在 <code>numThreads_ == 0</code> 时<strong>立即兑现</strong>而非挂起——没有线程在跑就<br>没什么可等的，避免凭空制造一个永不兑现的 future。</p>
+</blockquote>
+<h3 id="11-5-陷阱三：double-resume-x2F-两个线程进同一个-Driver"><a href="#11-5-陷阱三：double-resume-x2F-两个线程进同一个-Driver" class="headerlink" title="11.5 陷阱三：double-resume &#x2F; 两个线程进同一个 Driver"></a>11.5 陷阱三：double-resume &#x2F; 两个线程进同一个 Driver</h3><p>future 兑现是异步的，可能与 Task 的 pause&#x2F;terminate 竞争。若处理不当，同一个 Driver 可能被两个线程同时 <code>run</code>。<br><code>BlockingState::setResume</code>（<code>Driver.cpp:227</code>）有两道防线：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">BlockingState::setResume</span><span class="params">(std::shared_ptr&lt;BlockingState&gt; state)</span> </span>&#123;</span><br><span class="line">  std::<span class="built_in">move</span>(state-&gt;future_).<span class="built_in">via</span>(&amp;exec).<span class="built_in">thenValue</span>([state](<span class="keyword">auto</span>&amp;&amp;) &#123;</span><br><span class="line">    ...</span><br><span class="line">    std::lock_guard&lt;std::timed_mutex&gt; <span class="built_in">l</span>(task-&gt;<span class="built_in">mutex</span>());     <span class="comment">// ① 在锁内决策</span></span><br><span class="line">    driver-&gt;<span class="built_in">state</span>().hasBlockingFuture = <span class="literal">false</span>;</span><br><span class="line">    <span class="keyword">if</span> (task-&gt;<span class="built_in">pauseRequested</span>()) &#123;</span><br><span class="line">      <span class="keyword">return</span>;                                                <span class="comment">// ② pause 中则不 enqueue，留给 resume</span></span><br><span class="line">    &#125;</span><br><span class="line">    Driver::<span class="built_in">enqueue</span>(state-&gt;driver_);</span><br><span class="line">  &#125;)</span><br><span class="line">  .<span class="built_in">thenError</span>(folly::<span class="type">tag_t</span>&lt;std::exception&gt;&#123;&#125;, [state](std::exception <span class="type">const</span>&amp; e) &#123;</span><br><span class="line">    ... task-&gt;<span class="built_in">setError</span>(...);                                 <span class="comment">// ③ future 出错也要兜底转成 task error</span></span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>三个要点：</p>
+<ol>
+<li><strong>在 Task 锁外注册 resume</strong>（<code>Driver::run</code> 里调 setResume，此时已不持锁）——注释（<code>Driver.cpp:863</code>）说明这样<br>“若 future 已经兑现，也不会有第二个线程进入同一个 Driver”；</li>
+<li><strong>pause 检查</strong>：若任务正在 pause，不重新 enqueue，把恢复权交给 <code>Task::resume</code>（<code>Task.cpp:1204</code>）——避免 pause<br>期间 Driver 偷偷回到线程；</li>
+<li><strong><code>thenError</code> 兜底</strong>：folly future 若以异常兑现（包括 promise 被析构导致的 BrokenPromise），<code>thenError</code> 把它转成<br><code>task-&gt;setError</code>，<strong>绝不让一个 future 静默地烂尾</strong>。<code>DriverBlockingState::setDriverFuture</code>（<code>Task.cpp:3808</code>）有完全<br>对称的 <code>thenError</code> 分支。</li>
+</ol>
+<p><code>Driver::run</code> 里还有一处微妙竞态处理（<code>Driver.cpp:856</code>）：拿到 <code>kBlock</code> 后若发现 <code>task-&gt;shouldStop()==kTerminate</code>，<br>直接 return 而不进 resume 模式——否则会在已终止的任务上挂一个永不兑现的 future。</p>
+<h3 id="11-6-可观测性：让泄漏”看得见”"><a href="#11-6-可观测性：让泄漏”看得见”" class="headerlink" title="11.6 可观测性：让泄漏”看得见”"></a>11.6 可观测性：让泄漏”看得见”</h3><p>设计者清楚这类泄漏极难调试，于是埋了两个探针：</p>
+<ul>
+<li>**<code>numBlockedDrivers_</code>**（<code>Driver.cpp:205</code>，<code>BlockingState</code> 构造 <code>++</code>、析构 <code>--</code>）：进程级”当前有多少 Driver 处于<br>block 态”的计数，通过 <code>BlockingState::numBlockedDrivers()</code> 暴露。泄漏的 Driver 会让这个数永不归零；</li>
+<li>**<code>driversClosedByTask_</code>**（<code>Task.h:1307</code>，<code>vector&lt;weak_ptr&lt;Driver&gt;&gt;</code>）：记录被 Task 强行关闭的 Driver。注释<br>（<code>Task.h:1303</code>）直言其目的——“当 race&#x2F;bug 导致这些 Driver 被永久持有、进而把 Task 变成僵尸时，用这个 vector 辅助<br>调试僵尸 Task”。用 <code>weak_ptr</code> 是为了观测而不延长生命。</li>
+</ul>
+<h3 id="11-7-设计哲学总结"><a href="#11-7-设计哲学总结" class="headerlink" title="11.7 设计哲学总结"></a>11.7 设计哲学总结</h3><table>
+<thead>
+<tr>
+<th>原则</th>
+<th>实现</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>每个 future 必有兑现路径</strong></td>
+<td>正常兑现 + terminate 总清算 + <code>thenError</code> 兜底，三重保证</td>
+</tr>
+<tr>
+<td><strong>promise 兑现必在锁外</strong></td>
+<td>swap-to-local &#x2F; <code>EventCompletionNotifier</code> 两段式</td>
+</tr>
+<tr>
+<td><strong>兑现幂等、提前退出也兜底</strong></td>
+<td><code>EventCompletionNotifier</code> 析构调 <code>notify()</code> + <code>active_</code> 标志</td>
+</tr>
+<tr>
+<td><strong>唤醒是为了让 Driver 发现该退出</strong></td>
+<td>terminate 唤醒所有等待者，它们上线即见 <code>kTerminate</code> 自行 close</td>
+</tr>
+<tr>
+<td><strong>无线程可等就别造 future</strong></td>
+<td><code>makeFinishFutureLocked</code> 在 <code>numThreads_==0</code> 时立即兑现</td>
+</tr>
+<tr>
+<td><strong>防双线程进同一 Driver</strong></td>
+<td>setResume 锁外注册 + pause 检查 + run 里的 terminate 竞态短路</td>
+</tr>
+<tr>
+<td><strong>泄漏可观测</strong></td>
+<td><code>numBlockedDrivers_</code> 计数 + <code>driversClosedByTask_</code> 僵尸探针</td>
+</tr>
+</tbody></table>
+<p>一句话：<strong>Velox 不试图”小心翼翼地不泄漏”，而是建立一个强不变量——“任何挂起的 Driver 都被某个 future 兜住，而每个<br>future 都有正常兑现、terminate 兜底、thenError 转错三条出路之一”——再让 terminate 这个单一漏斗在所有异常路径上强制兑现<br>一切，从结构上消灭”future 永不兑现”的可能。</strong> 这与第五章的”把并发正确性从靠程序员小心转化为靠结构保证”一脉相承。</p>
+
+  </div>
+</article>
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/categories/technology">Technology</a></li>
+         
+          <li><a href="/categories/life">Life</a></li>
+         
+          <li><a href="/archives/">Archives</a></li>
+         
+          <li><a href="/tags/">Tags</a></li>
+         
+          <li><a href="/about">About</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81Task-%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0"><span class="toc-number">1.</span> <span class="toc-text">一、Task 的设计与实现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-Task-%E6%98%AF%E4%BB%80%E4%B9%88"><span class="toc-number">1.1.</span> <span class="toc-text">1.1 Task 是什么</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-Task-%E7%8A%B6%E6%80%81%E6%9C%BA"><span class="toc-number">1.2.</span> <span class="toc-text">1.2 Task 状态机</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3-%E6%A0%B8%E5%BF%83%E6%95%B0%E6%8D%AE%E6%88%90%E5%91%98"><span class="toc-number">1.3.</span> <span class="toc-text">1.3 核心数据成员</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-4-Task-%E7%9A%84%E6%89%A7%E8%A1%8C%E6%A8%A1%E5%BC%8F"><span class="toc-number">1.4.</span> <span class="toc-text">1.4 Task 的执行模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-5-Task-%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B"><span class="toc-number">1.5.</span> <span class="toc-text">1.5 Task 启动流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-6-Split-%E5%88%86%E5%8F%91"><span class="toc-number">1.6.</span> <span class="toc-text">1.6 Split 分发</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-7-allPeersFinished-%E2%80%94%E2%80%94-Hash-Join-Build-%E5%90%8C%E6%AD%A5%E5%B1%8F%E9%9A%9C"><span class="toc-number">1.7.</span> <span class="toc-text">1.7 allPeersFinished —— Hash Join Build 同步屏障</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-8-Task-terminate-%E2%80%94%E2%80%94-%E7%BB%9F%E4%B8%80%E7%BB%88%E6%AD%A2%E8%B7%AF%E5%BE%84"><span class="toc-number">1.8.</span> <span class="toc-text">1.8 Task::terminate —— 统一终止路径</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81Driver-%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0"><span class="toc-number">2.</span> <span class="toc-text">二、Driver 的设计与实现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-Driver-%E6%98%AF%E4%BB%80%E4%B9%88"><span class="toc-number">2.1.</span> <span class="toc-text">2.1 Driver 是什么</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-Driver-%E7%9A%84%E6%A0%B8%E5%BF%83%E7%BB%84%E6%88%90"><span class="toc-number">2.2.</span> <span class="toc-text">2.2 Driver 的核心组成</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-ThreadState-%E2%80%94%E2%80%94-Driver-%E7%9A%84%E7%8A%B6%E6%80%81"><span class="toc-number">2.3.</span> <span class="toc-text">2.3 ThreadState —— Driver 的状态</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-Driver-%E7%8A%B6%E6%80%81%E6%B5%81%E8%BD%AC"><span class="toc-number">2.4.</span> <span class="toc-text">2.4 Driver 状态流转</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-5-Driver-runInternal-%E2%80%94%E2%80%94-%E6%A0%B8%E5%BF%83%E6%89%A7%E8%A1%8C%E5%BE%AA%E7%8E%AF"><span class="toc-number">2.5.</span> <span class="toc-text">2.5 Driver::runInternal —— 核心执行循环</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-6-blockDriver-%E2%80%94%E2%80%94-%E8%BF%9B%E5%85%A5-Blocked-%E7%8A%B6%E6%80%81"><span class="toc-number">2.6.</span> <span class="toc-text">2.6 blockDriver —— 进入 Blocked 状态</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-7-CancelGuard-%E2%80%94%E2%80%94-%E7%BA%BF%E7%A8%8B%E5%AE%89%E5%85%A8%E7%9A%84%E6%B8%85%E7%90%86%E4%BF%9D%E8%AF%81"><span class="toc-number">2.7.</span> <span class="toc-text">2.7 CancelGuard —— 线程安全的清理保证</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-8-Driver-close-%E2%80%94%E2%80%94-%E6%AD%A3%E5%B8%B8%E5%85%B3%E9%97%AD%E8%B7%AF%E5%BE%84"><span class="toc-number">2.8.</span> <span class="toc-text">2.8 Driver::close —— 正常关闭路径</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81Task-%E4%B8%8E-Driver-%E7%9A%84%E4%BA%A4%E4%BA%92%E4%B8%8E%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F"><span class="toc-number">3.</span> <span class="toc-text">三、Task 与 Driver 的交互与生命周期</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-%E5%BC%95%E7%94%A8%E5%85%B3%E7%B3%BB%E5%9B%BE"><span class="toc-number">3.1.</span> <span class="toc-text">3.1 引用关系图</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-%E5%AE%8C%E6%95%B4%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F"><span class="toc-number">3.2.</span> <span class="toc-text">3.2 完整生命周期</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-Task-enter-x2F-leave-%E2%80%94%E2%80%94-Driver-%E7%BA%BF%E7%A8%8B%E6%B3%A8%E5%86%8C%E5%8D%8F%E8%AE%AE"><span class="toc-number">3.3.</span> <span class="toc-text">3.3 Task::enter &#x2F; leave —— Driver 线程注册协议</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4-Suspended-%E7%8A%B6%E6%80%81%E7%9A%84%E7%94%A8%E9%80%94"><span class="toc-number">3.4.</span> <span class="toc-text">3.4 Suspended 状态的用途</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-5-Split-Group-%E5%B9%B6%E5%8F%91%E6%8E%A7%E5%88%B6"><span class="toc-number">3.5.</span> <span class="toc-text">3.5 Split Group 并发控制</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81TaskDriverOperatorLifecycle-md-%E4%B8%AD%E6%96%87%E7%BF%BB%E8%AF%91"><span class="toc-number">4.</span> <span class="toc-text">四、TaskDriverOperatorLifecycle.md 中文翻译</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Task%E3%80%81Driver%E3%80%81Operator-%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F"><span class="toc-number"></span> <span class="toc-text">Task、Driver、Operator 生命周期</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#OutputBufferManager"><span class="toc-number">1.</span> <span class="toc-text">OutputBufferManager</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Operator"><span class="toc-number">2.</span> <span class="toc-text">Operator</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Driver-%E4%B8%8E-Task"><span class="toc-number">3.</span> <span class="toc-text">Driver 与 Task</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%93%81%E5%91%B3%E3%80%81%E4%BB%A3%E7%A0%81%E5%93%81%E5%91%B3%E4%B8%8E%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E8%8C%83%E5%BC%8F"><span class="toc-number">4.</span> <span class="toc-text">五、架构设计品味、代码品味与多线程编程范式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%93%81%E5%91%B3"><span class="toc-number">4.1.</span> <span class="toc-text">5.1 架构设计品味</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#5-1-1-%E2%80%9C%E5%8D%8F%E4%BD%9C%E5%BC%8F%E8%B0%83%E5%BA%A6%E2%80%9D%E8%80%8C%E9%9D%9E%E2%80%9D%E6%8A%A2%E5%8D%A0%E5%BC%8F%E7%BA%BF%E7%A8%8B%E2%80%9D"><span class="toc-number">4.1.1.</span> <span class="toc-text">5.1.1 “协作式调度”而非”抢占式线程”</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-1-2-%E5%8D%95%E4%B8%80%E7%BB%88%E6%AD%A2%E6%BC%8F%E6%96%97%EF%BC%88terminate-as-a-funnel%EF%BC%89"><span class="toc-number">4.1.2.</span> <span class="toc-text">5.1.2 单一终止漏斗（terminate as a funnel）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-1-3-%E6%89%80%E6%9C%89%E6%9D%83%E6%96%B9%E5%90%91%E4%B8%8E%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E7%9A%84%E2%80%9D%E5%8D%95%E8%B0%83%E6%80%A7%E2%80%9D"><span class="toc-number">4.1.3.</span> <span class="toc-text">5.1.3 所有权方向与生命周期的”单调性”</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-1-4-%E5%BE%AA%E7%8E%AF%E5%BC%95%E7%94%A8%E7%9A%84%E2%80%9D%E5%8F%97%E6%8E%A7%E6%B3%84%E6%BC%8F%E2%80%9D"><span class="toc-number">4.1.4.</span> <span class="toc-text">5.1.4 循环引用的”受控泄漏”</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-1-5-%E7%AA%84%E6%8E%A5%E5%8F%A3%E7%BB%9F%E4%B8%80%E5%BC%82%E6%9E%84%E7%AD%89%E5%BE%85%E2%80%94%E2%80%94isBlocked-%E4%BD%9C%E4%B8%BA%E5%94%AF%E4%B8%80%E7%9A%84%E2%80%9D%E6%8C%82%E8%B5%B7-%E5%94%A4%E9%86%92%E2%80%9D%E6%8A%BD%E8%B1%A1"><span class="toc-number">4.1.5.</span> <span class="toc-text">5.1.5 窄接口统一异构等待——isBlocked 作为唯一的”挂起-唤醒”抽象</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-%E4%BB%A3%E7%A0%81%E5%93%81%E5%91%B3"><span class="toc-number">4.2.</span> <span class="toc-text">5.2 代码品味</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#5-2-1-%E5%BF%AB%E8%B7%AF%E5%BE%84%E6%97%A0%E9%94%81%EF%BC%8C%E6%85%A2%E8%B7%AF%E5%BE%84%E5%8A%A0%E9%94%81"><span class="toc-number">4.2.1.</span> <span class="toc-text">5.2.1 快路径无锁，慢路径加锁</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-2-2-%E2%80%9CLocked-%E5%90%8E%E7%BC%80%E2%80%9D%E7%BA%A6%E5%AE%9A%E2%80%94%E2%80%94%E6%8A%8A%E9%94%81%E5%A5%91%E7%BA%A6%E7%BC%96%E7%A0%81%E8%BF%9B%E5%87%BD%E6%95%B0%E5%90%8D"><span class="toc-number">4.2.2.</span> <span class="toc-text">5.2.2 “Locked 后缀”约定——把锁契约编码进函数名</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-2-3-RAII-%E5%85%9C%E5%BA%95%E4%B8%80%E5%88%87"><span class="toc-number">4.2.3.</span> <span class="toc-text">5.2.3 RAII 兜底一切</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-2-4-%E7%BB%9F%E8%AE%A1%E7%9A%84%E5%8F%8C%E4%BF%9D%E9%99%A9"><span class="toc-number">4.2.4.</span> <span class="toc-text">5.2.4 统计的双保险</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-2-5-%E4%B8%BB%E5%BE%AA%E7%8E%AF%E5%86%99%E5%BE%97%E6%9E%81%E8%87%B4%E7%B4%A7%E5%87%91"><span class="toc-number">4.2.5.</span> <span class="toc-text">5.2.5 主循环写得极致紧凑</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-2-6-%E5%BB%B6%E8%BF%9F%E6%8A%A5%E5%91%8A%E6%A8%A1%E5%BC%8F%E2%80%94%E2%80%94%E9%98%BB%E5%A1%9E%E5%9C%A8%E6%95%B0%E6%8D%AE%E6%93%8D%E4%BD%9C%E9%87%8C%E5%8F%91%E7%8E%B0%EF%BC%8C%E5%9C%A8%E4%B8%8B%E4%B8%80%E8%BD%AE-isBlocked-%E6%8A%A5%E5%91%8A"><span class="toc-number">4.2.6.</span> <span class="toc-text">5.2.6 延迟报告模式——阻塞在数据操作里发现，在下一轮 isBlocked 报告</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-2-7-future-%E7%BB%84%E5%90%88%E8%AF%AD%E4%B9%89%E5%BF%85%E9%A1%BB%E5%8C%B9%E9%85%8D%E7%AD%89%E5%BE%85%E8%AF%AD%E4%B9%89%E2%80%94%E2%80%94collectAny-vs-collectAll"><span class="toc-number">4.2.7.</span> <span class="toc-text">5.2.7 future 组合语义必须匹配等待语义——collectAny vs collectAll</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-3-%E6%B6%89%E5%8F%8A%E7%9A%84%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E8%8C%83%E5%BC%8F"><span class="toc-number">4.3.</span> <span class="toc-text">5.3 涉及的多线程编程范式</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%80%E6%9D%A1%E8%B4%AF%E7%A9%BF%E5%85%A8%E5%B1%80%E7%9A%84%E4%B8%BB%E7%BA%BF"><span class="toc-number">4.3.1.</span> <span class="toc-text">一条贯穿全局的主线</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AD%E3%80%81runInternal-%E7%9A%84%E6%89%A7%E8%A1%8C%E6%A8%A1%E5%9E%8B%EF%BC%9A%E4%B8%8D%E6%98%AF-Volcano%EF%BC%8C%E4%B9%9F%E4%B8%8D%E6%98%AF%E6%95%99%E7%A7%91%E4%B9%A6%E5%BC%8F-push"><span class="toc-number">5.</span> <span class="toc-text">六、runInternal 的执行模型：不是 Volcano，也不是教科书式 push</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#6-1-%E6%8E%A7%E5%88%B6%E6%B5%81%EF%BC%9ADriver-%E6%98%AF%E5%94%AF%E4%B8%80%E7%9A%84%E8%B0%83%E5%BA%A6%E5%99%A8"><span class="toc-number">5.1.</span> <span class="toc-text">6.1 控制流：Driver 是唯一的调度器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-2-%E8%B0%83%E5%BA%A6%E6%89%AB%E6%8F%8F%E6%96%B9%E5%90%91%EF%BC%9A%E4%BB%8E-sink-%E5%BE%80-source-%E6%89%BE%E2%80%9D%E8%B0%81%E8%83%BD%E5%B9%B2%E6%B4%BB%E2%80%9D"><span class="toc-number">5.2.</span> <span class="toc-text">6.2 调度扫描方向：从 sink 往 source 找”谁能干活”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-3-demand-gated%EF%BC%88%E9%9C%80%E6%B1%82%E9%97%A8%E6%8E%A7%EF%BC%89"><span class="toc-number">5.3.</span> <span class="toc-text">6.3 demand-gated（需求门控）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-4-%E4%B8%BA%E4%BB%80%E4%B9%88%E2%80%9D%E6%89%81%E5%B9%B3%E5%BE%AA%E7%8E%AF-Driver-%E8%B0%83%E5%BA%A6%E2%80%9D%E6%98%AF%E5%8D%8F%E4%BD%9C%E5%BC%8F%E8%B0%83%E5%BA%A6%E7%9A%84%E5%89%8D%E6%8F%90"><span class="toc-number">5.4.</span> <span class="toc-text">6.4 为什么”扁平循环 + Driver 调度”是协作式调度的前提</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-5-%E5%B0%8F%E7%BB%93"><span class="toc-number">5.5.</span> <span class="toc-text">6.5 小结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%83%E3%80%81runInternal-%E8%B0%83%E5%BA%A6%E5%AE%9E%E4%BE%8B%EF%BC%9A%E4%B8%89%E7%AE%97%E5%AD%90-pipeline-%E5%85%A8%E8%BF%87%E7%A8%8B"><span class="toc-number">6.</span> <span class="toc-text">七、runInternal 调度实例：三算子 pipeline 全过程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#7-0-%E7%AE%97%E5%AD%90%E6%8E%A5%E5%8F%A3%E8%AF%AD%E4%B9%89"><span class="toc-number">6.1.</span> <span class="toc-text">7.0 算子接口语义</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-1-%E9%98%B6%E6%AE%B5%E4%B8%80%EF%BC%9A%E5%86%B7%E5%90%AF%E5%8A%A8%E2%80%94%E2%80%94%E4%BB%8E-sink-%E5%BE%80-source-%E2%80%9C%E6%89%BE%E6%B4%BB%E5%B9%B2%E2%80%9D"><span class="toc-number">6.2.</span> <span class="toc-text">7.1 阶段一：冷启动——从 sink 往 source “找活干”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-2-%E9%98%B6%E6%AE%B5%E4%BA%8C%EF%BC%9A%E6%95%B0%E6%8D%AE%E6%8E%A8%E8%BF%9B%E2%80%94%E2%80%94i-2-%E7%9A%84%E7%B2%BE%E5%A6%99%E4%B9%8B%E5%A4%84"><span class="toc-number">6.3.</span> <span class="toc-text">7.2 阶段二：数据推进——i +&#x3D; 2 的精妙之处</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-3-%E9%98%B6%E6%AE%B5%E4%B8%89%EF%BC%9A%E7%A8%B3%E6%80%81%E5%BE%AA%E7%8E%AF"><span class="toc-number">6.4.</span> <span class="toc-text">7.3 阶段三：稳态循环</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-4-%E9%98%B6%E6%AE%B5%E5%9B%9B%EF%BC%9A%E9%98%BB%E5%A1%9E%E5%9C%BA%E6%99%AF%E2%80%94%E2%80%94blockDriver-%E8%AE%A9%E5%87%BA%E7%BA%BF%E7%A8%8B"><span class="toc-number">6.5.</span> <span class="toc-text">7.4 阶段四：阻塞场景——blockDriver 让出线程</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9C%BA%E6%99%AF-A%EF%BC%9AOutputBuffer-%E6%BB%A1%EF%BC%88%E4%B8%8B%E6%B8%B8%E6%B6%88%E8%B4%B9%E8%B7%9F%E4%B8%8D%E4%B8%8A%EF%BC%89"><span class="toc-number">6.5.1.</span> <span class="toc-text">场景 A：OutputBuffer 满（下游消费跟不上）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9C%BA%E6%99%AF-B%EF%BC%9ATableScan-%E7%AD%89-split"><span class="toc-number">6.5.2.</span> <span class="toc-text">场景 B：TableScan 等 split</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-5-%E9%98%B6%E6%AE%B5%E4%BA%94%EF%BC%9A%E6%94%B6%E5%B0%BE%E2%80%94%E2%80%94noMoreInput-%E9%93%BE%E5%BC%8F%E4%BC%A0%E6%92%AD-%E2%86%92-close"><span class="toc-number">6.6.</span> <span class="toc-text">7.5 阶段五：收尾——noMoreInput 链式传播 → close</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-6-%E6%97%B6%E9%97%B4%E7%BA%BF%E6%B1%87%E6%80%BB"><span class="toc-number">6.7.</span> <span class="toc-text">7.6 时间线汇总</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AB%E3%80%81isBlocked-%E4%B8%8E%E4%B8%89%E7%A7%8D%E8%AE%A9%E5%87%BA%E6%9C%BA%E5%88%B6%EF%BC%9A%E7%BB%93%E5%90%88%E5%85%B8%E5%9E%8B%E7%AE%97%E5%AD%90%E8%A7%A3%E8%AF%BB"><span class="toc-number">7.</span> <span class="toc-text">八、isBlocked 与三种让出机制：结合典型算子解读</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#8-1-isBlocked-%E7%9A%84%E8%A7%92%E8%89%B2%EF%BC%9A%E5%A3%B0%E6%98%8E%E9%98%BB%E5%A1%9E%E6%84%8F%E6%84%BF-%E4%BA%A4%E5%87%BA%E5%94%A4%E9%86%92%E5%8F%A5%E6%9F%84"><span class="toc-number">7.1.</span> <span class="toc-text">8.1 isBlocked 的角色：声明阻塞意愿 + 交出唤醒句柄</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-2-%E4%B8%89%E7%A7%8D%E8%AE%A9%E5%87%BA%E7%BA%BF%E7%A8%8B%E7%9A%84%E6%96%B9%E5%BC%8F"><span class="toc-number">7.2.</span> <span class="toc-text">8.2 三种让出线程的方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-3-%E5%85%B8%E5%9E%8B%E7%AE%97%E5%AD%90%E7%9A%84-isBlocked-%E8%A7%A3%E8%AF%BB"><span class="toc-number">7.3.</span> <span class="toc-text">8.3 典型算子的 isBlocked 解读</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-CallbackSink-%E2%80%94%E2%80%94-sink-%E7%9A%84%E4%B8%8B%E6%B8%B8%E5%8F%8D%E5%8E%8B%EF%BC%88%E5%BB%B6%E8%BF%9F%E6%8A%A5%E5%91%8A%E6%A8%A1%E5%BC%8F%EF%BC%89"><span class="toc-number">7.3.1.</span> <span class="toc-text">(1) CallbackSink —— sink 的下游反压（延迟报告模式）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-LocalExchange-%E2%80%94%E2%80%94-%E6%9C%AC%E5%9C%B0%E4%BA%A4%E6%8D%A2-source%EF%BC%88getOutput-%E6%8E%A2%E6%B5%8B-isBlocked-%E6%8A%A5%E5%91%8A%EF%BC%89"><span class="toc-number">7.3.2.</span> <span class="toc-text">(2) LocalExchange —— 本地交换 source（getOutput 探测 + isBlocked 报告）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-Exchange-%E2%80%94%E2%80%94-%E8%BF%9C%E7%A8%8B%E4%BA%A4%E6%8D%A2-source%EF%BC%88isBlocked-%E9%87%8C%E5%B9%B2%E5%AE%9E%E6%B4%BB-collectAny%EF%BC%89"><span class="toc-number">7.3.3.</span> <span class="toc-text">(3) Exchange —— 远程交换 source（isBlocked 里干实活 + collectAny）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-Merge-x2F-LocalMerge-%E2%80%94%E2%80%94-%E5%A4%9A%E6%BA%90%E5%BD%92%E5%B9%B6%EF%BC%88kWaitForProducer%EF%BC%89"><span class="toc-number">7.3.4.</span> <span class="toc-text">(4) Merge &#x2F; LocalMerge —— 多源归并（kWaitForProducer）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-LocalPartition-%E2%80%94%E2%80%94-%E5%A4%9A%E4%B8%8B%E6%B8%B8-sink%EF%BC%88collectAll%EF%BC%89"><span class="toc-number">7.3.5.</span> <span class="toc-text">(5) LocalPartition —— 多下游 sink（collectAll）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#6-HashProbe-%E2%80%94%E2%80%94-join-probe%EF%BC%88%E7%8A%B6%E6%80%81%E6%9C%BA%E9%A9%B1%E5%8A%A8-kWaitForJoinBuild%EF%BC%89"><span class="toc-number">7.3.6.</span> <span class="toc-text">(6) HashProbe —— join probe（状态机驱动 + kWaitForJoinBuild）</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-4-%E4%B8%A4%E7%A7%8D-future-%E7%BB%84%E5%90%88%E8%AF%AD%E4%B9%89%EF%BC%9AcollectAny-vs-collectAll"><span class="toc-number">7.4.</span> <span class="toc-text">8.4 两种 future 组合语义：collectAny vs collectAll</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-5-%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E6%80%BB%E7%BB%93"><span class="toc-number">7.5.</span> <span class="toc-text">8.5 设计模式总结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B9%9D%E3%80%81%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BA%A7%E5%87%BA%E7%BB%9F%E4%B8%80%E4%BB%8E-getOutput-%E5%8F%91%E8%B5%B7"><span class="toc-number">8.</span> <span class="toc-text">九、为什么产出统一从 getOutput 发起</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#9-1-%E6%A0%B8%E5%BF%83%E5%8E%9F%E5%9B%A0%EF%BC%9A%E8%A7%A3%E8%80%A6%E2%80%9D%E6%B6%88%E8%B4%B9%E8%BE%93%E5%85%A5%E9%80%9F%E7%8E%87%E2%80%9D%E4%B8%8E%E2%80%9D%E4%BA%A7%E7%94%9F%E8%BE%93%E5%87%BA%E9%80%9F%E7%8E%87%E2%80%9D"><span class="toc-number">8.1.</span> <span class="toc-text">9.1 核心原因：解耦”消费输入速率”与”产生输出速率”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-2-getOutput-%E8%BF%94%E5%9B%9E-null-%E6%98%AF%E5%B9%B2%E5%87%80%E7%9A%84%E3%80%81%E5%8F%AF%E8%AE%A9%E5%87%BA%E7%9A%84%E4%BF%A1%E5%8F%B7"><span class="toc-number">8.2.</span> <span class="toc-text">9.2 getOutput 返回 null 是干净的、可让出的信号</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-3-%E7%BB%9F%E4%B8%80%E6%80%A7%EF%BC%9Asource-x2F-%E4%B8%AD%E9%97%B4-x2F-%E6%94%92%E6%89%B9%E7%AE%97%E5%AD%90%EF%BC%8CDriver-%E4%B8%80%E8%A7%86%E5%90%8C%E4%BB%81"><span class="toc-number">8.3.</span> <span class="toc-text">9.3 统一性：source &#x2F; 中间 &#x2F; 攒批算子，Driver 一视同仁</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-4-%E4%B8%8E-demand-gated-push-%E7%9A%84%E5%85%B3%E7%B3%BB%EF%BC%9Apull-%E8%A7%A6%E5%8F%91%EF%BC%8Cpush-%E4%BC%A0%E9%80%92"><span class="toc-number">8.4.</span> <span class="toc-text">9.4 与 demand-gated push 的关系：pull 触发，push 传递</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-5-%E5%B0%8F%E7%BB%93"><span class="toc-number">8.5.</span> <span class="toc-text">9.5 小结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%81%E3%80%81Task-%E7%9A%84%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86%EF%BC%9Aterminate-%E6%B5%81%E7%A8%8B%E4%B8%8E%E8%B5%84%E6%BA%90%E5%9B%9E%E6%94%B6"><span class="toc-number">9.</span> <span class="toc-text">十、Task 的资源管理：terminate 流程与资源回收</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#10-1-Memory-Pool-%E6%A0%91%EF%BC%9A%E5%B1%82%E7%BA%A7%E3%80%81%E6%89%80%E6%9C%89%E6%9D%83%E4%B8%8E%E2%80%9D%E5%88%BB%E6%84%8F%E4%BF%9D%E6%B4%BB%E2%80%9D"><span class="toc-number">9.1.</span> <span class="toc-text">10.1 Memory Pool 树：层级、所有权与”刻意保活”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-2-Happy-Path%EF%BC%9A%E8%87%AA%E7%84%B6%E5%AE%8C%E6%88%90"><span class="toc-number">9.2.</span> <span class="toc-text">10.2 Happy Path：自然完成</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-3-%E5%BC%82%E5%B8%B8-Path%EF%BC%9A%E9%94%99%E8%AF%AF-x2F-%E5%8F%96%E6%B6%88-x2F-%E4%B8%AD%E6%AD%A2"><span class="toc-number">9.3.</span> <span class="toc-text">10.3 异常 Path：错误 &#x2F; 取消 &#x2F; 中止</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-4-terminate%EF%BC%9A%E7%BB%9F%E4%B8%80%E6%B8%85%E7%90%86%E6%BC%8F%E6%96%97%EF%BC%88happy-x2F-error-%E5%85%B1%E7%94%A8%EF%BC%89"><span class="toc-number">9.4.</span> <span class="toc-text">10.4 terminate：统一清理漏斗（happy&#x2F;error 共用）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-5-%E6%9C%80%E7%BB%88%E5%9B%9E%E6%94%B6%EF%BC%9A-Task"><span class="toc-number">9.5.</span> <span class="toc-text">10.5 最终回收：~Task()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-6-%E8%B5%84%E6%BA%90%E5%9B%9E%E6%94%B6%E6%97%B6%E6%9C%BA%E6%B1%87%E6%80%BB"><span class="toc-number">9.6.</span> <span class="toc-text">10.6 资源回收时机汇总</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-7-%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9"><span class="toc-number">9.7.</span> <span class="toc-text">10.7 设计要点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%81%E4%B8%80%E3%80%81Future-x2F-Promise-%E7%AE%A1%E7%90%86%EF%BC%9A%E9%81%BF%E5%85%8D-Driver-%E6%B3%84%E6%BC%8F%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0"><span class="toc-number">10.</span> <span class="toc-text">十一、Future&#x2F;Promise 管理：避免 Driver 泄漏的设计与实现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#11-1-%E4%B8%BA%E4%BB%80%E4%B9%88-future-x2F-promise-%E5%9C%A8%E8%BF%99%E9%87%8C%E7%89%B9%E5%88%AB%E5%8D%B1%E9%99%A9"><span class="toc-number">10.1.</span> <span class="toc-text">11.1 为什么 future&#x2F;promise 在这里特别危险</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#11-2-%E5%85%A8%E6%99%AF%EF%BC%9ATask-x2F-Driver-%E4%B8%AD%E7%9A%84-promise-x2F-future"><span class="toc-number">10.2.</span> <span class="toc-text">11.2 全景：Task&#x2F;Driver 中的 promise&#x2F;future</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#11-3-%E9%99%B7%E9%98%B1%E4%B8%80%EF%BC%9A%E6%8C%81%E9%94%81%E5%85%91%E7%8E%B0-promise-%E2%86%92-%E6%AD%BB%E9%94%81"><span class="toc-number">10.3.</span> <span class="toc-text">11.3 陷阱一：持锁兑现 promise → 死锁</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#11-4-%E9%99%B7%E9%98%B1%E4%BA%8C%EF%BC%9Afuture-%E6%B0%B8%E4%B8%8D%E5%85%91%E7%8E%B0-%E2%86%92-Driver-%E6%B3%84%E6%BC%8F-%E2%86%92-terminate-%E4%BD%9C%E2%80%9D%E6%80%BB%E6%B8%85%E7%AE%97%E2%80%9D"><span class="toc-number">10.4.</span> <span class="toc-text">11.4 陷阱二：future 永不兑现 → Driver 泄漏 → terminate 作”总清算”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#11-5-%E9%99%B7%E9%98%B1%E4%B8%89%EF%BC%9Adouble-resume-x2F-%E4%B8%A4%E4%B8%AA%E7%BA%BF%E7%A8%8B%E8%BF%9B%E5%90%8C%E4%B8%80%E4%B8%AA-Driver"><span class="toc-number">10.5.</span> <span class="toc-text">11.5 陷阱三：double-resume &#x2F; 两个线程进同一个 Driver</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#11-6-%E5%8F%AF%E8%A7%82%E6%B5%8B%E6%80%A7%EF%BC%9A%E8%AE%A9%E6%B3%84%E6%BC%8F%E2%80%9D%E7%9C%8B%E5%BE%97%E8%A7%81%E2%80%9D"><span class="toc-number">10.6.</span> <span class="toc-text">11.6 可观测性：让泄漏”看得见”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#11-7-%E8%AE%BE%E8%AE%A1%E5%93%B2%E5%AD%A6%E6%80%BB%E7%BB%93"><span class="toc-number">10.7.</span> <span class="toc-text">11.7 设计哲学总结</span></a></li></ol></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2026/03/13/velox-task-driver/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2026/03/13/velox-task-driver/&text=Velox Task &amp; Driver"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2026/03/13/velox-task-driver/&title=Velox Task &amp; Driver"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2026/03/13/velox-task-driver/&is_video=false&description=Velox Task &amp; Driver"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Velox Task &amp; Driver&body=Check out this article: http://example.com/2026/03/13/velox-task-driver/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2026/03/13/velox-task-driver/&title=Velox Task &amp; Driver"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2026/03/13/velox-task-driver/&title=Velox Task &amp; Driver"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2026/03/13/velox-task-driver/&title=Velox Task &amp; Driver"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2026/03/13/velox-task-driver/&title=Velox Task &amp; Driver"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2026/03/13/velox-task-driver/&name=Velox Task &amp; Driver&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2026/03/13/velox-task-driver/&t=Velox Task &amp; Driver"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2026
+    duanmeng
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/categories/technology">Technology</a></li><!--
+     --><!--
+       --><li><a href="/categories/life">Life</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Archives</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tags</a></li><!--
+     --><!--
+       --><li><a href="/about">About</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+
+  <script src='https://unpkg.com/mermaid@10.3.0/dist/mermaid.min.js'></script>
+  <script>
+    if (window.mermaid) {
+      mermaid.initialize({theme: 'forest'});
+    }
+  </script>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

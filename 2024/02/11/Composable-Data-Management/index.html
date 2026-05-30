@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="1 What Is Composable Data Management System通过将数据管理系统分解为更模块化的可重用组件堆栈，新引擎的开发可以变得更加高效，同时降低维护成本，并最终提供更一致的用户体验。通过清晰地概述API并封装责任，数据管理软件可以更容易地适应变化，例如，随着底层硬件的发展，利用新型设备和加速器。依靠重用执行引擎和语言前端的模块化堆栈，数据系统代码可以为用户从事务性到分">
+<meta property="og:type" content="article">
+<meta property="og:title" content="The Composable Data Management System Manifesto">
+<meta property="og:url" content="http://example.com/2024/02/11/Composable-Data-Management/index.html">
+<meta property="og:site_name" content="Macduan Notes">
+<meta property="og:description" content="1 What Is Composable Data Management System通过将数据管理系统分解为更模块化的可重用组件堆栈，新引擎的开发可以变得更加高效，同时降低维护成本，并最终提供更一致的用户体验。通过清晰地概述API并封装责任，数据管理软件可以更容易地适应变化，例如，随着底层硬件的发展，利用新型设备和加速器。依靠重用执行引擎和语言前端的模块化堆栈，数据系统代码可以为用户从事务性到分">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://live.staticflickr.com/65535/53783161162_58278b5ce0_z.jpg">
+<meta property="article:published_time" content="2024-02-11T11:32:30.000Z">
+<meta property="article:modified_time" content="2026-05-30T05:46:54.128Z">
+<meta property="article:author" content="duanmeng">
+<meta property="article:tag" content="QueryExecution">
+<meta property="article:tag" content="velox">
+<meta property="article:tag" content="vectorized">
+<meta property="article:tag" content="data">
+<meta property="article:tag" content="paper">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://live.staticflickr.com/65535/53783161162_58278b5ce0_z.jpg">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>The Composable Data Management System Manifesto</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/categories/technology">Technology</a></li><!--
+     --><!--
+       --><li><a href="/categories/life">Life</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Archives</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tags</a></li><!--
+     --><!--
+       --><li><a href="/about">About</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2024/07/30/velox-query/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2024/01/13/table-scan/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2024/02/11/Composable-Data-Management/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2024/02/11/Composable-Data-Management/&text=The Composable Data Management System Manifesto"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2024/02/11/Composable-Data-Management/&title=The Composable Data Management System Manifesto"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2024/02/11/Composable-Data-Management/&is_video=false&description=The Composable Data Management System Manifesto"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=The Composable Data Management System Manifesto&body=Check out this article: http://example.com/2024/02/11/Composable-Data-Management/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2024/02/11/Composable-Data-Management/&title=The Composable Data Management System Manifesto"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2024/02/11/Composable-Data-Management/&title=The Composable Data Management System Manifesto"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2024/02/11/Composable-Data-Management/&title=The Composable Data Management System Manifesto"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2024/02/11/Composable-Data-Management/&title=The Composable Data Management System Manifesto"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2024/02/11/Composable-Data-Management/&name=The Composable Data Management System Manifesto&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2024/02/11/Composable-Data-Management/&t=The Composable Data Management System Manifesto"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-What-Is-Composable-Data-Management-System"><span class="toc-number">1.</span> <span class="toc-text">1 What Is Composable Data Management System</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Why-Composable-Data-Management-System"><span class="toc-number">2.</span> <span class="toc-text">2 Why Composable Data Management System</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Why-Now"><span class="toc-number">2.1.</span> <span class="toc-text">Why Now</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-How-To-Architect-A-Composable-Data-Management-System"><span class="toc-number">3.</span> <span class="toc-text">3 How To Architect A Composable Data Management System</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-Language-Frontend"><span class="toc-number">3.1.</span> <span class="toc-text">3.1 Language Frontend</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-Intermediate-Representation"><span class="toc-number">3.2.</span> <span class="toc-text">3.2 Intermediate Representation</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-Query-Optimization"><span class="toc-number">3.3.</span> <span class="toc-text">3.3 Query Optimization</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4-Execution-Engine"><span class="toc-number">3.4.</span> <span class="toc-text">3.4 Execution Engine</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-5-Execution-Runtime"><span class="toc-number">3.5.</span> <span class="toc-text">3.5 Execution Runtime</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CALL-FOR-ACTION"><span class="toc-number">4.</span> <span class="toc-text">CALL FOR ACTION</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CONCLUSION"><span class="toc-number">5.</span> <span class="toc-text">CONCLUSION</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        The Composable Data Management System Manifesto
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">duanmeng</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-02-11T11:32:30.000Z" itemprop="datePublished">2024-02-11</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/technology/">technology</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/QueryExecution/" rel="tag">QueryExecution</a>, <a class="tag-link-link" href="/tags/data/" rel="tag">data</a>, <a class="tag-link-link" href="/tags/paper/" rel="tag">paper</a>, <a class="tag-link-link" href="/tags/vectorized/" rel="tag">vectorized</a>, <a class="tag-link-link" href="/tags/velox/" rel="tag">velox</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="1-What-Is-Composable-Data-Management-System"><a href="#1-What-Is-Composable-Data-Management-System" class="headerlink" title="1 What Is Composable Data Management System"></a>1 What Is Composable Data Management System</h2><p>通过将数据管理系统分解为更模块化的可重用组件堆栈，新引擎的开发可以变得更加高效，同时降低维护成本，并最终提供更一致的用户体验。通过清晰地概述API并封装责任，数据管理软件可以更容易地适应变化，例如，随着底层硬件的发展，利用新型设备和加速器。依靠重用执行引擎和语言前端的模块化堆栈，数据系统代码可以为用户从事务性到分析性系统，从流处理到机器学习工作负载，提供更一致的体验和语义。它专注于以下原则：</p>
+<ul>
+<li>定义并就数据管理系统中的标准逻辑组件集达成一致，</li>
+<li>为这些组件之间的通信定义稳定（但可扩展）的API，</li>
+<li>提供这些组件和API的规范实现，它们是高效和一致的，以及 </li>
+<li>在堆栈的每个层提供可扩展性API，允许开发者实现专门的行为。</li>
+</ul>
+<p>开源社区中新兴的模块化数据栈提供了更强的语言和执行分离，使得执行与语言无关，并以一个定义良好且系统不可知的中间表示（IR）作为输入。IR由语言组件生成，负责解析和分析用户查询，并作为查询优化器的输入。查询优化器使用通用（但可扩展）框架构建，并最终生成准备好执行的IR片段。下图展示了这个数据栈的大纲。</p>
+<p><a><img src="https://live.staticflickr.com/65535/53783161162_58278b5ce0_z.jpg" width="640" height="384" alt="composable-system"/></a></p>
+<p>片段(Plan Fragments)使用执行引擎(Execution Engine)执行，该引擎提供通用且高效的存储原语，包括数据布局格式（列式和行式）和数据访问方法。最后，这些自包含Fragment的执行由执行运行时(Execution Runtime)编排，负责部署、统计收集、监控、故障处理、资源管理和整个计算的分布式协调。基于这个大纲，有两个前提：</p>
+<ol>
+<li><p>这个模型足够通用，允许将每个现有的数据管理系统映射到它上面，从OLTP到OLAP系统，流处理、日志分析、机器学习预处理等。在一些现实生活的系统中，这些组件可能缺失，比如通常缺少优化器的机器学习预处理库，或者单节点系统缺少完整的执行运行时，但前提仍然成立。</p>
+</li>
+<li><p>这些组件在专门的数据管理系统中主要是一致的，它们专门化&#x2F;分歧的领域是例外而不是常态。例如，流处理系统需要专门的逻辑来处理检查点&#x2F;障碍和水印，但其余的引擎等同于OLAP执行引擎。</p>
+</li>
+</ol>
+<h2 id="2-Why-Composable-Data-Management-System"><a href="#2-Why-Composable-Data-Management-System" class="headerlink" title="2 Why Composable Data Management System"></a>2 Why Composable Data Management System</h2><p>数据管理系统专业化的需求发展速度超过了我们的软件开发实践。经过数十年的有机增长，这种情况创造了一个由数百个单体，有限复用的产品组成的孤岛。这种碎片化导致开发者经常重新发明轮子，增加了维护成本，并减缓了创新速度。它还影响了最终用户，他们通常需要学习数十种不兼容的SQL和非SQL API方言，并接受功能不完整和语义不一致的系统。我们主张在设计数据管理系统时进行范式转变，通过将这些系统分解为可重用的模块化堆栈，可以简化开发，同时为用户创造更一致的体验。</p>
+<p>现代数据用例中日益增长的工作负载多样性导致了专业化数据管理系统的激增，每一种都针对某种相对狭窄的工作负载类别。基于“一种尺寸不适合所有(one size does not fit all)”的引擎专业化原则，在过去的几十年中，开发了数百种数据库系统，并在今天在行业中广泛使用。尽管自第一批数据库开发以来，工作负载、需求和环境趋势已经发生了极大的变化，但我们的软件开发实践并没有随之改变；数据管理系统在很大程度上继续作为垂直集成的单体开发和分发。</p>
+<p>虽然现代专业化数据系统在表面上可能看起来不同，但在核心上，它们都是由一组类似的逻辑组件构成的：</p>
+<ul>
+<li><strong>Language Frontend</strong> 一个语言前端，负责将用户输入解释为内部格式；</li>
+<li><strong>Intermediate Representation</strong> 一个中间表示（IR），通常以逻辑和&#x2F;或物理查询计划的形式；</li>
+<li><strong>Query Optimizer</strong> 一个查询优化器，负责将IR转换为更有效的IR，准备执行；</li>
+<li><strong>Execution Engine</strong> 一个执行引擎，能够本地执行查询片段（有时也称为Eval Engine）；以及</li>
+<li><strong>Execution Runtime</strong> 一个执行运行时，负责提供（通常是分布式的）环境，在该环境中可以执行查询片段。</li>
+</ul>
+<p>除了具有相同的逻辑组件外，用于实现这些层的数据结构和算法在系统之间也是大体上一致的。例如，</p>
+<ul>
+<li>操作数据库系统的SQL前端与数据仓库的SQL前端之间没有根本的不同；</li>
+<li>或者传统列式数据库管理系统的表达式Eval引擎与流处理引擎的Eval引擎之间；</li>
+<li>或者不同数据库系统中的字符串、日期、数组或JSON操作函数之间。</li>
+</ul>
+<p>然而，这种碎片化以及随之而来的跨系统重用不足，已经使我们的进展变慢。它迫使开发者重复发明轮子，复制工作，损害了我们根据需求快速适应系统的能力。我们的开发模式仍然导致系统孤立，维护成本高，浪费了工程周期，这表明我们可以作为一个工程社区更加高效。更重要的是，这种碎片化的副产品——不兼容的SQL和非SQL API、不同的功能、不同的功能包以及普遍不一致的语义——影响了最终用户的生产力，他们通常需要与多个不同的数据系统交互以完成特定任务，每个系统都有自己的特点。</p>
+<h3 id="Why-Now"><a href="#Why-Now" class="headerlink" title="Why Now"></a>Why Now</h3><p>在过去的十年中，云服务的普及和计算与存储的分离导致了数据管理系统设计的重大转折。随着供应商更加强调服务交付而非专有软件，像<code>Apache Arrow</code>、<code>Orc</code>、<code>Parquet</code>和<code>Iceberg</code>这样的开源大数据技术和开放标准应运而生，并迅速流行起来。最近，像<code>Velox</code>、<code>Substrait</code>和<code>Ibis</code>这样的项目迅速在行业内得到采用，允许仅通过重用现有部分来组装现代数据栈。鉴于这些趋势，可组合性将很快对数据管理系统的设计方式造成另一次重大颠覆。我们预见到单体系统将变得过时，并为数据管理的新的可组合时代让路。</p>
+<h2 id="3-How-To-Architect-A-Composable-Data-Management-System"><a href="#3-How-To-Architect-A-Composable-Data-Management-System" class="headerlink" title="3 How To Architect A Composable Data Management System"></a>3 How To Architect A Composable Data Management System</h2><h3 id="3-1-Language-Frontend"><a href="#3-1-Language-Frontend" class="headerlink" title="3.1 Language Frontend"></a>3.1 Language Frontend</h3><p>尽管目前存在碎片化，但由于其简单的API：将用户输入转换为IR，语言前端是栈中最直接可组合的层。事实上，Google的GoogleSQL（开源为ZetaSQL）和最近Meta的CoreSQL是两个成功的项目，旨在通过使用统一的C++解析器和分析器库，在大型组织中整合多个数据系统的前端语言。PostgresSQL的解析器也可以作为独立库使用，已经被像DuckDB这样的现代系统利用。在核心上，这些库都是相似的：它们提供了一个C&#x2F;C++解析器和分析器库，能够将SQL语句（或其他DSL）转换为IR，通常是通过利用语法和标记化库如Flex、Bison或Antlr来实现。这个过程通常需要实现用于表、列和函数签名解析（类型绑定）的API。除了简单的标记化、解析和类型绑定能力外，我们相信一个最先进的语言前端库还应该提供以下支持，这些越来越相关：</p>
+<p><strong>Semantic Type</strong>：现代语言前端应该允许用户通过使用更丰富的语义类型给他们的数据提供额外的含义。这些用户定义的类型不影响数据的存储或处理（即对IR或执行层不可见），但提高了静态类型检查的能力。例如，可以在类型检查期间静态避免比较代表不同概念的两个整数（UserID和DeviceID）。同样，不同单位中数据的处理（例如，TimestampMs和TimestampSec）也可以被透明地防止或规范化。</p>
+<p><strong>Type Checked Macro</strong>：在现代数据仓库中，SQL查询长达数百行是很常见的。SQL宏提供了一种静态方式，既可以提高大型查询的抽象级别，也可以实现代码重用。存储过程和准备好的语句部分填补了这一角色，但定义和使用它们需要特殊的语法和执行层支持。</p>
+<p><strong>IDE Interoperability</strong>：当前端是一个独立的库时，它可以提供额外的API，允许IDE开发人员构建更丰富的SQL编写特性，如改进的语法高亮、标记预测、静态类型检查和自动完成支持，所有这些都是通过利用数据管理系统底层使用的完全相同的parsing&#x2F;analyzer库以一致的方式实现的。</p>
+<p>非SQL API。虽然SQL的声明性质对人类来说很方便，但对命令性程序来说可能很麻烦。这种需求催生了一系列类似dataframe的API和其他DSL，提供了一种更程序化的方式来表达相同类型的计算，而不需要错误倾向的SQL语句片段连接。这种多样性导致了语言的碎片化，其中一些系统提供dataframe API（在数据科学应用中很常见），许多提供SQL API（传统DBMS）。事实上，一些开源项目如<code>Ibis</code>就是为弥合这一差距而创建的，它将dataframe API转换为SQL，以便在传统数据管理系统中执行。我们相信跨语言翻译是解决语言碎片化的一个不良架构（见第3.2节中的“挑战”）。在Spark的模型基础上，SQL（SparkSQL）和非SQL（DataFrames、Datasets和PySpark）API都生成相同的IR，我们相信，更一般地，语言将通过统一的IR与执行相遇。可以提供不同的语言前端库以与专门的DSL交互，但最终应该生成一个可以普遍且一致执行的IR。例如，这两个输入应该提供一个等价的IR，并且从执行的角度来看是无法区分的：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> a, b, c <span class="keyword">FROM</span> <span class="keyword">table</span> <span class="keyword">WHERE</span> a <span class="operator">=</span> <span class="number">1</span>;</span><br><span class="line">Table.where(&quot;a=1&quot;).<span class="keyword">select</span>(&quot;a,b,c&quot;);</span><br></pre></td></tr></table></figure>
+
+<p>随着非SQL API的日益普及，我们还相信，数据库应用程序开发者使用的最高级API、平台和框架（如ORM）将因两个主要原因而发展。首先，传统的框架最初是假设SQL是数据管理系统提供的唯一API，而现代非SQL命令性语言更灵活，提供了更广泛的功能。其次，随着语言的组件化和与执行的解耦，应用程序框架可能会演变成一个全新的语言组件。与其他语言库类似，它可以通过结构化的IR直接与底层数据库系统通信，绕过任何（可能更窄的）中间语言API。然而，这种演变的细节仍然是一个开放的问题。语言统一。我们相信，语言前端模块化为语言统一铺平了道路，或支持跨数据管理系统的单一统一SQL方言和单一统一dataframe方言。语言统一消除了在不兼容的语言方言之间切换固有的认知负担，减少了供应商锁定，并使应用程序更具可移植性。</p>
+<h3 id="3-2-Intermediate-Representation"><a href="#3-2-Intermediate-Representation" class="headerlink" title="3.2 Intermediate Representation"></a>3.2 Intermediate Representation</h3><p>中间表示（IR）是编译器领域中常用的术语，用于描述程序的结构化表示，它携带足够的信息以允许程序被准确执行，通常作为其组件之间的公共接口。在数据管理系统中，IR提供了查询的结构化表示，并作为语言和执行之间的桥梁。数据管理系统历来定义了自己的内部和个别的IR（逻辑和&#x2F;或物理计划），因为将语言和执行解耦从未是一个目标。尽管当前数据系统中的IR与它们的内部紧密耦合，实际上它们只是相同数据处理原语的不同表示。它们都表示表达式树，包含函数调用、表引用和文字，以及传统的SQL操作，如过滤(Filter)、投影(Project)、排序(Sort)、连接(Join)、聚合(Aggregate)、窗口化(Window)、洗牌(Shuffle)&#x2F;重新分区(Repartition)、解巢(Unnest)等，除此之外变化很小。</p>
+<p>Substrait是最近一次开创性的努力，旨在提供统一和跨语言的IR规范。Substrait为数据管理系统提供了标准化的IR，目的是创建一种通用语言来描述计算。该标准描述了数据管理系统中发现的共同功能，明确划分了必须遵守的规范和可以被选择性忽略的规范，从而适应具有不同物理能力的系统。Substrait还允许系统公开或私下扩展表示，以支持定制&#x2F;专业操作。挑战。通过Substrait或其他方式实现IR统一是数据管理系统架构向前迈出的一大步，因为它使语言和执行能够完全解耦、组件化，并实现互操作性。然而，在我们努力使这种统一在现实数据系统中实际应用时，出现了一些挑战。</p>
+<p>首先，为了允许数据系统执行由外部组件生成的IR，IR将需要成为系统外部API的一部分。这导致在发展IR表示时灵活性降低，因为任何IR变更都需要向后兼容并正确版本化。但更重要的是：从定义上讲，采用完整的IR作为输入将增加数据系统的输入域。IR的跨语言特性也意味着IR可以表示的计算超出了可以通过SQL API表达的计算 - 这可能导致揭示休眠的错误或其他限制。一些最近的尝试通过将IR序列化为SQL语句来避免这种情况（在第3.1节中描述）。我们认为这将导致一个不良的架构，因为它通过通过更窄的API（SQL）来过滤IR，从而失去了IR提供的额外的表达能力、灵活性和精确性，而SQL受到方言特性的制约。</p>
+<p>第二，当前的IR还不够描述性，无法确保运行时的语义等价性。例如，一个系统在处理整数溢出时可能默默忽略，而其他系统可能会抛出异常；或者一个可以提供0索引数组语义，而其他可能是基于1的索引。虽然这些系统特性在Substrait IR中被捕获，我们认为表示现有系统的所有细微差别将被证明是具有挑战性的 - 但又是确保跨系统正确和等价执行所必需的。</p>
+<p>最后，今天在不同系统中可用的函数集完全不同。在系统提供看起来相似的函数的情况下，它们很少提供完全相同的、连错误都一致的语义。为了确保正确的执行，函数需要通过URI全局可识别，该URI不仅控制它们的名称，还控制它们引用的基础实现，以及一些版本控制概念(e.g. map_entries() from SparkSQL, version 124)。例如，在除SparkSQL之外的系统中执行引用此函数的IR应该是失败的。在实践中，这阻止了不同的执行引擎在IR级别上实现互操作。我们相信前进的道路是，将来通过语言和执行统一来绕过方言和函数包的不兼容性。</p>
+<h3 id="3-3-Query-Optimization"><a href="#3-3-Query-Optimization" class="headerlink" title="3.3 Query Optimization"></a>3.3 Query Optimization</h3><p>查询优化是一个非常多样化且研究充分的领域。虽然大多数行业查询优化器都是针对目标数据库系统量身定制的，但已经有很多工作与构建可扩展和可组合的查询优化器有关。查询优化的可扩展性目标是提供抽象和集成挂钩，允许替换或添加新功能以支持新用例。另一方面，可组合性的目标是使优化器更容易地被移植到最初构建时以外的不同系统中。<code>Orca</code>和<code>Apache Calcite</code>是在可组合和可重用优化器领域中最知名的尝试。Orca通过使用基于XML的语言在两者之间交换信息，提供了优化器和执行引擎之间的清晰分离。虽然Orca旨在模块化和可扩展，但据报道将其与非PostgreSQL系统集成并非易事。Apache Calcite已经成功集成到几个开源项目中，如Apache Hive和Apache Phoenix，流处理引擎如Apache Flink和Apache Samza，以及像Qubole这样的商业系统。除了优化器，Apache Calcite还提供了完整的语言前端和IR，这样用户可以提供SQL语句或Calcite自己的结构化IR作为输入。在将IR翻译成底层目标系统与Calcite之间（反之亦然）所产生的开销，以及它用Java编写的事实，使得将其嵌入到非Java系统中变得具有挑战性，这些系统中高效的短暂查询支持很重要。将编程语言差距桥接为一个更轻量级的库，并基于统一的IR，如Substrait，将满足可组合查询优化器的大多数标准，并可能进一步增加其采用率。</p>
+<h3 id="3-4-Execution-Engine"><a href="#3-4-Execution-Engine" class="headerlink" title="3.4 Execution Engine"></a>3.4 Execution Engine</h3><p>执行是负责将查询片段作为输入（由IR表示），并利用执行运行时提供的本地资源执行它的层（见第3.5节）。特定查询片段的执行通常从表&#x2F;索引扫描或交换（Shuffle）开始，并在处理传入数据后，以另一个交换或表写入结束。常见的数据处理原语包括表达式评估、过滤、排序、连接、解巢以及其他需要实现SQL语义的操作符。尽管当前数据管理系统中应用于数据的绝大多数操作遵循少数基本SQL操作（除了可能的引擎特定扩展），但今天，没有两个系统共享相同的执行代码库。执行是一个高度分散的领域，给需要单独维护数十个孤立和专业代码库的大型组织带来了挑战，这是由于用户工作负载的多样性。这也影响了用户，考虑到可用的SQL函数集通常是引擎&#x2F;方言特定的，并且代码碎片化导致系统之间存在微妙的语义差异。例如，在Meta进行的非正式调查至少发现了12种不同的简单字符串操作函数实现 substr，呈现出不同的参数语义（0- vs. 1-based indices）、空值处理和异常行为。</p>
+<p>从理论上讲，一个可组合的执行引擎只需要提供执行IR的方法，在不同数据访问方法和存储格式可以插入的地方提供可扩展性API，以及允许交换边界专业化的API。为了变得方言不可知，这个库还需要提供可扩展性API，以允许引擎特定的和用户定义的数据类型、函数（标量、聚合、窗口和表格）以及操作符。尽管在IR级别上进行组合为开发者在实现执行原语时提供了最高程度的灵活性，但它仍然导致大量组件的重复。例如，所有执行引擎都需要定义数据集内存布局（基于Apache Arrow或其他），本地资源管理（内存池和竞技场、SSD和内存缓存、CPU和线程池分配），以及流行文件格式的编码&#x2F;解码。</p>
+<p>因此，我们期望执行的可组合性发生在更细粒度的级别上，其中统一的库将提供共同的执行框架（一个共同的本地执行总线），并允许开发者扩展和自定义它。虽然创建API和可扩展性点的确切位置是开放问题，但我们相信两个总体原则应该成立。首先，系统的可组合和单体版本在性能方面应该是等效的。正如Velox那样，这可以通过在热代码路径之外绘制API边界来实现（例如，每个查询或每个批次进行API调用，而不是每个记录），以便跨组件边界的成本被摊销并变得微不足道。第二，API需要被设计（和演进），以便创新不会受到阻碍。</p>
+<p>这种架构的一个激励因素是硬件加速器的兴起，作为绕过摩尔定律终结的一种方式。随着GPU、FPGA、TPU和其他ASIC加速器变得普遍，扩展不同的执行引擎以适应每个可用的加速器变得不切实际，重复努力，并最终浪费工程资源。同样，基于特定加速器构建完整的执行引擎延续了碎片化。</p>
+<p>我们相信一个统一的执行引擎将为加速器在数据管理中的普及铺平道路，通过操作员专业化。例如，使用这个模型，人们可以通过简单地为工作负载（比如说，表扫描和哈希连接）专业化最常用的操作员，构建一个通用的GPU加速执行引擎，并重用由统一库提供的其余基于CPU的组件。此外，将这样一个框架集成到行业中的主要数据系统中，为硬件供应商提供了一个引人注目的平台，因为单一集成将提供访问许多不同工作负载&#x2F;市场的机会。我们期望这种模型既能增加硬件和数据管理从业者之间的合作，也能为进一步发展数据库特定的硬件原语提供激励。</p>
+<p>Velox是一个旨在填补这一空白的项目。Velox是第一个大规模的开源项目，旨在为数据管理系统提供统一的执行引擎。它提供了可重用、可扩展和方言不可知的数据处理组件，目前已在Meta和其他地方的十几个数据管理系统中集成，包括像Presto和Spark这样的分析查询引擎、流处理平台、数据仓库摄取基础设施、用于数据预处理和特征工程的机器学习系统等。Velox证明了不仅有可能组件化执行，而且还能跨栈统一它。虽然Velox中的硬件加速实验仍处于早期阶段，但来自硬件供应商和数据管理系统开发者的迅速增长的兴趣为此模型提供了验证。此外，Velox的方言不可知架构意味着可以扩展&#x2F;自定义它以实现不同的SQL方言。虽然它允许通过遵循被替换系统的相同语义来实现即插即用执行引擎替换，但它也允许在数据管理系统中统一SQL方言。与语言和IR统一一起，Velox使Meta能够在交互式和批处理执行、流处理和数据预处理中统一分析系统的SQL方言（CoreSQL），减少了用户的负担，并在专门的数据系统中提供了更一致的体验。</p>
+<h3 id="3-5-Execution-Runtime"><a href="#3-5-Execution-Runtime" class="headerlink" title="3.5 Execution Runtime"></a>3.5 Execution Runtime</h3><p>执行运行时提供了执行引擎执行计算所需的环境。它负责(a) 调度和分配资源，以及 (b) 任务之间的容器化和适当隔离（由于并行执行和&#x2F;或多租户）。在分布式环境中，它还提供了分布式计算模型和节点间通信（例如，洗牌）。下面，我们专注于分布式环境，因为它们更具挑战性，并且为可组合性和重用提供了更多机会。</p>
+<p>分布式计算模型在过去几十年中有了显著的发展，从MapReduce（及其Hadoop开源实现）到允许计算DAGs的框架，如Apache Spark&#x2F;RDDs和Apache Tez。最近，像Ray和Dask这样的框架将计算灵活性推向了更进一步，允许在每个工作节点上执行任意函数，提供与Python生态系统更紧密的集成，并针对数据科学和机器学习工作负载。与此同时，像Apache Flink和Spark Streaming这样的系统已经被广泛采用，以支持流媒体应用。尽管只有少数这些系统真正被广泛使用，但目前还没有抽象级别的标准化，这个抽象级别在易编程性和执行控制紧密度之间找到了最佳平衡。尽管如此，我们已经看到近年来在可组合性方面有趣的发展：这些系统中的许多已经将它们的执行运行时从它们原始的执行引擎（通常用Java编写）解耦，并使用高性能的向量化执行引擎（通常用C++编写）。Databrick的Photon和Apache Gluten就是例子，它们将Spark的执行运行时与Velox或Databrick的专有C++引擎结合起来。另一方面，负责协商集群资源的调度器有一些较窄的API。事实上，Apache YARN，这个资源管理器从Hadoop中创建并随后解耦，今天可以与大多数运行时一起使用，包括Spark和Tez。尽管与任务隔离和任务间通信没有标准化，但通常有两种设计选择：</p>
+<ol>
+<li>任务要么被隔离（使用cgroups或其他类型的容器），要么被允许共享相同的进程空间，以及 </li>
+<li>Shuffle要么是基于流的，要么持久化到本地或远程文件系统。我们相信，无服务器计算的出现和作为服务的工作者范式将进一步提供机会，尽管它们对数据管理的适用性目前正在评估中。</li>
+</ol>
+<p>总之，运行时是否能够汇聚并为数据管理提供更多可配置的模式仍然是一个开放的问题，但我们相信一个原则应该保持不变：运行时不应该与数据管理系统耦合，最好能够通过标准API互换。</p>
+<h2 id="CALL-FOR-ACTION"><a href="#CALL-FOR-ACTION" class="headerlink" title="CALL FOR ACTION"></a>CALL FOR ACTION</h2><p>通过这项工作，我们希望激励开发者在开发数据管理系统时采取不同的思维方式。首先，我们鼓励开发者考虑所描述的逻辑堆栈，并自问：我计划对这部分堆栈进行哪些专业化？我们预计在未来，随着组件变得更高质量和更可扩展，答案在许多情况下将趋于无。在这些情况下，可以通过简单地组装部分来构建完整的数据管理系统。尽管听起来理想化，但今天可以通过完全利用开源项目如Ibis（语言）、Substrait（IR）、Calcite（优化器）、Velox（执行）以及像Spark、Ray或无服务器架构这样的分布式运行时来构建一个相当功能完备的堆栈。第二，如果需要某种特殊行为，我们鼓励开发者自问：这个新功能能否通过一个明确定义的可扩展性API实现？例如，如果一个新系统要提供专门的地理空间能力，它可以使用Velox的操作可扩展性API来实现。或者，如果假设命题是一个更好的查询优化器，人们可以完全用自定义实现替换优化器层，只要维护API，并保持堆栈的其余层完好无损。最后，对于那些当前堆栈和可扩展性API无法实现的专业化，我们鼓励开发者和研究人员一起自问：我们如何改进当前的API，使它们更具普适性？作为一个最近的例子，Velox专门化了它的列式布局，以允许更有效地操作字符串和复杂类型，以及更灵活的编码类型[18]，后来与Arrow社区合作扩展了列式标准（API）。</p>
+<h2 id="CONCLUSION"><a href="#CONCLUSION" class="headerlink" title="CONCLUSION"></a>CONCLUSION</h2><p>用户工作负载的快速发展推动了数百个专业化数据管理系统的开发。尽管它们在许多相同的架构决策、数据结构和内部数据处理技术上有共通之处，但这些系统之间的重用程度却令人不安地有限。这导致了工作的重复、高昂的维护成本、创新的减速，最终影响了用户，他们需要与许多具有不兼容SQL和非SQL API、不完整功能集和通常不一致的语义的系统进行交互。在这篇愿景论文中，我们倡导了对这些系统设计和开发的范式转变。我们展示了一个参考架构的不同组件、它们的API和职责，并讨论了最近的流行开源项目如何适应这个模型。我们相信，通过组件化数据管理系统，可以加快创新的步伐。我们相信可组合性是数据管理的未来，希望更多的个人和组织将加入我们的努力。</p>
+
+  </div>
+</article>
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/categories/technology">Technology</a></li>
+         
+          <li><a href="/categories/life">Life</a></li>
+         
+          <li><a href="/archives/">Archives</a></li>
+         
+          <li><a href="/tags/">Tags</a></li>
+         
+          <li><a href="/about">About</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-What-Is-Composable-Data-Management-System"><span class="toc-number">1.</span> <span class="toc-text">1 What Is Composable Data Management System</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Why-Composable-Data-Management-System"><span class="toc-number">2.</span> <span class="toc-text">2 Why Composable Data Management System</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Why-Now"><span class="toc-number">2.1.</span> <span class="toc-text">Why Now</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-How-To-Architect-A-Composable-Data-Management-System"><span class="toc-number">3.</span> <span class="toc-text">3 How To Architect A Composable Data Management System</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-Language-Frontend"><span class="toc-number">3.1.</span> <span class="toc-text">3.1 Language Frontend</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-Intermediate-Representation"><span class="toc-number">3.2.</span> <span class="toc-text">3.2 Intermediate Representation</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-Query-Optimization"><span class="toc-number">3.3.</span> <span class="toc-text">3.3 Query Optimization</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4-Execution-Engine"><span class="toc-number">3.4.</span> <span class="toc-text">3.4 Execution Engine</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-5-Execution-Runtime"><span class="toc-number">3.5.</span> <span class="toc-text">3.5 Execution Runtime</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CALL-FOR-ACTION"><span class="toc-number">4.</span> <span class="toc-text">CALL FOR ACTION</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CONCLUSION"><span class="toc-number">5.</span> <span class="toc-text">CONCLUSION</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2024/02/11/Composable-Data-Management/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2024/02/11/Composable-Data-Management/&text=The Composable Data Management System Manifesto"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2024/02/11/Composable-Data-Management/&title=The Composable Data Management System Manifesto"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2024/02/11/Composable-Data-Management/&is_video=false&description=The Composable Data Management System Manifesto"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=The Composable Data Management System Manifesto&body=Check out this article: http://example.com/2024/02/11/Composable-Data-Management/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2024/02/11/Composable-Data-Management/&title=The Composable Data Management System Manifesto"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2024/02/11/Composable-Data-Management/&title=The Composable Data Management System Manifesto"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2024/02/11/Composable-Data-Management/&title=The Composable Data Management System Manifesto"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2024/02/11/Composable-Data-Management/&title=The Composable Data Management System Manifesto"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2024/02/11/Composable-Data-Management/&name=The Composable Data Management System Manifesto&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2024/02/11/Composable-Data-Management/&t=The Composable Data Management System Manifesto"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2026
+    duanmeng
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/categories/technology">Technology</a></li><!--
+     --><!--
+       --><li><a href="/categories/life">Life</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Archives</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tags</a></li><!--
+     --><!--
+       --><li><a href="/about">About</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+
+  <script src='https://unpkg.com/mermaid@10.3.0/dist/mermaid.min.js'></script>
+  <script>
+    if (window.mermaid) {
+      mermaid.initialize({theme: 'forest'});
+    }
+  </script>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

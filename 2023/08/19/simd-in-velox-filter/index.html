@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="介绍SIMD使用CPU中的特殊寄存器同时操作多个primitive data。在一些基本情况下，编译器能够为我们将紧密循环转换为SIMD指令，但通常需要显式调用SIMD内在函数。Velox中有几个地方明确使用SIMD来获得更好的性能。  Velox使用SIMD的一个非常典型的例子就是BigintValuesUsingHashTable::testValues方法，BigintValuesUsing">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SIMD in Velox - BigintValuesUsingHashTable">
+<meta property="og:url" content="http://example.com/2023/08/19/simd-in-velox-filter/index.html">
+<meta property="og:site_name" content="Macduan Notes">
+<meta property="og:description" content="介绍SIMD使用CPU中的特殊寄存器同时操作多个primitive data。在一些基本情况下，编译器能够为我们将紧密循环转换为SIMD指令，但通常需要显式调用SIMD内在函数。Velox中有几个地方明确使用SIMD来获得更好的性能。  Velox使用SIMD的一个非常典型的例子就是BigintValuesUsingHashTable::testValues方法，BigintValuesUsing">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2023-08-19T02:18:09.000Z">
+<meta property="article:modified_time" content="2026-05-30T05:46:54.132Z">
+<meta property="article:author" content="duanmeng">
+<meta property="article:tag" content="velox">
+<meta property="article:tag" content="vectorized">
+<meta property="article:tag" content="data">
+<meta property="article:tag" content="C++">
+<meta property="article:tag" content="SIMD">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>SIMD in Velox - BigintValuesUsingHashTable</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/categories/technology">Technology</a></li><!--
+     --><!--
+       --><li><a href="/categories/life">Life</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Archives</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tags</a></li><!--
+     --><!--
+       --><li><a href="/about">About</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2023/10/03/morsel-driven/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2023/06/05/presto-decade/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/08/19/simd-in-velox-filter/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/08/19/simd-in-velox-filter/&text=SIMD in Velox - BigintValuesUsingHashTable"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/08/19/simd-in-velox-filter/&title=SIMD in Velox - BigintValuesUsingHashTable"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/08/19/simd-in-velox-filter/&is_video=false&description=SIMD in Velox - BigintValuesUsingHashTable"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=SIMD in Velox - BigintValuesUsingHashTable&body=Check out this article: http://example.com/2023/08/19/simd-in-velox-filter/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/08/19/simd-in-velox-filter/&title=SIMD in Velox - BigintValuesUsingHashTable"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/08/19/simd-in-velox-filter/&title=SIMD in Velox - BigintValuesUsingHashTable"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/08/19/simd-in-velox-filter/&title=SIMD in Velox - BigintValuesUsingHashTable"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/08/19/simd-in-velox-filter/&title=SIMD in Velox - BigintValuesUsingHashTable"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/08/19/simd-in-velox-filter/&name=SIMD in Velox - BigintValuesUsingHashTable&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/08/19/simd-in-velox-filter/&t=SIMD in Velox - BigintValuesUsingHashTable"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.</span> <span class="toc-text">介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#BigintValuesUsingHashTable%E5%88%86%E6%9E%90"><span class="toc-number">2.</span> <span class="toc-text">BigintValuesUsingHashTable分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#BigintValuesUsingHashTable%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0"><span class="toc-number">2.1.</span> <span class="toc-text">BigintValuesUsingHashTable构造函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#BigintValuesUsingHashTable-testValues"><span class="toc-number">2.2.</span> <span class="toc-text">BigintValuesUsingHashTable::testValues</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E4%BA%9Bintrinsics%E7%9A%84%E8%A7%A3%E9%87%8A"><span class="toc-number">3.</span> <span class="toc-text">一些intrinsics的解释</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#m256i-mm256-set1-epi64x-long-long-a"><span class="toc-number">3.1.</span> <span class="toc-text">__m256i _mm256_set1_epi64x (long long a)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#m256i-mm256-cmpgt-epi64-m256i-a-m256i-b"><span class="toc-number">3.2.</span> <span class="toc-text">__m256i _mm256_cmpgt_epi64 (__m256i a, __m256i b)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#m256i-mm256-mask-i64gather-epi64-m256i-src-int64-const-base-addr-m256i-vindex-m256i-mask-const-int-scale"><span class="toc-number">3.3.</span> <span class="toc-text">__m256i _mm256_mask_i64gather_epi64 (__m256i src, __int64 const* base_addr, __m256i vindex, __m256i mask, const int scale)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#m256i-mm256-cmpeq-epi64-m256i-a-m256i-b"><span class="toc-number">3.4.</span> <span class="toc-text">__m256i _mm256_cmpeq_epi64 (__m256i a, __m256i b)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#int-mm256-movemask-pd-m256d-a"><span class="toc-number">3.5.</span> <span class="toc-text">int _mm256_movemask_pd (__m256d a)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#m256i-mm256-loadu-si256-m256i-const-mem-addr"><span class="toc-number">3.6.</span> <span class="toc-text">__m256i _mm256_loadu_si256 (__m256i const * mem_addr)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#m256i-mm256-lddqu-si256-m256i-const-mem-addr"><span class="toc-number">3.7.</span> <span class="toc-text">__m256i _mm256_lddqu_si256 (__m256i const * mem_addr)</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">4.</span> <span class="toc-text">References</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        SIMD in Velox - BigintValuesUsingHashTable
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">duanmeng</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-08-19T02:18:09.000Z" itemprop="datePublished">2023-08-19</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/technology/">technology</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/C/" rel="tag">C++</a>, <a class="tag-link-link" href="/tags/SIMD/" rel="tag">SIMD</a>, <a class="tag-link-link" href="/tags/data/" rel="tag">data</a>, <a class="tag-link-link" href="/tags/vectorized/" rel="tag">vectorized</a>, <a class="tag-link-link" href="/tags/velox/" rel="tag">velox</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p><a target="_blank" rel="noopener" href="https://facebookincubator.github.io/velox/develop/simd.html">SIMD使用CPU中的特殊寄存器同时操作多个primitive data。在一些基本情况下，编译器能够为我们将紧密循环转换为SIMD指令，但通常需要显式调用SIMD内在函数。Velox中有几个地方明确使用SIMD来获得更好的性能</a>。 </p>
+<p>Velox使用SIMD的一个非常典型的例子就是<code>BigintValuesUsingHashTable::testValues</code>方法，<code>BigintValuesUsingHashTable</code>是Velox的<code>common::Filter</code>的一个子类，<code>Filter</code>用于<code>TableScan</code>的数据过滤（oerling出品，我也有所贡献:) ），在这篇<a target="_blank" rel="noopener" href="https://facebookincubator.github.io/velox/develop/simd.html">SIMD Usage in Velox</a>的官方文章中也简单介绍了该方法的实现，<code>BigintValuesUsingHashTable::testValues</code>使用SIMD来同时检查多个values是否在一个哈希表中。在哈希表中使用特殊的<em>empty marker</em>来标识值缺失：</p>
+<ol>
+<li>如果所有值都超出了范围，直接返回false。</li>
+<li>如果有<em>empty marker</em>插入哈希表中，则回退到逐个检查值的方式。</li>
+<li>使用SIMD乘法和取模计算所有有效值的哈希值，然后使用maskGather获取哈希表中对应的状态。</li>
+<li>如果状态为空标记，则表示值缺失；如果状态等于值，则表示找到了该值。否则，我们遇到了哈希冲突，需要查看哈希表中的下一个位置。如果没有发生冲突，我们可以立即返回结果。</li>
+<li>对于每个发生冲突的值，使用SIMD一次性推进多个位置，直到找到匹配的值或空标记。</li>
+</ol>
+<p>我们首先过一下SIMD最基础的概念，然后整体看一下<code>BigintValuesUsingHashTable</code>的构造函数（即hash表build过程）和<code>testValues</code>方法（即probe过程）的实现，最后分析这些过程中底层的SIMD intrinsics。Velox使用<a target="_blank" rel="noopener" href="https://xsimd.readthedocs.io/en/latest/index.html">xsimd</a>作为内在函数的零成本抽象，以解决可移植性问题，这里我们假设是AVX&#x2F;AVX2架构，寄存器宽度256，实际上oerling大神最初的实现版本就是基于avx2的，后面代码中会看到适配avx2设计上的trick。在文章末尾也给出用到的SIMD intrinsics的说明。</p>
+<p>SIMD一些基本概念和指令可以看这篇<a href="/2021/08/22/simd-basic/">SIMD Basic</a>文章。</p>
+<h2 id="BigintValuesUsingHashTable分析"><a href="#BigintValuesUsingHashTable分析" class="headerlink" title="BigintValuesUsingHashTable分析"></a>BigintValuesUsingHashTable分析</h2><h3 id="BigintValuesUsingHashTable构造函数"><a href="#BigintValuesUsingHashTable构造函数" class="headerlink" title="BigintValuesUsingHashTable构造函数"></a>BigintValuesUsingHashTable构造函数</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">BigintValuesUsingHashTable::<span class="built_in">BigintValuesUsingHashTable</span>(</span><br><span class="line">    <span class="type">int64_t</span> min,</span><br><span class="line">    <span class="type">int64_t</span> max,</span><br><span class="line">    <span class="type">const</span> std::vector&lt;<span class="type">int64_t</span>&gt;&amp; values,</span><br><span class="line">    <span class="type">bool</span> nullAllowed)</span><br><span class="line">    : <span class="built_in">Filter</span>(<span class="literal">true</span>, nullAllowed, FilterKind::kBigintValuesUsingHashTable),</span><br><span class="line">      <span class="built_in">min_</span>(min),</span><br><span class="line">      <span class="built_in">max_</span>(max),</span><br><span class="line">      <span class="built_in">values_</span>(values) &#123;</span><br><span class="line">  <span class="keyword">constexpr</span> <span class="type">int32_t</span> kPaddingElements = <span class="number">4</span>;</span><br><span class="line">  <span class="built_in">VELOX_CHECK</span>(min &lt; max, <span class="string">&quot;min must be less than max&quot;</span>);</span><br><span class="line">  <span class="built_in">VELOX_CHECK</span>(values.<span class="built_in">size</span>() &gt; <span class="number">1</span>, <span class="string">&quot;values must contain at least 2 entries&quot;</span>);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Size the hash table to be 2+x the entry count, e.g. 10 entries</span></span><br><span class="line">  <span class="comment">// gets 1 &lt;&lt; log2 of 50 == 32. The filter is expected to fail often so we</span></span><br><span class="line">  <span class="comment">// wish to increase the chance of hitting empty on first probe.</span></span><br><span class="line">  <span class="keyword">auto</span> size = <span class="number">1u</span> &lt;&lt; (<span class="type">uint32_t</span>)std::<span class="built_in">log2</span>(values.<span class="built_in">size</span>() * <span class="number">5</span>);</span><br><span class="line">  hashTable_.<span class="built_in">resize</span>(size + kPaddingElements);</span><br><span class="line">  sizeMask_ = size - <span class="number">1</span>;</span><br><span class="line">  std::<span class="built_in">fill</span>(hashTable_.<span class="built_in">begin</span>(), hashTable_.<span class="built_in">end</span>(), kEmptyMarker);</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">auto</span> value : values) &#123;</span><br><span class="line">    <span class="keyword">if</span> (value == kEmptyMarker) &#123;</span><br><span class="line">      containsEmptyMarker_ = <span class="literal">true</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="keyword">auto</span> position = ((value * M) &amp; sizeMask_);</span><br><span class="line">      <span class="keyword">for</span> (<span class="keyword">auto</span> i = position; i &lt; position + size; i++) &#123;</span><br><span class="line">        <span class="type">uint32_t</span> index = i &amp; sizeMask_;</span><br><span class="line">        <span class="keyword">if</span> (hashTable_[index] == kEmptyMarker) &#123;</span><br><span class="line">          hashTable_[index] = value;</span><br><span class="line">          <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// Replicate the last element of hashTable kPaddingEntries times at &#x27;size_&#x27; so</span></span><br><span class="line">  <span class="comment">// that one can load a full vector of elements past the last used index.</span></span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">auto</span> i = <span class="number">0</span>; i &lt; kPaddingElements; ++i) &#123;</span><br><span class="line">    hashTable_[sizeMask_ + <span class="number">1</span> + i] = hashTable_[sizeMask_];</span><br><span class="line">  &#125;</span><br><span class="line">  std::<span class="built_in">sort</span>(values_.<span class="built_in">begin</span>(), values_.<span class="built_in">end</span>());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>从<code>BigintValuesUsingHashTable</code>这个名字不难看出这个哈希表的数据类型是int64_t，其成员<code>values_</code>就是一个int64_t类型的vector，是构建这个哈希表的数据，<code>min_</code>，<code>max_</code>分别是<code>values_</code>的最小与最大值。</li>
+<li>Line 17就是一个经验公式用于计算哈希表的size（一般是2的n次方），比如10个entries时size为32，为什么不是16？注释中提到“<em>The filter is expected to fail</em>”，这是因为在计算引擎中的TableScan的场景下，Filter预期的行为是能够过滤掉很多数据，所以希望通过更大的哈希表size来增加第一次probe就立马失败（遇到<em>empty marker</em>）的几率，一定程度的空间换时间（<strong>oerling大神对细节的把控真是极致</strong>，详见<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/pull/587/files">PR-#587</a>）。</li>
+<li>Line 18是resize哈希表的实际size，注意，这里实际size增加了kPaddingElements（kPaddingElements &#x3D; 4），这是给了simd batch操作预留空间，因为在设计这个类的时候erling默认使用avx&#x2F;avx2指令集，寄存器宽度256，而<code>BigintValuesUsingHashTable</code>的数据类型是int64_t，正好批处理step是4，详见后面probe部分。</li>
+<li>Line19-34，初始化哈希表默认值为<em>empty marker</em>，使用开放寻找+线性探测的方式构建哈希表，如果values中有<em>empty marker</em>则设置*containsEmptyMarker_*为true（与介绍那一节中的步骤2对应），填充部分用哈希表最后一个slot的value填充。</li>
+</ul>
+<h3 id="BigintValuesUsingHashTable-testValues"><a href="#BigintValuesUsingHashTable-testValues" class="headerlink" title="BigintValuesUsingHashTable::testValues"></a>BigintValuesUsingHashTable::testValues</h3><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">xsimd::batch_bool&lt;<span class="type">int64_t</span>&gt; <span class="title">BigintValuesUsingHashTable::testValues</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">    xsimd::batch&lt;<span class="type">int64_t</span>&gt; x)</span> <span class="type">const</span> </span>&#123; <span class="comment">// xsimd::batch&lt;long long, xsimd::fma3&lt;xsimd::avx2&gt;&gt;</span></span><br><span class="line">  <span class="comment">// outOfRange = &#123;xsimd::batch_bool&lt;long long, xsimd::fma3&lt;xsimd::avx2&gt;&gt;&#125; </span></span><br><span class="line">  <span class="keyword">auto</span> outOfRange = (x &lt; xsimd::<span class="built_in">broadcast</span>&lt;<span class="type">int64_t</span>&gt;(min_)) |</span><br><span class="line">      (x &gt; xsimd::<span class="built_in">broadcast</span>&lt;<span class="type">int64_t</span>&gt;(max_)); <span class="comment">//return _mm256_set1_epi64x(val), _mm256_cmpgt_epi64(other, self), _mm256_or_si256</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// _mm256_movemask_pd(reinterpret_cast&lt;__m256d&gt;(mask.data))</span></span><br><span class="line">  <span class="keyword">if</span> (simd::<span class="built_in">toBitMask</span>(outOfRange) == simd::<span class="built_in">allSetBitMask</span>&lt;<span class="type">int64_t</span>&gt;()) &#123;</span><br><span class="line">    <span class="keyword">return</span> xsimd::<span class="built_in">batch_bool</span>&lt;<span class="type">int64_t</span>&gt;(<span class="literal">false</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> (containsEmptyMarker_) &#123;</span><br><span class="line">    <span class="keyword">return</span> Filter::<span class="built_in">testValues</span>(x);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// broadcast _mm256_set1_epi64x</span></span><br><span class="line">  <span class="keyword">auto</span> allEmpty = xsimd::<span class="built_in">broadcast</span>&lt;<span class="type">int64_t</span>&gt;(kEmptyMarker);</span><br><span class="line">  <span class="comment">// Temporarily casted to unsigned to suppress overflow error.</span></span><br><span class="line">  <span class="keyword">auto</span> indices = simd::<span class="built_in">reinterpretBatch</span>&lt;<span class="type">int64_t</span>&gt;(</span><br><span class="line">      simd::<span class="built_in">reinterpretBatch</span>&lt;<span class="type">uint64_t</span>&gt;(x) * M &amp; sizeMask_);</span><br><span class="line">  <span class="comment">// ~outOfRangne: _mm256_xor_si256</span></span><br><span class="line">  <span class="comment">// maskGather : _mm256_mask_i64gather_epi64</span></span><br><span class="line">  <span class="keyword">auto</span> data =</span><br><span class="line">      simd::<span class="built_in">maskGather</span>(allEmpty, ~outOfRange, hashTable_.<span class="built_in">data</span>(), indices);</span><br><span class="line">  <span class="comment">// The lanes with kEmptyMarker missed, the lanes matching x hit and the other</span></span><br><span class="line">  <span class="comment">// lanes must check next positions.</span></span><br><span class="line">  <span class="keyword">auto</span> result = x == data; <span class="comment">// _mm256_cmpeq_epi64</span></span><br><span class="line">  <span class="keyword">auto</span> resultBits = simd::<span class="built_in">toBitMask</span>(result);</span><br><span class="line">  <span class="keyword">auto</span> missed = simd::<span class="built_in">toBitMask</span>(data == allEmpty);</span><br><span class="line">  <span class="built_in">static_assert</span>(<span class="keyword">decltype</span>(result)::size &lt;= <span class="number">16</span>);</span><br><span class="line">  <span class="comment">// allSetBitMask : bits::lowMask(xsimd::batch_bool&lt;T, A&gt;::size);</span></span><br><span class="line">  <span class="type">uint16_t</span> unresolved = simd::<span class="built_in">allSetBitMask</span>&lt;<span class="type">int64_t</span>&gt;() ^ (resultBits | missed);</span><br><span class="line">  <span class="keyword">if</span> (!unresolved) &#123;</span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">constexpr</span> <span class="type">int</span> kAlign = xsimd::default_arch::<span class="built_in">alignment</span>();</span><br><span class="line">  <span class="keyword">constexpr</span> <span class="type">int</span> kArraySize = xsimd::batch&lt;<span class="type">int64_t</span>&gt;::size;</span><br><span class="line">  <span class="built_in">alignas</span>(kAlign) <span class="type">int64_t</span> indicesArray[kArraySize];</span><br><span class="line">  <span class="built_in">alignas</span>(kAlign) <span class="type">int64_t</span> valuesArray[kArraySize];</span><br><span class="line">  (indices + <span class="number">1</span>).<span class="built_in">store_aligned</span>(indicesArray);</span><br><span class="line">  <span class="comment">// store_aligned -&gt; broadcast -&gt; _mm256_set1_epi64x</span></span><br><span class="line">  x.<span class="built_in">store_aligned</span>(valuesArray);</span><br><span class="line">  <span class="keyword">while</span> (unresolved) &#123;</span><br><span class="line">    <span class="keyword">auto</span> lane = bits::<span class="built_in">getAndClearLastSetBit</span>(unresolved);</span><br><span class="line">    <span class="comment">// Loop for each unresolved (not hit and</span></span><br><span class="line">    <span class="comment">// not empty) until finding hit or empty.</span></span><br><span class="line">    <span class="type">int64_t</span> index = indicesArray[lane];</span><br><span class="line">    <span class="type">int64_t</span> value = valuesArray[lane];</span><br><span class="line">    <span class="keyword">auto</span> allValue = xsimd::<span class="built_in">broadcast</span>&lt;<span class="type">int64_t</span>&gt;(value);</span><br><span class="line">    <span class="keyword">for</span> (;;) &#123;</span><br><span class="line">      <span class="comment">// _mm256_loadu_si256</span></span><br><span class="line">      <span class="keyword">auto</span> line = xsimd::<span class="built_in">load_unaligned</span>(hashTable_.<span class="built_in">data</span>() + index);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (simd::<span class="built_in">toBitMask</span>(line == allValue)) &#123;</span><br><span class="line">        resultBits |= <span class="number">1</span> &lt;&lt; lane;</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (simd::<span class="built_in">toBitMask</span>(line == allEmpty)) &#123;</span><br><span class="line">        resultBits &amp;= ~(<span class="number">1</span> &lt;&lt; lane);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      index += line.size;</span><br><span class="line">      <span class="keyword">if</span> (index &gt; sizeMask_) &#123;</span><br><span class="line">        index = <span class="number">0</span>;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> simd::<span class="built_in">fromBitMask</span>&lt;<span class="type">int64_t</span>&gt;(resultBits);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>xsimd::batch&lt;T, A&gt;</code>是xsimd对SIMD寄存器的封装，其底层data是一个SIMD数据类型，比如<code>xsimd::batch&lt;int64_t&gt;</code>底层数据类型是<code>__m256i</code>，本文默认是avx family指令集，256位寄存器。</li>
+<li>Line 4-5，计算outRange（<code>xsimd::batch&lt;long long, xsimd::fma3&lt;xsimd::avx2&gt;&gt;</code>），<code>xsimd::broadcast</code>底层是<code>_mm256_set1_epi64x</code>，将min_或max_的值广播到目标simd寄存器所有lane上（本文场景4个）。x与广播后到min，max比较的底层是<code>_mm256_cmpgt_epi64</code>，比较两个packed signed 64-bit整数，保持结果到目标寄存器，大于为<code>0xFFFFFFFFFFFFFFFF</code>，否则为0。<code>|</code>底层是_mm256_or_si256，是bitwise or两个256 bits。</li>
+<li>Line 8-13，simd::toBitMask底层是_mm256_movemask_pd将一个batch转成bit mask，然后比较，如果都被set了说明x中所有数据都超过了range，直接返回。如果values中有<strong>empty marker</strong>回退到逐个检查值的方式。</li>
+<li>Line 14-22，这里开始进入了SIMD实现hash probe的首次探测部分<ul>
+<li>生成一个empty marker的batch，<code>allEmpty</code></li>
+<li>计算x的哈希值在哈希表中的index的batch，<code>indices</code></li>
+<li>将<code>~outRange</code>（_mm256_xor_si256操作）中非0的lane（本文场景4个lane）在<code>indices</code>中的index索引的<code>hashTable_.data()</code>load到data对应的lane中，其它lane从<code>allEmpty</code>中load。</li>
+<li>上述就是一个经典的smid gather操作，底层是<code>__m256i _mm256_mask_i64gather_epi64 (__m256i src, __int64 const* base_addr, __m256i vindex, __m256i mask, const int scale)</code>，通过vindex索引oad其lane对应的mask MSB为1的base_addr地址开始的数据，其它lane则load在src中对于lane的数据。</li>
+<li>最后的结果是变量<code>data</code>，它是一个batch，包含x中没有超出range的整数第一次探测到的哈希表数据（可能会有冲突），以及超出range而load的<em>empty marker</em></li>
+</ul>
+</li>
+<li>Line 23-33，这里开始计算需要进行后续探测的lane，其中<ul>
+<li><code>x == data</code>底层是_mm256_cmpeq_epi64得到实际值对比结果的batch，即<code>result</code>，首次探测成功，也就是实际值相同的lane的所有bit都是1（本文场景为0xFFFFFFFFFFFFFFFF），然后转成bit mask也就是<code>resultBits</code></li>
+<li><code>missed = simd::toBitMask(data == allEmpty)</code>是首次探测即失败（其index对应的hash表的slot中的value位emtpy marker)</li>
+<li><code>unresolved = simd::allSetBitMask&lt;int64_t&gt;() ^ (resultBits | missed)</code>就可以得到首次探测没有失败，但是实际值不同（也就是哈希冲突）的lane转成的bit mask</li>
+<li>如果没有unresolved的lane那么直接返回结果<code>result</code></li>
+</ul>
+</li>
+<li>Line 34-40，开始后续探测的准备，前面提到该类的哈希实现是开放寻找+线性探测，所以发生冲突之后需要index后移一位后继续探测，<ul>
+<li>(indices + 1).store_aligned(indicesArray)初始化indicesArray，x.store_aligned(valuesArray)初始化valuesArray</li>
+<li>这里都用到了store_aligned，它本质就是broadcast其底层是_mm256_set1_epi64x</li>
+<li>这里之所以转成数组是因为后续探测需要一个一个lane的操作</li>
+</ul>
+</li>
+<li>Line 41-65，获取<code>unresolved</code>当前最后一位为1的bit位并清零，算出其对应的lane（本文场景中x有4个lane），然后用lane获取当前需要继续探测的index和value<ul>
+<li>allValue &#x3D; xsimd::broadcast<int64_t>(value)把需要继续探测的value加载到一个batch中，即allValues</li>
+<li>把需要探测的index索引的哈希表的值load到一个batch中，即line，这里底层是_mm256_loadu_si256</li>
+<li>这里比较line与value，如果结果不是0就设置resultBits对应的bit位，如果line &#x3D;&#x3D; allEmpty则设置resultBits对应的bit位位0</li>
+<li>这个循环里面有个优化是，_mm256_loadu_si256加载的是index索引的哈希表的数据和它之后的几个数据（本文是3），<strong>实际上是一次进行了多次探测</strong>，所以后面更新index是<code>index += line.size</code>，这里也对应了前面提到的那个<code>kPaddingElements</code>填充</li>
+</ul>
+</li>
+</ul>
+<h2 id="一些intrinsics的解释"><a href="#一些intrinsics的解释" class="headerlink" title="一些intrinsics的解释"></a>一些intrinsics的解释</h2><h3 id="m256i-mm256-set1-epi64x-long-long-a"><a href="#m256i-mm256-set1-epi64x-long-long-a" class="headerlink" title="__m256i _mm256_set1_epi64x (long long a)"></a>__m256i _mm256_set1_epi64x (long long a)</h3><p><strong>Synopsis</strong></p>
+<p>__m256i _mm256_set1_epi64x (long long a)<br>#include &lt;immintrin.h&gt;<br>Instruction: Sequence<br>CPUID Flags: AVX</p>
+<p><strong>Description</strong><br>Broadcast 64-bit integer a to all elements of dst. This intrinsic may generate the vpbroadcastq.</p>
+<p><strong>Operation</strong></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">FOR j := <span class="number">0</span> to <span class="number">3</span></span><br><span class="line">	i := j*<span class="number">64</span></span><br><span class="line">	dst[i+<span class="number">63</span>:i] := a[<span class="number">63</span>:<span class="number">0</span>]</span><br><span class="line">ENDFOR</span><br><span class="line">dst[MAX:<span class="number">256</span>] := <span class="number">0</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="m256i-mm256-cmpgt-epi64-m256i-a-m256i-b"><a href="#m256i-mm256-cmpgt-epi64-m256i-a-m256i-b" class="headerlink" title="__m256i _mm256_cmpgt_epi64 (__m256i a, __m256i b)"></a>__m256i _mm256_cmpgt_epi64 (__m256i a, __m256i b)</h3><p><strong>Synopsis</strong><br>__m256i _mm256_cmpgt_epi64 (__m256i a, __m256i b)<br>#include &lt;immintrin.h&gt;<br>Instruction: vpcmpgtq ymm, ymm, ymm<br>CPUID Flags: AVX2</p>
+<p><strong>Description</strong><br>Compare packed signed 64-bit integers in a and b for greater-than, and store the results in dst.</p>
+<p><strong>Operation</strong></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">FOR j := <span class="number">0</span> to <span class="number">3</span></span><br><span class="line">	i := j*<span class="number">64</span></span><br><span class="line">	dst[i+<span class="number">63</span>:i] := ( a[i+<span class="number">63</span>:i] &gt; b[i+<span class="number">63</span>:i] ) ? <span class="number">0xFFFFFFFFFFFFFFFF</span> : <span class="number">0</span></span><br><span class="line">ENDFOR</span><br><span class="line">dst[MAX:<span class="number">256</span>] := <span class="number">0</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="m256i-mm256-mask-i64gather-epi64-m256i-src-int64-const-base-addr-m256i-vindex-m256i-mask-const-int-scale"><a href="#m256i-mm256-mask-i64gather-epi64-m256i-src-int64-const-base-addr-m256i-vindex-m256i-mask-const-int-scale" class="headerlink" title="__m256i _mm256_mask_i64gather_epi64 (__m256i src, __int64 const* base_addr, __m256i vindex, __m256i mask, const int scale)"></a>__m256i _mm256_mask_i64gather_epi64 (__m256i src, __int64 const* base_addr, __m256i vindex, __m256i mask, const int scale)</h3><p><strong>Synopsis</strong></p>
+<p>__m256i _mm256_mask_i64gather_epi64 (__m256i src, __int64 const* base_addr, __m256i vindex, __m256i mask, const int scale)<br>#include &lt;immintrin.h&gt;<br>Instruction: vpgatherqq ymm, vm64x, ymm<br>CPUID Flags: AVX2</p>
+<p><strong>Description</strong></p>
+<p>Gather 64-bit integers from memory using 64-bit indices. 64-bit elements are loaded from addresses starting at base_addr and offset by each 64-bit element in vindex (each index is scaled by the factor in scale). Gathered elements are merged into dst using mask (elements are copied from src when the highest bit is not set in the corresponding element). scale should be 1, 2, 4 or 8.</p>
+<p><strong>Operation</strong></p>
+<p>FOR j :&#x3D; 0 to 3<br>    i :&#x3D; j<em>64<br>    m :&#x3D; j</em>64<br>    IF mask[i+63]<br>        addr :&#x3D; base_addr + vindex[m+63:m] * ZeroExtend64(scale) * 8<br>        dst[i+63:i] :&#x3D; MEM[addr+63:addr]<br>    ELSE<br>        dst[i+63:i] :&#x3D; src[i+63:i]<br>    FI<br>ENDFOR<br>mask[MAX:256] :&#x3D; 0<br>dst[MAX:256] :&#x3D; 0</p>
+<h3 id="m256i-mm256-cmpeq-epi64-m256i-a-m256i-b"><a href="#m256i-mm256-cmpeq-epi64-m256i-a-m256i-b" class="headerlink" title="__m256i _mm256_cmpeq_epi64 (__m256i a, __m256i b)"></a>__m256i _mm256_cmpeq_epi64 (__m256i a, __m256i b)</h3><p><strong>Synopsis</strong></p>
+<p>__m256i _mm256_cmpeq_epi64 (__m256i a, __m256i b)<br>#include &lt;immintrin.h&gt;<br>Instruction: vpcmpeqq ymm, ymm, ymm<br>CPUID Flags: AVX2</p>
+<p><strong>Description</strong></p>
+<p>Compare packed 64-bit integers in a and b for equality, and store the results in dst.<br>Operation<br>FOR j :&#x3D; 0 to 3<br>    i :&#x3D; j*64<br>    dst[i+63:i] :&#x3D; ( a[i+63:i] &#x3D;&#x3D; b[i+63:i] ) ? 0xFFFFFFFFFFFFFFFF : 0<br>ENDFOR<br>dst[MAX:256] :&#x3D; 0</p>
+<h3 id="int-mm256-movemask-pd-m256d-a"><a href="#int-mm256-movemask-pd-m256d-a" class="headerlink" title="int _mm256_movemask_pd (__m256d a)"></a>int _mm256_movemask_pd (__m256d a)</h3><p><strong>Synopsis</strong></p>
+<p>int _mm256_movemask_pd (__m256d a)<br>#include &lt;immintrin.h&gt;<br>Instruction: vmovmskpd r32, ymm<br>CPUID Flags: AVX</p>
+<p><strong>Description</strong><br>Set each bit of mask dst based on the most significant bit of the corresponding packed double-precision (64-bit) floating-point element in a.<br>Operation<br>FOR j :&#x3D; 0 to 3<br>    i :&#x3D; j*64<br>    IF a[i+63]<br>        dst[j] :&#x3D; 1<br>    ELSE<br>        dst[j] :&#x3D; 0<br>    FI<br>ENDFOR<br>dst[MAX:4] :&#x3D; 0</p>
+<h3 id="m256i-mm256-loadu-si256-m256i-const-mem-addr"><a href="#m256i-mm256-loadu-si256-m256i-const-mem-addr" class="headerlink" title="__m256i _mm256_loadu_si256 (__m256i const * mem_addr)"></a>__m256i _mm256_loadu_si256 (__m256i const * mem_addr)</h3><p>Synopsis<br>__m256i _mm256_loadu_si256 (__m256i const * mem_addr)<br>#include &lt;immintrin.h&gt;<br>Instruction: vmovdqu ymm, m256<br>CPUID Flags: AVX<br>Description<br>Load 256-bits of integer data from memory into dst. mem_addr does not need to be aligned on any particular boundary.<br>Operation<br>dst[255:0] :&#x3D; MEM[mem_addr+255:mem_addr]<br>dst[MAX:256] :&#x3D; 0</p>
+<h3 id="m256i-mm256-lddqu-si256-m256i-const-mem-addr"><a href="#m256i-mm256-lddqu-si256-m256i-const-mem-addr" class="headerlink" title="__m256i _mm256_lddqu_si256 (__m256i const * mem_addr)"></a>__m256i _mm256_lddqu_si256 (__m256i const * mem_addr)</h3><p><strong>Synopsis</strong></p>
+<p>__m256i _mm256_lddqu_si256 (__m256i const * mem_addr)<br>#include &lt;immintrin.h&gt;<br>Instruction: vlddqu ymm, m256<br>CPUID Flags: AVX</p>
+<p><strong>Description</strong></p>
+<p>Load 256-bits of integer data from unaligned memory into dst. This intrinsic may perform better than _mm256_loadu_si256 when the data crosses a cache line boundary.<br>Operation<br>dst[255:0] :&#x3D; MEM[mem_addr+255:mem_addr]<br>dst[MAX:256] :&#x3D; 0</p>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html">https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.codeproject.com/Articles/874396/Crunching-Numbers-with-AVX-and-AVX">https://www.codeproject.com/Articles/874396/Crunching-Numbers-with-AVX-and-AVX</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.triplez.cn/posts/avx-avx2-learning-notes/">https://blog.triplez.cn/posts/avx-avx2-learning-notes/</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/Triple-Z/AVX-AVX2-Example-Code">https://github.com/Triple-Z/AVX-AVX2-Example-Code</a></li>
+</ul>
+
+  </div>
+</article>
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/categories/technology">Technology</a></li>
+         
+          <li><a href="/categories/life">Life</a></li>
+         
+          <li><a href="/archives/">Archives</a></li>
+         
+          <li><a href="/tags/">Tags</a></li>
+         
+          <li><a href="/about">About</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.</span> <span class="toc-text">介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#BigintValuesUsingHashTable%E5%88%86%E6%9E%90"><span class="toc-number">2.</span> <span class="toc-text">BigintValuesUsingHashTable分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#BigintValuesUsingHashTable%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0"><span class="toc-number">2.1.</span> <span class="toc-text">BigintValuesUsingHashTable构造函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#BigintValuesUsingHashTable-testValues"><span class="toc-number">2.2.</span> <span class="toc-text">BigintValuesUsingHashTable::testValues</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E4%BA%9Bintrinsics%E7%9A%84%E8%A7%A3%E9%87%8A"><span class="toc-number">3.</span> <span class="toc-text">一些intrinsics的解释</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#m256i-mm256-set1-epi64x-long-long-a"><span class="toc-number">3.1.</span> <span class="toc-text">__m256i _mm256_set1_epi64x (long long a)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#m256i-mm256-cmpgt-epi64-m256i-a-m256i-b"><span class="toc-number">3.2.</span> <span class="toc-text">__m256i _mm256_cmpgt_epi64 (__m256i a, __m256i b)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#m256i-mm256-mask-i64gather-epi64-m256i-src-int64-const-base-addr-m256i-vindex-m256i-mask-const-int-scale"><span class="toc-number">3.3.</span> <span class="toc-text">__m256i _mm256_mask_i64gather_epi64 (__m256i src, __int64 const* base_addr, __m256i vindex, __m256i mask, const int scale)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#m256i-mm256-cmpeq-epi64-m256i-a-m256i-b"><span class="toc-number">3.4.</span> <span class="toc-text">__m256i _mm256_cmpeq_epi64 (__m256i a, __m256i b)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#int-mm256-movemask-pd-m256d-a"><span class="toc-number">3.5.</span> <span class="toc-text">int _mm256_movemask_pd (__m256d a)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#m256i-mm256-loadu-si256-m256i-const-mem-addr"><span class="toc-number">3.6.</span> <span class="toc-text">__m256i _mm256_loadu_si256 (__m256i const * mem_addr)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#m256i-mm256-lddqu-si256-m256i-const-mem-addr"><span class="toc-number">3.7.</span> <span class="toc-text">__m256i _mm256_lddqu_si256 (__m256i const * mem_addr)</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">4.</span> <span class="toc-text">References</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/08/19/simd-in-velox-filter/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/08/19/simd-in-velox-filter/&text=SIMD in Velox - BigintValuesUsingHashTable"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/08/19/simd-in-velox-filter/&title=SIMD in Velox - BigintValuesUsingHashTable"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/08/19/simd-in-velox-filter/&is_video=false&description=SIMD in Velox - BigintValuesUsingHashTable"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=SIMD in Velox - BigintValuesUsingHashTable&body=Check out this article: http://example.com/2023/08/19/simd-in-velox-filter/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/08/19/simd-in-velox-filter/&title=SIMD in Velox - BigintValuesUsingHashTable"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/08/19/simd-in-velox-filter/&title=SIMD in Velox - BigintValuesUsingHashTable"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/08/19/simd-in-velox-filter/&title=SIMD in Velox - BigintValuesUsingHashTable"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/08/19/simd-in-velox-filter/&title=SIMD in Velox - BigintValuesUsingHashTable"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/08/19/simd-in-velox-filter/&name=SIMD in Velox - BigintValuesUsingHashTable&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/08/19/simd-in-velox-filter/&t=SIMD in Velox - BigintValuesUsingHashTable"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2026
+    duanmeng
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/categories/technology">Technology</a></li><!--
+     --><!--
+       --><li><a href="/categories/life">Life</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Archives</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tags</a></li><!--
+     --><!--
+       --><li><a href="/about">About</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+
+  <script src='https://unpkg.com/mermaid@10.3.0/dist/mermaid.min.js'></script>
+  <script>
+    if (window.mermaid) {
+      mermaid.initialize({theme: 'forest'});
+    }
+  </script>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
