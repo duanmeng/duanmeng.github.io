@@ -1,0 +1,1855 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="Apache Spark 监听器架构与原理 · Listener Architecture       :root{     --paper:#f5f0e8;     --paper-2:#ede8df;     --ink:#0c0e1a;     --border:#d4cdc0;     --muted:#7a7060;     --code-bg:#f0ece0;      -">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spark listener详解">
+<meta property="og:url" content="http://example.com/2026/06/13/listener-html/index.html">
+<meta property="og:site_name" content="Macduan Notes">
+<meta property="og:description" content="Apache Spark 监听器架构与原理 · Listener Architecture       :root{     --paper:#f5f0e8;     --paper-2:#ede8df;     --ink:#0c0e1a;     --border:#d4cdc0;     --muted:#7a7060;     --code-bg:#f0ece0;      -">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2026-06-13T07:47:25.000Z">
+<meta property="article:modified_time" content="2026-06-13T14:19:59.140Z">
+<meta property="article:author" content="duanmeng">
+<meta property="article:tag" content="spark">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Spark listener详解</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/categories/technology">Technology</a></li><!--
+     --><!--
+       --><li><a href="/categories/life">Life</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Archives</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tags</a></li><!--
+     --><!--
+       --><li><a href="/about">About</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2026/05/30/velox-hash-table/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2026/06/13/listener-html/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2026/06/13/listener-html/&text=Spark listener详解"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2026/06/13/listener-html/&title=Spark listener详解"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2026/06/13/listener-html/&is_video=false&description=Spark listener详解"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Spark listener详解&body=Check out this article: http://example.com/2026/06/13/listener-html/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2026/06/13/listener-html/&title=Spark listener详解"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2026/06/13/listener-html/&title=Spark listener详解"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2026/06/13/listener-html/&title=Spark listener详解"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2026/06/13/listener-html/&title=Spark listener详解"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2026/06/13/listener-html/&name=Spark listener详解&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2026/06/13/listener-html/&t=Spark listener详解"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">Spark 监听器架构与原理</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#s0"><span class="toc-number">1.1.</span> <span class="toc-text">Spark 监听器是什么，为什么需要它</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#s1"><span class="toc-number">1.2.</span> <span class="toc-text">自顶向下：运行时架构与类图</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#s1"><span class="toc-number">1.2.1.</span> <span class="toc-text">1.1　运行时架构图</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#s1"><span class="toc-number">1.2.2.</span> <span class="toc-text">1.2　三层职责</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#s1"><span class="toc-number">1.2.3.</span> <span class="toc-text">1.3　类图</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#s2"><span class="toc-number">1.3.</span> <span class="toc-text">逐个拆开：协调、派发、队列与流转</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#s2"><span class="toc-number">1.3.1.</span> <span class="toc-text">2.1　LiveListenerBus —— 协调层</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#s2"><span class="toc-number">1.3.2.</span> <span class="toc-text">2.2　AsyncEventQueue —— 队列 + 单线程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#s2"><span class="toc-number">1.3.3.</span> <span class="toc-text">2.3　SparkListenerBus —— 派发 trait（名字辨析）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#s2"><span class="toc-number">1.3.4.</span> <span class="toc-text">2.4　SparkListener 与事件体系 —— 回调契约</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#s2"><span class="toc-number">1.3.5.</span> <span class="toc-text">2.5　端到端流转与线程模型</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#s2"><span class="toc-number">1.3.5.1.</span> <span class="toc-text">线程模型 · 串行的范围</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#s2"><span class="toc-number">1.3.6.</span> <span class="toc-text">2.6　装配与喂数据：在 SparkContext 中如何接线</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#s2"><span class="toc-number">1.3.6.1.</span> <span class="toc-text">如何获取事件 · push 模型</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#s2"><span class="toc-number">1.3.6.2.</span> <span class="toc-text">内部架构 · 队列与线程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#s2"><span class="toc-number">1.3.6.3.</span> <span class="toc-text">在 SparkContext 中的装配顺序</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#s2"><span class="toc-number">1.3.6.4.</span> <span class="toc-text">extra listener 注册流程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#s2"><span class="toc-number">1.3.6.5.</span> <span class="toc-text">start &#x2F; stop 生命周期</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#s3"><span class="toc-number">1.4.</span> <span class="toc-text">SQL 监听：架在 Core 总线之上的一层</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#s3"><span class="toc-number">1.4.1.</span> <span class="toc-text">3.1　QueryExecutionListener 接口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#s3"><span class="toc-number">1.4.2.</span> <span class="toc-text">3.2　与 Core 的关系：同一条总线上的分层</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#s3"><span class="toc-number">1.4.3.</span> <span class="toc-text">3.3　Core 监听器能监听 SQL 事件吗？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#s4"><span class="toc-number">1.5.</span> <span class="toc-text">如何扩展 Spark 监听器</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#s4"><span class="toc-number">1.5.1.</span> <span class="toc-text">4.1　自定义 SparkListener（Core）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#s4"><span class="toc-number">1.5.2.</span> <span class="toc-text">4.2　自定义 QueryExecutionListener（SQL）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#s4"><span class="toc-number">1.5.3.</span> <span class="toc-text">4.3　自定义事件（onOtherEvent 扩展点）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#s4"><span class="toc-number">1.5.4.</span> <span class="toc-text">4.4　实践注意事项</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#s5"><span class="toc-number">1.6.</span> <span class="toc-text">用 Core Listener 提取血缘：源&#x2F;汇表与读写路径</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#s5"><span class="toc-number">1.6.1.</span> <span class="toc-text">5.1　思路 · on 哪个 event</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#s5"><span class="toc-number">1.6.2.</span> <span class="toc-text">5.2　提取架构图</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#s5"><span class="toc-number">1.6.3.</span> <span class="toc-text">5.3　方式 A：解析 sparkPlanInfo（自包含，物理计划）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#s5"><span class="toc-number">1.6.4.</span> <span class="toc-text">5.4　方式 B（推荐）：三阶段 union + End 缓存</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#s5"><span class="toc-number">1.6.5.</span> <span class="toc-text">5.5　计划节点 → source &#x2F; sink 映射</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#s5"><span class="toc-number">1.6.6.</span> <span class="toc-text">5.6　注意事项</span></a></li></ol></li></ol></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Spark listener详解
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">duanmeng</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2026-06-13T07:47:25.000Z" itemprop="datePublished">2026-06-13</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/spark/" rel="tag">spark</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Apache Spark 监听器架构与原理 · Listener Architecture</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=Noto+Serif+SC:wght@400;500;600&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f5f0e8;
+    --paper-2:#ede8df;
+    --ink:#0c0e1a;
+    --border:#d4cdc0;
+    --muted:#7a7060;
+    --code-bg:#f0ece0;
+
+    --search:#c1440e;
+    --data:#1c4fa0;
+    --eng:#1a6b3c;
+    --model:#7b2fbe;
+
+    --serif:'Newsreader','Noto Serif SC',serif;
+    --mono:'DM Mono','Noto Sans Mono CJK SC','Sarasa Mono SC',monospace;
+  }
+
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--serif);
+    font-size:17px;
+    line-height:1.78;
+    font-weight:400;
+  }
+  .wrap{max-width:960px;margin:0 auto;padding:0 28px;}
+
+  /* ---------- Masthead ---------- */
+  .masthead{padding:34px 0 22px;border-bottom:3px double var(--ink);}
+  .top-bar{
+    display:flex;justify-content:space-between;align-items:center;
+    font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--muted);
+    padding-bottom:14px;border-bottom:1px solid var(--border);
+    flex-wrap:wrap;gap:8px;
+  }
+  .masthead-title{
+    font-family:var(--serif);font-weight:600;
+    font-size:58px;line-height:1.04;letter-spacing:-.01em;
+    margin:20px 0 0;
+  }
+  .masthead-title em{font-style:italic;color:var(--data);}
+  .masthead-sub{
+    margin:16px 0 0;font-size:18px;line-height:1.7;color:#2a2a2a;
+    max-width:740px;
+  }
+  .masthead-sub strong{font-weight:600;}
+  .deck-rule{
+    margin-top:20px;padding-top:12px;border-top:1px solid var(--border);
+    font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--muted);
+    display:flex;gap:22px;flex-wrap:wrap;
+  }
+
+  /* ---------- Index / Nav ---------- */
+  .nav{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin:28px 0 8px;}
+  .nav-item{
+    border:1px solid var(--border);background:var(--paper);
+    border-radius:2px;padding:13px 13px 15px;text-decoration:none;color:var(--ink);
+    position:relative;display:block;
+  }
+  .nav-item::before{content:"";position:absolute;top:0;left:0;right:0;height:4px;}
+  .nav-item.s-search::before{background:var(--search);}
+  .nav-item.s-eng::before{background:var(--eng);}
+  .nav-item.s-data::before{background:var(--data);}
+  .nav-item.s-model::before{background:var(--model);}
+  .nav-num{font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:.08em;}
+  .nav-label{font-family:var(--serif);font-weight:600;font-size:17px;margin-top:6px;line-height:1.25;}
+  .nav-en{font-family:var(--mono);font-size:10.5px;letter-spacing:.05em;color:var(--muted);text-transform:uppercase;margin-top:4px;}
+
+  /* ---------- Sections ---------- */
+  .section{padding:46px 0 8px;border-top:1px solid var(--border);position:relative;}
+  .section-head{position:relative;margin-bottom:26px;}
+  .section-num{
+    position:absolute;right:0;top:-34px;
+    font-family:var(--serif);font-weight:600;font-size:128px;line-height:1;
+    color:var(--ink);opacity:.06;pointer-events:none;z-index:0;
+  }
+  .eyebrow{
+    display:inline-block;font-family:var(--mono);font-size:11px;
+    letter-spacing:.18em;text-transform:uppercase;color:var(--muted);
+    border:1px solid var(--border);border-radius:2px;padding:4px 10px;
+    position:relative;z-index:1;
+  }
+  .s-search .eyebrow{color:var(--search);border-color:var(--search);}
+  .s-eng .eyebrow{color:var(--eng);border-color:var(--eng);}
+  .s-data .eyebrow{color:var(--data);border-color:var(--data);}
+  .s-model .eyebrow{color:var(--model);border-color:var(--model);}
+  h2{
+    font-family:var(--serif);font-weight:600;font-size:36px;line-height:1.15;
+    margin:14px 0 0;letter-spacing:-.01em;position:relative;z-index:1;
+  }
+  h2 em{font-style:italic;}
+  .s-eng h2 em{color:var(--eng);}
+  .s-data h2 em{color:var(--data);}
+  .s-search h2 em{color:var(--search);}
+  .s-model h2 em{color:var(--model);}
+  h3{font-family:var(--serif);font-weight:600;font-size:22px;margin:34px 0 6px;line-height:1.3;}
+  h4{font-family:var(--mono);font-weight:500;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:26px 0 8px;}
+  p{margin:14px 0;}
+  p strong{font-weight:600;}
+  em.term{font-style:italic;}
+  .s-eng em.term{color:var(--eng);}
+  .s-data em.term{color:var(--data);}
+  .s-model em.term{color:var(--model);}
+  .lead{font-size:19px;line-height:1.72;color:#222;}
+  code.inl{font-family:var(--mono);font-size:14.5px;background:var(--code-bg);border:1px solid var(--border);border-radius:2px;padding:1px 6px;}
+
+  /* ---------- Cards ---------- */
+  .card-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:22px 0;}
+  .card-grid.tri{grid-template-columns:1fr 1fr 1fr;}
+  .card{border:1px solid var(--border);background:var(--paper-2);border-radius:2px;padding:18px 20px;}
+  .card .k{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);}
+  .card .v{font-family:var(--serif);font-weight:600;font-size:19px;margin-top:6px;}
+  .card p{margin:8px 0 0;font-size:15.5px;line-height:1.62;}
+
+  /* ---------- Stats ---------- */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:24px 0;}
+  .stat{border:1px solid var(--border);background:var(--paper);border-radius:2px;padding:18px 16px;text-align:left;}
+  .stat-num{font-family:var(--serif);font-weight:600;font-size:42px;line-height:1;letter-spacing:-.02em;}
+  .s-search .stat-num{color:var(--search);}
+  .stat-unit{font-family:var(--mono);font-size:12px;color:var(--muted);margin-left:4px;letter-spacing:.04em;}
+  .stat-label{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:10px;line-height:1.5;}
+
+  /* ---------- Note / Callout ---------- */
+  .note{border:1px solid var(--border);border-left:3px solid var(--muted);background:var(--paper-2);border-radius:2px;padding:16px 20px;margin:22px 0;font-size:15.5px;line-height:1.68;}
+  .note .tag{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px;}
+  .s-eng .note{border-left-color:var(--eng);}
+  .s-data .note{border-left-color:var(--data);}
+  .s-model .note{border-left-color:var(--model);}
+  .s-search .note{border-left-color:var(--search);}
+
+  /* ---------- Tables ---------- */
+  .tbl-wrap{overflow-x:auto;margin:22px 0;border:1px solid var(--border);border-radius:2px;}
+  table{width:100%;border-collapse:collapse;font-family:var(--mono);font-weight:400;}
+  thead th{
+    background:var(--paper-2);font-weight:400;font-size:12px;
+    letter-spacing:.08em;text-transform:uppercase;color:var(--muted);
+    text-align:left;padding:11px 14px;border-bottom:1px solid var(--border);
+    white-space:nowrap;
+  }
+  tbody td{font-size:14px;font-weight:400;padding:11px 14px;border-bottom:1px solid var(--border);vertical-align:top;line-height:1.5;}
+  tbody tr:nth-child(even){background:var(--paper-2);}
+  tbody tr:last-child td{border-bottom:none;}
+  table.cmp tbody td{font-size:15px;}
+  td .first{color:var(--ink);}
+  td .accent-e{color:var(--eng);}
+  td .accent-d{color:var(--data);}
+  td .accent-m{color:var(--model);}
+
+  /* ---------- Code ---------- */
+  pre{
+    font-family:var(--mono);font-size:15px;font-weight:400;line-height:1.62;
+    background:var(--code-bg);border:1px solid var(--border);border-left:3px solid var(--muted);
+    border-radius:2px;padding:16px 18px;margin:20px 0;overflow-x:auto;white-space:pre;
+    color:var(--ink);
+  }
+  .s-eng pre{border-left-color:var(--eng);}
+  .s-data pre{border-left-color:var(--data);}
+  .s-model pre{border-left-color:var(--model);}
+  .s-search pre{border-left-color:var(--search);}
+  pre .cm{color:#8a9a7a;}
+  pre .kw{color:#1a4a8a;}
+  pre .st{color:#2a6a2a;}
+  pre .dc{color:#8a5a10;}
+  pre .fn{color:var(--ink);}
+
+  /* ---------- Figures / SVG ---------- */
+  .fig{margin:28px 0;border:1px solid var(--border);border-radius:2px;background:var(--paper);padding:8px 8px 0;}
+  .fig svg{display:block;width:100%;height:auto;}
+  .fig-cap{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;color:var(--muted);text-transform:uppercase;padding:12px 14px;border-top:1px solid var(--border);}
+  .fig-cap b{color:var(--ink);font-weight:400;}
+
+  /* ---------- Colophon ---------- */
+  .colophon{border-top:3px double var(--ink);margin-top:46px;padding:26px 0 56px;font-family:var(--mono);font-size:12px;letter-spacing:.04em;color:var(--muted);line-height:1.7;}
+  .colophon b{color:var(--ink);font-weight:500;}
+
+  @media (max-width:760px){
+    body{font-size:16px;}
+    .wrap{padding:0 18px;}
+    .masthead-title{font-size:40px;}
+    .nav{grid-template-columns:1fr 1fr;}
+    .card-grid,.card-grid.tri{grid-template-columns:1fr;}
+    .stats{grid-template-columns:1fr 1fr;}
+    .section-num{font-size:84px;top:-18px;}
+    h2{font-size:28px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ===================== MASTHEAD ===================== -->
+  <header class="masthead">
+    <div class="top-bar">
+      <span>Apache Spark · 内核技术档案</span>
+      <span>监听器专题 · Vol. Listener</span>
+      <span>自顶向下 / 架构精读</span>
+    </div>
+    <h1 class="masthead-title">Spark 监听器架构与<em>原理</em></h1>
+    <p class="masthead-sub">
+      自顶向下读懂 Spark 的可观测性机制：先看<strong>整体架构与类图</strong>，再逐个 drill-down 到 <code>LiveListenerBus</code>、
+      <code>SparkListenerBus</code>、<code>AsyncEventQueue</code> 三个模块；随后是 SQL 层的 <strong>QueryExecutionListener</strong> 体系、
+      它与 Core 监听器的关系，以及一个常被问到的问题——<em>Core 监听器能不能监听 SQL 事件</em>；最后讲如何扩展，并实战：用 Core 监听器提取血缘（源/汇表与读写路径）。
+    </p>
+    <div class="deck-rule">
+      <span>00 是什么 / 为什么</span>
+      <span>01 总体架构 + 类图</span>
+      <span>02 核心模块 drill-down</span>
+      <span>03 SQL 体系与关系</span>
+      <span>04 扩展</span>
+      <span>05 血缘提取实战</span>
+    </div>
+  </header>
+
+  <!-- ===================== INDEX ===================== -->
+  <nav class="nav">
+    <a class="nav-item s-search" href="#s0">
+      <div class="nav-num">00</div>
+      <div class="nav-label">导言</div>
+      <div class="nav-en">What &amp; Why</div>
+    </a>
+    <a class="nav-item s-data" href="#s1">
+      <div class="nav-num">01</div>
+      <div class="nav-label">总体架构</div>
+      <div class="nav-en">Architecture</div>
+    </a>
+    <a class="nav-item s-eng" href="#s2">
+      <div class="nav-num">02</div>
+      <div class="nav-label">核心模块</div>
+      <div class="nav-en">Core Modules</div>
+    </a>
+    <a class="nav-item s-model" href="#s3">
+      <div class="nav-num">03</div>
+      <div class="nav-label">SQL 体系</div>
+      <div class="nav-en">SQL Listener</div>
+    </a>
+    <a class="nav-item s-search" href="#s4">
+      <div class="nav-num">04</div>
+      <div class="nav-label">扩展</div>
+      <div class="nav-en">Extending</div>
+    </a>
+    <a class="nav-item s-data" href="#s5">
+      <div class="nav-num">05</div>
+      <div class="nav-label">血缘实战</div>
+      <div class="nav-en">Lineage</div>
+    </a>
+  </nav>
+
+  <!-- ===================== 00 导言 ===================== -->
+  <section class="section s-search" id="s0">
+    <div class="section-head">
+      <div class="section-num">00</div>
+      <span class="eyebrow">导言 · What &amp; Why</span>
+      <h2>Spark 监听器是什么，<em>为什么</em>需要它</h2>
+    </div>
+
+    <p class="lead">
+      Spark 的调度器（Driver 端）在运行过程中持续产生大量内部事件：一个 Job 被提交、一个 Stage 完成、一个 Task 失败重试、一个 Executor 上线下线……
+      这些事件是调度逻辑的副产物，却对监控、审计、UI 展示、动态资源分配至关重要。
+    </p>
+    <p>
+      若让每个需要这些信息的组件都去侵入调度器代码，耦合会失控。Spark 的解法是经典的<em class="term">观察者模式（发布—订阅）</em>：
+      调度核心只负责把事件<strong>投递</strong>到一条总线上，谁来消费、消费后做什么，由订阅者——<strong>监听器（Listener）</strong>——各自决定。
+      生产者与消费者彻底解耦，这就是整套机制的设计基石。
+    </p>
+    <p>
+      先用一个动图直观感受<strong>一个事件的旅程</strong>——它如何从调度器流入总线、被广播分发进队列、再由队列线程交给注册的监听器处理（下面各节会把每一步拆开细讲）：
+    </p>
+
+    <div class="fig">
+      <svg viewBox="0 0 880 248" xmlns="http://www.w3.org/2000/svg" font-family="'DM Mono',monospace">
+        <style>
+          @keyframes evtFlow{
+            0%{transform:translate(164px,148px);opacity:0}
+            3%{opacity:1}
+            20%{transform:translate(304px,148px);opacity:1}
+            26%{transform:translate(304px,148px)}
+            44%{transform:translate(624px,129px)}
+            56%{transform:translate(624px,129px)}
+            68%{transform:translate(576px,186px)}
+            84%{transform:translate(801px,148px)}
+            90%{transform:translate(801px,148px);opacity:1}
+            95%{transform:translate(801px,148px);opacity:0}
+            100%{transform:translate(164px,148px);opacity:0}
+          }
+          @keyframes flBus{0%,17%{opacity:0}21%{opacity:.22}27%{opacity:0}100%{opacity:0}}
+          @keyframes flSlot{0%,40%{opacity:0}45%{opacity:.30}56%{opacity:.30}62%{opacity:0}100%{opacity:0}}
+          @keyframes flThread{0%,62%{opacity:0}68%{opacity:.22}76%{opacity:0}100%{opacity:0}}
+          @keyframes flList{0%,80%{opacity:0}85%{opacity:.26}91%{opacity:0}100%{opacity:0}}
+          .evt{animation:evtFlow 7s linear infinite}
+          .fl-bus{animation:flBus 7s linear infinite}
+          .fl-slot{animation:flSlot 7s linear infinite}
+          .fl-thread{animation:flThread 7s linear infinite}
+          .fl-list{animation:flList 7s linear infinite}
+          @media (prefers-reduced-motion: reduce){
+            .evt{animation:none;opacity:1;transform:translate(304px,148px)}
+            .fl-bus,.fl-slot,.fl-thread,.fl-list{animation:none;opacity:0}
+          }
+        </style>
+        <defs>
+          <marker id="arrAn" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+            <path d="M0,0 L10,5 L0,10" fill="none" stroke="#1a6b3c" stroke-width="1.3"/>
+          </marker>
+        </defs>
+
+        <text x="24" y="26" font-size="11" letter-spacing="1.4" fill="#7a7060">一个事件的旅程 · 循环演示</text>
+
+        <!-- Scheduler -->
+        <rect x="24" y="116" width="140" height="64" rx="3" fill="#1a6b3c0f" stroke="#1a6b3c" stroke-width="1.2"/>
+        <text x="94" y="144" font-size="12.5" fill="#0c0e1a" text-anchor="middle" font-weight="500">DAGScheduler</text>
+        <text x="94" y="162" font-size="9.5" fill="#7a7060" text-anchor="middle">调度器</text>
+
+        <path d="M164,148 L210,148" fill="none" stroke="#1a6b3c" stroke-width="1.3" marker-end="url(#arrAn)"/>
+        <text x="187" y="140" font-size="9" fill="#7a7060" text-anchor="middle">post</text>
+
+        <!-- LiveListenerBus -->
+        <rect x="214" y="104" width="180" height="88" rx="3" fill="#1a6b3c14" stroke="#1a6b3c" stroke-width="1.4"/>
+        <rect class="fl-bus" x="214" y="104" width="180" height="88" rx="3" fill="#1a6b3c" opacity="0"/>
+        <text x="304" y="140" font-size="13" fill="#0c0e1a" text-anchor="middle" font-weight="500">LiveListenerBus</text>
+        <text x="304" y="160" font-size="9.5" fill="#7a7060" text-anchor="middle">post · 广播到队列</text>
+
+        <path d="M394,148 L440,148" fill="none" stroke="#1a6b3c" stroke-width="1.3" marker-end="url(#arrAn)"/>
+        <text x="417" y="140" font-size="9" fill="#7a7060" text-anchor="middle">offer</text>
+
+        <!-- AsyncEventQueue -->
+        <rect x="444" y="84" width="252" height="132" rx="3" fill="none" stroke="#1a6b3c" stroke-width="1.4"/>
+        <text x="570" y="103" font-size="11" fill="#1a6b3c" text-anchor="middle" font-weight="500">AsyncEventQueue · shared</text>
+        <text x="455" y="132" font-size="8.5" fill="#7a7060">缓冲</text>
+        <rect x="487" y="116" width="34" height="26" rx="2" fill="#f5f0e8" stroke="#1a6b3c" stroke-width="0.9"/>
+        <rect x="527" y="116" width="34" height="26" rx="2" fill="#f5f0e8" stroke="#1a6b3c" stroke-width="0.9"/>
+        <rect x="567" y="116" width="34" height="26" rx="2" fill="#f5f0e8" stroke="#1a6b3c" stroke-width="0.9"/>
+        <rect x="607" y="116" width="34" height="26" rx="2" fill="#f5f0e8" stroke="#1a6b3c" stroke-width="0.9"/>
+        <rect class="fl-slot" x="607" y="116" width="34" height="26" rx="2" fill="#1a6b3c" opacity="0"/>
+        <text x="653" y="132" font-size="8.5" fill="#7a7060">FIFO</text>
+        <rect x="487" y="170" width="178" height="32" rx="2" fill="#f5f0e8" stroke="#1a6b3c" stroke-width="1.1"/>
+        <rect class="fl-thread" x="487" y="170" width="178" height="32" rx="2" fill="#1a6b3c" opacity="0"/>
+        <text x="576" y="190" font-size="10" fill="#0c0e1a" text-anchor="middle">dispatchThread · take()</text>
+
+        <path d="M696,180 L742,150" fill="none" stroke="#1a6b3c" stroke-width="1.3" marker-end="url(#arrAn)"/>
+        <text x="726" y="186" font-size="9" fill="#7a7060" text-anchor="middle">处理</text>
+
+        <!-- Listener -->
+        <rect x="746" y="104" width="110" height="88" rx="3" fill="#ede8df" stroke="#d4cdc0" stroke-width="1.1"/>
+        <rect class="fl-list" x="746" y="104" width="110" height="88" rx="3" fill="#1a6b3c" opacity="0"/>
+        <text x="801" y="140" font-size="12.5" fill="#0c0e1a" text-anchor="middle" font-weight="500">Listener</text>
+        <text x="801" y="160" font-size="9.5" fill="#7a7060" text-anchor="middle">处理回调</text>
+
+        <!-- event particle -->
+        <g class="evt" opacity="0">
+          <circle cx="0" cy="0" r="11" fill="#1a6b3c"/>
+          <text x="0" y="3" font-size="7.5" fill="#f5f0e8" text-anchor="middle">evt</text>
+        </g>
+      </svg>
+      <div class="fig-cap"><b>动图</b> — 一个事件的旅程：DAGScheduler post → LiveListenerBus 广播 → 进入 AsyncEventQueue 缓冲 → dispatchThread take → 交给注册的 Listener 处理（循环播放）</div>
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-num">2<span class="stat-unit">层</span></div>
+        <div class="stat-label">Core 与 SQL<br>两套监听体系</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">3<span class="stat-unit">职责层</span></div>
+        <div class="stat-label">协调 / 派发 /<br>回调契约</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">4<span class="stat-unit">队列</span></div>
+        <div class="stat-label">异步分发的<br>命名队列</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">1<span class="stat-unit">总线</span></div>
+        <div class="stat-label">两层共享同一条<br>LiveListenerBus</div>
+      </div>
+    </div>
+
+    <p>
+      整套体系分两层：<strong>Core 层</strong>的 <code class="inl">SparkListener</code> 观测调度全生命周期（作业 / 阶段 / 任务 / 执行器 / 存储），
+      <strong>SQL 层</strong>的 <code class="inl">QueryExecutionListener</code> 观测查询级别（每一次 Dataset 动作的计划与耗时）。
+      关键是：两层<em class="term">共享同一条事件总线</em>——后文会看到，SQL 监听只是架设在 Core 总线之上的一层。下面从全局架构开始。
+    </p>
+  </section>
+
+  <!-- ===================== 01 总体架构 ===================== -->
+  <section class="section s-data" id="s1">
+    <div class="section-head">
+      <div class="section-num">01</div>
+      <span class="eyebrow">总体架构 · Architecture</span>
+      <h2>自顶向下：<em>运行时架构</em>与类图</h2>
+    </div>
+
+    <p class="lead">
+      先建立两张全局视图：一张<strong>运行时架构图</strong>（事件如何从生产者流到下游消费），一张<strong>类图</strong>（各类型如何组织）。
+      把这两张图看懂，后面逐个模块的细节就都有了坐标。
+    </p>
+
+    <h3>1.1　运行时架构图</h3>
+    <p>
+      事件自上而下流经四层：<em class="term">生产者</em>（调度组件 + SQL 执行）把事件 <code class="inl">post</code> 给
+      <em class="term">协调者</em> <code class="inl">LiveListenerBus</code>，后者<strong>广播</strong>到每一条<em class="term">异步队列</em>，
+      每条队列用自己的线程把事件派发给挂在其下的<em class="term">监听器</em>，监听器再驱动下游（UI、事件日志、动态分配、用户审计等）。
+    </p>
+
+    <div class="fig">
+      <svg viewBox="0 0 880 472" xmlns="http://www.w3.org/2000/svg" font-family="'DM Mono',monospace">
+        <defs>
+          <marker id="arrA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+            <path d="M0,0 L10,5 L0,10" fill="none" stroke="#1c4fa0" stroke-width="1.3"/>
+          </marker>
+        </defs>
+
+        <!-- 层标签 -->
+        <text x="20" y="20" font-size="10.5" letter-spacing="1.4" fill="#7a7060">① 生产者 · DRIVER</text>
+        <!-- 生产者 5 box -->
+        <rect x="20"  y="30" width="152" height="46" rx="3" fill="#1c4fa00f" stroke="#1c4fa0" stroke-width="1.1"/>
+        <rect x="190" y="30" width="152" height="46" rx="3" fill="#1c4fa00f" stroke="#1c4fa0" stroke-width="1.1"/>
+        <rect x="360" y="30" width="152" height="46" rx="3" fill="#1c4fa00f" stroke="#1c4fa0" stroke-width="1.1"/>
+        <rect x="530" y="30" width="152" height="46" rx="3" fill="#1c4fa00f" stroke="#1c4fa0" stroke-width="1.1"/>
+        <rect x="700" y="30" width="160" height="46" rx="3" fill="#1c4fa014" stroke="#1c4fa0" stroke-width="1.2"/>
+        <text x="96"  y="52" font-size="12" fill="#0c0e1a" text-anchor="middle">DAGScheduler</text>
+        <text x="266" y="52" font-size="12" fill="#0c0e1a" text-anchor="middle">TaskScheduler</text>
+        <text x="436" y="50" font-size="11" fill="#0c0e1a" text-anchor="middle">BlockManager</text>
+        <text x="436" y="64" font-size="11" fill="#0c0e1a" text-anchor="middle">Master</text>
+        <text x="606" y="52" font-size="12" fill="#0c0e1a" text-anchor="middle">SparkContext</text>
+        <text x="780" y="50" font-size="12" fill="#1c4fa0" text-anchor="middle" font-weight="500">SQLExecution</text>
+        <text x="780" y="65" font-size="9.5" fill="#7a7060" text-anchor="middle">(SQL 事件)</text>
+
+        <!-- 汇聚到 bus -->
+        <path d="M96,76 L96,96 L440,96"  fill="none" stroke="#1c4fa0" stroke-width="1.1" stroke-dasharray="4 3"/>
+        <path d="M266,76 L266,96" fill="none" stroke="#1c4fa0" stroke-width="1.1" stroke-dasharray="4 3"/>
+        <path d="M436,76 L436,96" fill="none" stroke="#1c4fa0" stroke-width="1.1" stroke-dasharray="4 3"/>
+        <path d="M606,76 L606,96 L443,96" fill="none" stroke="#1c4fa0" stroke-width="1.1" stroke-dasharray="4 3"/>
+        <path d="M780,76 L780,96 L443,96" fill="none" stroke="#1c4fa0" stroke-width="1.1" stroke-dasharray="4 3"/>
+        <path d="M440,96 L440,116" fill="none" stroke="#1c4fa0" stroke-width="1.4" marker-end="url(#arrA)"/>
+        <text x="452" y="110" font-size="10" fill="#7a7060">post(event)</text>
+
+        <!-- ② 协调层 -->
+        <text x="20" y="132" font-size="10.5" letter-spacing="1.4" fill="#7a7060">② 协调层</text>
+        <rect x="20" y="138" width="840" height="48" rx="3" fill="#1c4fa014" stroke="#1c4fa0" stroke-width="1.4"/>
+        <text x="440" y="160" font-size="13.5" fill="#0c0e1a" text-anchor="middle" font-weight="500">LiveListenerBus</text>
+        <text x="440" y="177" font-size="10.5" fill="#7a7060" text-anchor="middle">广播 post 到每一条队列 · 不按事件类型路由 · 管 start / stop</text>
+
+        <!-- 扇出到队列 -->
+        <path d="M118,186 L118,222" fill="none" stroke="#1c4fa0" stroke-width="1.1" stroke-dasharray="4 3" marker-end="url(#arrA)"/>
+        <path d="M330,186 L330,222" fill="none" stroke="#1c4fa0" stroke-width="1.1" stroke-dasharray="4 3" marker-end="url(#arrA)"/>
+        <path d="M542,186 L542,222" fill="none" stroke="#1c4fa0" stroke-width="1.1" stroke-dasharray="4 3" marker-end="url(#arrA)"/>
+        <path d="M754,186 L754,222" fill="none" stroke="#1c4fa0" stroke-width="1.1" stroke-dasharray="4 3" marker-end="url(#arrA)"/>
+
+        <!-- ③ 队列层 -->
+        <text x="20" y="216" font-size="10.5" letter-spacing="1.4" fill="#7a7060">③ 队列层 · AsyncEventQueue × N（各持线程+缓冲）</text>
+        <rect x="20"  y="224" width="196" height="52" rx="3" fill="#f5f0e8" stroke="#1c4fa0" stroke-width="1.2"/>
+        <rect x="232" y="224" width="196" height="52" rx="3" fill="#f5f0e8" stroke="#1c4fa0" stroke-width="1.2"/>
+        <rect x="444" y="224" width="196" height="52" rx="3" fill="#f5f0e8" stroke="#1c4fa0" stroke-width="1.2"/>
+        <rect x="656" y="224" width="204" height="52" rx="3" fill="#f5f0e8" stroke="#1c4fa0" stroke-width="1.2"/>
+        <text x="118" y="246" font-size="12.5" fill="#1c4fa0" text-anchor="middle" font-weight="500">shared</text>
+        <text x="330" y="246" font-size="12.5" fill="#1c4fa0" text-anchor="middle" font-weight="500">appStatus</text>
+        <text x="542" y="246" font-size="11.5" fill="#1c4fa0" text-anchor="middle" font-weight="500">executorManagement</text>
+        <text x="758" y="246" font-size="12.5" fill="#1c4fa0" text-anchor="middle" font-weight="500">eventLog</text>
+        <text x="118" y="265" font-size="9.5" fill="#7a7060" text-anchor="middle">线程 + 缓冲</text>
+        <text x="330" y="265" font-size="9.5" fill="#7a7060" text-anchor="middle">线程 + 缓冲</text>
+        <text x="542" y="265" font-size="9.5" fill="#7a7060" text-anchor="middle">线程 + 缓冲</text>
+        <text x="758" y="265" font-size="9.5" fill="#7a7060" text-anchor="middle">线程 + 缓冲</text>
+
+        <path d="M118,276 L118,310" fill="none" stroke="#1c4fa0" stroke-width="1.1" stroke-dasharray="4 3" marker-end="url(#arrA)"/>
+        <path d="M330,276 L330,310" fill="none" stroke="#1c4fa0" stroke-width="1.1" stroke-dasharray="4 3" marker-end="url(#arrA)"/>
+        <path d="M542,276 L542,310" fill="none" stroke="#1c4fa0" stroke-width="1.1" stroke-dasharray="4 3" marker-end="url(#arrA)"/>
+        <path d="M754,276 L754,310" fill="none" stroke="#1c4fa0" stroke-width="1.1" stroke-dasharray="4 3" marker-end="url(#arrA)"/>
+
+        <!-- ④ 监听器层(含下游注记) -->
+        <text x="20" y="304" font-size="10.5" letter-spacing="1.4" fill="#7a7060">④ 监听器层 → 下游消费</text>
+        <rect x="20"  y="312" width="196" height="74" rx="3" fill="#ede8df" stroke="#d4cdc0" stroke-width="1.1"/>
+        <rect x="232" y="312" width="196" height="74" rx="3" fill="#ede8df" stroke="#d4cdc0" stroke-width="1.1"/>
+        <rect x="444" y="312" width="196" height="74" rx="3" fill="#ede8df" stroke="#d4cdc0" stroke-width="1.1"/>
+        <rect x="656" y="312" width="204" height="74" rx="3" fill="#ede8df" stroke="#d4cdc0" stroke-width="1.1"/>
+        <text x="118" y="332" font-size="11" fill="#0c0e1a" text-anchor="middle">自定义 Listener</text>
+        <text x="118" y="348" font-size="11" fill="#0c0e1a" text-anchor="middle">ExecutionListenerBus</text>
+        <text x="118" y="376" font-size="9.5" fill="#7a7060" text-anchor="middle">→ 用户审计 / SQL 回调</text>
+        <text x="330" y="340" font-size="11" fill="#0c0e1a" text-anchor="middle">AppStatusListener</text>
+        <text x="330" y="376" font-size="9.5" fill="#7a7060" text-anchor="middle">→ 实时 Spark UI</text>
+        <text x="542" y="332" font-size="10.5" fill="#0c0e1a" text-anchor="middle">ExecutorAllocation</text>
+        <text x="542" y="348" font-size="10.5" fill="#0c0e1a" text-anchor="middle">HeartbeatReceiver</text>
+        <text x="542" y="376" font-size="9.5" fill="#7a7060" text-anchor="middle">→ 动态资源分配</text>
+        <text x="758" y="340" font-size="11" fill="#0c0e1a" text-anchor="middle">EventLoggingListener</text>
+        <text x="758" y="376" font-size="9.5" fill="#7a7060" text-anchor="middle">→ 事件日志 / History</text>
+
+        <!-- 底注 -->
+        <rect x="20" y="402" width="840" height="50" rx="3" fill="#1c4fa00f" stroke="#1c4fa0" stroke-width="1.1"/>
+        <text x="440" y="424" font-size="11" fill="#0c0e1a" text-anchor="middle">同一个事件会同时进入全部四条队列；队列按“监听器分组”做隔离，而非按“事件类型”分流。</text>
+        <text x="440" y="442" font-size="10.5" fill="#7a7060" text-anchor="middle">SQL 事件(SQLExecutionStart/End) 也走这条总线 → 因此 shared 队列里的 SparkListener 也能收到（见第 03 节）。</text>
+      </svg>
+      <div class="fig-cap"><b>图 1</b> — 运行时架构：生产者 post → LiveListenerBus 广播 → 各 AsyncEventQueue 用自有线程派发 → 监听器驱动下游</div>
+    </div>
+
+    <h3>1.2　三层职责</h3>
+    <p>
+      把上图的角色按职责归类，正好是三层——后面的模块详解就沿着这三层展开：
+    </p>
+    <div class="card-grid tri">
+      <div class="card">
+        <div class="k">协调层 · Coordinator</div>
+        <div class="v">LiveListenerBus</div>
+        <p>持有队列列表，<code class="inl">post</code> 广播事件、管 start/stop。<strong>不</strong>实现任何回调，也<strong>不</strong>直接持有监听器。</p>
+      </div>
+      <div class="card">
+        <div class="k">派发层 · Dispatch</div>
+        <div class="v">ListenerBus → SparkListenerBus → AsyncEventQueue</div>
+        <p>把事件按类型变成对应回调调用；<code class="inl">AsyncEventQueue</code> 在此之上加了缓冲与线程。</p>
+      </div>
+      <div class="card">
+        <div class="k">回调契约层 · Callbacks</div>
+        <div class="v">SparkListenerInterface / SparkListener / 具体监听器</div>
+        <p>声明并实现 <code class="inl">onJobStart</code> 等回调。真正的业务逻辑写在具体监听器里。</p>
+      </div>
+    </div>
+
+    <h3>1.3　类图</h3>
+    <p>
+      类图把上面三层落到具体类型。左侧是<strong>派发/总线</strong>这条线，右侧是<strong>监听器</strong>这条线，二者通过一条「持有监听器列表」的关联连起来。
+      注意几个容易混的点：<code class="inl">SparkListenerBus</code> 不是总线门面，而是 <code class="inl">AsyncEventQueue</code> 的父 trait；
+      <code class="inl">LiveListenerBus</code> 不在继承链上，它只是组合持有队列。
+    </p>
+
+    <div class="fig">
+      <svg viewBox="0 0 880 432" xmlns="http://www.w3.org/2000/svg" font-family="'DM Mono',monospace">
+        <defs>
+          <marker id="triC2" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="14" markerHeight="14" orient="auto">
+            <path d="M1,1 L11,6 L1,11 Z" fill="#f5f0e8" stroke="#1c4fa0" stroke-width="1.2"/>
+          </marker>
+          <marker id="veeC2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+            <path d="M0,0 L10,5 L0,10" fill="none" stroke="#1c4fa0" stroke-width="1.2"/>
+          </marker>
+          <marker id="diaC2" viewBox="0 0 16 10" refX="2" refY="5" markerWidth="16" markerHeight="10" orient="auto">
+            <path d="M2,5 L8,1 L14,5 L8,9 Z" fill="#1c4fa0" stroke="#1c4fa0" stroke-width="1"/>
+          </marker>
+        </defs>
+
+        <!-- 左：派发/总线继承链(父在上) -->
+        <text x="270" y="24" font-size="10.5" letter-spacing="1.3" fill="#7a7060">派发 / 总线</text>
+        <rect x="270" y="32" width="250" height="54" rx="3" fill="#1c4fa00f" stroke="#1c4fa0" stroke-width="1.2"/>
+        <text x="395" y="54" font-size="12.5" fill="#0c0e1a" text-anchor="middle">«trait» ListenerBus[L, E]</text>
+        <text x="395" y="72" font-size="10" fill="#7a7060" text-anchor="middle">listeners 列表 · postToAll · doPostEvent(抽象)</text>
+
+        <rect x="270" y="128" width="250" height="52" rx="3" fill="#1c4fa00f" stroke="#1c4fa0" stroke-width="1.2"/>
+        <text x="395" y="150" font-size="12.5" fill="#0c0e1a" text-anchor="middle">«trait» SparkListenerBus</text>
+        <text x="395" y="168" font-size="10" fill="#7a7060" text-anchor="middle">doPostEvent：事件类型 → onXxx</text>
+
+        <rect x="270" y="222" width="250" height="58" rx="3" fill="#1c4fa014" stroke="#1c4fa0" stroke-width="1.4"/>
+        <text x="395" y="244" font-size="12.5" fill="#0c0e1a" text-anchor="middle" font-weight="500">«class» AsyncEventQueue</text>
+        <text x="395" y="262" font-size="10" fill="#7a7060" text-anchor="middle">+ 有界缓冲 + dispatch 线程 × 1</text>
+
+        <path d="M395,128 L395,90"  fill="none" stroke="#1c4fa0" stroke-width="1.2" marker-end="url(#triC2)"/>
+        <path d="M395,222 L395,184" fill="none" stroke="#1c4fa0" stroke-width="1.2" marker-end="url(#triC2)"/>
+        <text x="402" y="112" font-size="9.5" fill="#7a7060">extends</text>
+        <text x="402" y="206" font-size="9.5" fill="#7a7060">extends</text>
+
+        <!-- 左下角: 实例注记 -->
+        <text x="270" y="300" font-size="9.5" fill="#7a7060">按 name 实例化出 shared / appStatus /</text>
+        <text x="270" y="313" font-size="9.5" fill="#7a7060">executorManagement / eventLog 四个对象</text>
+
+        <!-- LiveListenerBus(左侧,与 AsyncEventQueue 同高) -->
+        <rect x="20" y="222" width="220" height="58" rx="3" fill="#1c4fa014" stroke="#1c4fa0" stroke-width="1.4"/>
+        <text x="130" y="244" font-size="12.5" fill="#0c0e1a" text-anchor="middle" font-weight="500">«class» LiveListenerBus</text>
+        <text x="130" y="262" font-size="10" fill="#7a7060" text-anchor="middle">queues: List[AsyncEventQueue]</text>
+        <path d="M240,251 L270,251" fill="none" stroke="#1c4fa0" stroke-width="1.3" marker-start="url(#diaC2)" marker-end="url(#veeC2)"/>
+        <text x="255" y="242" font-size="9" fill="#7a7060" text-anchor="middle">持有 *</text>
+
+        <!-- 右：监听器继承链(父在上) -->
+        <text x="600" y="24" font-size="10.5" letter-spacing="1.3" fill="#7a7060">监听器(回调契约)</text>
+        <rect x="600" y="32" width="260" height="54" rx="3" fill="#1c4fa00f" stroke="#1c4fa0" stroke-width="1.2"/>
+        <text x="730" y="54" font-size="12.5" fill="#0c0e1a" text-anchor="middle">«trait» SparkListenerInterface</text>
+        <text x="730" y="72" font-size="10" fill="#7a7060" text-anchor="middle">声明 onJobStart / onTaskEnd / onOtherEvent …</text>
+
+        <rect x="600" y="128" width="260" height="52" rx="3" fill="#1c4fa00f" stroke="#1c4fa0" stroke-width="1.2"/>
+        <text x="730" y="150" font-size="12.5" fill="#0c0e1a" text-anchor="middle">«abstract» SparkListener</text>
+        <text x="730" y="168" font-size="10" fill="#7a7060" text-anchor="middle">全部回调的空实现 · 供继承</text>
+
+        <rect x="600" y="222" width="260" height="74" rx="3" fill="#ede8df" stroke="#d4cdc0" stroke-width="1.1"/>
+        <text x="730" y="242" font-size="11.5" fill="#0c0e1a" text-anchor="middle" font-weight="500">具体监听器</text>
+        <text x="730" y="260" font-size="10" fill="#7a7060" text-anchor="middle">AppStatusListener · EventLoggingListener</text>
+        <text x="730" y="276" font-size="10" fill="#7a7060" text-anchor="middle">ExecutionListenerBus · 你的 Listener</text>
+
+        <!-- implements(虚线三角) + extends -->
+        <path d="M730,128 L730,90" fill="none" stroke="#1c4fa0" stroke-width="1.2" stroke-dasharray="5 3" marker-end="url(#triC2)"/>
+        <path d="M730,222 L730,184" fill="none" stroke="#1c4fa0" stroke-width="1.2" marker-end="url(#triC2)"/>
+        <text x="737" y="112" font-size="9.5" fill="#7a7060">implements</text>
+        <text x="737" y="206" font-size="9.5" fill="#7a7060">extends</text>
+
+        <!-- 关联: AsyncEventQueue --listeners*--> SparkListenerInterface -->
+        <path d="M520,236 L560,236 L560,60 L600,60" fill="none" stroke="#1c4fa0" stroke-width="1.2" marker-end="url(#veeC2)"/>
+        <text x="566" y="150" font-size="9.5" fill="#1c4fa0">listeners 0..*</text>
+        <text x="566" y="164" font-size="9" fill="#7a7060">(派发对象)</text>
+
+        <!-- 图例 + 桥接注 -->
+        <line x1="20" y1="356" x2="44" y2="356" stroke="#1c4fa0" stroke-width="1.2" marker-end="url(#triC2)"/>
+        <text x="52" y="360" font-size="10" fill="#7a7060">继承</text>
+        <line x1="120" y1="356" x2="144" y2="356" stroke="#1c4fa0" stroke-width="1.2" stroke-dasharray="5 3" marker-end="url(#triC2)"/>
+        <text x="152" y="360" font-size="10" fill="#7a7060">实现</text>
+        <path d="M226,356 L232,352 L238,356 L232,360 Z" fill="#1c4fa0"/>
+        <line x1="238" y1="356" x2="262" y2="356" stroke="#1c4fa0" stroke-width="1.2" marker-end="url(#veeC2)"/>
+        <text x="270" y="360" font-size="10" fill="#7a7060">组合 / 关联</text>
+
+        <rect x="20" y="378" width="840" height="44" rx="3" fill="#1c4fa00f" stroke="#1c4fa0" stroke-width="1.1"/>
+        <text x="440" y="400" font-size="10.5" fill="#0c0e1a" text-anchor="middle">桥接点：ExecutionListenerBus 既是一个 SparkListener（右侧），又被注册进 shared 队列（左侧）——</text>
+        <text x="440" y="415" font-size="10.5" fill="#7a7060" text-anchor="middle">它在两条线之间架桥，把 SQL 事件转成 QueryExecutionListener 回调（见第 03 节）。</text>
+      </svg>
+      <div class="fig-cap"><b>图 2</b> — 类图：左侧 LiveListenerBus 组合持有 AsyncEventQueue（继承自 SparkListenerBus / ListenerBus）；右侧监听器继承链；二者由“listeners 列表”关联</div>
+    </div>
+  </section>
+
+  <!-- ===================== 02 核心模块 ===================== -->
+  <section class="section s-eng" id="s2">
+    <div class="section-head">
+      <div class="section-num">02</div>
+      <span class="eyebrow">核心模块 · Drill-down</span>
+      <h2>逐个拆开：<em>协调、派发、队列</em>与流转</h2>
+    </div>
+
+    <p class="lead">
+      沿着类图从上往下钻：先看协调者 <code class="inl">LiveListenerBus</code>，再看真正干活的队列 <code class="inl">AsyncEventQueue</code>，
+      接着辨析容易混淆的 <code class="inl">SparkListenerBus</code> 与回调契约，最后把它们串成一条端到端链路并讲清线程模型。
+    </p>
+
+    <h3>2.1　LiveListenerBus —— 协调层</h3>
+    <p>
+      <code class="inl">LiveListenerBus</code> 是个<em class="term">协调者 / 门面</em>，本身<strong>不</strong>是监听器、也<strong>不</strong>实现任何回调。它做三件事：
+      持有一个 <code class="inl">CopyOnWriteArrayList[AsyncEventQueue]</code>；把 <code class="inl">post(event)</code> 广播到列表里的每一条队列；管理队列的 start / stop。
+    </p>
+    <p>
+      注册监听器时（<code class="inl">addToSharedQueue</code> / <code class="inl">addToStatusQueue</code> / …）它按 name 查找队列，找不到就 <code class="inl">new</code> 一个——
+      所以队列是<strong>按需懒创建</strong>的，实际存在哪几条取决于注册了什么。
+    </p>
+<pre><span class="cm">// 队列名只是常量, 不是类型</span>
+<span class="kw">val</span> SHARED_QUEUE = <span class="st">"shared"</span>; <span class="kw">val</span> APP_STATUS_QUEUE = <span class="st">"appStatus"</span>
+<span class="kw">val</span> EXECUTOR_MANAGEMENT_QUEUE = <span class="st">"executorManagement"</span>; <span class="kw">val</span> EVENT_LOG_QUEUE = <span class="st">"eventLog"</span>
+
+<span class="kw">private val</span> queues = <span class="kw">new</span> CopyOnWriteArrayList[AsyncEventQueue]()
+
+<span class="cm">// post：广播到每一条队列(不按类型路由)</span>
+<span class="kw">private def</span> <span class="fn">postToQueues</span>(event: SparkListenerEvent): Unit = {
+  <span class="kw">val</span> it = queues.iterator()
+  <span class="kw">while</span> (it.hasNext) it.<span class="fn">next</span>().<span class="fn">post</span>(event)
+}
+
+<span class="cm">// 注册：按 name 找队列, 没有才新建(懒创建)</span>
+<span class="kw">def</span> <span class="fn">addToQueue</span>(listener: SparkListenerInterface, name: String) = <span class="kw">synchronized</span> {
+  queues.asScala.<span class="fn">find</span>(_.name == name) <span class="kw">match</span> {
+    <span class="kw">case</span> Some(q) =&gt; q.<span class="fn">addListener</span>(listener)
+    <span class="kw">case</span> None    =&gt; <span class="kw">val</span> q = <span class="kw">new</span> AsyncEventQueue(name, conf, metrics, <span class="kw">this</span>); q.<span class="fn">addListener</span>(listener); queues.<span class="fn">add</span>(q)
+  }
+}</pre>
+
+    <h3>2.2　AsyncEventQueue —— 队列 + 单线程</h3>
+    <p>
+      这是<strong>真正干活</strong>的类，本质就是「一个有界事件队列 + 一个处理线程」的封装，再叠加从父 trait 继承来的「事件→回调」派发能力。
+      它持有一个有界 <code class="inl">LinkedBlockingQueue</code>（容量默认 10000，由 <code class="inl">spark.scheduler.listenerbus.eventqueue.capacity</code> 控制），
+      和一个专属守护线程 <code class="inl">spark-listener-group-&#123;name&#125;</code>。
+    </p>
+    <p>
+      <code class="inl">post</code> 用 <code class="inl">offer</code> 入队，<strong>非阻塞</strong>；队列满则<strong>丢弃</strong>事件、累加计数并打印限速告警（宁可丢事件也不阻塞调度）。
+      停止时向队列投递一枚哨兵（poison pill），等队列排空后再 join 线程。<code class="inl">shared</code> / <code class="inl">appStatus</code> / <code class="inl">executorManagement</code> / <code class="inl">eventLog</code>
+      就是这个类的<em class="term">四个实例</em>，仅靠 <code class="inl">name</code> 区分。
+    </p>
+<pre><span class="kw">private class</span> <span class="fn">AsyncEventQueue</span>(<span class="kw">val</span> name: String, <span class="cm">/* … */</span>) <span class="kw">extends</span> SparkListenerBus {
+  <span class="kw">private val</span> eventQueue     = <span class="kw">new</span> LinkedBlockingQueue[SparkListenerEvent](capacity)
+  <span class="kw">private val</span> dispatchThread = <span class="kw">new</span> Thread(<span class="st">s"spark-listener-group-$name"</span>) { <span class="cm">/* dispatch() */</span> }
+
+  <span class="kw">def</span> <span class="fn">post</span>(event: SparkListenerEvent): Unit =
+    <span class="kw">if</span> (!eventQueue.<span class="fn">offer</span>(event)) <span class="fn">onDropEvent</span>(event)   <span class="cm">// 满则丢弃, 不阻塞</span>
+
+  <span class="kw">private def</span> <span class="fn">dispatch</span>(): Unit = {
+    <span class="kw">var</span> next = eventQueue.<span class="fn">take</span>()                       <span class="cm">// 阻塞取事件</span>
+    <span class="kw">while</span> (next != POISON_PILL) { <span class="kw">super</span>.<span class="fn">postToAll</span>(next); next = eventQueue.<span class="fn">take</span>() }
+  }
+}</pre>
+
+    <h3>2.3　SparkListenerBus —— 派发 trait（名字辨析）</h3>
+    <div class="note">
+      <span class="tag">命名陷阱</span>
+      <code class="inl">SparkListenerBus</code> 这名字容易让人以为它就是那个「总线门面」。其实<strong>不是</strong>——它是 <code class="inl">AsyncEventQueue</code> 的<em class="term">父 trait</em>，
+      封装的是「把事件按类型分发到具体回调」这件事。真正的门面/协调者是 <code class="inl">LiveListenerBus</code>。
+    </div>
+    <p>
+      它的父 <code class="inl">ListenerBus</code> 持有监听器列表、提供 <code class="inl">postToAll</code>（遍历本实例的 listeners，逐个 <code class="inl">doPostEvent</code>，并 try/catch 隔离、单独计时）。
+      <code class="inl">SparkListenerBus</code> 实现的 <code class="inl">doPostEvent</code> 就是那段<strong>按事件类型的模式匹配</strong>——这是「事件→具体回调」的转换核心。
+      另外，History Server 回放日志用的 <code class="inl">ReplayListenerBus</code> 也继承它，只是同步重放、没有线程。
+    </p>
+<pre><span class="cm">// SparkListenerBus：事件类型 → 调具体回调</span>
+<span class="kw">protected def</span> <span class="fn">doPostEvent</span>(listener: SparkListenerInterface,
+                          event: SparkListenerEvent): Unit = event <span class="kw">match</span> {
+  <span class="kw">case</span> e: SparkListenerTaskEnd =&gt; listener.<span class="fn">onTaskEnd</span>(e)
+  <span class="kw">case</span> e: SparkListenerJobEnd  =&gt; listener.<span class="fn">onJobEnd</span>(e)
+  <span class="cm">// … 其余 core 事件类型 …</span>
+  <span class="kw">case</span> _                       =&gt; listener.<span class="fn">onOtherEvent</span>(e)   <span class="cm">// 扩展/SQL 事件走这里</span>
+}</pre>
+
+    <h3>2.4　SparkListener 与事件体系 —— 回调契约</h3>
+    <p>
+      回调契约由 <code class="inl">SparkListenerInterface</code> 声明（<code class="inl">onJobStart</code> / <code class="inl">onTaskEnd</code> / … / <code class="inl">onOtherEvent</code>），
+      抽象类 <code class="inl">SparkListener</code> 给它们空实现供继承，具体监听器只重写自己关心的。其中 <code class="inl">onOtherEvent</code> 是<em class="term">扩展点</em>：
+      自定义事件和 SQL 模块事件都从这里进来。所有事件都实现 <code class="inl">SparkListenerEvent</code>，并携带各自的上下文数据。
+    </p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>事件类别</th><th>代表事件</th><th>触发时机</th></tr></thead>
+        <tbody>
+          <tr><td><span class="first">应用</span></td><td>ApplicationStart / ApplicationEnd</td><td>SparkContext 启动 / 应用终止</td></tr>
+          <tr><td><span class="first">作业</span></td><td>JobStart / JobEnd</td><td>一次 Action 触发的 Job 提交 / 完成</td></tr>
+          <tr><td><span class="first">阶段</span></td><td>StageSubmitted / StageCompleted</td><td>Stage 提交执行 / 全部 Task 结束</td></tr>
+          <tr><td><span class="first">任务</span></td><td>TaskStart / TaskGettingResult / TaskEnd</td><td>单个 Task 的生命周期节点</td></tr>
+          <tr><td><span class="first">执行器</span></td><td>ExecutorAdded / ExecutorRemoved</td><td>Executor 注册 / 退出或被移除</td></tr>
+          <tr><td><span class="first">存储</span></td><td>BlockManagerAdded / BlockUpdated / UnpersistRDD</td><td>块管理器注册、缓存块变更</td></tr>
+          <tr><td><span class="first">环境</span></td><td>EnvironmentUpdate</td><td>配置、类路径、环境信息就绪</td></tr>
+          <tr><td><span class="first">扩展</span></td><td>自定义 / SQL 事件</td><td>经 onOtherEvent 分发</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>2.5　端到端流转与线程模型</h3>
+    <p>
+      把前面拼起来，追踪一个 <code class="inl">SparkListenerTaskEnd</code> 的完整旅程。它分两段：<strong>投递段</strong>（同步，在生产者线程上）与
+      <strong>派发段</strong>（异步，在队列分发线程上）。
+    </p>
+    <p>
+      <strong>投递段</strong>　<code class="inl">bus.post(event)</code> → <code class="inl">postToQueues</code> 把<em class="term">同一事件</em>投递到<strong>每一条</strong>队列（不按类型路由），各队列 <code class="inl">offer</code> 进缓冲。
+      <strong>派发段</strong>　每条队列的线程 <code class="inl">take()</code> 出事件 → <code class="inl">postToAll</code> 遍历<em class="term">本队列</em> listeners → 对每个 <code class="inl">doPostEvent</code> 按类型匹配 → 命中 TaskEnd 就调 <code class="inl">onTaskEnd</code>。
+    </p>
+
+    <div class="fig">
+      <svg viewBox="0 0 880 652" xmlns="http://www.w3.org/2000/svg" font-family="'DM Mono',monospace">
+        <defs>
+          <marker id="arrE2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+            <path d="M0,0 L10,5 L0,10" fill="none" stroke="#1a6b3c" stroke-width="1.3"/>
+          </marker>
+        </defs>
+
+        <rect x="230" y="24" width="420" height="50" rx="3" fill="#1a6b3c0f" stroke="#1a6b3c" stroke-width="1.2"/>
+        <text x="440" y="46" font-size="13" fill="#0c0e1a" text-anchor="middle">① 生产者：DAGScheduler / TaskScheduler …</text>
+        <text x="440" y="64" font-size="10.5" fill="#7a7060" text-anchor="middle">val event = SparkListenerTaskEnd(…)</text>
+        <path d="M440,74 L440,90" fill="none" stroke="#1a6b3c" stroke-width="1.3" marker-end="url(#arrE2)"/>
+        <text x="452" y="86" font-size="10" fill="#7a7060">post(event)</text>
+
+        <rect x="230" y="90" width="420" height="50" rx="3" fill="#1a6b3c0f" stroke="#1a6b3c" stroke-width="1.2"/>
+        <text x="440" y="112" font-size="13" fill="#0c0e1a" text-anchor="middle">② LiveListenerBus.post(event)</text>
+        <text x="440" y="130" font-size="10.5" fill="#7a7060" text-anchor="middle">postToQueues：遍历 queues 列表逐条投递</text>
+        <path d="M440,140 L440,154" fill="none" stroke="#1a6b3c" stroke-width="1.3" marker-end="url(#arrE2)"/>
+
+        <rect x="24" y="156" width="832" height="44" rx="3" fill="#1a6b3c14" stroke="#1a6b3c" stroke-width="1.3"/>
+        <text x="440" y="177" font-size="11" fill="#0c0e1a" text-anchor="middle">★ 关键：同一事件被复制投递到每一条队列 —— 队列按 listener 分组隔离，不按事件类型路由。</text>
+        <text x="440" y="193" font-size="10.5" fill="#7a7060" text-anchor="middle">TaskEnd 会同时进入 shared / appStatus / executorManagement / eventLog 四条队列的缓冲。</text>
+
+        <path d="M440,200 L122,218" fill="none" stroke="#1a6b3c" stroke-width="1.1" stroke-dasharray="4 3" marker-end="url(#arrE2)"/>
+        <path d="M440,200 L334,218" fill="none" stroke="#1a6b3c" stroke-width="1.1" stroke-dasharray="4 3" marker-end="url(#arrE2)"/>
+        <path d="M440,200 L546,218" fill="none" stroke="#1a6b3c" stroke-width="1.1" stroke-dasharray="4 3" marker-end="url(#arrE2)"/>
+        <path d="M440,200 L758,218" fill="none" stroke="#1a6b3c" stroke-width="1.1" stroke-dasharray="4 3" marker-end="url(#arrE2)"/>
+
+        <rect x="24"  y="222" width="196" height="54" rx="3" fill="#f5f0e8" stroke="#1a6b3c" stroke-width="1.1"/>
+        <rect x="236" y="222" width="196" height="54" rx="3" fill="#f5f0e8" stroke="#1a6b3c" stroke-width="1.1"/>
+        <rect x="448" y="222" width="196" height="54" rx="3" fill="#f5f0e8" stroke="#1a6b3c" stroke-width="1.1"/>
+        <rect x="660" y="222" width="196" height="54" rx="3" fill="#f5f0e8" stroke="#1a6b3c" stroke-width="1.1"/>
+        <text x="122" y="245" font-size="12" fill="#1a6b3c" text-anchor="middle" font-weight="500">shared</text>
+        <text x="334" y="245" font-size="12" fill="#1a6b3c" text-anchor="middle" font-weight="500">appStatus</text>
+        <text x="546" y="245" font-size="11" fill="#1a6b3c" text-anchor="middle" font-weight="500">executorManagement</text>
+        <text x="758" y="245" font-size="12" fill="#1a6b3c" text-anchor="middle" font-weight="500">eventLog</text>
+        <text x="122" y="263" font-size="10" fill="#7a7060" text-anchor="middle">offer(buffer)</text>
+        <text x="334" y="263" font-size="10" fill="#7a7060" text-anchor="middle">offer(buffer)</text>
+        <text x="546" y="263" font-size="10" fill="#7a7060" text-anchor="middle">offer(buffer)</text>
+        <text x="758" y="263" font-size="10" fill="#7a7060" text-anchor="middle">offer(buffer)</text>
+        <text x="440" y="290" font-size="10.5" fill="#7a7060" text-anchor="middle">AsyncEventQueue.post：offer 进有界缓冲，非阻塞，满则丢弃</text>
+
+        <line x1="24" y1="308" x2="856" y2="308" stroke="#b8ae9c" stroke-width="1.2" stroke-dasharray="6 4"/>
+        <rect x="248" y="299" width="384" height="18" fill="#f5f0e8"/>
+        <text x="440" y="311" font-size="10.5" fill="#1a6b3c" text-anchor="middle">异步边界 · 以下在各队列 dispatchThread 上执行</text>
+
+        <path d="M122,276 L122,352 L230,352" fill="none" stroke="#1a6b3c" stroke-width="1.2" stroke-dasharray="4 3" marker-end="url(#arrE2)"/>
+        <text x="664" y="344" font-size="10" fill="#7a7060">appStatus / executorManagement /</text>
+        <text x="664" y="357" font-size="10" fill="#7a7060">eventLog：各自 dispatchThread</text>
+        <text x="664" y="370" font-size="10" fill="#7a7060">并行，流程完全相同</text>
+
+        <rect x="230" y="328" width="420" height="52" rx="3" fill="#1a6b3c0f" stroke="#1a6b3c" stroke-width="1.2"/>
+        <text x="440" y="350" font-size="13" fill="#0c0e1a" text-anchor="middle">③ shared 队列 · dispatchThread</text>
+        <text x="440" y="368" font-size="10.5" fill="#7a7060" text-anchor="middle">event = take(); super.postToAll(event)</text>
+        <path d="M440,380 L440,394" fill="none" stroke="#1a6b3c" stroke-width="1.3" marker-end="url(#arrE2)"/>
+
+        <rect x="230" y="396" width="420" height="62" rx="3" fill="#1a6b3c0f" stroke="#1a6b3c" stroke-width="1.2"/>
+        <text x="440" y="418" font-size="13" fill="#0c0e1a" text-anchor="middle">④ ListenerBus.postToAll(event)</text>
+        <text x="440" y="436" font-size="10.5" fill="#7a7060" text-anchor="middle">遍历本队列 listeners → 逐个 doPostEvent(listener, event)</text>
+        <text x="440" y="452" font-size="10.5" fill="#7a7060" text-anchor="middle">每个回调 try/catch 隔离 + 单独计时</text>
+        <path d="M440,458 L440,472" fill="none" stroke="#1a6b3c" stroke-width="1.3" marker-end="url(#arrE2)"/>
+
+        <rect x="170" y="474" width="540" height="104" rx="3" fill="#f0ece0" stroke="#1a6b3c" stroke-width="1.3"/>
+        <text x="186" y="494" font-size="12" fill="#0c0e1a">⑤ SparkListenerBus.doPostEvent(listener, event)　按事件类型分发</text>
+        <rect x="182" y="521" width="476" height="18" rx="2" fill="#1a6b3c1f"/>
+        <text x="192" y="514" font-size="11" fill="#0c0e1a">event match {</text>
+        <text x="192" y="534" font-size="11" fill="#0c0e1a" xml:space="preserve">  case e: SparkListenerTaskEnd =&gt; listener.onTaskEnd(e)　<tspan fill="#1a6b3c">◀ 命中</tspan></text>
+        <text x="192" y="554" font-size="11" fill="#7a7060" xml:space="preserve">  case e: SparkListenerJobEnd  =&gt; listener.onJobEnd(e)</text>
+        <text x="192" y="573" font-size="11" fill="#7a7060" xml:space="preserve">  case _ =&gt; listener.onOtherEvent(e)　}</text>
+        <path d="M440,578 L440,592" fill="none" stroke="#1a6b3c" stroke-width="1.3" marker-end="url(#arrE2)"/>
+
+        <rect x="230" y="594" width="420" height="48" rx="3" fill="#1a6b3c14" stroke="#1a6b3c" stroke-width="1.4"/>
+        <text x="440" y="616" font-size="13" fill="#0c0e1a" text-anchor="middle" font-weight="500">⑥ 你的 Listener.onTaskEnd(taskEnd)</text>
+        <text x="440" y="632" font-size="10.5" fill="#7a7060" text-anchor="middle">执行用户逻辑：读取 TaskMetrics、累加指标 …</text>
+      </svg>
+      <div class="fig-cap"><b>图 3</b> — 端到端流转：post 把同一事件广播到每条队列(第一级) → 各队列线程 postToAll 遍历本队列 listeners(第二级) → doPostEvent 按类型选中具体回调</div>
+    </div>
+
+    <h4>线程模型 · 串行的范围</h4>
+    <p>
+      串行，但范围是<strong>「单条队列内」</strong>：队列里那个线程一次只处理一个事件（FIFO），且对一个事件会按注册顺序<strong>逐个</strong>同步调用本队列的 listeners——
+      上一个回调返回了才调下一个。所以「事件之间」和「同一事件的多个 listener 之间」在一条队列里都是串行。
+      但<strong>队列之间是并行</strong>的：各跑各的线程，互不等待。副作用是：一个慢 listener 会同时拖住本队列其他 listener 与后续事件（head-of-line 阻塞）。
+    </p>
+
+    <div class="fig">
+      <svg viewBox="0 0 880 322" xmlns="http://www.w3.org/2000/svg" font-family="'DM Mono',monospace">
+        <defs>
+          <marker id="arrTh" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+            <path d="M0,0 L10,5 L0,10" fill="none" stroke="#1a6b3c" stroke-width="1.3"/>
+          </marker>
+        </defs>
+        <text x="24" y="20" font-size="11" letter-spacing="1.4" fill="#7a7060">生产者线程 · 并发 POST</text>
+        <rect x="24" y="40"  width="212" height="42" rx="3" fill="#1a6b3c0f" stroke="#1a6b3c" stroke-width="1.2"/>
+        <rect x="24" y="96"  width="212" height="42" rx="3" fill="#1a6b3c0f" stroke="#1a6b3c" stroke-width="1.2"/>
+        <rect x="24" y="152" width="212" height="42" rx="3" fill="#1a6b3c0f" stroke="#1a6b3c" stroke-width="1.2"/>
+        <text x="130" y="66"  font-size="11" fill="#0c0e1a" text-anchor="middle">dag-scheduler-event-loop</text>
+        <text x="130" y="122" font-size="11" fill="#0c0e1a" text-anchor="middle">heartbeat-receiver</text>
+        <text x="130" y="178" font-size="11" fill="#0c0e1a" text-anchor="middle">SparkContext 主线程 …</text>
+        <path d="M236,61  L270,61  L270,108 L298,108" fill="none" stroke="#1a6b3c" stroke-width="1.1" stroke-dasharray="4 3" marker-end="url(#arrTh)"/>
+        <path d="M236,117 L298,117" fill="none" stroke="#1a6b3c" stroke-width="1.1" stroke-dasharray="4 3" marker-end="url(#arrTh)"/>
+        <path d="M236,173 L270,173 L270,126 L298,126" fill="none" stroke="#1a6b3c" stroke-width="1.1" stroke-dasharray="4 3" marker-end="url(#arrTh)"/>
+        <rect x="300" y="52" width="250" height="92" rx="3" fill="#1a6b3c14" stroke="#1a6b3c" stroke-width="1.3"/>
+        <text x="425" y="72" font-size="12.5" fill="#0c0e1a" text-anchor="middle" font-weight="500">AsyncEventQueue · shared</text>
+        <text x="425" y="89" font-size="10.5" fill="#7a7060" text-anchor="middle">LinkedBlockingQueue · 容量 10000</text>
+        <g>
+          <rect x="338" y="104" width="30" height="20" rx="2" fill="#f5f0e8" stroke="#1a6b3c" stroke-width="1"/>
+          <rect x="374" y="104" width="30" height="20" rx="2" fill="#f5f0e8" stroke="#1a6b3c" stroke-width="1"/>
+          <rect x="410" y="104" width="30" height="20" rx="2" fill="#f5f0e8" stroke="#1a6b3c" stroke-width="1"/>
+          <rect x="446" y="104" width="30" height="20" rx="2" fill="#f5f0e8" stroke="#1a6b3c" stroke-width="1"/>
+          <rect x="482" y="104" width="30" height="20" rx="2" fill="#f5f0e8" stroke="#1a6b3c" stroke-width="1"/>
+          <text x="353" y="118" font-size="9.5" fill="#7a7060" text-anchor="middle">e₅</text>
+          <text x="389" y="118" font-size="9.5" fill="#7a7060" text-anchor="middle">e₄</text>
+          <text x="425" y="118" font-size="9.5" fill="#7a7060" text-anchor="middle">e₃</text>
+          <text x="461" y="118" font-size="9.5" fill="#7a7060" text-anchor="middle">e₂</text>
+          <text x="497" y="118" font-size="9.5" fill="#7a7060" text-anchor="middle">e₁</text>
+        </g>
+        <path d="M425,144 L425,164" fill="none" stroke="#1a6b3c" stroke-width="1.3" marker-end="url(#arrTh)"/>
+        <text x="468" y="159" font-size="9.5" fill="#7a7060">take()</text>
+        <rect x="300" y="166" width="250" height="46" rx="3" fill="#f5f0e8" stroke="#1a6b3c" stroke-width="1.3"/>
+        <text x="425" y="186" font-size="12.5" fill="#1a6b3c" text-anchor="middle" font-weight="500">分发线程 × 1</text>
+        <text x="425" y="202" font-size="10" fill="#7a7060" text-anchor="middle">spark-listener-group-shared · 循环派发</text>
+        <path d="M550,189 L590,189 L590,118 L626,118" fill="none" stroke="#1a6b3c" stroke-width="1.3" stroke-dasharray="4 3" marker-end="url(#arrTh)"/>
+        <text x="595" y="152" font-size="9.5" fill="#7a7060">dispatch</text>
+        <text x="644" y="20" font-size="11" letter-spacing="1.4" fill="#7a7060">监听器 · 同线程依次调用</text>
+        <rect x="666" y="40"  width="190" height="44" rx="3" fill="#ede8df" stroke="#d4cdc0" stroke-width="1.1"/>
+        <rect x="666" y="98"  width="190" height="44" rx="3" fill="#ede8df" stroke="#d4cdc0" stroke-width="1.1"/>
+        <rect x="666" y="156" width="190" height="44" rx="3" fill="#ede8df" stroke="#d4cdc0" stroke-width="1.1"/>
+        <text x="761" y="67"  font-size="12" fill="#0c0e1a" text-anchor="middle">Listener A</text>
+        <text x="761" y="125" font-size="12" fill="#0c0e1a" text-anchor="middle">Listener B</text>
+        <text x="761" y="183" font-size="12" fill="#0c0e1a" text-anchor="middle">Listener C</text>
+        <path d="M654,62 L654,178" fill="none" stroke="#1a6b3c" stroke-width="1.1" stroke-dasharray="3 3"/>
+        <circle cx="654" cy="62"  r="9" fill="#f5f0e8" stroke="#1a6b3c" stroke-width="1.1"/>
+        <circle cx="654" cy="120" r="9" fill="#f5f0e8" stroke="#1a6b3c" stroke-width="1.1"/>
+        <circle cx="654" cy="178" r="9" fill="#f5f0e8" stroke="#1a6b3c" stroke-width="1.1"/>
+        <text x="654" y="66"  font-size="10" fill="#1a6b3c" text-anchor="middle">1</text>
+        <text x="654" y="124" font-size="10" fill="#1a6b3c" text-anchor="middle">2</text>
+        <text x="654" y="182" font-size="10" fill="#1a6b3c" text-anchor="middle">3</text>
+        <rect x="24" y="248" width="832" height="56" rx="3" fill="#ede8df" stroke="#d4cdc0" stroke-width="1.1"/>
+        <text x="440" y="272" font-size="11.5" fill="#0c0e1a" text-anchor="middle">其余队列 appStatus · executorManagement · eventLog 各持独立分发线程，与上图并行运行、互不阻塞。</text>
+        <text x="440" y="291" font-size="11" fill="#7a7060" text-anchor="middle">一条队列被慢监听器拖住时，其他队列不受影响 —— 这就是多队列隔离的价值。</text>
+      </svg>
+      <div class="fig-cap"><b>图 4</b> — 单队列线程模型：队列内单线程串行 FIFO（事件之间、监听器之间都串行）；队列之间各持线程，并行隔离</div>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>关注点</th><th>线程行为</th></tr></thead>
+        <tbody>
+          <tr><td><span class="first">生产者线程</span></td><td>多个（调度 / 心跳 / 主线程），并发 post，线程安全</td></tr>
+          <tr><td><span class="first">post() 是否阻塞</span></td><td>否 —— 仅入队；队列满则丢弃，不阻塞生产者</td></tr>
+          <tr><td><span class="first">每队列分发线程</span></td><td>1 个专属守护线程（spark-listener-group-*）</td></tr>
+          <tr><td><span class="first">队列内执行顺序</span></td><td>FIFO，监听器串行调用，不并发</td></tr>
+          <tr><td><span class="first">队列之间关系</span></td><td>并行，各持线程，互相隔离</td></tr>
+          <tr><td><span class="first">监听器内部加锁</span></td><td>单队列注册可免；跨队列 / 共享状态需自理</td></tr>
+          <tr><td><span class="first">背压方式</span></td><td>丢弃 + 计数 + 限速告警（非阻塞）</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>2.6　装配与喂数据：在 SparkContext 中如何接线</h3>
+    <p class="lead">
+      到这里运行时机制清楚了，还剩两个工程问题：这套东西怎么在 <code class="inl">SparkContext</code> 里被组装起来，事件又是怎么进到总线的。
+    </p>
+
+    <h4>如何获取事件 · push 模型</h4>
+    <p>
+      <code class="inl">LiveListenerBus</code> 是个<strong>被动的 sink</strong>，只暴露一个 <code class="inl">post()</code>——它不订阅、不轮询任何东西。
+      各生产者组件在创建时被注入<em class="term">同一个 bus 引用</em>，事件发生时各自构造对应的 <code class="inl">SparkListenerXxx</code> 并调用 <code class="inl">post()</code>。
+      也就是说：是组件主动 <strong>push</strong>，不是总线主动 pull。下表是「谁 post 什么」。
+    </p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>生产者</th><th>投递的事件</th></tr></thead>
+        <tbody>
+          <tr><td><span class="first">DAGScheduler</span></td><td>JobStart / JobEnd · StageSubmitted / StageCompleted · TaskStart / TaskEnd …</td></tr>
+          <tr><td><span class="first">SchedulerBackend</span></td><td>ExecutorAdded / ExecutorRemoved（Driver 端点）</td></tr>
+          <tr><td><span class="first">BlockManagerMasterEndpoint</span></td><td>BlockManagerAdded / Removed · BlockUpdated</td></tr>
+          <tr><td><span class="first">SparkContext</span></td><td>ApplicationStart / ApplicationEnd · EnvironmentUpdate</td></tr>
+          <tr><td><span class="first">HeartbeatReceiver</span></td><td>ExecutorMetricsUpdate（心跳携带指标）</td></tr>
+          <tr><td><span class="accent-e">SQLExecution（SQL 模块）</span></td><td>SQLExecutionStart / SQLExecutionEnd</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      <code class="inl">post()</code> 内部还有个时序细节：总线<strong>未 start</strong> 时，事件先进一个 <code class="inl">queuedEvents</code> 缓冲；
+      <strong>start() 之后</strong>才走 <code class="inl">postToQueues</code> 广播到各队列。这保证了早注册的监听器不会漏掉启动早期的事件。
+    </p>
+
+    <h4>内部架构 · 队列与线程</h4>
+    <p>
+      把 <code class="inl">LiveListenerBus</code> 剖开看：它持有一个 <code class="inl">queues</code> 列表，列表里每个元素是一个 <code class="inl">AsyncEventQueue</code> 实例；
+      而每个实例内部 = <strong>一个有界缓冲</strong>（<code class="inl">LinkedBlockingQueue</code>）+ <strong>一个专属线程</strong> + <strong>一个 listeners 列表</strong>。
+      <code class="inl">post</code> 把事件 <code class="inl">offer</code> 进每条队列的缓冲，每条队列的线程各自 <code class="inl">take</code> 出来跑 <code class="inl">postToAll</code>。
+    </p>
+
+    <div class="fig">
+      <svg viewBox="0 0 880 548" xmlns="http://www.w3.org/2000/svg" font-family="'DM Mono',monospace">
+        <defs>
+          <marker id="arrIn" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+            <path d="M0,0 L10,5 L0,10" fill="none" stroke="#1a6b3c" stroke-width="1.3"/>
+          </marker>
+        </defs>
+
+        <!-- post entry -->
+        <rect x="300" y="18" width="250" height="44" rx="3" fill="#1a6b3c14" stroke="#1a6b3c" stroke-width="1.3"/>
+        <text x="425" y="40" font-size="13" fill="#0c0e1a" text-anchor="middle" font-weight="500">post(event)</text>
+        <text x="425" y="56" font-size="9" fill="#7a7060" text-anchor="middle">来自 DAGScheduler · SQLExecution · BlockManagerMaster …</text>
+        <!-- queuedEvents -->
+        <rect x="600" y="18" width="250" height="44" rx="3" fill="#1a6b3c0f" stroke="#1a6b3c" stroke-width="1.1"/>
+        <text x="725" y="38" font-size="12" fill="#0c0e1a" text-anchor="middle">queuedEvents</text>
+        <text x="725" y="55" font-size="9" fill="#7a7060" text-anchor="middle">启动前缓冲 · start() 时 flush</text>
+        <path d="M550,40 L600,40" fill="none" stroke="#1a6b3c" stroke-width="1.1" stroke-dasharray="4 3" marker-end="url(#arrIn)"/>
+        <text x="555" y="33" font-size="9" fill="#7a7060">start 前</text>
+
+        <!-- broadcast spine -->
+        <path d="M425,62 L425,142" fill="none" stroke="#1a6b3c" stroke-width="1.3"/>
+        <path d="M425,142 L32,142" fill="none" stroke="#1a6b3c" stroke-width="1.3"/>
+        <path d="M32,142 L32,405" fill="none" stroke="#1a6b3c" stroke-width="1.3"/>
+        <text x="210" y="136" font-size="9.5" fill="#7a7060">post → 广播 (offer) 到每条队列</text>
+        <path d="M32,225 L58,225" fill="none" stroke="#1a6b3c" stroke-width="1.2" marker-end="url(#arrIn)"/>
+        <path d="M32,405 L58,405" fill="none" stroke="#1a6b3c" stroke-width="1.2" marker-end="url(#arrIn)"/>
+
+        <!-- container -->
+        <rect x="20" y="92" width="840" height="448" rx="4" fill="none" stroke="#1a6b3c" stroke-width="1.5"/>
+        <text x="38" y="116" font-size="13" fill="#0c0e1a" font-weight="500">LiveListenerBus</text>
+        <text x="38" y="132" font-size="10" fill="#7a7060">queues: List[AsyncEventQueue]（按需创建）</text>
+
+        <!-- Row A: shared -->
+        <rect x="40" y="156" width="800" height="166" rx="3" fill="none" stroke="#1a6b3c" stroke-width="1.2"/>
+        <text x="56" y="178" font-size="12" fill="#1a6b3c" font-weight="500">AsyncEventQueue　·　name = "shared"</text>
+        <rect x="60" y="192" width="320" height="66" rx="2" fill="#f0ece0" stroke="#1a6b3c" stroke-width="1.1"/>
+        <text x="220" y="210" font-size="10" fill="#0c0e1a" text-anchor="middle">LinkedBlockingQueue · 有界 10000</text>
+        <rect x="74"  y="226" width="36" height="22" rx="2" fill="#f5f0e8" stroke="#1a6b3c" stroke-width="0.8"/>
+        <rect x="116" y="226" width="36" height="22" rx="2" fill="#f5f0e8" stroke="#1a6b3c" stroke-width="0.8"/>
+        <rect x="158" y="226" width="36" height="22" rx="2" fill="#f5f0e8" stroke="#1a6b3c" stroke-width="0.8"/>
+        <rect x="200" y="226" width="36" height="22" rx="2" fill="#f5f0e8" stroke="#1a6b3c" stroke-width="0.8"/>
+        <rect x="242" y="226" width="36" height="22" rx="2" fill="#f5f0e8" stroke="#1a6b3c" stroke-width="0.8"/>
+        <rect x="284" y="226" width="36" height="22" rx="2" fill="#f5f0e8" stroke="#1a6b3c" stroke-width="0.8"/>
+        <text x="348" y="241" font-size="9" fill="#7a7060">FIFO</text>
+        <rect x="410" y="198" width="160" height="54" rx="2" fill="#f5f0e8" stroke="#1a6b3c" stroke-width="1.2"/>
+        <text x="490" y="220" font-size="12" fill="#1a6b3c" text-anchor="middle" font-weight="500">dispatchThread × 1</text>
+        <text x="490" y="238" font-size="10" fill="#7a7060" text-anchor="middle">take() 循环</text>
+        <rect x="610" y="186" width="210" height="80" rx="2" fill="none" stroke="#d4cdc0" stroke-width="1.1"/>
+        <text x="715" y="204" font-size="10.5" fill="#7a7060" text-anchor="middle">listeners 列表</text>
+        <rect x="624" y="212" width="182" height="22" rx="2" fill="#ede8df" stroke="#d4cdc0" stroke-width="1"/>
+        <text x="715" y="227" font-size="10" fill="#0c0e1a" text-anchor="middle">Listener A</text>
+        <rect x="624" y="238" width="182" height="22" rx="2" fill="#ede8df" stroke="#d4cdc0" stroke-width="1"/>
+        <text x="715" y="253" font-size="10" fill="#0c0e1a" text-anchor="middle">Listener B</text>
+        <path d="M380,225 L410,225" fill="none" stroke="#1a6b3c" stroke-width="1.2" marker-end="url(#arrIn)"/>
+        <text x="395" y="219" font-size="9" fill="#7a7060" text-anchor="middle">take</text>
+        <path d="M570,225 L610,225" fill="none" stroke="#1a6b3c" stroke-width="1.2" marker-end="url(#arrIn)"/>
+        <text x="590" y="219" font-size="8.5" fill="#7a7060" text-anchor="middle">postToAll</text>
+
+        <!-- Row B: appStatus -->
+        <rect x="40" y="336" width="800" height="166" rx="3" fill="none" stroke="#1a6b3c" stroke-width="1.2"/>
+        <text x="56" y="358" font-size="12" fill="#1a6b3c" font-weight="500">AsyncEventQueue　·　name = "appStatus"</text>
+        <rect x="60" y="372" width="320" height="66" rx="2" fill="#f0ece0" stroke="#1a6b3c" stroke-width="1.1"/>
+        <text x="220" y="390" font-size="10" fill="#0c0e1a" text-anchor="middle">LinkedBlockingQueue · 有界 10000</text>
+        <rect x="74"  y="406" width="36" height="22" rx="2" fill="#f5f0e8" stroke="#1a6b3c" stroke-width="0.8"/>
+        <rect x="116" y="406" width="36" height="22" rx="2" fill="#f5f0e8" stroke="#1a6b3c" stroke-width="0.8"/>
+        <rect x="158" y="406" width="36" height="22" rx="2" fill="#f5f0e8" stroke="#1a6b3c" stroke-width="0.8"/>
+        <rect x="200" y="406" width="36" height="22" rx="2" fill="#f5f0e8" stroke="#1a6b3c" stroke-width="0.8"/>
+        <rect x="242" y="406" width="36" height="22" rx="2" fill="#f5f0e8" stroke="#1a6b3c" stroke-width="0.8"/>
+        <rect x="284" y="406" width="36" height="22" rx="2" fill="#f5f0e8" stroke="#1a6b3c" stroke-width="0.8"/>
+        <text x="348" y="421" font-size="9" fill="#7a7060">FIFO</text>
+        <rect x="410" y="378" width="160" height="54" rx="2" fill="#f5f0e8" stroke="#1a6b3c" stroke-width="1.2"/>
+        <text x="490" y="400" font-size="12" fill="#1a6b3c" text-anchor="middle" font-weight="500">dispatchThread × 1</text>
+        <text x="490" y="418" font-size="10" fill="#7a7060" text-anchor="middle">take() 循环</text>
+        <rect x="610" y="366" width="210" height="80" rx="2" fill="none" stroke="#d4cdc0" stroke-width="1.1"/>
+        <text x="715" y="384" font-size="10.5" fill="#7a7060" text-anchor="middle">listeners 列表</text>
+        <rect x="624" y="392" width="182" height="30" rx="2" fill="#ede8df" stroke="#d4cdc0" stroke-width="1"/>
+        <text x="715" y="411" font-size="10" fill="#0c0e1a" text-anchor="middle">AppStatusListener</text>
+        <path d="M380,405 L410,405" fill="none" stroke="#1a6b3c" stroke-width="1.2" marker-end="url(#arrIn)"/>
+        <text x="395" y="399" font-size="9" fill="#7a7060" text-anchor="middle">take</text>
+        <path d="M570,405 L610,405" fill="none" stroke="#1a6b3c" stroke-width="1.2" marker-end="url(#arrIn)"/>
+        <text x="590" y="399" font-size="8.5" fill="#7a7060" text-anchor="middle">postToAll</text>
+
+        <text x="440" y="524" font-size="10" fill="#7a7060" text-anchor="middle">… executorManagement / eventLog 两条队列结构完全相同（各自缓冲 + 各自线程 + 各自 listeners），此处省略。</text>
+      </svg>
+      <div class="fig-cap"><b>图 5</b> — LiveListenerBus / AsyncEventQueue 内部：总线持有队列列表，每条队列 = 有界缓冲 + 单线程 + listeners；post 广播 offer，各线程 take 后 postToAll</div>
+    </div>
+
+    <h4>在 SparkContext 中的装配顺序</h4>
+    <p>
+      总线在 <code class="inl">SparkContext</code> 构造早期就被 <code class="inl">new</code> 出来，然后按固定顺序接线。关键是
+      <code class="inl">AppStatusListener</code> 要在 <code class="inl">SparkEnv</code> <strong>之前</strong>注册好，以便捕获最早的事件：
+    </p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>步骤</th><th>动作</th></tr></thead>
+        <tbody>
+          <tr><td><span class="first">①</span></td><td>new LiveListenerBus(conf) —— 创建总线（未启动）</td></tr>
+          <tr><td><span class="first">②</span></td><td>注册 AppStatusListener 到 appStatus 队列（早于 env，确保拿到全部事件）</td></tr>
+          <tr><td><span class="first">③</span></td><td>createSparkEnv(conf, isLocal, listenerBus) —— bus 引用注入 env，内部组件从此可 post</td></tr>
+          <tr><td><span class="first">④</span></td><td>创建 TaskScheduler、DAGScheduler（持有 bus 引用，后续 post 调度事件）</td></tr>
+          <tr><td><span class="first">⑤</span></td><td>按需注册 EventLoggingListener(eventLog) / HeartbeatReceiver · ExecutorAllocation(executorManagement)</td></tr>
+          <tr><td><span class="first">⑥</span></td><td>setupAndStartListenerBus() —— 注册 extra listeners 到 shared，然后 start()</td></tr>
+          <tr><td><span class="first">⑦</span></td><td>start() 之后：postEnvironmentUpdate()、postApplicationStart() 投出最早的事件</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h4>extra listener 注册流程</h4>
+    <p>
+      第 ⑥ 步的 <code class="inl">setupAndStartListenerBus()</code> 读取 <code class="inl">spark.extraListeners</code>（逗号分隔类名），用<strong>反射</strong>实例化每个类
+      （优先找接收 <code class="inl">SparkConf</code> 的构造器，否则用无参构造器），注册到 <strong>shared</strong> 队列，最后 <code class="inl">start()</code>。
+      所以你的 extra listener 类必须有一个<em class="term">无参构造器</em>或一个<em class="term">接收 SparkConf 的构造器</em>。
+    </p>
+<pre><span class="cm">// SparkContext.setupAndStartListenerBus()（简化）</span>
+<span class="kw">private def</span> <span class="fn">setupAndStartListenerBus</span>(): Unit = {
+  conf.<span class="fn">get</span>(EXTRA_LISTENERS).<span class="fn">foreach</span> { classNames =&gt;        <span class="cm">// spark.extraListeners</span>
+    <span class="kw">val</span> listeners = Utils.<span class="fn">loadExtensions</span>(
+      classOf[SparkListenerInterface], classNames, conf)       <span class="cm">// 反射实例化</span>
+    listeners.<span class="fn">foreach</span> { l =&gt;
+      listenerBus.<span class="fn">addToSharedQueue</span>(l)                        <span class="cm">// 注册到 shared 队列</span>
+      <span class="fn">logInfo</span>(<span class="st">s"Registered listener ${l.getClass.getName}"</span>)
+    }
+  }
+  listenerBus.<span class="fn">start</span>(<span class="kw">this</span>, _env.metricsSystem)                  <span class="cm">// 启动：拉起各队列线程 + flush 缓冲</span>
+}
+
+<span class="cm">// Utils.loadExtensions：优先 (SparkConf) 构造器, 否则无参构造器</span>
+<span class="kw">val</span> ext = Try(klass.<span class="fn">getConstructor</span>(classOf[SparkConf])) <span class="kw">match</span> {
+  <span class="kw">case</span> Success(ctor) =&gt; ctor.<span class="fn">newInstance</span>(conf)
+  <span class="kw">case</span> Failure(_)    =&gt; klass.<span class="fn">getConstructor</span>().<span class="fn">newInstance</span>()
+}</pre>
+
+    <h4>start / stop 生命周期</h4>
+    <p>
+      <code class="inl">start()</code> 拉起每条队列的 <code class="inl">dispatchThread</code>，并把 <code class="inl">queuedEvents</code> 里启动前缓冲的事件 flush 进各队列——
+      早注册的监听器因此不漏早期事件。<code class="inl">stop()</code> 向每条队列投递哨兵（poison pill），等队列排空后 join 线程，确保 UI 状态与事件日志完整落盘。
+    </p>
+    <div class="note">
+      <span class="tag">时序要点</span>
+      extra listener 在 <code class="inl">start()</code> <strong>之前</strong>注册，而 <code class="inl">ApplicationStart</code> 在 <code class="inl">start()</code> <strong>之后</strong>才 post——
+      所以 extra listener 一定能收到 <code class="inl">ApplicationStart</code>。但若你在应用运行<em class="term">中途</em>用 <code class="inl">addSparkListener</code> 注册，则只能收到注册之后的事件。
+    </div>
+  </section>
+
+  <!-- ===================== 03 SQL 体系 ===================== -->
+  <section class="section s-model" id="s3">
+    <div class="section-head">
+      <div class="section-num">03</div>
+      <span class="eyebrow">SQL 体系 · QueryExecutionListener</span>
+      <h2>SQL 监听：<em>架在 Core 总线之上</em>的一层</h2>
+    </div>
+
+    <p class="lead">
+      SQL 层提供 <code class="inl">QueryExecutionListener</code>，观测查询级别——每一次 Dataset 动作完成时拿到执行计划与耗时。
+      它<strong>不是</strong>独立系统，而是<em class="term">分层架设</em>在第 02 节那条 Core 总线之上。
+    </p>
+
+    <h3>3.1　QueryExecutionListener 接口</h3>
+    <p>
+      接口极简，只有成功 / 失败两个回调，观测单位是<strong>一次完整的 Dataset 动作</strong>：
+    </p>
+    <div class="card-grid">
+      <div class="card">
+        <div class="k">回调 · onSuccess</div>
+        <div class="v">funcName, qe, durationNs</div>
+        <p>动作名（如 <code class="inl">collect</code>）、整个 <code class="inl">QueryExecution</code>、纳秒级耗时。</p>
+      </div>
+      <div class="card">
+        <div class="k">回调 · onFailure</div>
+        <div class="v">funcName, qe, exception</div>
+        <p>动作名、查询对象、抛出的异常，用于捕获执行期失败。</p>
+      </div>
+    </div>
+    <p>
+      回调里的 <code class="inl">QueryExecution</code> 封装了一条查询从逻辑到物理的<em class="term">全部计划阶段</em>
+      （解析 → 分析 → 优化 → 物理计划 <code class="inl">executedPlan</code>），所以监听器不仅知道耗时，还能拿到完整计划树做血缘、计划审查或慢查询诊断。
+    </p>
+
+    <h3>3.2　与 Core 的关系：同一条总线上的分层</h3>
+    <p>
+      触发链路如下：Dataset 动作经 <code class="inl">SQLExecution.withNewExecutionId</code> 包裹，向 <code class="inl">LiveListenerBus</code> 投递
+      <code class="inl">SparkListenerSQLExecutionStart</code> 与 <code class="inl">SparkListenerSQLExecutionEnd</code> 两个 SQL 事件。
+      关键在于：<code class="inl">ExecutionListenerBus</code> <em class="term">本身就是一个 SparkListener</em>，注册在 shared 队列上，订阅 <code class="inl">SQLExecutionEnd</code>，
+      收到后再按成功 / 失败把调用派发给注册的 <code class="inl">QueryExecutionListener</code>。同一批 SQL 事件还被 <code class="inl">SQLAppStatusListener</code> 消费，渲染成 UI 的 SQL 标签页。
+    </p>
+
+    <div class="fig">
+      <svg viewBox="0 0 880 520" xmlns="http://www.w3.org/2000/svg" font-family="'DM Mono',monospace">
+        <defs>
+          <marker id="arrM" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+            <path d="M0,0 L10,5 L0,10" fill="none" stroke="#7b2fbe" stroke-width="1.3"/>
+          </marker>
+        </defs>
+        <rect x="230" y="26" width="420" height="50" rx="3" fill="#7b2fbe14" stroke="#7b2fbe" stroke-width="1.4"/>
+        <text x="440" y="48" font-size="14" fill="#0c0e1a" text-anchor="middle" font-weight="500">Dataset 动作</text>
+        <text x="440" y="66" font-size="11.5" fill="#7a7060" text-anchor="middle">collect() · save() · count() · show() …</text>
+        <path d="M440,76 L440,100" fill="none" stroke="#7b2fbe" stroke-width="1.4" marker-end="url(#arrM)"/>
+        <rect x="190" y="102" width="500" height="64" rx="3" fill="#7b2fbe0f" stroke="#7b2fbe" stroke-width="1.3"/>
+        <text x="440" y="126" font-size="13.5" fill="#0c0e1a" text-anchor="middle" font-weight="500">SQLExecution.withNewExecutionId(qe)</text>
+        <text x="440" y="146" font-size="11.5" fill="#7a7060" text-anchor="middle">① post Start　②  执行计划 (产生 Job/Stage/Task)　③ post End</text>
+        <path d="M440,166 L440,192" fill="none" stroke="#7b2fbe" stroke-width="1.4" marker-end="url(#arrM)"/>
+        <text x="556" y="184" font-size="11" fill="#7a7060">投递 SQL 事件</text>
+        <rect x="140" y="194" width="600" height="52" rx="3" fill="#7b2fbe14" stroke="#7b2fbe" stroke-width="1.4"/>
+        <text x="440" y="217" font-size="14" fill="#0c0e1a" text-anchor="middle" font-weight="500">LiveListenerBus · shared 队列</text>
+        <text x="440" y="235" font-size="11.5" fill="#7a7060" text-anchor="middle">SparkListenerSQLExecutionStart / End  在此异步分发</text>
+        <path d="M300,246 L300,272 L230,272 L230,298" fill="none" stroke="#7b2fbe" stroke-width="1.3" stroke-dasharray="4 3" marker-end="url(#arrM)"/>
+        <path d="M580,246 L580,272 L650,272 L650,298" fill="none" stroke="#7b2fbe" stroke-width="1.3" stroke-dasharray="4 3" marker-end="url(#arrM)"/>
+        <rect x="60" y="300" width="340" height="64" rx="3" fill="#f5f0e8" stroke="#7b2fbe" stroke-width="1.2"/>
+        <text x="230" y="324" font-size="13" fill="#7b2fbe" text-anchor="middle" font-weight="500">ExecutionListenerBus</text>
+        <text x="230" y="344" font-size="11" fill="#7a7060" text-anchor="middle">一个特殊的 SparkListener · 订阅 SQLExecutionEnd</text>
+        <rect x="480" y="300" width="340" height="64" rx="3" fill="#f5f0e8" stroke="#7b2fbe" stroke-width="1.2"/>
+        <text x="650" y="324" font-size="13" fill="#7b2fbe" text-anchor="middle" font-weight="500">SQLAppStatusListener</text>
+        <text x="650" y="344" font-size="11" fill="#7a7060" text-anchor="middle">消费同一批事件 · 构建 SQL 状态</text>
+        <path d="M230,364 L230,392" fill="none" stroke="#7b2fbe" stroke-width="1.3" stroke-dasharray="4 3" marker-end="url(#arrM)"/>
+        <path d="M650,364 L650,392" fill="none" stroke="#7b2fbe" stroke-width="1.3" stroke-dasharray="4 3" marker-end="url(#arrM)"/>
+        <rect x="60" y="394" width="340" height="64" rx="3" fill="#ede8df" stroke="#d4cdc0" stroke-width="1.1"/>
+        <text x="230" y="418" font-size="12.5" fill="#0c0e1a" text-anchor="middle" font-weight="500">QueryExecutionListener</text>
+        <text x="230" y="438" font-size="11.5" fill="#7a7060" text-anchor="middle">onSuccess(...) / onFailure(...)</text>
+        <rect x="480" y="394" width="340" height="64" rx="3" fill="#ede8df" stroke="#d4cdc0" stroke-width="1.1"/>
+        <text x="650" y="418" font-size="12.5" fill="#0c0e1a" text-anchor="middle" font-weight="500">Spark UI · SQL 标签页</text>
+        <text x="650" y="438" font-size="11.5" fill="#7a7060" text-anchor="middle">物理计划图 + SQL Metrics</text>
+        <text x="230" y="482" font-size="11" fill="#7a7060" text-anchor="middle">用户自定义审计 / 血缘 / 慢查询</text>
+        <text x="650" y="482" font-size="11" fill="#7a7060" text-anchor="middle">可视化诊断</text>
+      </svg>
+      <div class="fig-cap"><b>图 6</b> — SQL 监听器分层：Dataset 动作经 withNewExecutionId 投递 SQL 事件到内核总线，ExecutionListenerBus 与 SQLAppStatusListener 作为消费者各取所需</div>
+    </div>
+
+    <h3>3.3　Core 监听器能监听 SQL 事件吗？</h3>
+    <p>
+      <strong>能。</strong>这正是「分层在同一条总线上」带来的直接结论。<code class="inl">SparkListenerSQLExecutionStart</code> / <code class="inl">End</code> 也是
+      <code class="inl">SparkListenerEvent</code>，经同一个 <code class="inl">LiveListenerBus.post</code> 广播到<strong>所有</strong>队列（含 shared）。
+      任何注册到 shared 队列的 <code class="inl">SparkListener</code>（比如你用 <code class="inl">addSparkListener</code> 注册的）都会收到它们。
+    </p>
+    <p>
+      只是——这些 SQL 事件<strong>不在</strong> <code class="inl">doPostEvent</code> 的 core 类型匹配里（它们是 SQL 模块的类型），所以会落到
+      <code class="inl">case _ =&gt; onOtherEvent(event)</code>。因此：在你的 <code class="inl">SparkListener</code> 的 <code class="inl">onOtherEvent</code> 里对这些事件做模式匹配，就能监听 SQL 执行。
+      框架自己的 <code class="inl">SQLAppStatusListener</code>、<code class="inl">ExecutionListenerBus</code> 正是这么干的——它们都是 SparkListener，靠 <code class="inl">onOtherEvent</code> 处理 SQL 事件。
+    </p>
+<pre><span class="kw">import</span> org.apache.spark.scheduler._
+<span class="kw">import</span> org.apache.spark.sql.execution.ui.{SparkListenerSQLExecutionStart, SparkListenerSQLExecutionEnd}
+
+<span class="kw">class</span> <span class="fn">SqlAwareListener</span> <span class="kw">extends</span> SparkListener {
+  <span class="cm">// SQL 事件不在 core 的类型匹配里, 统一从 onOtherEvent 进来</span>
+  <span class="kw">override def</span> <span class="fn">onOtherEvent</span>(event: SparkListenerEvent): Unit = event <span class="kw">match</span> {
+    <span class="kw">case</span> e: SparkListenerSQLExecutionStart =&gt;
+      <span class="fn">println</span>(<span class="st">s"SQL 开始 execId=${e.executionId}: ${e.description}"</span>)
+    <span class="kw">case</span> e: SparkListenerSQLExecutionEnd =&gt;
+      <span class="fn">println</span>(<span class="st">s"SQL 结束 execId=${e.executionId}"</span>)
+    <span class="kw">case</span> _ =&gt; <span class="cm">// 忽略其他扩展事件</span>
+  }
+}
+spark.sparkContext.<span class="fn">addSparkListener</span>(<span class="kw">new</span> SqlAwareListener)</pre>
+
+    <div class="note">
+      <span class="tag">不对称性</span>
+      反过来不成立：<code class="inl">QueryExecutionListener</code> 只能看到查询级的 <code class="inl">onSuccess</code> / <code class="inl">onFailure</code>，看不到 Job / Stage / Task 等 core 事件。
+      所以——<strong>要细粒度调度信息 + 顺带 SQL 事件，用 Core SparkListener；只要查询级计划与耗时，用 QueryExecutionListener。</strong>
+    </div>
+
+    <div class="tbl-wrap">
+      <table class="cmp">
+        <thead><tr><th>维度</th><th>SparkListener (Core)</th><th>QueryExecutionListener (SQL)</th></tr></thead>
+        <tbody>
+          <tr><td><span class="first">观测粒度</span></td><td>Job / Stage / Task / Executor / 存储</td><td>一次 Dataset 动作（查询级）</td></tr>
+          <tr><td><span class="first">能否看 SQL 事件</span></td><td><span class="accent-m">能</span>（经 onOtherEvent）</td><td>本身即 SQL 维度</td></tr>
+          <tr><td><span class="first">能否看 Job/Task</span></td><td>能</td><td><span class="accent-m">不能</span></td></tr>
+          <tr><td><span class="first">回调入口</span></td><td>onJobStart / onTaskEnd / onOtherEvent …</td><td>onSuccess / onFailure</td></tr>
+          <tr><td><span class="first">携带信息</span></td><td>TaskMetrics、StageInfo、JobResult</td><td>QueryExecution（四阶段计划）+ 耗时</td></tr>
+          <tr><td><span class="first">事件来源</span></td><td>调度器直接 post</td><td>构建在总线之上（订阅 SQLExecutionEnd）</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ===================== 04 扩展 ===================== -->
+  <section class="section s-search" id="s4">
+    <div class="section-head">
+      <div class="section-num">04</div>
+      <span class="eyebrow">扩展 · Extending</span>
+      <h2>如何<em>扩展</em> Spark 监听器</h2>
+    </div>
+
+    <p class="lead">
+      三种扩展方式：写一个 Core <code class="inl">SparkListener</code>、写一个 SQL <code class="inl">QueryExecutionListener</code>、或自定义事件经 <code class="inl">onOtherEvent</code> 传播。每种都有「启动配置」与「运行时」两条注册途径。
+    </p>
+
+    <h3>4.1　自定义 SparkListener（Core）</h3>
+    <p>
+      继承 <code class="inl">SparkListener</code>，重写关心的回调即可。注册：启动配置用 <code class="inl">spark.extraListeners</code>（随 SparkContext 实例化），运行时用 <code class="inl">addSparkListener</code>（挂 shared 队列）。
+    </p>
+<pre><span class="kw">class</span> <span class="fn">JobMetricsListener</span> <span class="kw">extends</span> SparkListener {
+  <span class="kw">override def</span> <span class="fn">onJobStart</span>(e: SparkListenerJobStart): Unit =
+    <span class="fn">println</span>(<span class="st">s"Job ${e.jobId} 启动, 含 ${e.stageIds.size} 个 Stage"</span>)
+  <span class="kw">override def</span> <span class="fn">onTaskEnd</span>(e: SparkListenerTaskEnd): Unit =
+    <span class="fn">println</span>(<span class="st">s"Task 结束: 运行 ${e.taskMetrics.executorRunTime}ms"</span>)
+}
+
+spark.sparkContext.<span class="fn">addSparkListener</span>(<span class="kw">new</span> JobMetricsListener)   <span class="cm">// 运行时</span>
+<span class="cm">// 或 --conf spark.extraListeners=com.example.JobMetricsListener   // 启动配置</span></pre>
+
+    <h3>4.2　自定义 QueryExecutionListener（SQL）</h3>
+    <p>
+      实现 <code class="inl">onSuccess</code> / <code class="inl">onFailure</code>。注册：启动配置用 <code class="inl">spark.sql.queryExecutionListeners</code>，运行时用 <code class="inl">spark.listenerManager.register(...)</code>。
+    </p>
+<pre><span class="kw">import</span> org.apache.spark.sql.util.QueryExecutionListener
+<span class="kw">import</span> org.apache.spark.sql.execution.QueryExecution
+
+<span class="kw">class</span> <span class="fn">AuditListener</span> <span class="kw">extends</span> QueryExecutionListener {
+  <span class="kw">override def</span> <span class="fn">onSuccess</span>(funcName: String, qe: QueryExecution, durationNs: Long): Unit =
+    <span class="fn">println</span>(<span class="st">s"[$funcName] 成功 ${durationNs/1e9}s\n${qe.executedPlan}"</span>)
+  <span class="kw">override def</span> <span class="fn">onFailure</span>(funcName: String, qe: QueryExecution, ex: Exception): Unit =
+    <span class="fn">println</span>(<span class="st">s"[$funcName] 失败: ${ex.getMessage}"</span>)
+}
+
+spark.listenerManager.<span class="fn">register</span>(<span class="kw">new</span> AuditListener)   <span class="cm">// 运行时</span>
+<span class="cm">// 或 --conf spark.sql.queryExecutionListeners=com.example.AuditListener</span></pre>
+
+    <h3>4.3　自定义事件（onOtherEvent 扩展点）</h3>
+    <p>
+      需要在框架内传播自有信号时，定义一个实现 <code class="inl">SparkListenerEvent</code> 的事件并 <code class="inl">post</code> 到总线，由各监听器经 <code class="inl">onOtherEvent</code> 接收——
+      这与 SQL 事件走的是<em class="term">完全相同</em>的机制。
+    </p>
+<pre><span class="kw">case class</span> <span class="fn">MyMetricEvent</span>(name: String, value: Long) <span class="kw">extends</span> SparkListenerEvent
+
+<span class="cm">// 投递</span>
+spark.sparkContext.listenerBus.<span class="fn">post</span>(<span class="fn">MyMetricEvent</span>(<span class="st">"rows"</span>, 1000))
+
+<span class="cm">// 接收</span>
+<span class="kw">override def</span> <span class="fn">onOtherEvent</span>(event: SparkListenerEvent): Unit = event <span class="kw">match</span> {
+  <span class="kw">case</span> e: MyMetricEvent =&gt; <span class="fn">println</span>(<span class="st">s"${e.name} = ${e.value}"</span>)
+  <span class="kw">case</span> _ =&gt;
+}</pre>
+
+    <h3>4.4　实践注意事项</h3>
+    <div class="card-grid">
+      <div class="card">
+        <div class="k">性能 · 切忌阻塞</div>
+        <div class="v">回调要快</div>
+        <p>回调在队列分发线程上同步执行，重 IO 会拖慢整条队列、引发积压与丢弃。重活异步化或批量化。</p>
+      </div>
+      <div class="card">
+        <div class="k">可靠性 · 事件会丢</div>
+        <div class="v">非保证投递</div>
+        <p>队列满即丢事件。逻辑不能假设事件“一定收到、顺序完整”；关键场景需容忍缺失或调大队列容量。</p>
+      </div>
+      <div class="card">
+        <div class="k">异常隔离</div>
+        <div class="v">兜住自己的异常</div>
+        <p>回调抛出的异常会被总线捕获记录，但反复抛错会刷屏、干扰别的监听器。务必在回调内部处理。</p>
+      </div>
+      <div class="card">
+        <div class="k">线程安全</div>
+        <div class="v">看注册位置</div>
+        <p>只在单条队列注册时内部状态无需加锁；跨队列注册或与外部线程共享状态时需自行保证。</p>
+      </div>
+    </div>
+
+    <div class="note">
+      <span class="tag">全文一句话</span>
+      <code class="inl">LiveListenerBus</code> 管「事件进哪条队列」（广播给每条），<code class="inl">doPostEvent</code> 管「调监听器的哪个方法」（按类型分发），
+      监听器自己管「方法里干什么」。SQL 监听只是同一条总线上、借 <code class="inl">onOtherEvent</code> 与 <code class="inl">ExecutionListenerBus</code> 架出的一层。
+    </div>
+  </section>
+
+  <!-- ===================== 05 血缘实战 ===================== -->
+  <section class="section s-data" id="s5">
+    <div class="section-head">
+      <div class="section-num">05</div>
+      <span class="eyebrow">实战 · Lineage</span>
+      <h2>用 Core Listener 提取<em>血缘</em>：源/汇表与读写路径</h2>
+    </div>
+
+    <p class="lead">
+      目标：用一个通过 <code class="inl">spark.extraListeners</code> 注册的 <code class="inl">SparkListener</code>，在每条 SQL/Dataset 执行时提取它读了哪些
+      <strong>source 表 / 输入路径</strong>、写了哪些 <strong>sink 表 / 输出路径</strong>。这正是 OpenLineage、Spline、Atlas Spark connector 的核心做法。
+    </p>
+
+    <h3>5.1　思路 · on 哪个 event</h3>
+    <p>
+      血缘信息藏在 SQL 的<strong>执行计划</strong>里。production 做法是在 <code class="inl">onOtherEvent</code> 里 hook <strong><code class="inl">SparkListenerSQLExecutionEnd</code></strong>——它带 <code class="inl">errorMessage</code>，能据此只上报成功的执行；再用 <code class="inl">executionId</code> 回查本次的 <code class="inl">QueryExecution</code>。
+    </p>
+    <p>
+      但有个坑：<code class="inl">SQLExecution.getQueryExecution(id)</code> 在执行结束后会被移除，End 上直接取常拿到 null（见 §5.6）。稳妥姿势是——<strong>Start 时缓存 QE，End 时按 id 回查</strong>。拿到 QE 后，对它的 <code class="inl">logical</code> / <code class="inl">analyzed</code> / <code class="inl">optimizedPlan</code> 三个逻辑计划阶段做 <em class="term">best-effort</em> 遍历：只看单一阶段语义简单但容易漏（写端目标与读端 relation 暴露在不同阶段），三阶段 union 覆盖面更广。两种取数路线：
+    </p>
+    <div class="card-grid">
+      <div class="card">
+        <div class="k">方式 A · 轻量自包含</div>
+        <div class="v">event.sparkPlanInfo</div>
+        <p>Start 事件自带的<strong>物理</strong>计划信息树，无需回查、始终可用；但元数据字符串化，提取表名较糙，适合只要粗粒度路径。</p>
+      </div>
+      <div class="card">
+        <div class="k">方式 B · production 推荐</div>
+        <div class="v">QueryExecution · 三阶段 union</div>
+        <p>End 缓存回查 <code class="inl">QueryExecution</code>，遍历三个<strong>逻辑</strong>计划阶段并 union 去重，拿干净的表名/路径、覆盖面广（OpenLineage / Spline 即此类）。</p>
+      </div>
+    </div>
+    <p>
+      一个前提：这条路只看得到 <strong>SQL / DataFrame / Dataset</strong> 执行（事件来自 <code class="inl">SQLExecution</code>）；纯 RDD 作业不产生 SQL 事件，拿不到血缘。
+    </p>
+
+    <h3>5.2　提取架构图</h3>
+    <div class="fig">
+      <svg viewBox="0 0 880 568" xmlns="http://www.w3.org/2000/svg" font-family="'DM Mono',monospace">
+        <defs>
+          <marker id="arrL" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+            <path d="M0,0 L10,5 L0,10" fill="none" stroke="#1c4fa0" stroke-width="1.3"/>
+          </marker>
+        </defs>
+
+        <!-- Start：缓存 QE -->
+        <rect x="30" y="34" width="300" height="56" rx="3" fill="#1c4fa00f" stroke="#1c4fa0" stroke-width="1.2"/>
+        <text x="180" y="56" font-size="12" fill="#0c0e1a" text-anchor="middle" font-weight="500">SparkListenerSQLExecutionStart</text>
+        <text x="180" y="74" font-size="9" fill="#7a7060" text-anchor="middle">缓存 QE → map(execId → QueryExecution)</text>
+
+        <!-- End：触发 -->
+        <rect x="420" y="34" width="420" height="56" rx="3" fill="#1c4fa014" stroke="#1c4fa0" stroke-width="1.4"/>
+        <text x="630" y="58" font-size="12.5" fill="#1c4fa0" text-anchor="middle" font-weight="500">SparkListenerSQLExecutionEnd（触发提取）</text>
+        <text x="630" y="76" font-size="9" fill="#7a7060" text-anchor="middle">执行结束时投递</text>
+        <path d="M630,90 L630,106" fill="none" stroke="#1c4fa0" stroke-width="1.3" marker-end="url(#arrL)"/>
+
+        <!-- 回查 + 判成败 -->
+        <rect x="420" y="106" width="420" height="48" rx="3" fill="#1c4fa00f" stroke="#1c4fa0" stroke-width="1.2"/>
+        <text x="630" y="130" font-size="11" fill="#0c0e1a" text-anchor="middle">① 按 execId 回查 QE　② 读 errorMessage 判成败</text>
+        <path d="M630,154 L630,172" fill="none" stroke="#1c4fa0" stroke-width="1.3" marker-end="url(#arrL)"/>
+        <!-- Start 缓存供 End 回查 -->
+        <path d="M330,62 L420,126" fill="none" stroke="#1c4fa0" stroke-width="1.1" stroke-dasharray="4 3" marker-end="url(#arrL)"/>
+        <text x="346" y="86" font-size="9" fill="#7a7060">execId 回查缓存</text>
+
+        <!-- QE 容器 · 三阶段 -->
+        <rect x="110" y="172" width="730" height="156" rx="4" fill="none" stroke="#1c4fa0" stroke-width="1.4"/>
+        <text x="475" y="192" font-size="11" fill="#0c0e1a" text-anchor="middle" font-weight="500">同一个 QueryExecution · best-effort 遍历三阶段逻辑计划</text>
+        <rect x="130" y="206" width="220" height="84" rx="3" fill="#1c4fa00f" stroke="#1c4fa0" stroke-width="1.1"/>
+        <text x="240" y="228" font-size="13" fill="#1c4fa0" text-anchor="middle" font-weight="500">logical</text>
+        <text x="240" y="248" font-size="9" fill="#7a7060" text-anchor="middle">写端目标(InsertIntoStatement…)</text>
+        <text x="240" y="264" font-size="9" fill="#7a7060" text-anchor="middle">可能未 resolve（仅名字）</text>
+        <rect x="375" y="206" width="220" height="84" rx="3" fill="#1c4fa014" stroke="#1c4fa0" stroke-width="1.2"/>
+        <text x="485" y="228" font-size="13" fill="#1c4fa0" text-anchor="middle" font-weight="500">analyzed</text>
+        <text x="485" y="248" font-size="9" fill="#7a7060" text-anchor="middle">读写都最全</text>
+        <text x="485" y="264" font-size="9" fill="#7a7060" text-anchor="middle">resolved relations + commands</text>
+        <rect x="620" y="206" width="220" height="84" rx="3" fill="#1c4fa00f" stroke="#1c4fa0" stroke-width="1.1"/>
+        <text x="730" y="228" font-size="13" fill="#1c4fa0" text-anchor="middle" font-weight="500">optimizedPlan</text>
+        <text x="730" y="248" font-size="9" fill="#7a7060" text-anchor="middle">pushed location / filter</text>
+        <text x="730" y="264" font-size="9" fill="#7a7060" text-anchor="middle">但可能裁掉 source</text>
+        <text x="475" y="313" font-size="9" fill="#7a7060" text-anchor="middle">每阶段都识别：读端 relation → sources ｜ 写端 command·target → destinations</text>
+
+        <!-- union -->
+        <path d="M475,328 L475,356" fill="none" stroke="#1c4fa0" stroke-width="1.3" marker-end="url(#arrL)"/>
+        <rect x="350" y="356" width="250" height="44" rx="3" fill="#1c4fa014" stroke="#1c4fa0" stroke-width="1.4"/>
+        <text x="475" y="382" font-size="11.5" fill="#0c0e1a" text-anchor="middle" font-weight="500">三阶段 union 候选</text>
+        <path d="M475,400 L475,420" fill="none" stroke="#1c4fa0" stroke-width="1.3" marker-end="url(#arrL)"/>
+
+        <!-- dedup + 归一化 -->
+        <rect x="320" y="420" width="310" height="50" rx="3" fill="#1c4fa00f" stroke="#1c4fa0" stroke-width="1.2"/>
+        <text x="475" y="442" font-size="11" fill="#0c0e1a" text-anchor="middle" font-weight="500">去重 + 归一化 · LineageDataset</text>
+        <text x="475" y="459" font-size="9" fill="#7a7060" text-anchor="middle">表↔path 同源 · 路径归一 · 库表名 …</text>
+        <path d="M475,470 L475,504" fill="none" stroke="#1c4fa0" stroke-width="1.3" marker-end="url(#arrL)"/>
+
+        <!-- output -->
+        <rect x="320" y="504" width="310" height="48" rx="3" fill="#1c4fa014" stroke="#1c4fa0" stroke-width="1.4"/>
+        <text x="475" y="526" font-size="11.5" fill="#0c0e1a" text-anchor="middle" font-weight="500">输出：sources[] · destinations[]</text>
+        <text x="475" y="543" font-size="9" fill="#7a7060" text-anchor="middle">去重排序后 · 仅成功执行</text>
+      </svg>
+      <div class="fig-cap"><b>图 7</b> — 多阶段血缘提取设计：Start 缓存 QE → End 触发并回查、按 errorMessage 判成败 → 对 logical/analyzed/optimizedPlan 三阶段 best-effort 遍历 → union → 按 LineageDataset 去重归一 → 输出</div>
+    </div>
+
+    <h3>5.3　方式 A：解析 sparkPlanInfo（自包含，物理计划）</h3>
+    <p>
+      只用事件自带的 <code class="inl">sparkPlanInfo</code> 递归遍历，无需别的依赖。读节点的输入路径在 <code class="inl">metadata("Location")</code>，写节点信息在 <code class="inl">simpleString</code> 里——胜在简单稳定，弱在表名要靠字符串解析。
+    </p>
+<pre><span class="kw">import</span> org.apache.spark.scheduler._
+<span class="kw">import</span> org.apache.spark.sql.execution.SparkPlanInfo
+<span class="kw">import</span> org.apache.spark.sql.execution.ui.SparkListenerSQLExecutionStart
+<span class="kw">import</span> scala.collection.mutable.ListBuffer
+
+<span class="kw">class</span> <span class="fn">LineageListener</span> <span class="kw">extends</span> SparkListener {
+  <span class="kw">override def</span> <span class="fn">onOtherEvent</span>(event: SparkListenerEvent): Unit = event <span class="kw">match</span> {
+    <span class="kw">case</span> s: SparkListenerSQLExecutionStart =&gt;            <span class="cm">// 计划信息在 Start 事件上</span>
+      <span class="kw">val</span> in, out = ListBuffer.empty[String]
+      <span class="fn">walk</span>(s.sparkPlanInfo, in, out)
+      <span class="fn">println</span>(<span class="st">s"execId=${s.executionId} in=${in.distinct} out=${out.distinct}"</span>)
+    <span class="kw">case</span> _ =&gt;
+  }
+
+  <span class="cm">// 递归遍历物理计划信息树</span>
+  <span class="kw">private def</span> <span class="fn">walk</span>(p: SparkPlanInfo, in: ListBuffer[String], out: ListBuffer[String]): Unit = {
+    <span class="kw">val</span> n = p.nodeName
+    <span class="kw">if</span> (n.contains(<span class="st">"Scan"</span>))                              <span class="cm">// 读：FileScan / Scan parquet / HiveTableScan</span>
+      p.metadata.<span class="fn">get</span>(<span class="st">"Location"</span>).foreach(in += _)        <span class="cm">//   metadata 里有输入路径</span>
+    <span class="kw">else if</span> (n.contains(<span class="st">"Insert"</span>) || n.contains(<span class="st">"Write"</span>))   <span class="cm">// 写命令</span>
+      out += p.simpleString                            <span class="cm">//   simpleString 含输出路径/表</span>
+    p.children.foreach(<span class="fn">walk</span>(_, in, out))
+  }
+}</pre>
+
+    <h3>5.4　方式 B（推荐）：三阶段 union + End 缓存</h3>
+    <p>
+      End 触发提取；Start 时把 QE 缓存进自己的 map、End 时按 <code class="inl">executionId</code> 回查（规避注册表移除竞态），并用 <code class="inl">errorMessage</code> 门控只上报成功的执行。
+      拿到 QE 后，对 <code class="inl">logical</code> / <code class="inl">analyzed</code> / <code class="inl">optimizedPlan</code> 三个阶段各遍历一次——写端目标与读端 relation 分布在不同阶段，并扫覆盖更全；同一节点跨阶段重复，靠 <code class="inl">LineageDataset</code> 的集合天然去重。
+    </p>
+<pre><span class="kw">import</span> org.apache.spark.scheduler._
+<span class="kw">import</span> org.apache.spark.sql.execution.{SQLExecution, QueryExecution}
+<span class="kw">import</span> org.apache.spark.sql.execution.ui.{SparkListenerSQLExecutionStart, SparkListenerSQLExecutionEnd}
+<span class="kw">import</span> org.apache.spark.sql.catalyst.plans.logical.LogicalPlan
+<span class="kw">import</span> java.util.concurrent.ConcurrentHashMap
+<span class="kw">import</span> scala.collection.mutable
+
+<span class="kw">class</span> <span class="fn">LineageListener</span> <span class="kw">extends</span> SparkListener {
+  <span class="cm">// Start 缓存 QE：规避 End 上 getQueryExecution 已被移除的竞态</span>
+  <span class="kw">private val</span> cache = <span class="kw">new</span> ConcurrentHashMap[Long, QueryExecution]()
+
+  <span class="kw">override def</span> <span class="fn">onOtherEvent</span>(event: SparkListenerEvent): Unit = event <span class="kw">match</span> {
+    <span class="kw">case</span> s: SparkListenerSQLExecutionStart =&gt;
+      Option(SQLExecution.<span class="fn">getQueryExecution</span>(s.executionId)).foreach(cache.put(s.executionId, _))
+
+    <span class="kw">case</span> e: SparkListenerSQLExecutionEnd =&gt;                    <span class="cm">// End 触发</span>
+      <span class="kw">val</span> qe = Option(cache.<span class="fn">remove</span>(e.executionId))
+        .<span class="fn">orElse</span>(Option(SQLExecution.<span class="fn">getQueryExecution</span>(e.executionId)))
+      <span class="kw">if</span> (e.errorMessage.isEmpty) qe.foreach(emit)             <span class="cm">// 仅成功才上报</span>
+
+    <span class="kw">case</span> _ =&gt;
+  }
+
+  <span class="kw">private def</span> <span class="fn">emit</span>(qe: QueryExecution): Unit = {
+    <span class="kw">val</span> sources, dests = mutable.LinkedHashSet.empty[LineageDataset]
+    <span class="cm">// best-effort：三个逻辑计划阶段都扫, 结果合并(集合天然去重)</span>
+    Seq(qe.logical, qe.analyzed, qe.optimizedPlan).foreach(<span class="fn">scan</span>(_, sources, dests))
+    <span class="fn">report</span>(<span class="fn">Lineage</span>(sources.toSeq.sorted, dests.toSeq.sorted))   <span class="cm">// 去重 + 排序</span>
+  }
+
+  <span class="cm">// 单阶段提取：读端 relation → sources，写端 command/target → dests</span>
+  <span class="kw">private def</span> <span class="fn">scan</span>(plan: LogicalPlan, sources: mutable.Set[LineageDataset],
+                   dests: mutable.Set[LineageDataset]): Unit = plan.foreach {
+    <span class="cm">// —— 读端 relation → source ——</span>
+    <span class="kw">case</span> LogicalRelation(h: HadoopFsRelation, _, cat, _) =&gt; sources ++= <span class="fn">asDataset</span>(h, cat)
+    <span class="kw">case</span> r: HiveTableRelation    =&gt; sources += <span class="fn">asTable</span>(r.tableMeta)
+    <span class="kw">case</span> r: DataSourceV2Relation =&gt; sources += <span class="fn">asV2</span>(r.table)
+    <span class="cm">// —— 写端 command / target → destination ——</span>
+    <span class="kw">case</span> c: InsertIntoHadoopFsRelationCommand =&gt; dests ++= <span class="fn">asDataset</span>(c)
+    <span class="kw">case</span> c: InsertIntoHiveTable               =&gt; dests += <span class="fn">asTable</span>(c.table)
+    <span class="kw">case</span> i: InsertIntoStatement               =&gt; dests ++= <span class="fn">asTarget</span>(i.table)   <span class="cm">// 未 resolve 的写</span>
+    <span class="kw">case</span> w: V2WriteCommand                    =&gt; dests += <span class="fn">asV2</span>(w.table)        <span class="cm">// Append/Overwrite…</span>
+    <span class="kw">case</span> c: CreateTableAsSelect               =&gt; dests ++= <span class="fn">asCreate</span>(c)         <span class="cm">// CTAS</span>
+    <span class="kw">case</span> r: ReplaceTableAsSelect              =&gt; dests ++= <span class="fn">asCreate</span>(r)         <span class="cm">// RTAS</span>
+    <span class="kw">case</span> _ =&gt;
+  }
+  <span class="cm">// asDataset/asTable/asV2/asTarget/asCreate：把各 connector 的 path·identifier·name 归一成</span>
+  <span class="cm">// LineageDataset（字段访问随 Spark 版本而异, 这里只示意分流逻辑）</span>
+}</pre>
+
+    <h3>5.5　计划节点 → source / sink 映射</h3>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>计划节点</th><th>角色</th><th>提取什么</th></tr></thead>
+        <tbody>
+          <tr><td><span class="first">LogicalRelation(HadoopFsRelation)</span></td><td><span class="accent-d">source</span></td><td>location.rootPaths（路径）/ catalogTable（表）</td></tr>
+          <tr><td><span class="first">HiveTableRelation</span></td><td><span class="accent-d">source</span></td><td>tableMeta.identifier（表）/ storage.locationUri（路径）</td></tr>
+          <tr><td><span class="first">DataSourceV2Relation</span></td><td><span class="accent-d">source</span></td><td>table.name() / identifier（V2 表）</td></tr>
+          <tr><td><span class="first">InsertIntoHadoopFsRelationCommand</span></td><td><span class="accent-d">sink</span></td><td>outputPath（路径）/ catalogTable（表）</td></tr>
+          <tr><td><span class="first">InsertIntoHiveTable</span></td><td><span class="accent-d">sink</span></td><td>table.identifier（表）/ storage（路径）</td></tr>
+          <tr><td><span class="first">InsertIntoStatement（未 resolve）</span></td><td><span class="accent-d">sink</span></td><td>target relation → 名字（多见于 logical 阶段）</td></tr>
+          <tr><td><span class="first">AppendData / OverwriteByExpression（V2 写）</span></td><td><span class="accent-d">sink</span></td><td>table（V2 表 / 路径）</td></tr>
+          <tr><td><span class="first">CreateTableAsSelect / ReplaceTableAsSelect</span></td><td><span class="accent-d">sink</span></td><td>目标 identifier（CTAS / RTAS）</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>5.6　注意事项</h3>
+    <div class="card-grid">
+      <div class="card">
+        <div class="k">End 竞态</div>
+        <div class="v">End 上直接取 QE 常为 null</div>
+        <p><code class="inl">withNewExecutionId</code> 在 post End 后<strong>立即</strong>移除 QE，监听线程异步处理 End 时往往已被移除。稳妥：<strong>Start 缓存 QE、End 按 id 回查</strong>（Start 时 QE 在整段执行期内有效，几乎总能拿到）。</p>
+      </div>
+      <div class="card">
+        <div class="k">V1 vs V2</div>
+        <div class="v">节点类型不同</div>
+        <p>FileSource / Hive 是 V1 节点；Delta / Iceberg / Kafka / JDBC 多用 DataSourceV2（<code class="inl">DataSourceV2Relation</code> / <code class="inl">AppendData</code> …），需补对应 case。</p>
+      </div>
+      <div class="card">
+        <div class="k">内部 API</div>
+        <div class="v">跨版本可能变动</div>
+        <p><code class="inl">LogicalRelation</code> / <code class="inl">InsertIntoHadoopFsRelationCommand</code> / <code class="inl">SQLExecution</code> 等是 Spark 内部 API；建议封装并按版本做兼容。</p>
+      </div>
+      <div class="card">
+        <div class="k">去重归一化</div>
+        <div class="v">最容易出脏数据的地方</div>
+        <p>三阶段 union 后，<code class="inl">LineageDataset</code> 的归一化是关键：表↔底层 path 是否同源、fully-qualified vs 相对路径、结尾斜杠、<code class="inl">hdfs://nn</code> vs <code class="inl">hdfs://nn:8020</code>、库表名大小写——键不归一化会“看着像两个其实是一个”。</p>
+      </div>
+    </div>
+
+    <div class="note">
+      <span class="tag">生产建议</span>
+      路径还有两个细节：<code class="inl">rootPaths</code> 是数据源根路径（分区裁剪后实际读取的不一定都在此），写出常先落 staging/临时目录再 rename——按需归一。
+      要稳，优先用成熟方案（<strong>OpenLineage spark-listener · Spline · Atlas Spark connector</strong>），它们已处理好各版本与各数据源的差异。
+      另外：若不强求走 Core 监听器这条路，<code class="inl">QueryExecutionListener</code> 会被<em class="term">直接</em>递交 <code class="inl">QueryExecution</code>（无注册表竞态），提取血缘更省心——本节坚持用 <code class="inl">SQLExecutionEnd</code> + 缓存回查 <code class="inl">QueryExecution</code>，是因为命题就是「用 Core Listener 扩展」。
+    </div>
+  </section>
+
+  <!-- ===================== COLOPHON ===================== -->
+  <footer class="colophon">
+    <b>Apache Spark · 监听器架构与原理</b><br>
+    协调层 LiveListenerBus　·　派发层 ListenerBus / SparkListenerBus / AsyncEventQueue　·　回调契约 SparkListenerInterface / SparkListener<br>
+    SQL 层 QueryExecutionListener / ExecutionListenerBus / SQLAppStatusListener　—　类名与配置项基于 Spark 2.3+（多队列总线）与 3.x（SQL 监听分层）架构整理。
+  </footer>
+
+</div>
+</body>
+</html>
+
+
+  </div>
+</article>
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/categories/technology">Technology</a></li>
+         
+          <li><a href="/categories/life">Life</a></li>
+         
+          <li><a href="/archives/">Archives</a></li>
+         
+          <li><a href="/tags/">Tags</a></li>
+         
+          <li><a href="/about">About</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">Spark 监听器架构与原理</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#s0"><span class="toc-number">1.1.</span> <span class="toc-text">Spark 监听器是什么，为什么需要它</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#s1"><span class="toc-number">1.2.</span> <span class="toc-text">自顶向下：运行时架构与类图</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#s1"><span class="toc-number">1.2.1.</span> <span class="toc-text">1.1　运行时架构图</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#s1"><span class="toc-number">1.2.2.</span> <span class="toc-text">1.2　三层职责</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#s1"><span class="toc-number">1.2.3.</span> <span class="toc-text">1.3　类图</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#s2"><span class="toc-number">1.3.</span> <span class="toc-text">逐个拆开：协调、派发、队列与流转</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#s2"><span class="toc-number">1.3.1.</span> <span class="toc-text">2.1　LiveListenerBus —— 协调层</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#s2"><span class="toc-number">1.3.2.</span> <span class="toc-text">2.2　AsyncEventQueue —— 队列 + 单线程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#s2"><span class="toc-number">1.3.3.</span> <span class="toc-text">2.3　SparkListenerBus —— 派发 trait（名字辨析）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#s2"><span class="toc-number">1.3.4.</span> <span class="toc-text">2.4　SparkListener 与事件体系 —— 回调契约</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#s2"><span class="toc-number">1.3.5.</span> <span class="toc-text">2.5　端到端流转与线程模型</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#s2"><span class="toc-number">1.3.5.1.</span> <span class="toc-text">线程模型 · 串行的范围</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#s2"><span class="toc-number">1.3.6.</span> <span class="toc-text">2.6　装配与喂数据：在 SparkContext 中如何接线</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#s2"><span class="toc-number">1.3.6.1.</span> <span class="toc-text">如何获取事件 · push 模型</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#s2"><span class="toc-number">1.3.6.2.</span> <span class="toc-text">内部架构 · 队列与线程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#s2"><span class="toc-number">1.3.6.3.</span> <span class="toc-text">在 SparkContext 中的装配顺序</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#s2"><span class="toc-number">1.3.6.4.</span> <span class="toc-text">extra listener 注册流程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#s2"><span class="toc-number">1.3.6.5.</span> <span class="toc-text">start &#x2F; stop 生命周期</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#s3"><span class="toc-number">1.4.</span> <span class="toc-text">SQL 监听：架在 Core 总线之上的一层</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#s3"><span class="toc-number">1.4.1.</span> <span class="toc-text">3.1　QueryExecutionListener 接口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#s3"><span class="toc-number">1.4.2.</span> <span class="toc-text">3.2　与 Core 的关系：同一条总线上的分层</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#s3"><span class="toc-number">1.4.3.</span> <span class="toc-text">3.3　Core 监听器能监听 SQL 事件吗？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#s4"><span class="toc-number">1.5.</span> <span class="toc-text">如何扩展 Spark 监听器</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#s4"><span class="toc-number">1.5.1.</span> <span class="toc-text">4.1　自定义 SparkListener（Core）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#s4"><span class="toc-number">1.5.2.</span> <span class="toc-text">4.2　自定义 QueryExecutionListener（SQL）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#s4"><span class="toc-number">1.5.3.</span> <span class="toc-text">4.3　自定义事件（onOtherEvent 扩展点）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#s4"><span class="toc-number">1.5.4.</span> <span class="toc-text">4.4　实践注意事项</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#s5"><span class="toc-number">1.6.</span> <span class="toc-text">用 Core Listener 提取血缘：源&#x2F;汇表与读写路径</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#s5"><span class="toc-number">1.6.1.</span> <span class="toc-text">5.1　思路 · on 哪个 event</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#s5"><span class="toc-number">1.6.2.</span> <span class="toc-text">5.2　提取架构图</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#s5"><span class="toc-number">1.6.3.</span> <span class="toc-text">5.3　方式 A：解析 sparkPlanInfo（自包含，物理计划）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#s5"><span class="toc-number">1.6.4.</span> <span class="toc-text">5.4　方式 B（推荐）：三阶段 union + End 缓存</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#s5"><span class="toc-number">1.6.5.</span> <span class="toc-text">5.5　计划节点 → source &#x2F; sink 映射</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#s5"><span class="toc-number">1.6.6.</span> <span class="toc-text">5.6　注意事项</span></a></li></ol></li></ol></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2026/06/13/listener-html/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2026/06/13/listener-html/&text=Spark listener详解"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2026/06/13/listener-html/&title=Spark listener详解"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2026/06/13/listener-html/&is_video=false&description=Spark listener详解"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Spark listener详解&body=Check out this article: http://example.com/2026/06/13/listener-html/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2026/06/13/listener-html/&title=Spark listener详解"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2026/06/13/listener-html/&title=Spark listener详解"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2026/06/13/listener-html/&title=Spark listener详解"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2026/06/13/listener-html/&title=Spark listener详解"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2026/06/13/listener-html/&name=Spark listener详解&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2026/06/13/listener-html/&t=Spark listener详解"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2026
+    duanmeng
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/categories/technology">Technology</a></li><!--
+     --><!--
+       --><li><a href="/categories/life">Life</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Archives</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tags</a></li><!--
+     --><!--
+       --><li><a href="/about">About</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+
+  <script src='https://unpkg.com/mermaid@10.3.0/dist/mermaid.min.js'></script>
+  <script>
+    if (window.mermaid) {
+      mermaid.initialize({theme: 'forest'});
+    }
+  </script>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
