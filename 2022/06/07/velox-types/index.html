@@ -6,15 +6,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
-    <meta name="description" content="What Is Velox Type SystemVelox类型系统支持一部分与SQL兼容的可组合类型，scalar types（BOOLEAN, BIGINT等）, complex types（ARRAY，MAP等），在开发者文档中也给出了Velox Scalar Type与C++ Type的对应关系，比如BOOLEAN -&gt; bool、BIGINT -&gt; int64_t。 Velo">
+    <meta name="description" content=":root{     --paper:#f5f0e8; --paper-2:#ede8df; --ink:#0c0e1a; --border:#d4cdc0;     --muted:#7a7060; --code-bg:#f0ece0; --accent:#c1440e; --link:#1c4fa0;     --serif:&#39;Newsreader&#39;,&#39;Noto Ser">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Velox Type System">
 <meta property="og:url" content="http://example.com/2022/06/07/velox-types/index.html">
 <meta property="og:site_name" content="Macduan Notes">
-<meta property="og:description" content="What Is Velox Type SystemVelox类型系统支持一部分与SQL兼容的可组合类型，scalar types（BOOLEAN, BIGINT等）, complex types（ARRAY，MAP等），在开发者文档中也给出了Velox Scalar Type与C++ Type的对应关系，比如BOOLEAN -&gt; bool、BIGINT -&gt; int64_t。 Velo">
+<meta property="og:description" content=":root{     --paper:#f5f0e8; --paper-2:#ede8df; --ink:#0c0e1a; --border:#d4cdc0;     --muted:#7a7060; --code-bg:#f0ece0; --accent:#c1440e; --link:#1c4fa0;     --serif:&#39;Newsreader&#39;,&#39;Noto Ser">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2022-06-07T13:56:33.000Z">
-<meta property="article:modified_time" content="2026-05-30T05:46:54.134Z">
+<meta property="article:modified_time" content="2026-06-14T05:00:07.361Z">
 <meta property="article:author" content="duanmeng">
 <meta property="article:tag" content="QueryExecution">
 <meta property="article:tag" content="velox">
@@ -115,7 +115,7 @@
 
     </div>
     <div id="toc">
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#What-Is-Velox-Type-System"><span class="toc-number">1.</span> <span class="toc-text">What Is Velox Type System</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Velox-Type%E7%B1%BB"><span class="toc-number">2.</span> <span class="toc-text">Velox Type类</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E5%88%9B%E5%BB%BAVelox-Type"><span class="toc-number">3.</span> <span class="toc-text">如何创建Velox Type</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E4%BB%8EC-Type%E6%8E%A8%E5%AF%BC%E5%92%8C%E5%88%9B%E5%BB%BA%E5%87%BAVelox-Type"><span class="toc-number">4.</span> <span class="toc-text">如何从C++ Type推导和创建出Velox Type</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Rferences"><span class="toc-number">5.</span> <span class="toc-text">Rferences</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">Velox Type System</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#what-is-velox-type-system"><span class="toc-number">1.1.</span> <span class="toc-text">What Is Velox Type System</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#velox-type%E7%B1%BB"><span class="toc-number">1.2.</span> <span class="toc-text">Velox Type类</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E5%88%9B%E5%BB%BAvelox-type"><span class="toc-number">1.3.</span> <span class="toc-text">如何创建Velox Type</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E4%BB%8Ec-type%E6%8E%A8%E5%AF%BC%E5%92%8C%E5%88%9B%E5%BB%BA%E5%87%BAvelox-type"><span class="toc-number">1.4.</span> <span class="toc-text">如何从C++ Type推导和创建出Velox Type</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#rferences"><span class="toc-number">1.5.</span> <span class="toc-text">Rferences</span></a></li></ol></li></ol>
     </div>
   </span>
 </div>
@@ -164,29 +164,248 @@
   
 
   <div class="content" itemprop="articleBody">
-    <h2 id="What-Is-Velox-Type-System"><a href="#What-Is-Velox-Type-System" class="headerlink" title="What Is Velox Type System"></a>What Is Velox Type System</h2><p>Velox类型系统支持一部分与SQL兼容的可组合类型，scalar types（BOOLEAN, BIGINT等）, complex types（ARRAY，MAP等），在开发者文档中也给出了<a target="_blank" rel="noopener" href="https://facebookincubator.github.io/velox/develop/types.html">Velox Scalar Type与C++ Type的对应关系</a>，比如BOOLEAN -&gt; bool、BIGINT -&gt; int64_t。</p>
-<h2 id="Velox-Type类"><a href="#Velox-Type类" class="headerlink" title="Velox Type类"></a>Velox Type类</h2><p>首先来看几个关键数据结构，Velox使用TypeKind做类型分类，ScalarType是一个template class来表达不同的scalar types，Complex types只能一个一个去定义，ARRAY类型就是ArrayType，MAP类型就是MapType。</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">enum class</span> <span class="title class_">TypeKind</span> : <span class="type">int8_t</span> &#123;</span><br><span class="line">  BOOLEAN = <span class="number">0</span>,</span><br><span class="line">  ...</span><br><span class="line">  BIGINT = <span class="number">4</span>,</span><br><span class="line">  ...</span><br><span class="line">  ARRAY = <span class="number">30</span>,</span><br><span class="line">  MAP = <span class="number">31</span>,</span><br><span class="line">  ...</span><br><span class="line">  OPAQUE = <span class="number">35</span>,</span><br><span class="line">  INVALID = <span class="number">36</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span> &lt;TypeKind KIND&gt;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ScalarType</span> : <span class="keyword">public</span> TypeBase&lt;KIND&gt;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ArrayType</span> : <span class="keyword">public</span> TypeBase&lt;TypeKind::ARRAY&gt;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MapType</span> : <span class="keyword">public</span> TypeBase&lt;TypeKind::MAP&gt;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span> &lt;TypeKind KIND&gt;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">TypeBase</span> : <span class="keyword">public</span> Type &#123;</span><br><span class="line"> <span class="keyword">public</span>:</span><br><span class="line">  <span class="keyword">using</span> NativeType = TypeTraits&lt;KIND&gt;;</span><br><span class="line">  <span class="function"><span class="type">bool</span> <span class="title">isPrimitiveType</span><span class="params">()</span> <span class="type">const</span> <span class="keyword">override</span> </span>&#123; <span class="keyword">return</span> TypeTraits&lt;KIND&gt;::isPrimitiveType; &#125;</span><br><span class="line">  <span class="function"><span class="type">bool</span> <span class="title">isFixedWidth</span><span class="params">()</span> <span class="type">const</span> <span class="keyword">override</span> </span>&#123; <span class="keyword">return</span> TypeTraits&lt;KIND&gt;::isFixedWidth; &#125;</span><br><span class="line">  <span class="function"><span class="type">const</span> <span class="type">char</span>* <span class="title">kindName</span><span class="params">()</span> <span class="type">const</span> <span class="keyword">override</span> </span>&#123; <span class="keyword">return</span> TypeTraits&lt;KIND&gt;::name; &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+    
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=Noto+Serif+SC:wght@400;500;600&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f5f0e8; --paper-2:#ede8df; --ink:#0c0e1a; --border:#d4cdc0;
+    --muted:#7a7060; --code-bg:#f0ece0; --accent:#c1440e; --link:#1c4fa0;
+    --serif:'Newsreader','Noto Serif SC',serif;
+    --mono:'DM Mono','Noto Sans Mono CJK SC','Sarasa Mono SC',monospace;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--serif);font-size:17px;line-height:1.78;font-weight:400;}
+  .wrap{max-width:960px;margin:0 auto;padding:0 28px;}
 
+  .masthead{padding:34px 0 22px;border-bottom:3px double var(--ink);}
+  .top-bar{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding-bottom:14px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:8px;}
+  .masthead-title{font-family:var(--serif);font-weight:600;font-size:52px;line-height:1.06;letter-spacing:-.01em;margin:20px 0 0;}
+  .masthead-title em{font-style:italic;color:var(--link);}
+  .deck-rule{margin-top:20px;padding-top:12px;border-top:1px solid var(--border);font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);display:flex;gap:22px;flex-wrap:wrap;}
+
+  .post-body{padding-top:8px;}
+  .post-body h1{font-family:var(--serif);font-weight:600;font-size:38px;line-height:1.12;letter-spacing:-.01em;margin:54px 0 10px;padding-top:24px;border-top:3px double var(--ink);}
+  .post-body h2{font-family:var(--serif);font-weight:600;font-size:30px;line-height:1.18;letter-spacing:-.01em;margin:44px 0 10px;padding-top:22px;border-top:1px solid var(--border);}
+  .post-body h3{font-family:var(--serif);font-weight:600;font-size:22px;margin:32px 0 6px;line-height:1.3;}
+  .post-body h4{font-family:var(--mono);font-weight:500;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:26px 0 8px;}
+  .post-body h5,.post-body h6{font-family:var(--serif);font-weight:600;font-size:17px;margin:22px 0 4px;}
+  .post-body p{margin:14px 0;}
+  .post-body strong{font-weight:600;}
+  .post-body em{font-style:italic;}
+  .post-body a{color:var(--link);text-decoration:underline;text-underline-offset:2px;}
+  .post-body a:hover{color:var(--accent);}
+  .post-body img{max-width:100%;height:auto;}
+  .post-body hr{border:none;border-top:1px solid var(--border);margin:34px 0;}
+  .post-body ul,.post-body ol{margin:14px 0;padding-left:1.5em;}
+  .post-body li{margin:5px 0;}
+  .post-body li>ul,.post-body li>ol{margin:5px 0;}
+  .post-body blockquote{margin:20px 0;padding:12px 20px;border-left:3px solid var(--accent);background:var(--paper-2);color:#333;}
+  .post-body blockquote p{margin:6px 0;}
+
+  .post-body code{font-family:var(--mono);font-size:14.5px;background:var(--code-bg);border:1px solid var(--border);border-radius:2px;padding:1px 6px;}
+  .post-body pre{font-family:var(--mono);font-size:14px;font-weight:400;line-height:1.6;background:var(--code-bg);border:1px solid var(--border);border-left:3px solid var(--muted);border-radius:2px;padding:16px 18px;margin:20px 0;overflow-x:auto;}
+  .post-body pre code{background:none;border:none;border-radius:0;padding:0;font-size:14px;}
+
+  .tbl-wrap{overflow-x:auto;margin:22px 0;border:1px solid var(--border);border-radius:2px;}
+  .post-body table{width:100%;border-collapse:collapse;font-family:var(--mono);font-weight:400;}
+  .post-body thead th{background:var(--paper-2);font-weight:400;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:left;padding:11px 14px;border-bottom:1px solid var(--border);white-space:nowrap;}
+  .post-body tbody td{font-size:14px;padding:11px 14px;border-bottom:1px solid var(--border);vertical-align:top;line-height:1.55;}
+  .post-body tbody tr:nth-child(even){background:var(--paper-2);}
+  .post-body tbody tr:last-child td{border-bottom:none;}
+
+  .colophon{border-top:3px double var(--ink);margin-top:50px;padding:26px 0 56px;font-family:var(--mono);font-size:12px;letter-spacing:.04em;color:var(--muted);line-height:1.7;}
+  .colophon b{color:var(--ink);font-weight:500;}
+
+  @media (max-width:760px){
+    body{font-size:16px;}
+    .wrap{padding:0 18px;}
+    .masthead-title{font-size:38px;}
+    .post-body h1{font-size:30px;}
+    .post-body h2{font-size:25px;}
+  }
+
+  .post-body pre code.hljs{background:none;padding:0;color:#0c0e1a;}
+  .post-body .hljs-comment,.post-body .hljs-quote{color:#9b917b;font-style:italic;}
+  .post-body .hljs-keyword,.post-body .hljs-selector-tag,.post-body .hljs-doctag,.post-body .hljs-name{color:#a3402a;font-weight:500;}
+  .post-body .hljs-string,.post-body .hljs-meta .hljs-string{color:#4e7a36;}
+  .post-body .hljs-number,.post-body .hljs-literal,.post-body .hljs-symbol,.post-body .hljs-bullet{color:#2f6f9f;}
+  .post-body .hljs-type,.post-body .hljs-class .hljs-title,.post-body .hljs-title.class_,.post-body .hljs-built_in{color:#1c4fa0;}
+  .post-body .hljs-function .hljs-title,.post-body .hljs-title.function_,.post-body .hljs-title{color:#6b3fa0;}
+  .post-body .hljs-attr,.post-body .hljs-attribute,.post-body .hljs-property,.post-body .hljs-meta{color:#9a6a1a;}
+  .post-body .hljs-params,.post-body .hljs-variable,.post-body .hljs-template-variable{color:#0c0e1a;}
+  .post-body .hljs-deletion{background:#f5e0db;}
+  .post-body .hljs-addition{background:#e6f0db;}
+  .post-body .hljs-emphasis{font-style:italic;}
+  .post-body .hljs-strong{font-weight:600;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="masthead">
+    <div class="top-bar"><span>QUERYEXECUTION · SIMD · VELOX · VECTORIZED · DATA · PAPER</span><span>2022-06-07</span></div>
+    <h1 class="masthead-title">Velox Type System</h1>
+    <div class="deck-rule"><span>2022-06-07</span><span>#QueryExecution　#SIMD　#velox　#vectorized　#data　#paper</span></div>
+  </header>
+  <article class="post-body">
+<h2 id="what-is-velox-type-system">What Is Velox Type System</h2>
+<p>Velox类型系统支持一部分与SQL兼容的可组合类型，scalar types（BOOLEAN, BIGINT等）, complex types（ARRAY，MAP等），在开发者文档中也给出了<a target="_blank" rel="noopener" href="https://facebookincubator.github.io/velox/develop/types.html">Velox Scalar Type与C++ Type的对应关系</a>，比如BOOLEAN -&gt; bool、BIGINT -&gt; int64_t。</p>
+<h2 id="velox-type类">Velox Type类</h2>
+<p>首先来看几个关键数据结构，Velox使用TypeKind做类型分类，ScalarType是一个template class来表达不同的scalar types，Complex types只能一个一个去定义，ARRAY类型就是ArrayType，MAP类型就是MapType。</p>
+<pre><code class="language-cpp">enum class TypeKind : int8_t &#123;
+  BOOLEAN = 0,
+  ...
+  BIGINT = 4,
+  ...
+  ARRAY = 30,
+  MAP = 31,
+  ...
+  OPAQUE = 35,
+  INVALID = 36
+&#125;;
+
+template &lt;TypeKind KIND&gt;
+class ScalarType : public TypeBase&lt;KIND&gt;
+class ArrayType : public TypeBase&lt;TypeKind::ARRAY&gt;
+class MapType : public TypeBase&lt;TypeKind::MAP&gt;
+
+template &lt;TypeKind KIND&gt;
+class TypeBase : public Type &#123;
+ public:
+  using NativeType = TypeTraits&lt;KIND&gt;;
+  bool isPrimitiveType() const override &#123; return TypeTraits&lt;KIND&gt;::isPrimitiveType; &#125;
+  bool isFixedWidth() const override &#123; return TypeTraits&lt;KIND&gt;::isFixedWidth; &#125;
+  const char* kindName() const override &#123; return TypeTraits&lt;KIND&gt;::name; &#125;
+&#125;;
+</code></pre>
 <p>从上面代码可以看出，ScalarType，ArrayType都是TypeBase的子类，TypeBase提供了一些关键的类型信息，其native type，是不是primitive类型，是不是fix width，类型的name等，这些都是通过TypeTraits的模板特化“萃取”的，如下面代码所示，每个类型的信息都是有一个特化的类，BIGINT的native type是int64_t，ImplType也就是其velox type是ScalarType<a href="TypeKind::BIGINT">TypeKind::BIGINT</a>，这里注意到ARRAY类型native type是void。</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;TypeKind KIND&gt;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">TypeTraits</span> &#123;&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span> &lt;&gt;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">TypeTraits</span>&lt;TypeKind::BIGINT&gt; &#123;</span><br><span class="line">  <span class="keyword">using</span> ImplType = ScalarType&lt;TypeKind::BIGINT&gt;;</span><br><span class="line">  <span class="keyword">using</span> NativeType = <span class="type">int64_t</span>;</span><br><span class="line">  <span class="keyword">using</span> DeepCopiedType = NativeType;</span><br><span class="line">  <span class="type">static</span> <span class="keyword">constexpr</span> <span class="type">uint32_t</span> minSubTypes = <span class="number">0</span>;</span><br><span class="line">  <span class="type">static</span> <span class="keyword">constexpr</span> <span class="type">uint32_t</span> maxSubTypes = <span class="number">0</span>;</span><br><span class="line">  <span class="type">static</span> <span class="keyword">constexpr</span> TypeKind typeKind = TypeKind::BIGINT;</span><br><span class="line">  <span class="type">static</span> <span class="keyword">constexpr</span> <span class="type">bool</span> isPrimitiveType = <span class="literal">true</span>;</span><br><span class="line">  <span class="type">static</span> <span class="keyword">constexpr</span> <span class="type">bool</span> isFixedWidth = <span class="literal">true</span>;</span><br><span class="line">  <span class="type">static</span> <span class="keyword">constexpr</span> <span class="type">const</span> <span class="type">char</span>* name = <span class="string">&quot;BIGINT&quot;</span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span> &lt;&gt;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">TypeTraits</span>&lt;TypeKind::ARRAY&gt; &#123;</span><br><span class="line">  <span class="keyword">using</span> ImplType = ArrayType;</span><br><span class="line">  <span class="keyword">using</span> NativeType = <span class="type">void</span>;</span><br><span class="line">  <span class="keyword">using</span> DeepCopiedType = <span class="type">void</span>;</span><br><span class="line">  <span class="type">static</span> <span class="keyword">constexpr</span> <span class="type">uint32_t</span> minSubTypes = <span class="number">1</span>;</span><br><span class="line">  <span class="type">static</span> <span class="keyword">constexpr</span> <span class="type">uint32_t</span> maxSubTypes = <span class="number">1</span>;</span><br><span class="line">  <span class="type">static</span> <span class="keyword">constexpr</span> TypeKind typeKind = TypeKind::ARRAY;</span><br><span class="line">  <span class="type">static</span> <span class="keyword">constexpr</span> <span class="type">bool</span> isPrimitiveType = <span class="literal">false</span>;</span><br><span class="line">  <span class="type">static</span> <span class="keyword">constexpr</span> <span class="type">bool</span> isFixedWidth = <span class="literal">false</span>;</span><br><span class="line">  <span class="type">static</span> <span class="keyword">constexpr</span> <span class="type">const</span> <span class="type">char</span>* name = <span class="string">&quot;ARRAY&quot;</span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<pre><code class="language-cpp">template &lt;TypeKind KIND&gt;
+struct TypeTraits &#123;&#125;;
 
-<h2 id="如何创建Velox-Type"><a href="#如何创建Velox-Type" class="headerlink" title="如何创建Velox Type"></a>如何创建Velox Type</h2><p>先来看一个例子，使用TypeFactory创建了一个BIGINT和一个ARRAY的velox，然后打印其velox类型名。BIGINT类型（包括所有scalar类型）实例是通过TypeTraits萃取到实际ScalarType的模板类型后调用create方法创建的，ARRAY类型实例是通过TypeFactory的特化实现的create方法创建的。</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">auto</span> bigIntVT = TypeFactory&lt;TypeKind::BIGINT&gt;::<span class="built_in">create</span>();</span><br><span class="line">std::cout &lt;&lt; <span class="string">&quot;bigIntVT velox type name is &quot;</span> &lt;&lt; bigIntVT-&gt;<span class="built_in">toString</span>() &lt;&lt; <span class="string">&quot;\n&quot;</span>;</span><br><span class="line"><span class="keyword">auto</span> arrayVT = TypeFactory&lt;TypeKind::ARRAY&gt;::<span class="built_in">create</span>(bigIntVT);</span><br><span class="line">std::cout &lt;&lt; <span class="string">&quot;arrayVT velox type name is &quot;</span> &lt;&lt; arrayVT-&gt;<span class="built_in">toString</span>() &lt;&lt; <span class="string">&quot;\n&quot;</span>;</span><br><span class="line"><span class="comment">// Output:</span></span><br><span class="line"><span class="comment">// bigIntVT velox type name is BIGINT</span></span><br><span class="line"><span class="comment">// arrayVT velox type name is ARRAY&lt;BIGINT&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span> &lt;TypeKind KIND&gt;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">TypeFactory</span> &#123;</span><br><span class="line">  <span class="type">static</span> std::shared_ptr&lt;<span class="type">const</span> <span class="keyword">typename</span> TypeTraits&lt;KIND&gt;::ImplType&gt; <span class="built_in">create</span>() &#123;</span><br><span class="line">    <span class="keyword">return</span> TypeTraits&lt;KIND&gt;::ImplType::<span class="built_in">create</span>();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span> &lt;TypeKind KIND&gt;</span><br><span class="line"><span class="type">const</span> std::shared_ptr&lt;<span class="type">const</span> ScalarType&lt;KIND&gt;&gt; ScalarType&lt;KIND&gt;::<span class="built_in">create</span>() &#123;</span><br><span class="line">  <span class="type">static</span> <span class="type">const</span> <span class="keyword">auto</span> instance = std::make_shared&lt;<span class="type">const</span> ScalarType&lt;KIND&gt;&gt;();</span><br><span class="line">  <span class="keyword">return</span> instance;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span> &lt;&gt;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">TypeFactory</span>&lt;TypeKind::ARRAY&gt; &#123;</span><br><span class="line">  <span class="function"><span class="type">static</span> std::shared_ptr&lt;<span class="type">const</span> ArrayType&gt; <span class="title">create</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">      std::shared_ptr&lt;<span class="type">const</span> Type&gt; elementType)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> std::<span class="built_in">make_shared</span>&lt;ArrayType&gt;(std::<span class="built_in">move</span>(elementType));</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+template &lt;&gt;
+struct TypeTraits&lt;TypeKind::BIGINT&gt; &#123;
+  using ImplType = ScalarType&lt;TypeKind::BIGINT&gt;;
+  using NativeType = int64_t;
+  using DeepCopiedType = NativeType;
+  static constexpr uint32_t minSubTypes = 0;
+  static constexpr uint32_t maxSubTypes = 0;
+  static constexpr TypeKind typeKind = TypeKind::BIGINT;
+  static constexpr bool isPrimitiveType = true;
+  static constexpr bool isFixedWidth = true;
+  static constexpr const char* name = &quot;BIGINT&quot;;
+&#125;;
 
-<h2 id="如何从C-Type推导和创建出Velox-Type"><a href="#如何从C-Type推导和创建出Velox-Type" class="headerlink" title="如何从C++ Type推导和创建出Velox Type"></a>如何从C++ Type推导和创建出Velox Type</h2><p>有时候我们需要从C++类型推导并创建出Velox Type，比如下面这个SimpleVector的构造函数中的CppToType<T>::create()需要从C++类型T推导出velox type和创建其实例。</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">// Constructs SimpleVector inferring the type from T.</span></span><br><span class="line">  <span class="built_in">SimpleVector</span>(</span><br><span class="line">      velox::memory::MemoryPool* pool,</span><br><span class="line">      std::shared_ptr&lt;<span class="type">const</span> Type&gt; type,</span><br><span class="line">      ...</span><br><span class="line">      std::optional&lt;ByteCount&gt; storageByteCount = std::<span class="literal">nullopt</span>)</span><br><span class="line">      : <span class="built_in">SimpleVector</span>(</span><br><span class="line">            pool,</span><br><span class="line">            CppToType&lt;T&gt;::<span class="built_in">create</span>(),</span><br><span class="line">            ...</span><br></pre></td></tr></table></figure>
+template &lt;&gt;
+struct TypeTraits&lt;TypeKind::ARRAY&gt; &#123;
+  using ImplType = ArrayType;
+  using NativeType = void;
+  using DeepCopiedType = void;
+  static constexpr uint32_t minSubTypes = 1;
+  static constexpr uint32_t maxSubTypes = 1;
+  static constexpr TypeKind typeKind = TypeKind::ARRAY;
+  static constexpr bool isPrimitiveType = false;
+  static constexpr bool isFixedWidth = false;
+  static constexpr const char* name = &quot;ARRAY&quot;;
+&#125;;
+</code></pre>
+<h2 id="如何创建velox-type">如何创建Velox Type</h2>
+<p>先来看一个例子，使用TypeFactory创建了一个BIGINT和一个ARRAY的velox，然后打印其velox类型名。BIGINT类型（包括所有scalar类型）实例是通过TypeTraits萃取到实际ScalarType的模板类型后调用create方法创建的，ARRAY类型实例是通过TypeFactory的特化实现的create方法创建的。</p>
+<pre><code class="language-cpp">auto bigIntVT = TypeFactory&lt;TypeKind::BIGINT&gt;::create();
+std::cout &lt;&lt; &quot;bigIntVT velox type name is &quot; &lt;&lt; bigIntVT-&gt;toString() &lt;&lt; &quot;\n&quot;;
+auto arrayVT = TypeFactory&lt;TypeKind::ARRAY&gt;::create(bigIntVT);
+std::cout &lt;&lt; &quot;arrayVT velox type name is &quot; &lt;&lt; arrayVT-&gt;toString() &lt;&lt; &quot;\n&quot;;
+// Output:
+// bigIntVT velox type name is BIGINT
+// arrayVT velox type name is ARRAY&lt;BIGINT&gt;
 
+template &lt;TypeKind KIND&gt;
+struct TypeFactory &#123;
+  static std::shared_ptr&lt;const typename TypeTraits&lt;KIND&gt;::ImplType&gt; create() &#123;
+    return TypeTraits&lt;KIND&gt;::ImplType::create();
+  &#125;
+&#125;;
+
+template &lt;TypeKind KIND&gt;
+const std::shared_ptr&lt;const ScalarType&lt;KIND&gt;&gt; ScalarType&lt;KIND&gt;::create() &#123;
+  static const auto instance = std::make_shared&lt;const ScalarType&lt;KIND&gt;&gt;();
+  return instance;
+&#125;
+
+template &lt;&gt;
+struct TypeFactory&lt;TypeKind::ARRAY&gt; &#123;
+  static std::shared_ptr&lt;const ArrayType&gt; create(
+      std::shared_ptr&lt;const Type&gt; elementType) &#123;
+    return std::make_shared&lt;ArrayType&gt;(std::move(elementType));
+  &#125;
+&#125;;
+</code></pre>
+<h2 id="如何从c-type推导和创建出velox-type">如何从C++ Type推导和创建出Velox Type</h2>
+<p>有时候我们需要从C++类型推导并创建出Velox Type，比如下面这个SimpleVector的构造函数中的CppToType<T>::create()需要从C++类型T推导出velox type和创建其实例。</p>
+<pre><code class="language-cpp">
+// Constructs SimpleVector inferring the type from T.
+  SimpleVector(
+      velox::memory::MemoryPool* pool,
+      std::shared_ptr&lt;const Type&gt; type,
+      ...
+      std::optional&lt;ByteCount&gt; storageByteCount = std::nullopt)
+      : SimpleVector(
+            pool,
+            CppToType&lt;T&gt;::create(),
+            ...
+</code></pre>
 <p>CppToType通过模板特化（这里是C++类型int64_t）推导出其父类CppToTypeBase的模板类型即velox type，CppToTypeBase是TypeTraits的子类，它调用其特化（这里是TypeKind::BIGINT）的create方法调用前面提到的TypeFactory的create方法，创建velox type的实例，<code>CppToType&lt;T&gt;::isPrimitiveType</code>，<code>CppToType&lt;T&gt;::typeKind</code>亦是如此。</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">CppToType</span> &#123;&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span> &lt;TypeKind KIND&gt;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">CppToTypeBase</span> : <span class="keyword">public</span> TypeTraits&lt;KIND&gt; &#123;</span><br><span class="line">  <span class="function"><span class="type">static</span> <span class="keyword">auto</span> <span class="title">create</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> TypeFactory&lt;KIND&gt;::<span class="built_in">create</span>();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span> &lt;&gt;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">CppToType</span>&lt;<span class="type">int64_t</span>&gt; : <span class="keyword">public</span> CppToTypeBase&lt;TypeKind::BIGINT&gt; &#123;&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> ELEMENT&gt;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">CppToType</span>&lt;Array&lt;ELEMENT&gt;&gt; : <span class="keyword">public</span> TypeTraits&lt;TypeKind::ARRAY&gt; &#123;</span><br><span class="line">  <span class="function"><span class="type">static</span> <span class="keyword">auto</span> <span class="title">create</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">ARRAY</span>(CppToType&lt;ELEMENT&gt;::<span class="built_in">create</span>());</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function">std::shared_ptr&lt;<span class="type">const</span> ArrayType&gt; <span class="title">ARRAY</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">    std::shared_ptr&lt;<span class="type">const</span> Type&gt; elementType)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> std::<span class="built_in">make_shared</span>&lt;<span class="type">const</span> ArrayType&gt;(std::<span class="built_in">move</span>(elementType));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre><code class="language-cpp">template &lt;typename T&gt;
+struct CppToType &#123;&#125;;
 
-<h2 id="Rferences"><a href="#Rferences" class="headerlink" title="Rferences"></a>Rferences</h2><ul>
+template &lt;TypeKind KIND&gt;
+struct CppToTypeBase : public TypeTraits&lt;KIND&gt; &#123;
+  static auto create() &#123;
+    return TypeFactory&lt;KIND&gt;::create();
+  &#125;
+&#125;;
+
+template &lt;&gt;
+struct CppToType&lt;int64_t&gt; : public CppToTypeBase&lt;TypeKind::BIGINT&gt; &#123;&#125;;
+
+template &lt;typename ELEMENT&gt;
+struct CppToType&lt;Array&lt;ELEMENT&gt;&gt; : public TypeTraits&lt;TypeKind::ARRAY&gt; &#123;
+  static auto create() &#123;
+    return ARRAY(CppToType&lt;ELEMENT&gt;::create());
+  &#125;
+&#125;;
+
+std::shared_ptr&lt;const ArrayType&gt; ARRAY(
+    std::shared_ptr&lt;const Type&gt; elementType) &#123;
+  return std::make_shared&lt;const ArrayType&gt;(std::move(elementType));
+&#125;
+</code></pre>
+<h2 id="rferences">Rferences</h2>
+<ul>
 <li><a target="_blank" rel="noopener" href="https://facebookincubator.github.io/velox/develop/types.html">https://facebookincubator.github.io/velox/develop/types.html</a></li>
 <li><a target="_blank" rel="noopener" href="https://taylorconor.com/blog/enum-reflection/">https://taylorconor.com/blog/enum-reflection/</a></li>
 <li><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/9116267/using-an-enumeration-as-a-template-parameter">https://stackoverflow.com/questions/9116267/using-an-enumeration-as-a-template-parameter</a></li>
 <li><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/43693697/c-concepts-placeholder-type-deduction">https://stackoverflow.com/questions/43693697/c-concepts-placeholder-type-deduction</a></li>
 <li><a target="_blank" rel="noopener" href="https://en.cppreference.com/w/cpp/language/template_parameters">https://en.cppreference.com/w/cpp/language/template_parameters</a></li>
 </ul>
+
+  </article>
+  <footer class="colophon">
+    <b>Velox Type System</b><br>
+    #QueryExecution　#SIMD　#velox　#vectorized　#data　#paper　·　2022-06-07
+  </footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>document.querySelectorAll('.post-body pre code[class*="language-"]').forEach(function(el){try{hljs.highlightElement(el);}catch(e){}});</script>
+</body>
+</html>
 
   </div>
 </article>
@@ -214,7 +433,7 @@
     </div>
 
     <div id="toc-footer" style="display: none">
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#What-Is-Velox-Type-System"><span class="toc-number">1.</span> <span class="toc-text">What Is Velox Type System</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Velox-Type%E7%B1%BB"><span class="toc-number">2.</span> <span class="toc-text">Velox Type类</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E5%88%9B%E5%BB%BAVelox-Type"><span class="toc-number">3.</span> <span class="toc-text">如何创建Velox Type</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E4%BB%8EC-Type%E6%8E%A8%E5%AF%BC%E5%92%8C%E5%88%9B%E5%BB%BA%E5%87%BAVelox-Type"><span class="toc-number">4.</span> <span class="toc-text">如何从C++ Type推导和创建出Velox Type</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Rferences"><span class="toc-number">5.</span> <span class="toc-text">Rferences</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">Velox Type System</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#what-is-velox-type-system"><span class="toc-number">1.1.</span> <span class="toc-text">What Is Velox Type System</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#velox-type%E7%B1%BB"><span class="toc-number">1.2.</span> <span class="toc-text">Velox Type类</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E5%88%9B%E5%BB%BAvelox-type"><span class="toc-number">1.3.</span> <span class="toc-text">如何创建Velox Type</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E4%BB%8Ec-type%E6%8E%A8%E5%AF%BC%E5%92%8C%E5%88%9B%E5%BB%BA%E5%87%BAvelox-type"><span class="toc-number">1.4.</span> <span class="toc-text">如何从C++ Type推导和创建出Velox Type</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#rferences"><span class="toc-number">1.5.</span> <span class="toc-text">Rferences</span></a></li></ol></li></ol>
     </div>
 
     <div id="share-footer" style="display: none">

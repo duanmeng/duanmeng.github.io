@@ -6,15 +6,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
-    <meta name="description" content="零、Query 如何并行执行一个 query 的并行度由三个层级叠加而成，从粗到细： 123Stage 并行（query 切成多个 plan fragment）  └── Task 并行（每个 stage 分发到多个 worker）        └── Driver 并行（每个 task 内多个 driver）  1. Stage 级：query 切成多个 plan fragmentCoordi">
+    <meta name="description" content=":root{     --paper:#f5f0e8; --paper-2:#ede8df; --ink:#0c0e1a; --border:#d4cdc0;     --muted:#7a7060; --code-bg:#f0ece0; --accent:#c1440e; --link:#1c4fa0;     --serif:&#39;Newsreader&#39;,&#39;Noto Se">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Velox Query In the Presto Worker">
 <meta property="og:url" content="http://example.com/2024/07/30/velox-query/index.html">
 <meta property="og:site_name" content="Macduan Notes">
-<meta property="og:description" content="零、Query 如何并行执行一个 query 的并行度由三个层级叠加而成，从粗到细： 123Stage 并行（query 切成多个 plan fragment）  └── Task 并行（每个 stage 分发到多个 worker）        └── Driver 并行（每个 task 内多个 driver）  1. Stage 级：query 切成多个 plan fragmentCoordi">
+<meta property="og:description" content=":root{     --paper:#f5f0e8; --paper-2:#ede8df; --ink:#0c0e1a; --border:#d4cdc0;     --muted:#7a7060; --code-bg:#f0ece0; --accent:#c1440e; --link:#1c4fa0;     --serif:&#39;Newsreader&#39;,&#39;Noto Se">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2024-07-30T13:26:47.000Z">
-<meta property="article:modified_time" content="2026-05-30T13:28:21.888Z">
+<meta property="article:modified_time" content="2026-06-14T05:00:07.370Z">
 <meta property="article:author" content="duanmeng">
 <meta property="article:tag" content="QueryExecution">
 <meta property="article:tag" content="Velox">
@@ -111,7 +111,7 @@
 
     </div>
     <div id="toc">
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%9B%B6%E3%80%81Query-%E5%A6%82%E4%BD%95%E5%B9%B6%E8%A1%8C%E6%89%A7%E8%A1%8C"><span class="toc-number">1.</span> <span class="toc-text">零、Query 如何并行执行</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-Stage-%E7%BA%A7%EF%BC%9Aquery-%E5%88%87%E6%88%90%E5%A4%9A%E4%B8%AA-plan-fragment"><span class="toc-number">1.1.</span> <span class="toc-text">1. Stage 级：query 切成多个 plan fragment</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-Task-%E7%BA%A7%EF%BC%9A%E6%AF%8F%E4%B8%AA-stage-%E5%88%86%E5%8F%91%E5%88%B0%E5%A4%9A%E4%B8%AA-worker"><span class="toc-number">1.2.</span> <span class="toc-text">2. Task 级：每个 stage 分发到多个 worker</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-Driver-%E7%BA%A7%EF%BC%9A%E6%AF%8F%E4%B8%AA-task-%E5%86%85%E7%9A%84%E5%B9%B6%E8%A1%8C%E9%9D%A0-driver"><span class="toc-number">1.3.</span> <span class="toc-text">3. Driver 级：每个 task 内的并行靠 driver</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Splits-%E4%B8%8E-plan-fragment-%E5%88%86%E5%BC%80%E4%BC%A0%E8%BE%93"><span class="toc-number">1.4.</span> <span class="toc-text">Splits 与 plan fragment 分开传输</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B9%B6%E8%A1%8C%E5%BA%A6%E5%B0%8F%E7%BB%93"><span class="toc-number">1.5.</span> <span class="toc-text">并行度小结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%9B%B6%E4%B9%8B%E4%BA%8C%E3%80%81Split-%E5%88%86%E5%8F%91%E4%B8%8E%E6%B6%88%E8%B4%B9%E6%9C%BA%E5%88%B6"><span class="toc-number">2.</span> <span class="toc-text">零之二、Split 分发与消费机制</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%A8%E9%93%BE%E8%B7%AF%E6%A6%82%E8%A7%88"><span class="toc-number">2.1.</span> <span class="toc-text">全链路概览</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC-1-%E6%AD%A5%EF%BC%9AWorker-%E6%8E%A5%E6%94%B6%E4%B8%8E%E8%BD%AC%E6%8D%A2"><span class="toc-number">2.2.</span> <span class="toc-text">第 1 步：Worker 接收与转换</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC-2-%E6%AD%A5%EF%BC%9AaddSplitWithSequence-%E2%80%94%E2%80%94-%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81-sequence"><span class="toc-number">2.3.</span> <span class="toc-text">第 2 步：addSplitWithSequence —— 为什么需要 sequence</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC-3-%E6%AD%A5%EF%BC%9AVelox-%E4%BE%A7-split-%E9%98%9F%E5%88%97%E7%BB%93%E6%9E%84"><span class="toc-number">2.4.</span> <span class="toc-text">第 3 步：Velox 侧 split 队列结构</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E6%8B%86%E6%88%90-SplitsState-x2F-SplitsStore-%E4%B8%A4%E5%B1%82"><span class="toc-number">2.4.1.</span> <span class="toc-text">为什么拆成 SplitsState &#x2F; SplitsStore 两层</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%9D%9E-grouped-%E6%89%A7%E8%A1%8C%EF%BC%88ungrouped%EF%BC%89%E9%95%BF%E4%BB%80%E4%B9%88%E6%A0%B7"><span class="toc-number">2.4.2.</span> <span class="toc-text">非 grouped 执行（ungrouped）长什么样</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC-4-%E6%AD%A5%EF%BC%9ASource-operator-%E9%A2%86%E5%8F%96-split"><span class="toc-number">2.5.</span> <span class="toc-text">第 4 步：Source operator 领取 split</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC-5-%E6%AD%A5%EF%BC%9AnoMoreSplits-%E7%9A%84%E4%B8%A4%E4%B8%AA%E5%B1%82%E7%BA%A7-%E5%BB%B6%E8%BF%9F%E5%A4%84%E7%90%86"><span class="toc-number">2.6.</span> <span class="toc-text">第 5 步：noMoreSplits 的两个层级 + 延迟处理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC-6-%E6%AD%A5%EF%BC%9ASplit-group%EF%BC%88bucketed-x2F-grouped-%E6%89%A7%E8%A1%8C%EF%BC%89"><span class="toc-number">2.7.</span> <span class="toc-text">第 6 步：Split group（bucketed&#x2F;grouped 执行）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Split-%E5%88%86%E5%8F%91%E5%85%B3%E9%94%AE%E4%BB%A3%E7%A0%81%E4%BD%8D%E7%BD%AE"><span class="toc-number">2.8.</span> <span class="toc-text">Split 分发关键代码位置</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B1%82%E7%BA%A7%E7%BB%93%E6%9E%84%E6%80%BB%E8%A7%88"><span class="toc-number">3.</span> <span class="toc-text">层级结构总览</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81Worker-%E6%8E%A5%E6%94%B6%E6%9F%A5%E8%AF%A2%EF%BC%9AHTTP-%E2%86%92-Velox-Task"><span class="toc-number">4.</span> <span class="toc-text">一、Worker 接收查询：HTTP → Velox Task</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#HTTP-%E7%AB%AF%E7%82%B9%EF%BC%88TaskResource%EF%BC%89"><span class="toc-number">4.1.</span> <span class="toc-text">HTTP 端点（TaskResource）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Plan-Fragment-%E8%BD%AC%E6%8D%A2%EF%BC%88PrestoToVeloxQueryPlan%EF%BC%89"><span class="toc-number">4.2.</span> <span class="toc-text">Plan Fragment 转换（PrestoToVeloxQueryPlan）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Task-%E5%88%9B%E5%BB%BA%E6%B5%81%E7%A8%8B%EF%BC%88TaskManager%EF%BC%89"><span class="toc-number">4.3.</span> <span class="toc-text">Task 创建流程（TaskManager）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81Task-%E5%86%85%E9%83%A8%EF%BC%9APipeline-%C3%97-Driver-%C3%97-Operator"><span class="toc-number">5.</span> <span class="toc-text">二、Task 内部：Pipeline × Driver × Operator</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Task-%E5%86%85%E7%BB%93%E6%9E%84"><span class="toc-number">5.1.</span> <span class="toc-text">Task 内结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Driver-%E6%89%A7%E8%A1%8C%E5%BE%AA%E7%8E%AF%EF%BC%88Driver-runInternal%EF%BC%89"><span class="toc-number">5.2.</span> <span class="toc-text">Driver 执行循环（Driver::runInternal）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%98%BB%E5%A1%9E%E4%B8%8E%E8%B0%83%E5%BA%A6"><span class="toc-number">5.3.</span> <span class="toc-text">阻塞与调度</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Pipeline-%E9%97%B4%E5%90%8C%E6%AD%A5%EF%BC%9AHashJoinBridge"><span class="toc-number">5.4.</span> <span class="toc-text">Pipeline 间同步：HashJoinBridge</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81Task-%E5%86%85%E6%95%B0%E6%8D%AE%E4%BA%A4%E6%8D%A2%EF%BC%9ALocalPartition-x2F-LocalExchange"><span class="toc-number">6.</span> <span class="toc-text">三、Task 内数据交换：LocalPartition &#x2F; LocalExchange</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%B4%E4%BD%93%E7%BB%93%E6%9E%84"><span class="toc-number">6.1.</span> <span class="toc-text">整体结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#LocalExchangeMemoryManager"><span class="toc-number">6.2.</span> <span class="toc-text">LocalExchangeMemoryManager</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#LocalExchangeQueue"><span class="toc-number">6.3.</span> <span class="toc-text">LocalExchangeQueue</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#LocalPartition-%E7%AE%97%E5%AD%90%EF%BC%88Producer%EF%BC%8Csink%EF%BC%89"><span class="toc-number">6.4.</span> <span class="toc-text">LocalPartition 算子（Producer，sink）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#LocalExchange-%E7%AE%97%E5%AD%90%EF%BC%88Consumer%EF%BC%8Csource%EF%BC%89"><span class="toc-number">6.5.</span> <span class="toc-text">LocalExchange 算子（Consumer，source）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81Task-%E9%97%B4%E6%95%B0%E6%8D%AE%E4%BA%A4%E6%8D%A2%EF%BC%9ARemote-Exchange"><span class="toc-number">7.</span> <span class="toc-text">四、Task 间数据交换：Remote Exchange</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%B4%E4%BD%93%E6%95%B0%E6%8D%AE%E6%B5%81"><span class="toc-number">7.1.</span> <span class="toc-text">整体数据流</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8A%E6%B8%B8%EF%BC%9APartitionedOutput"><span class="toc-number">7.2.</span> <span class="toc-text">上游：PartitionedOutput</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8A%E6%B8%B8%EF%BC%9AOutputBuffer-x2F-OutputBufferManager"><span class="toc-number">7.3.</span> <span class="toc-text">上游：OutputBuffer &#x2F; OutputBufferManager</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8B%E6%B8%B8%EF%BC%9AExchangeClient"><span class="toc-number">7.4.</span> <span class="toc-text">下游：ExchangeClient</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8B%E6%B8%B8%EF%BC%9AExchangeSource-%E6%8A%BD%E8%B1%A1%E6%8E%A5%E5%8F%A3"><span class="toc-number">7.5.</span> <span class="toc-text">下游：ExchangeSource 抽象接口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8B%E6%B8%B8%EF%BC%9APrestoExchangeSource%EF%BC%88HTTP-%E5%AE%9E%E7%8E%B0%EF%BC%89"><span class="toc-number">7.6.</span> <span class="toc-text">下游：PrestoExchangeSource（HTTP 实现）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8B%E6%B8%B8%EF%BC%9AExchange-%E7%AE%97%E5%AD%90"><span class="toc-number">7.7.</span> <span class="toc-text">下游：Exchange 算子</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BA%8F%E5%88%97%E5%8F%B7%E6%9C%BA%E5%88%B6%EF%BC%88%E5%8F%AF%E9%9D%A0%E4%BC%A0%E8%BE%93%EF%BC%89"><span class="toc-number">7.8.</span> <span class="toc-text">序列号机制（可靠传输）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B5%81%E6%8E%A7%E6%80%BB%E7%BB%93"><span class="toc-number">7.9.</span> <span class="toc-text">流控总结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86"><span class="toc-number">8.</span> <span class="toc-text">五、内存管理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E5%AE%8C%E6%95%B4%E7%AB%AF%E5%88%B0%E7%AB%AF%E6%95%B0%E6%8D%AE%E6%B5%81"><span class="toc-number">9.</span> <span class="toc-text">六、完整端到端数据流</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E5%85%B3%E9%94%AE%E4%BB%A3%E7%A0%81%E4%BD%8D%E7%BD%AE"><span class="toc-number">10.</span> <span class="toc-text">七、关键代码位置</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">Velox Query In the Presto Worker</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%9B%B6%E3%80%81query-%E5%A6%82%E4%BD%95%E5%B9%B6%E8%A1%8C%E6%89%A7%E8%A1%8C"><span class="toc-number">1.1.</span> <span class="toc-text">零、Query 如何并行执行</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-stage-%E7%BA%A7%EF%BC%9Aquery-%E5%88%87%E6%88%90%E5%A4%9A%E4%B8%AA-plan-fragment"><span class="toc-number">1.1.1.</span> <span class="toc-text">1. Stage 级：query 切成多个 plan fragment</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-task-%E7%BA%A7%EF%BC%9A%E6%AF%8F%E4%B8%AA-stage-%E5%88%86%E5%8F%91%E5%88%B0%E5%A4%9A%E4%B8%AA-worker"><span class="toc-number">1.1.2.</span> <span class="toc-text">2. Task 级：每个 stage 分发到多个 worker</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-driver-%E7%BA%A7%EF%BC%9A%E6%AF%8F%E4%B8%AA-task-%E5%86%85%E7%9A%84%E5%B9%B6%E8%A1%8C%E9%9D%A0-driver"><span class="toc-number">1.1.3.</span> <span class="toc-text">3. Driver 级：每个 task 内的并行靠 driver</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#splits-%E4%B8%8E-plan-fragment-%E5%88%86%E5%BC%80%E4%BC%A0%E8%BE%93"><span class="toc-number">1.1.4.</span> <span class="toc-text">Splits 与 plan fragment 分开传输</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B9%B6%E8%A1%8C%E5%BA%A6%E5%B0%8F%E7%BB%93"><span class="toc-number">1.1.5.</span> <span class="toc-text">并行度小结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%9B%B6%E4%B9%8B%E4%BA%8C%E3%80%81split-%E5%88%86%E5%8F%91%E4%B8%8E%E6%B6%88%E8%B4%B9%E6%9C%BA%E5%88%B6"><span class="toc-number">1.2.</span> <span class="toc-text">零之二、Split 分发与消费机制</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%A8%E9%93%BE%E8%B7%AF%E6%A6%82%E8%A7%88"><span class="toc-number">1.2.1.</span> <span class="toc-text">全链路概览</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC-1-%E6%AD%A5%EF%BC%9Aworker-%E6%8E%A5%E6%94%B6%E4%B8%8E%E8%BD%AC%E6%8D%A2"><span class="toc-number">1.2.2.</span> <span class="toc-text">第 1 步：Worker 接收与转换</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC-2-%E6%AD%A5%EF%BC%9Aaddsplitwithsequence--%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81-sequence"><span class="toc-number">1.2.3.</span> <span class="toc-text">第 2 步：addSplitWithSequence —— 为什么需要 sequence</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC-3-%E6%AD%A5%EF%BC%9Avelox-%E4%BE%A7-split-%E9%98%9F%E5%88%97%E7%BB%93%E6%9E%84"><span class="toc-number">1.2.4.</span> <span class="toc-text">第 3 步：Velox 侧 split 队列结构</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E6%8B%86%E6%88%90-splitsstate--splitsstore-%E4%B8%A4%E5%B1%82"><span class="toc-number">1.2.4.1.</span> <span class="toc-text">为什么拆成 SplitsState &#x2F; SplitsStore 两层</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%9D%9E-grouped-%E6%89%A7%E8%A1%8C%EF%BC%88ungrouped%EF%BC%89%E9%95%BF%E4%BB%80%E4%B9%88%E6%A0%B7"><span class="toc-number">1.2.4.2.</span> <span class="toc-text">非 grouped 执行（ungrouped）长什么样</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC-4-%E6%AD%A5%EF%BC%9Asource-operator-%E9%A2%86%E5%8F%96-split"><span class="toc-number">1.2.5.</span> <span class="toc-text">第 4 步：Source operator 领取 split</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC-5-%E6%AD%A5%EF%BC%9Anomoresplits-%E7%9A%84%E4%B8%A4%E4%B8%AA%E5%B1%82%E7%BA%A7--%E5%BB%B6%E8%BF%9F%E5%A4%84%E7%90%86"><span class="toc-number">1.2.6.</span> <span class="toc-text">第 5 步：noMoreSplits 的两个层级 + 延迟处理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC-6-%E6%AD%A5%EF%BC%9Asplit-group%EF%BC%88bucketedgrouped-%E6%89%A7%E8%A1%8C%EF%BC%89"><span class="toc-number">1.2.7.</span> <span class="toc-text">第 6 步：Split group（bucketed&#x2F;grouped 执行）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#split-%E5%88%86%E5%8F%91%E5%85%B3%E9%94%AE%E4%BB%A3%E7%A0%81%E4%BD%8D%E7%BD%AE"><span class="toc-number">1.2.8.</span> <span class="toc-text">Split 分发关键代码位置</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B1%82%E7%BA%A7%E7%BB%93%E6%9E%84%E6%80%BB%E8%A7%88"><span class="toc-number">1.3.</span> <span class="toc-text">层级结构总览</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81worker-%E6%8E%A5%E6%94%B6%E6%9F%A5%E8%AF%A2%EF%BC%9Ahttp-%E2%86%92-velox-task"><span class="toc-number">1.4.</span> <span class="toc-text">一、Worker 接收查询：HTTP → Velox Task</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#http-%E7%AB%AF%E7%82%B9%EF%BC%88taskresource%EF%BC%89"><span class="toc-number">1.4.1.</span> <span class="toc-text">HTTP 端点（TaskResource）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#plan-fragment-%E8%BD%AC%E6%8D%A2%EF%BC%88prestotoveloxqueryplan%EF%BC%89"><span class="toc-number">1.4.2.</span> <span class="toc-text">Plan Fragment 转换（PrestoToVeloxQueryPlan）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#task-%E5%88%9B%E5%BB%BA%E6%B5%81%E7%A8%8B%EF%BC%88taskmanager%EF%BC%89"><span class="toc-number">1.4.3.</span> <span class="toc-text">Task 创建流程（TaskManager）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81task-%E5%86%85%E9%83%A8%EF%BC%9Apipeline-%C3%97-driver-%C3%97-operator"><span class="toc-number">1.5.</span> <span class="toc-text">二、Task 内部：Pipeline × Driver × Operator</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#task-%E5%86%85%E7%BB%93%E6%9E%84"><span class="toc-number">1.5.1.</span> <span class="toc-text">Task 内结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#driver-%E6%89%A7%E8%A1%8C%E5%BE%AA%E7%8E%AF%EF%BC%88driverruninternal%EF%BC%89"><span class="toc-number">1.5.2.</span> <span class="toc-text">Driver 执行循环（Driver::runInternal）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%98%BB%E5%A1%9E%E4%B8%8E%E8%B0%83%E5%BA%A6"><span class="toc-number">1.5.3.</span> <span class="toc-text">阻塞与调度</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#pipeline-%E9%97%B4%E5%90%8C%E6%AD%A5%EF%BC%9Ahashjoinbridge"><span class="toc-number">1.5.4.</span> <span class="toc-text">Pipeline 间同步：HashJoinBridge</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81task-%E5%86%85%E6%95%B0%E6%8D%AE%E4%BA%A4%E6%8D%A2%EF%BC%9Alocalpartition--localexchange"><span class="toc-number">1.6.</span> <span class="toc-text">三、Task 内数据交换：LocalPartition &#x2F; LocalExchange</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%B4%E4%BD%93%E7%BB%93%E6%9E%84"><span class="toc-number">1.6.1.</span> <span class="toc-text">整体结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#localexchangememorymanager"><span class="toc-number">1.6.2.</span> <span class="toc-text">LocalExchangeMemoryManager</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#localexchangequeue"><span class="toc-number">1.6.3.</span> <span class="toc-text">LocalExchangeQueue</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#localpartition-%E7%AE%97%E5%AD%90%EF%BC%88producer%EF%BC%8Csink%EF%BC%89"><span class="toc-number">1.6.4.</span> <span class="toc-text">LocalPartition 算子（Producer，sink）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#localexchange-%E7%AE%97%E5%AD%90%EF%BC%88consumer%EF%BC%8Csource%EF%BC%89"><span class="toc-number">1.6.5.</span> <span class="toc-text">LocalExchange 算子（Consumer，source）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81task-%E9%97%B4%E6%95%B0%E6%8D%AE%E4%BA%A4%E6%8D%A2%EF%BC%9Aremote-exchange"><span class="toc-number">1.7.</span> <span class="toc-text">四、Task 间数据交换：Remote Exchange</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%B4%E4%BD%93%E6%95%B0%E6%8D%AE%E6%B5%81"><span class="toc-number">1.7.1.</span> <span class="toc-text">整体数据流</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8A%E6%B8%B8%EF%BC%9Apartitionedoutput"><span class="toc-number">1.7.2.</span> <span class="toc-text">上游：PartitionedOutput</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8A%E6%B8%B8%EF%BC%9Aoutputbuffer--outputbuffermanager"><span class="toc-number">1.7.3.</span> <span class="toc-text">上游：OutputBuffer &#x2F; OutputBufferManager</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8B%E6%B8%B8%EF%BC%9Aexchangeclient"><span class="toc-number">1.7.4.</span> <span class="toc-text">下游：ExchangeClient</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8B%E6%B8%B8%EF%BC%9Aexchangesource-%E6%8A%BD%E8%B1%A1%E6%8E%A5%E5%8F%A3"><span class="toc-number">1.7.5.</span> <span class="toc-text">下游：ExchangeSource 抽象接口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8B%E6%B8%B8%EF%BC%9Aprestoexchangesource%EF%BC%88http-%E5%AE%9E%E7%8E%B0%EF%BC%89"><span class="toc-number">1.7.6.</span> <span class="toc-text">下游：PrestoExchangeSource（HTTP 实现）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8B%E6%B8%B8%EF%BC%9Aexchange-%E7%AE%97%E5%AD%90"><span class="toc-number">1.7.7.</span> <span class="toc-text">下游：Exchange 算子</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BA%8F%E5%88%97%E5%8F%B7%E6%9C%BA%E5%88%B6%EF%BC%88%E5%8F%AF%E9%9D%A0%E4%BC%A0%E8%BE%93%EF%BC%89"><span class="toc-number">1.7.8.</span> <span class="toc-text">序列号机制（可靠传输）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B5%81%E6%8E%A7%E6%80%BB%E7%BB%93"><span class="toc-number">1.7.9.</span> <span class="toc-text">流控总结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86"><span class="toc-number">1.8.</span> <span class="toc-text">五、内存管理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E5%AE%8C%E6%95%B4%E7%AB%AF%E5%88%B0%E7%AB%AF%E6%95%B0%E6%8D%AE%E6%B5%81"><span class="toc-number">1.9.</span> <span class="toc-text">六、完整端到端数据流</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E5%85%B3%E9%94%AE%E4%BB%A3%E7%A0%81%E4%BD%8D%E7%BD%AE"><span class="toc-number">1.10.</span> <span class="toc-text">七、关键代码位置</span></a></li></ol></li></ol>
     </div>
   </span>
 </div>
@@ -155,21 +155,129 @@
   
 
   <div class="content" itemprop="articleBody">
-    <h2 id="零、Query-如何并行执行"><a href="#零、Query-如何并行执行" class="headerlink" title="零、Query 如何并行执行"></a>零、Query 如何并行执行</h2><p>一个 query 的并行度由<strong>三个层级</strong>叠加而成，从粗到细：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Stage 并行（query 切成多个 plan fragment）</span><br><span class="line">  └── Task 并行（每个 stage 分发到多个 worker）</span><br><span class="line">        └── Driver 并行（每个 task 内多个 driver）</span><br></pre></td></tr></table></figure>
+    
 
-<h3 id="1-Stage-级：query-切成多个-plan-fragment"><a href="#1-Stage-级：query-切成多个-plan-fragment" class="headerlink" title="1. Stage 级：query 切成多个 plan fragment"></a>1. Stage 级：query 切成多个 plan fragment</h3><p>Coordinator 把 query 的执行计划按 shuffle 边界（exchange）切成<strong>多个 plan fragment</strong>，每个对应一个 stage：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Query</span><br><span class="line">├── Fragment 0 (Stage 0): TableScan → partial agg → PartitionedOutput</span><br><span class="line">├── Fragment 1 (Stage 1): RemoteSource → HashJoin → PartitionedOutput</span><br><span class="line">└── Fragment 2 (Stage 2): RemoteSource → final agg → output</span><br></pre></td></tr></table></figure>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=Noto+Serif+SC:wght@400;500;600&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f5f0e8; --paper-2:#ede8df; --ink:#0c0e1a; --border:#d4cdc0;
+    --muted:#7a7060; --code-bg:#f0ece0; --accent:#c1440e; --link:#1c4fa0;
+    --serif:'Newsreader','Noto Serif SC',serif;
+    --mono:'DM Mono','Noto Sans Mono CJK SC','Sarasa Mono SC',monospace;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--serif);font-size:17px;line-height:1.78;font-weight:400;}
+  .wrap{max-width:960px;margin:0 auto;padding:0 28px;}
 
+  .masthead{padding:34px 0 22px;border-bottom:3px double var(--ink);}
+  .top-bar{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding-bottom:14px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:8px;}
+  .masthead-title{font-family:var(--serif);font-weight:600;font-size:52px;line-height:1.06;letter-spacing:-.01em;margin:20px 0 0;}
+  .masthead-title em{font-style:italic;color:var(--link);}
+  .deck-rule{margin-top:20px;padding-top:12px;border-top:1px solid var(--border);font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);display:flex;gap:22px;flex-wrap:wrap;}
+
+  .post-body{padding-top:8px;}
+  .post-body h1{font-family:var(--serif);font-weight:600;font-size:38px;line-height:1.12;letter-spacing:-.01em;margin:54px 0 10px;padding-top:24px;border-top:3px double var(--ink);}
+  .post-body h2{font-family:var(--serif);font-weight:600;font-size:30px;line-height:1.18;letter-spacing:-.01em;margin:44px 0 10px;padding-top:22px;border-top:1px solid var(--border);}
+  .post-body h3{font-family:var(--serif);font-weight:600;font-size:22px;margin:32px 0 6px;line-height:1.3;}
+  .post-body h4{font-family:var(--mono);font-weight:500;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:26px 0 8px;}
+  .post-body h5,.post-body h6{font-family:var(--serif);font-weight:600;font-size:17px;margin:22px 0 4px;}
+  .post-body p{margin:14px 0;}
+  .post-body strong{font-weight:600;}
+  .post-body em{font-style:italic;}
+  .post-body a{color:var(--link);text-decoration:underline;text-underline-offset:2px;}
+  .post-body a:hover{color:var(--accent);}
+  .post-body img{max-width:100%;height:auto;}
+  .post-body hr{border:none;border-top:1px solid var(--border);margin:34px 0;}
+  .post-body ul,.post-body ol{margin:14px 0;padding-left:1.5em;}
+  .post-body li{margin:5px 0;}
+  .post-body li>ul,.post-body li>ol{margin:5px 0;}
+  .post-body blockquote{margin:20px 0;padding:12px 20px;border-left:3px solid var(--accent);background:var(--paper-2);color:#333;}
+  .post-body blockquote p{margin:6px 0;}
+
+  .post-body code{font-family:var(--mono);font-size:14.5px;background:var(--code-bg);border:1px solid var(--border);border-radius:2px;padding:1px 6px;}
+  .post-body pre{font-family:var(--mono);font-size:14px;font-weight:400;line-height:1.6;background:var(--code-bg);border:1px solid var(--border);border-left:3px solid var(--muted);border-radius:2px;padding:16px 18px;margin:20px 0;overflow-x:auto;}
+  .post-body pre code{background:none;border:none;border-radius:0;padding:0;font-size:14px;}
+
+  .tbl-wrap{overflow-x:auto;margin:22px 0;border:1px solid var(--border);border-radius:2px;}
+  .post-body table{width:100%;border-collapse:collapse;font-family:var(--mono);font-weight:400;}
+  .post-body thead th{background:var(--paper-2);font-weight:400;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:left;padding:11px 14px;border-bottom:1px solid var(--border);white-space:nowrap;}
+  .post-body tbody td{font-size:14px;padding:11px 14px;border-bottom:1px solid var(--border);vertical-align:top;line-height:1.55;}
+  .post-body tbody tr:nth-child(even){background:var(--paper-2);}
+  .post-body tbody tr:last-child td{border-bottom:none;}
+
+  .colophon{border-top:3px double var(--ink);margin-top:50px;padding:26px 0 56px;font-family:var(--mono);font-size:12px;letter-spacing:.04em;color:var(--muted);line-height:1.7;}
+  .colophon b{color:var(--ink);font-weight:500;}
+
+  @media (max-width:760px){
+    body{font-size:16px;}
+    .wrap{padding:0 18px;}
+    .masthead-title{font-size:38px;}
+    .post-body h1{font-size:30px;}
+    .post-body h2{font-size:25px;}
+  }
+
+  .fig{margin:30px 0;border:1px solid #d4cdc0;border-radius:2px;background:#f5f0e8;padding:10px 12px 0;}
+  .fig svg{display:block;width:100%;height:auto;}
+  .fig-cap{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;color:#7a7060;text-transform:uppercase;padding:12px 4px;border-top:1px solid #d4cdc0;margin-top:8px;}
+  .fig-cap b{color:#0c0e1a;font-weight:500;}
+
+  .post-body pre code.hljs{background:none;padding:0;color:#0c0e1a;}
+  .post-body .hljs-comment,.post-body .hljs-quote{color:#9b917b;font-style:italic;}
+  .post-body .hljs-keyword,.post-body .hljs-selector-tag,.post-body .hljs-doctag,.post-body .hljs-name{color:#a3402a;font-weight:500;}
+  .post-body .hljs-string,.post-body .hljs-meta .hljs-string{color:#4e7a36;}
+  .post-body .hljs-number,.post-body .hljs-literal,.post-body .hljs-symbol,.post-body .hljs-bullet{color:#2f6f9f;}
+  .post-body .hljs-type,.post-body .hljs-class .hljs-title,.post-body .hljs-title.class_,.post-body .hljs-built_in{color:#1c4fa0;}
+  .post-body .hljs-function .hljs-title,.post-body .hljs-title.function_,.post-body .hljs-title{color:#6b3fa0;}
+  .post-body .hljs-attr,.post-body .hljs-attribute,.post-body .hljs-property,.post-body .hljs-meta{color:#9a6a1a;}
+  .post-body .hljs-params,.post-body .hljs-variable,.post-body .hljs-template-variable{color:#0c0e1a;}
+  .post-body .hljs-deletion{background:#f5e0db;}
+  .post-body .hljs-addition{background:#e6f0db;}
+  .post-body .hljs-emphasis{font-style:italic;}
+  .post-body .hljs-strong{font-weight:600;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="masthead">
+    <div class="top-bar"><span>VELOX · QUERYEXECUTION</span><span>2024-07-30</span></div>
+    <h1 class="masthead-title">Velox Query In the Presto Worker</h1>
+    <div class="deck-rule"><span>2024-07-30</span><span>#Velox　#QueryExecution</span></div>
+  </header>
+  <article class="post-body">
+<h2 id="零、query-如何并行执行">零、Query 如何并行执行</h2>
+<p>一个 query 的并行度由<strong>三个层级</strong>叠加而成，从粗到细：</p>
+<pre><code>Stage 并行（query 切成多个 plan fragment）
+  └── Task 并行（每个 stage 分发到多个 worker）
+        └── Driver 并行（每个 task 内多个 driver）
+</code></pre>
+<h3 id="1-stage-级：query-切成多个-plan-fragment">1. Stage 级：query 切成多个 plan fragment</h3>
+<p>Coordinator 把 query 的执行计划按 shuffle 边界（exchange）切成<strong>多个 plan fragment</strong>，每个对应一个 stage：</p>
+<pre><code>Query
+├── Fragment 0 (Stage 0): TableScan → partial agg → PartitionedOutput
+├── Fragment 1 (Stage 1): RemoteSource → HashJoin → PartitionedOutput
+└── Fragment 2 (Stage 2): RemoteSource → final agg → output
+</code></pre>
 <ul>
-<li>**Plan fragment 描述”怎么算”**：算子树结构，静态，task 创建时发一次</li>
+<li>**Plan fragment 描述&quot;怎么算&quot;**：算子树结构，静态，task 创建时发一次</li>
 <li>上下游 stage 通过 <code>PartitionedOutput</code>（上游 sink）↔ <code>RemoteSource/Exchange</code>（下游 source）衔接</li>
 </ul>
-<h3 id="2-Task-级：每个-stage-分发到多个-worker"><a href="#2-Task-级：每个-stage-分发到多个-worker" class="headerlink" title="2. Task 级：每个 stage 分发到多个 worker"></a>2. Task 级：每个 stage 分发到多个 worker</h3><p>Coordinator 把每个 stage 的 plan fragment 分发到参与该 stage 的所有 worker，每个 worker 为该 fragment 创建<strong>一个</strong> task：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Stage 0 (Fragment 0)            Stage 1 (Fragment 1)</span><br><span class="line">├── Worker A → Task-0-A          ├── Worker A → Task-1-A</span><br><span class="line">├── Worker B → Task-0-B          ├── Worker B → Task-1-B</span><br><span class="line">└── Worker C → Task-0-C          └── Worker C → Task-1-C</span><br></pre></td></tr></table></figure>
-
+<h3 id="2-task-级：每个-stage-分发到多个-worker">2. Task 级：每个 stage 分发到多个 worker</h3>
+<p>Coordinator 把每个 stage 的 plan fragment 分发到参与该 stage 的所有 worker，每个 worker 为该 fragment 创建<strong>一个</strong> task：</p>
+<pre><code>Stage 0 (Fragment 0)            Stage 1 (Fragment 1)
+├── Worker A → Task-0-A          ├── Worker A → Task-1-A
+├── Worker B → Task-0-B          ├── Worker B → Task-1-B
+└── Worker C → Task-0-C          └── Worker C → Task-1-C
+</code></pre>
 <p><strong>唯一性是按 <code>(worker, stage)</code> 维度，不是按 <code>(worker, query)</code> 维度：</strong></p>
-<table>
+<div class="tbl-wrap"><table>
 <thead>
 <tr>
 <th>说法</th>
@@ -188,24 +296,40 @@
 <td>同一 stage 的同一 fragment 不会重复发给同一 worker</td>
 <td>✅</td>
 </tr>
-</tbody></table>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">(worker, stage)  →  唯一一个 plan fragment  →  唯一一个 task</span><br><span class="line">(worker, query)  →  可能多个 plan fragment  →  多个 task（每参与一个 stage 一个）</span><br></pre></td></tr></table></figure>
-
+</tbody></table></div>
+<pre><code>(worker, stage)  →  唯一一个 plan fragment  →  唯一一个 task
+(worker, query)  →  可能多个 plan fragment  →  多个 task（每参与一个 stage 一个）
+</code></pre>
 <p>所以同一个 worker 上，同一个 query 通常<strong>同时运行多个 task</strong>（每个 stage 一个），它们彼此独立，用不同的内存池和 driver 线程。</p>
-<h3 id="3-Driver-级：每个-task-内的并行靠-driver"><a href="#3-Driver-级：每个-task-内的并行靠-driver" class="headerlink" title="3. Driver 级：每个 task 内的并行靠 driver"></a>3. Driver 级：每个 task 内的并行靠 driver</h3><p>Task 内的并行度<strong>不靠 task 数量，靠 driver 数量</strong>：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Worker A, Task-0-A</span><br><span class="line">└── Pipeline 0</span><br><span class="line">    ├── Driver 0 → 处理 split[0], split[3], split[6]...</span><br><span class="line">    ├── Driver 1 → 处理 split[1], split[4], split[7]...</span><br><span class="line">    └── Driver 2 → 处理 split[2], split[5], split[8]...</span><br><span class="line">        (N = maxDrivers，通常 ≈ CPU 核数)</span><br></pre></td></tr></table></figure>
-
+<h3 id="3-driver-级：每个-task-内的并行靠-driver">3. Driver 级：每个 task 内的并行靠 driver</h3>
+<p>Task 内的并行度<strong>不靠 task 数量，靠 driver 数量</strong>：</p>
+<pre><code>Worker A, Task-0-A
+└── Pipeline 0
+    ├── Driver 0 → 处理 split[0], split[3], split[6]...
+    ├── Driver 1 → 处理 split[1], split[4], split[7]...
+    └── Driver 2 → 处理 split[2], split[5], split[8]...
+        (N = maxDrivers，通常 ≈ CPU 核数)
+</code></pre>
 <p>Coordinator 把属于 Worker A 的<strong>所有 splits</strong> 都增量塞进同一个 Task-0-A，task 内的多个 driver 从共享的 split queue 里抢着消费。</p>
-<h3 id="Splits-与-plan-fragment-分开传输"><a href="#Splits-与-plan-fragment-分开传输" class="headerlink" title="Splits 与 plan fragment 分开传输"></a>Splits 与 plan fragment 分开传输</h3><p>Plan fragment 不包含 splits。两者通过同一个 <code>POST /v1/task/&#123;taskId&#125;</code> 的不同字段传输：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">TaskUpdateRequest &#123;</span><br><span class="line">    fragment:  &lt;Base64 PlanFragment&gt;     ← 算子树，只在首次创建 task 时发</span><br><span class="line">    sources: [                           ← splits，运行时可多次增量追加</span><br><span class="line">        &#123; planNodeId: &quot;0&quot;,               ← 关联到 fragment 中的某个 source 节点</span><br><span class="line">          splits: [split1, split2, ...],</span><br><span class="line">          noMoreSplits: false &#125;          ← 全部下发完后置 true</span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
+<h3 id="splits-与-plan-fragment-分开传输">Splits 与 plan fragment 分开传输</h3>
+<p>Plan fragment 不包含 splits。两者通过同一个 <code>POST /v1/task/&#123;taskId&#125;</code> 的不同字段传输：</p>
+<pre><code>TaskUpdateRequest &#123;
+    fragment:  &lt;Base64 PlanFragment&gt;     ← 算子树，只在首次创建 task 时发
+    sources: [                           ← splits，运行时可多次增量追加
+        &#123; planNodeId: &quot;0&quot;,               ← 关联到 fragment 中的某个 source 节点
+          splits: [split1, split2, ...],
+          noMoreSplits: false &#125;          ← 全部下发完后置 true
+    ]
+&#125;
+</code></pre>
 <ul>
-<li>**Plan fragment 描述”怎么算”**：静态，发一次</li>
-<li>**Splits 描述”算什么数据”**：动态，分批追加，可能 task 启动后才陆续到达</li>
+<li>**Plan fragment 描述&quot;怎么算&quot;**：静态，发一次</li>
+<li>**Splits 描述&quot;算什么数据&quot;**：动态，分批追加，可能 task 启动后才陆续到达</li>
 <li>在 Velox 侧：<code>Task::create(planFragment)</code> 一次性建树；<code>addSplitWithSequence(planNodeId, split)</code> 增量喂数据；<code>noMoreSplits(planNodeId)</code> 标记结束</li>
-<li>Source operator（<code>TableScan</code>&#x2F;<code>Exchange</code>）无 split 时返回 <code>kWaitForSplit</code> 阻塞，等待 coordinator 下发</li>
+<li>Source operator（<code>TableScan</code>/<code>Exchange</code>）无 split 时返回 <code>kWaitForSplit</code> 阻塞，等待 coordinator 下发</li>
 </ul>
-<h3 id="并行度小结"><a href="#并行度小结" class="headerlink" title="并行度小结"></a>并行度小结</h3><table>
+<h3 id="并行度小结">并行度小结</h3>
+<div class="tbl-wrap"><table>
 <thead>
 <tr>
 <th>维度</th>
@@ -221,7 +345,7 @@
 <tr>
 <td>每 stage 的 task 数</td>
 <td>coordinator 选中的 worker 数</td>
-<td>&#x3D; 参与该 stage 的 worker 数</td>
+<td>= 参与该 stage 的 worker 数</td>
 </tr>
 <tr>
 <td>每 worker 的 task 数</td>
@@ -231,7 +355,7 @@
 <tr>
 <td>每 task 的 pipeline 数</td>
 <td>plan 中 join 数</td>
-<td>&#x3D; HashJoin&#x2F;CrossJoin 数 + 1</td>
+<td>= HashJoin/CrossJoin 数 + 1</td>
 </tr>
 <tr>
 <td>每 pipeline 的 driver 数</td>
@@ -243,15 +367,28 @@
 <td>固定</td>
 <td>1（串行执行算子链）</td>
 </tr>
-</tbody></table>
+</tbody></table></div>
 <hr>
-<h2 id="零之二、Split-分发与消费机制"><a href="#零之二、Split-分发与消费机制" class="headerlink" title="零之二、Split 分发与消费机制"></a>零之二、Split 分发与消费机制</h2><p>上面讲了 split 和 plan fragment 分开传输,这里展开<strong>完整链路</strong>:从 coordinator 下发,到 worker 入队,到 source operator 领取消费。</p>
-<h3 id="全链路概览"><a href="#全链路概览" class="headerlink" title="全链路概览"></a>全链路概览</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">Coordinator (Java, 不在本仓库)</span><br><span class="line">    决定 split → worker 分配（节点亲和、负载均衡）</span><br><span class="line">         ↓ POST /v1/task/&#123;id&#125;  body.sources[]</span><br><span class="line">┌─────────────────────────────────────────────────────────────┐</span><br><span class="line">│ Worker (Presto C++)                                          │</span><br><span class="line">│                                                              │</span><br><span class="line">│ TaskResource::createOrUpdateTask()                          │</span><br><span class="line">│     解析 TaskUpdateRequest.sources[]                         │</span><br><span class="line">│         ↓                                                    │</span><br><span class="line">│ TaskManager::createOrUpdateTaskImpl()                       │</span><br><span class="line">│     1. 按 planNodeId 合并同请求内的多个 source               │</span><br><span class="line">│     2. toVeloxSplit() 转换 ScheduledSplit → exec::Split      │</span><br><span class="line">│     3. execTask-&gt;addSplitWithSequence(nodeId, split, seqId) │</span><br><span class="line">│     4. execTask-&gt;setMaxSplitSequenceId(nodeId, maxSeqId)    │</span><br><span class="line">│     5. noMoreSplits / delayedNoMoreSplitsPlanNodes_         │</span><br><span class="line">│         ↓                                                    │</span><br><span class="line">│ Velox Task: 按 (planNodeId, splitGroupId) 存入 SplitsStore  │</span><br><span class="line">│         ↓                                                    │</span><br><span class="line">│ TableScan(driver).getSplitOrFuture(planNodeId)              │</span><br><span class="line">│     有 split → 读;  无 → kWaitForSplit;  结束 → finished     │</span><br><span class="line">└─────────────────────────────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
-
+<h2 id="零之二、split-分发与消费机制">零之二、Split 分发与消费机制</h2>
+<p>上面讲了 split 和 plan fragment 分开传输,这里展开<strong>完整链路</strong>:从 coordinator 下发,到 worker 入队,到 source operator 领取消费。</p>
+<h3 id="全链路概览">全链路概览</h3>
+<div class="fig">
+  <svg viewBox="0 0 880 500" xmlns="http://www.w3.org/2000/svg" font-family="'DM Mono','Noto Sans Mono CJK SC',monospace">
+  <defs><marker id="qp" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#5f5e5a"/></marker></defs>
+<rect x="60" y="16" width="760" height="44" rx="0" fill="#ede8df" stroke="#b8ae9c"/><text x="76" y="43" font-size="12.5" fill="#0c0e1a" text-anchor="start">Coordinator (Java,不在本仓库) — 决定 split → worker 分配(节点亲和 / 负载均衡)</text><line x1="440" y1="60" x2="440" y2="94" stroke="#5f5e5a" marker-end="url(#qp)"/><text x="454" y="82" font-size="11" fill="#7a7060" text-anchor="start">POST /v1/task/{id}  body.sources[]</text><rect x="46" y="102" width="788" height="392" rx="0" fill="#f5f0e8" stroke="#d4cdc0"/><rect x="46" y="102" width="230" height="26" rx="0" fill="#0c0e1a" stroke="#0c0e1a"/><text x="60" y="120" font-size="12" fill="#f5f0e8" text-anchor="start" font-weight="500">Worker (Presto C++)</text><rect x="70" y="144" width="740" height="46" rx="0" fill="#e7eef8" stroke="#1c4fa0"/><text x="86" y="165" font-size="13" fill="#14416f" text-anchor="start" font-weight="500">TaskResource::createOrUpdateTask()</text><text x="86" y="182" font-size="11" fill="#7a7060" text-anchor="start">解析 TaskUpdateRequest.sources[]</text><line x1="440" y1="190" x2="440" y2="208" stroke="#5f5e5a" marker-end="url(#qp)"/><rect x="70" y="210" width="740" height="132" rx="0" fill="#eaf3e4" stroke="#1a6b3c"/><text x="86" y="231" font-size="13" fill="#145830" text-anchor="start" font-weight="500">TaskManager::createOrUpdateTaskImpl()</text><text x="96" y="252" font-size="11.5" fill="#0c0e1a" xml:space="preserve">1. 按 planNodeId 合并同请求内的多个 source</text><text x="96" y="269" font-size="11.5" fill="#0c0e1a" xml:space="preserve">2. toVeloxSplit() 转换 ScheduledSplit → exec::Split</text><text x="96" y="286" font-size="11.5" fill="#0c0e1a" xml:space="preserve">3. execTask-&gt;addSplitWithSequence(nodeId, split, seqId)</text><text x="96" y="303" font-size="11.5" fill="#0c0e1a" xml:space="preserve">4. execTask-&gt;setMaxSplitSequenceId(nodeId, maxSeqId)</text><text x="96" y="320" font-size="11.5" fill="#0c0e1a" xml:space="preserve">5. noMoreSplits / delayedNoMoreSplitsPlanNodes_</text><line x1="440" y1="342" x2="440" y2="360" stroke="#5f5e5a" marker-end="url(#qp)"/><rect x="70" y="362" width="740" height="44" rx="0" fill="#efe9f7" stroke="#7b2fbe"/><text x="86" y="389" font-size="12.5" fill="#5b2391" text-anchor="start" font-weight="500">Velox Task — 按 (planNodeId, splitGroupId) 存入 SplitsStore</text><line x1="440" y1="406" x2="440" y2="424" stroke="#5f5e5a" marker-end="url(#qp)"/><rect x="70" y="426" width="740" height="50" rx="0" fill="#f8ece0" stroke="#c1440e"/><text x="86" y="449" font-size="12.5" fill="#9a3409" text-anchor="start" font-weight="500">TableScan(driver).getSplitOrFuture(planNodeId)</text><text x="86" y="467" font-size="11" fill="#7a7060" text-anchor="start">有 split → 读　·　无 → kWaitForSplit　·　结束 → finished</text>
+  </svg>
+  <div class="fig-cap"><b>Fig.</b>　Worker split 处理管线:从 Coordinator 的 POST 到 TableScan 取 split</div>
+</div>
 <p><strong>边界说明</strong>：哪个 split 分给哪个 worker,是 <strong>coordinator(Java)</strong> 的调度决策,不在 C++ worker 代码里。Worker 侧只负责接收分配给自己的 split 并消费。</p>
-<h3 id="第-1-步：Worker-接收与转换"><a href="#第-1-步：Worker-接收与转换" class="headerlink" title="第 1 步：Worker 接收与转换"></a>第 1 步：Worker 接收与转换</h3><p><code>TaskResource::createOrUpdateTask()</code> 从 <code>TaskUpdateRequest</code> 解析出 <code>sources[]</code>,每个元素(<code>protocol::TaskSource</code>)含:</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">TaskSource</span> &#123;</span><br><span class="line">    PlanNodeId planNodeId;                 <span class="comment">// 关联到 fragment 中的 source 节点</span></span><br><span class="line">    vector&lt;ScheduledSplit&gt; splits;         <span class="comment">// 本批 split</span></span><br><span class="line">    <span class="type">bool</span> noMoreSplits;                     <span class="comment">// 该节点是否不再有 split</span></span><br><span class="line">    vector&lt;Lifespan&gt; noMoreSplitsForLifespan;  <span class="comment">// grouped 执行的 per-group 结束标记</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
+<h3 id="第-1-步：worker-接收与转换">第 1 步：Worker 接收与转换</h3>
+<p><code>TaskResource::createOrUpdateTask()</code> 从 <code>TaskUpdateRequest</code> 解析出 <code>sources[]</code>,每个元素(<code>protocol::TaskSource</code>)含:</p>
+<pre><code class="language-cpp">struct TaskSource &#123;
+    PlanNodeId planNodeId;                 // 关联到 fragment 中的 source 节点
+    vector&lt;ScheduledSplit&gt; splits;         // 本批 split
+    bool noMoreSplits;                     // 该节点是否不再有 split
+    vector&lt;Lifespan&gt; noMoreSplitsForLifespan;  // grouped 执行的 per-group 结束标记
+&#125;;
+</code></pre>
 <p><code>TaskManager::createOrUpdateTaskImpl()</code> 处理两阶段:</p>
 <ol>
 <li><strong>合并</strong>：同一请求里可能有多个相同 <code>planNodeId</code> 的 source,先按 planNodeId 合并 <code>splits</code>、<code>noMoreSplitsForLifespan</code>,<code>noMoreSplits</code> 做 OR</li>
@@ -263,32 +400,61 @@
 </ul>
 </li>
 </ol>
-<h3 id="第-2-步：addSplitWithSequence-——-为什么需要-sequence"><a href="#第-2-步：addSplitWithSequence-——-为什么需要-sequence" class="headerlink" title="第 2 步：addSplitWithSequence —— 为什么需要 sequence"></a>第 2 步：addSplitWithSequence —— 为什么需要 sequence</h3><p>Coordinator 可能<strong>重发</strong>同一批 split(网络重试、task update 重叠),所以用 sequence id 去重:</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Velox Task.cpp</span></span><br><span class="line"><span class="function"><span class="type">bool</span> <span class="title">Task::addSplitWithSequence</span><span class="params">(planNodeId, Split&amp;&amp; split, <span class="type">long</span> sequenceId)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 仅当 sequenceId &gt; splitsState.maxSequenceId 才真正入队</span></span><br><span class="line">    <span class="keyword">if</span> (sequenceId &gt; splitsState.maxSequenceId) &#123;</span><br><span class="line">        <span class="built_in">addSplitLocked</span>(splitsState, std::<span class="built_in">move</span>(split));</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span>;  <span class="comment">// 重复 split,丢弃</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
+<h3 id="第-2-步：addsplitwithsequence--为什么需要-sequence">第 2 步：addSplitWithSequence —— 为什么需要 sequence</h3>
+<p>Coordinator 可能<strong>重发</strong>同一批 split(网络重试、task update 重叠),所以用 sequence id 去重:</p>
+<pre><code class="language-cpp">// Velox Task.cpp
+bool Task::addSplitWithSequence(planNodeId, Split&amp;&amp; split, long sequenceId) &#123;
+    // 仅当 sequenceId &gt; splitsState.maxSequenceId 才真正入队
+    if (sequenceId &gt; splitsState.maxSequenceId) &#123;
+        addSplitLocked(splitsState, std::move(split));
+        return true;
+    &#125;
+    return false;  // 重复 split,丢弃
+&#125;
+</code></pre>
 <ul>
 <li><code>maxSequenceId</code> 是<strong>水位线</strong>：seqId ≤ 水位的 split 视为重复直接丢弃</li>
 <li>注意：<code>addSplitWithSequence</code> <strong>本身不更新</strong>水位,而是由 <code>setMaxSplitSequenceId(nodeId, maxSeqId)</code> 在一批 split 加完后统一设置水位</li>
 <li>对比 <code>addSplit()</code>：无 sequence 检查,无条件入队（用于不需要幂等投递的场景）</li>
 </ul>
-<h3 id="第-3-步：Velox-侧-split-队列结构"><a href="#第-3-步：Velox-侧-split-队列结构" class="headerlink" title="第 3 步：Velox 侧 split 队列结构"></a>第 3 步：Velox 侧 split 队列结构</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 每个 plan node 一份状态</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">SplitsState</span> &#123;</span><br><span class="line">    <span class="type">bool</span> sourceIsTableScan&#123;<span class="literal">false</span>&#125;;</span><br><span class="line">    <span class="type">bool</span> noMoreSplits&#123;<span class="literal">false</span>&#125;;</span><br><span class="line">    <span class="type">long</span> maxSequenceId&#123;LONG_MIN&#125;;                  <span class="comment">// 去重水位</span></span><br><span class="line">    <span class="comment">// splitGroupId → 该 group 的 split 队列</span></span><br><span class="line">    unordered_map&lt;<span class="type">uint32_t</span>, unique_ptr&lt;SplitsStore&gt;&gt; groupSplitsStores;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 单个 (planNodeId, splitGroupId) 的 split 队列</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">SplitsStore</span> &#123;  <span class="comment">// 实现 QueueSplitsStore</span></span><br><span class="line">    deque&lt;Split&gt; splits_;                          <span class="comment">// 待消费 split</span></span><br><span class="line">    <span class="type">bool</span> noMoreSplits_&#123;<span class="literal">false</span>&#125;;</span><br><span class="line">    vector&lt;ContinuePromise&gt; promises_;             <span class="comment">// 等待 split 的 driver</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h3 id="第-3-步：velox-侧-split-队列结构">第 3 步：Velox 侧 split 队列结构</h3>
+<pre><code class="language-cpp">// 每个 plan node 一份状态
+struct SplitsState &#123;
+    bool sourceIsTableScan&#123;false&#125;;
+    bool noMoreSplits&#123;false&#125;;
+    long maxSequenceId&#123;LONG_MIN&#125;;                  // 去重水位
+    // splitGroupId → 该 group 的 split 队列
+    unordered_map&lt;uint32_t, unique_ptr&lt;SplitsStore&gt;&gt; groupSplitsStores;
+&#125;;
 
+// 单个 (planNodeId, splitGroupId) 的 split 队列
+class SplitsStore &#123;  // 实现 QueueSplitsStore
+    deque&lt;Split&gt; splits_;                          // 待消费 split
+    bool noMoreSplits_&#123;false&#125;;
+    vector&lt;ContinuePromise&gt; promises_;             // 等待 split 的 driver
+&#125;;
+</code></pre>
 <ul>
 <li><code>splitsStates_</code>：<code>map&lt;PlanNodeId, SplitsState&gt;</code>,每个 source 节点一份</li>
-<li>ungrouped 执行：每个节点只有一个 store(key &#x3D; <code>kUngroupedGroupId</code>)</li>
+<li>ungrouped 执行：每个节点只有一个 store(key = <code>kUngroupedGroupId</code>)</li>
 <li>grouped 执行：每个 split group 一个 store</li>
 </ul>
-<h4 id="为什么拆成-SplitsState-x2F-SplitsStore-两层"><a href="#为什么拆成-SplitsState-x2F-SplitsStore-两层" class="headerlink" title="为什么拆成 SplitsState &#x2F; SplitsStore 两层"></a>为什么拆成 SplitsState &#x2F; SplitsStore 两层</h4><p>这个两层嵌套不是随意设计,而是<strong>两个正交维度</strong>被拆开:</p>
+<h4 id="为什么拆成-splitsstate--splitsstore-两层">为什么拆成 SplitsState / SplitsStore 两层</h4>
+<p>这个两层嵌套不是随意设计,而是<strong>两个正交维度</strong>被拆开:</p>
 <ul>
-<li><strong>SplitsState</strong> &#x3D; per <strong>plan node</strong>（每个 source 节点一份）</li>
-<li><strong>SplitsStore</strong> &#x3D; per **(plan node, split group)**（每个 split group 一个队列）</li>
+<li><strong>SplitsState</strong> = per <strong>plan node</strong>（每个 source 节点一份）</li>
+<li><strong>SplitsStore</strong> = per **(plan node, split group)**（每个 split group 一个队列）</li>
 </ul>
 <p>有四个独立的设计力推动这个拆分:</p>
-<p><strong>1. 去重水位是 node 级,消费队列是 group 级——作用域不同。</strong><br><code>maxSequenceId</code> 去重水位必须是 node 级:coordinator 给每个 plan node 的 split 分配连续 sequence id,与 group 无关。而”排队 + 阻塞 + 消费”是 group 级的。两者作用域天然不同。</p>
-<p><strong>2. Bucketed 执行要求”一个节点 N 个独立队列”（最硬的需求）。</strong><br>同一个 TableScan 节点产出的 split 带不同 <code>groupId</code>,每个 group 的 driver 组只能拉自己 group 的 split,且要<strong>独立阻塞</strong>——group 5 队列空了阻塞,不能影响 group 1 继续跑。所以每个 group 必须有自己的队列和自己的阻塞 promises,强制了 <code>map&lt;groupId, SplitsStore&gt;</code>。</p>
-<p><strong>3. 阻塞&#x2F;唤醒机制必须跟队列绑定。</strong><br><code>SplitsStore::promises_</code>（等待 split 的 driver）是 per-group 的——driver 阻塞的是”某个 group 队列空了”,不是”整个节点没数据”。所以 promises 放在 store 里而非 state 里。这也是 <code>SplitsState</code> 显式 <code>delete</code> 拷贝构造的原因:它间接持有 promise,地址必须稳定(driver 持有指向它的引用)。</p>
-<p><strong>4. SplitsStore 是抽象类,还抽象了”split 从哪来”。</strong><br>store 带虚函数(<code>nextSplit</code> &#x2F; <code>requestBarrier</code>),注释原文:<em>either can accumulate splits through addSplit() or generating splits from its own source</em>。即 split 来源可替换:<code>QueueSplitsStore</code> 被动接收 coordinator push 的 split,或自生成 source。用类继承而非结构体字段来解耦”消费接口”与”来源实现”。</p>
-<table>
+<p><strong>1. 去重水位是 node 级,消费队列是 group 级——作用域不同。</strong>
+<code>maxSequenceId</code> 去重水位必须是 node 级:coordinator 给每个 plan node 的 split 分配连续 sequence id,与 group 无关。而&quot;排队 + 阻塞 + 消费&quot;是 group 级的。两者作用域天然不同。</p>
+<p><strong>2. Bucketed 执行要求&quot;一个节点 N 个独立队列&quot;（最硬的需求）。</strong>
+同一个 TableScan 节点产出的 split 带不同 <code>groupId</code>,每个 group 的 driver 组只能拉自己 group 的 split,且要<strong>独立阻塞</strong>——group 5 队列空了阻塞,不能影响 group 1 继续跑。所以每个 group 必须有自己的队列和自己的阻塞 promises,强制了 <code>map&lt;groupId, SplitsStore&gt;</code>。</p>
+<p><strong>3. 阻塞/唤醒机制必须跟队列绑定。</strong>
+<code>SplitsStore::promises_</code>（等待 split 的 driver）是 per-group 的——driver 阻塞的是&quot;某个 group 队列空了&quot;,不是&quot;整个节点没数据&quot;。所以 promises 放在 store 里而非 state 里。这也是 <code>SplitsState</code> 显式 <code>delete</code> 拷贝构造的原因:它间接持有 promise,地址必须稳定(driver 持有指向它的引用)。</p>
+<p><strong>4. SplitsStore 是抽象类,还抽象了&quot;split 从哪来&quot;。</strong>
+store 带虚函数(<code>nextSplit</code> / <code>requestBarrier</code>),注释原文:<em>either can accumulate splits through addSplit() or generating splits from its own source</em>。即 split 来源可替换:<code>QueueSplitsStore</code> 被动接收 coordinator push 的 split,或自生成 source。用类继承而非结构体字段来解耦&quot;消费接口&quot;与&quot;来源实现&quot;。</p>
+<div class="tbl-wrap"><table>
 <thead>
 <tr>
 <th></th>
@@ -309,19 +475,30 @@
 <tr>
 <td>生命周期</td>
 <td>整个 task</td>
-<td>随 split group 动态创建&#x2F;清理</td>
+<td>随 split group 动态创建/清理</td>
 </tr>
 <tr>
 <td>形态</td>
 <td>不可拷贝 struct</td>
 <td>带虚函数的抽象类</td>
 </tr>
-</tbody></table>
-<p><strong>一句话</strong>：<code>SplitsState</code> 管”节点整体元数据”,<code>SplitsStore</code> 管”某 group 具体怎么排队和阻塞”。根本原因是 grouped 执行要求同一节点下多个 group 各自独立排队与阻塞。</p>
-<h4 id="非-grouped-执行（ungrouped）长什么样"><a href="#非-grouped-执行（ungrouped）长什么样" class="headerlink" title="非 grouped 执行（ungrouped）长什么样"></a>非 grouped 执行（ungrouped）长什么样</h4><p>绝大多数普通查询(非 bucketed)走的是 <strong>ungrouped 执行</strong>,此时这套结构退化成最简单的形态:</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">ungrouped 执行（所有 split.groupId == -1）</span><br><span class="line"></span><br><span class="line">SplitsState (planNode &quot;0&quot;)</span><br><span class="line">├── maxSequenceId</span><br><span class="line">├── noMoreSplits</span><br><span class="line">└── groupSplitsStores</span><br><span class="line">        └── [kUngroupedGroupId] → SplitsStore   ← 整个节点只有这一个 store</span><br><span class="line">                                    ├── splits_ (一条队列)</span><br><span class="line">                                    └── promises_</span><br><span class="line"></span><br><span class="line">所有 driver（Driver 0..N）都从这唯一一个 store 抢 split</span><br></pre></td></tr></table></figure>
+</tbody></table></div>
+<p><strong>一句话</strong>：<code>SplitsState</code> 管&quot;节点整体元数据&quot;,<code>SplitsStore</code> 管&quot;某 group 具体怎么排队和阻塞&quot;。根本原因是 grouped 执行要求同一节点下多个 group 各自独立排队与阻塞。</p>
+<h4 id="非-grouped-执行（ungrouped）长什么样">非 grouped 执行（ungrouped）长什么样</h4>
+<p>绝大多数普通查询(非 bucketed)走的是 <strong>ungrouped 执行</strong>,此时这套结构退化成最简单的形态:</p>
+<pre><code>ungrouped 执行（所有 split.groupId == -1）
 
-<table>
+SplitsState (planNode &quot;0&quot;)
+├── maxSequenceId
+├── noMoreSplits
+└── groupSplitsStores
+        └── [kUngroupedGroupId] → SplitsStore   ← 整个节点只有这一个 store
+                                    ├── splits_ (一条队列)
+                                    └── promises_
+
+所有 driver（Driver 0..N）都从这唯一一个 store 抢 split
+</code></pre>
+<div class="tbl-wrap"><table>
 <thead>
 <tr>
 <th></th>
@@ -362,15 +539,21 @@
 <tr>
 <td>适用场景</td>
 <td>普通表扫描、shuffle 后的 join</td>
-<td>bucketed 表的 grouped&#x2F;colocated join</td>
+<td>bucketed 表的 grouped/colocated join</td>
 </tr>
-</tbody></table>
-<p><strong>关键点</strong>：ungrouped 不是”另一套代码路径”,而是 grouped 设计的<strong>特例</strong>——<code>map&lt;groupId, store&gt;</code> 里只有一个固定 key <code>kUngroupedGroupId = UINT32_MAX</code> 的 entry。这样一套数据结构同时覆盖两种执行模式,无需为常规查询单独写一条路径。多个 driver 并行消费同一队列,靠的就是 <code>SplitsStore</code> 内部对队列和 promises 的加锁访问(实际锁在 <code>Task::mutex_</code>)。</p>
-<h3 id="第-4-步：Source-operator-领取-split"><a href="#第-4-步：Source-operator-领取-split" class="headerlink" title="第 4 步：Source operator 领取 split"></a>第 4 步：Source operator 领取 split</h3><p><code>TableScan</code> 在 <code>getOutput()</code> 中调用 <code>Task::getSplitOrFuture()</code> 领取 split：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">BlockingReason <span class="title">Task::getSplitOrFuture</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">    driverId, splitGroupId, planNodeId, maxPreloadSplits, preload,</span></span></span><br><span class="line"><span class="params"><span class="function">    Split&amp; split, ContinueFuture&amp; future)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 取 (planNodeId, splitGroupId) 对应的 SplitsStore</span></span><br><span class="line">    <span class="comment">// 调 store-&gt;nextSplit(...)</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
+</tbody></table></div>
+<p><strong>关键点</strong>：ungrouped 不是&quot;另一套代码路径&quot;,而是 grouped 设计的<strong>特例</strong>——<code>map&lt;groupId, store&gt;</code> 里只有一个固定 key <code>kUngroupedGroupId = UINT32_MAX</code> 的 entry。这样一套数据结构同时覆盖两种执行模式,无需为常规查询单独写一条路径。多个 driver 并行消费同一队列,靠的就是 <code>SplitsStore</code> 内部对队列和 promises 的加锁访问(实际锁在 <code>Task::mutex_</code>)。</p>
+<h3 id="第-4-步：source-operator-领取-split">第 4 步：Source operator 领取 split</h3>
+<p><code>TableScan</code> 在 <code>getOutput()</code> 中调用 <code>Task::getSplitOrFuture()</code> 领取 split：</p>
+<pre><code class="language-cpp">BlockingReason Task::getSplitOrFuture(
+    driverId, splitGroupId, planNodeId, maxPreloadSplits, preload,
+    Split&amp; split, ContinueFuture&amp; future) &#123;
+    // 取 (planNodeId, splitGroupId) 对应的 SplitsStore
+    // 调 store-&gt;nextSplit(...)
+&#125;
+</code></pre>
 <p><code>SplitsStore::nextSplit()</code> 三种结果:</p>
-<table>
+<div class="tbl-wrap"><table>
 <thead>
 <tr>
 <th>情况</th>
@@ -389,25 +572,54 @@
 <td>队列空且未结束</td>
 <td>创建 <code>ContinuePromise</code> 存入 <code>promises_</code>,返回 <code>kWaitForSplit</code> + future</td>
 </tr>
-</tbody></table>
+</tbody></table></div>
 <p>阻塞时 driver 退出线程池;当新 split 入队或 <code>noMoreSplits</code> 触发时,fulfill <code>promises_</code> 唤醒 driver 重新调度。</p>
-<h3 id="第-5-步：noMoreSplits-的两个层级-延迟处理"><a href="#第-5-步：noMoreSplits-的两个层级-延迟处理" class="headerlink" title="第 5 步：noMoreSplits 的两个层级 + 延迟处理"></a>第 5 步：noMoreSplits 的两个层级 + 延迟处理</h3><p><strong>两个层级</strong>：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 单个 group 结束（grouped 执行）</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">Task::noMoreSplitsForGroup</span><span class="params">(planNodeId, splitGroupId)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 整个 plan node 结束</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">Task::noMoreSplits</span><span class="params">(planNodeId)</span> </span>&#123;</span><br><span class="line">    splitsState.noMoreSplits = <span class="literal">true</span>;</span><br><span class="line">    <span class="comment">// ungrouped: 通知唯一的 store</span></span><br><span class="line">    <span class="comment">// grouped:   通知该节点所有 group 的 store</span></span><br><span class="line">    <span class="comment">// 若所有 split group 都处理完 → terminate(kFinished)</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="第-5-步：nomoresplits-的两个层级--延迟处理">第 5 步：noMoreSplits 的两个层级 + 延迟处理</h3>
+<p><strong>两个层级</strong>：</p>
+<pre><code class="language-cpp">// 单个 group 结束（grouped 执行）
+void Task::noMoreSplitsForGroup(planNodeId, splitGroupId);
 
+// 整个 plan node 结束
+void Task::noMoreSplits(planNodeId) &#123;
+    splitsState.noMoreSplits = true;
+    // ungrouped: 通知唯一的 store
+    // grouped:   通知该节点所有 group 的 store
+    // 若所有 split group 都处理完 → terminate(kFinished)
+&#125;
+</code></pre>
 <p><strong>延迟处理（<code>delayedNoMoreSplitsPlanNodes_</code>）</strong>：</p>
 <p><code>noMoreSplits</code> 信号可能在 <code>task-&gt;start()</code> <strong>之前</strong>就到达。若此时直接调 Velox 的 <code>noMoreSplits</code> 会出问题（task 还没起来）。所以:</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// TaskManager.cpp</span></span><br><span class="line"><span class="keyword">if</span> (prestoTask-&gt;taskStarted) &#123;</span><br><span class="line">    execTask-&gt;<span class="built_in">noMoreSplits</span>(planNodeId);          <span class="comment">// 已启动,直接调</span></span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    prestoTask-&gt;delayedNoMoreSplitsPlanNodes_.<span class="built_in">emplace</span>(planNodeId);  <span class="comment">// 暂存</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 之后 startTaskLocked() 中补调:</span></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">auto</span>&amp; nodeId : delayedNoMoreSplitsPlanNodes_) &#123;</span><br><span class="line">    execTask-&gt;<span class="built_in">noMoreSplits</span>(nodeId);</span><br><span class="line">&#125;</span><br><span class="line">delayedNoMoreSplitsPlanNodes_.<span class="built_in">clear</span>();</span><br></pre></td></tr></table></figure>
+<pre><code class="language-cpp">// TaskManager.cpp
+if (prestoTask-&gt;taskStarted) &#123;
+    execTask-&gt;noMoreSplits(planNodeId);          // 已启动,直接调
+&#125; else &#123;
+    prestoTask-&gt;delayedNoMoreSplitsPlanNodes_.emplace(planNodeId);  // 暂存
+&#125;
 
+// 之后 startTaskLocked() 中补调:
+for (auto&amp; nodeId : delayedNoMoreSplitsPlanNodes_) &#123;
+    execTask-&gt;noMoreSplits(nodeId);
+&#125;
+delayedNoMoreSplitsPlanNodes_.clear();
+</code></pre>
 <p>否则 driver 会永久阻塞在 <code>kWaitForSplit</code>,等待一个永远不会来的 split。</p>
-<h3 id="第-6-步：Split-group（bucketed-x2F-grouped-执行）"><a href="#第-6-步：Split-group（bucketed-x2F-grouped-执行）" class="headerlink" title="第 6 步：Split group（bucketed&#x2F;grouped 执行）"></a>第 6 步：Split group（bucketed&#x2F;grouped 执行）</h3><p>针对 bucketed 表的分组执行,split 带 <code>groupId</code>：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Task.cpp，split 带 groupId != -1 时</span></span><br><span class="line"><span class="keyword">if</span> (!seenSplitGroups_.<span class="built_in">contains</span>(groupId)) &#123;</span><br><span class="line">    seenSplitGroups_.<span class="built_in">insert</span>(groupId);</span><br><span class="line">    queuedSplitGroups_.<span class="built_in">push</span>(groupId);</span><br><span class="line">    <span class="built_in">ensureSplitGroupsAreBeingProcessedLocked</span>();   <span class="comment">// 为新 group 创建 driver</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">addSplitToStore</span>(planNodeId, groupId, split);</span><br></pre></td></tr></table></figure>
-
+<h3 id="第-6-步：split-group（bucketedgrouped-执行）">第 6 步：Split group（bucketed/grouped 执行）</h3>
+<p>针对 bucketed 表的分组执行,split 带 <code>groupId</code>：</p>
+<pre><code class="language-cpp">// Task.cpp，split 带 groupId != -1 时
+if (!seenSplitGroups_.contains(groupId)) &#123;
+    seenSplitGroups_.insert(groupId);
+    queuedSplitGroups_.push(groupId);
+    ensureSplitGroupsAreBeingProcessedLocked();   // 为新 group 创建 driver
+&#125;
+addSplitToStore(planNodeId, groupId, split);
+</code></pre>
 <ul>
 <li>每个 split group 独立创建一组 driver,<code>concurrentSplitGroups</code> 控制同时处理的 group 数</li>
 <li><code>kUngroupedGroupId = UINT32_MAX</code> 表示非分组执行</li>
-<li>group 间通过 barrier 同步(如 grouped HashJoin 的 build&#x2F;probe)</li>
+<li>group 间通过 barrier 同步(如 grouped HashJoin 的 build/probe)</li>
 </ul>
-<h3 id="Split-分发关键代码位置"><a href="#Split-分发关键代码位置" class="headerlink" title="Split 分发关键代码位置"></a>Split 分发关键代码位置</h3><table>
+<h3 id="split-分发关键代码位置">Split 分发关键代码位置</h3>
+<div class="tbl-wrap"><table>
 <thead>
 <tr>
 <th>环节</th>
@@ -431,11 +643,11 @@
 <td><code>presto_cpp/main/PrestoTask.h</code> <code>delayedNoMoreSplitsPlanNodes_</code></td>
 </tr>
 <tr>
-<td>addSplitWithSequence &#x2F; 去重</td>
+<td>addSplitWithSequence / 去重</td>
 <td><code>velox/exec/Task.cpp</code></td>
 </tr>
 <tr>
-<td>SplitsState &#x2F; SplitsStore</td>
+<td>SplitsState / SplitsStore</td>
 <td><code>velox/exec/TaskStructs.h</code></td>
 </tr>
 <tr>
@@ -443,13 +655,25 @@
 <td><code>velox/exec/Task.cpp</code></td>
 </tr>
 <tr>
-<td>noMoreSplits &#x2F; ForGroup</td>
+<td>noMoreSplits / ForGroup</td>
 <td><code>velox/exec/Task.cpp</code></td>
 </tr>
-</tbody></table>
+</tbody></table></div>
 <hr>
-<h2 id="层级结构总览"><a href="#层级结构总览" class="headerlink" title="层级结构总览"></a>层级结构总览</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">Query</span><br><span class="line">└── Stage 0  (plan fragment 0: TableScan + partial agg)</span><br><span class="line">│   ├── Worker A → Task-0-A</span><br><span class="line">│   │   ├── Pipeline 0: Driver0, Driver1, ... DriverN</span><br><span class="line">│   │   └── Pipeline 1: Driver0  (HashBuild side)</span><br><span class="line">│   ├── Worker B → Task-0-B</span><br><span class="line">│   └── Worker C → Task-0-C</span><br><span class="line">│</span><br><span class="line">└── Stage 1  (plan fragment 1: Exchange + HashJoin + PartitionedOutput)</span><br><span class="line">    ├── Worker A → Task-1-A</span><br><span class="line">    ├── Worker B → Task-1-B</span><br><span class="line">    └── Worker C → Task-1-C</span><br></pre></td></tr></table></figure>
-
+<h2 id="层级结构总览">层级结构总览</h2>
+<pre><code>Query
+└── Stage 0  (plan fragment 0: TableScan + partial agg)
+│   ├── Worker A → Task-0-A
+│   │   ├── Pipeline 0: Driver0, Driver1, ... DriverN
+│   │   └── Pipeline 1: Driver0  (HashBuild side)
+│   ├── Worker B → Task-0-B
+│   └── Worker C → Task-0-C
+│
+└── Stage 1  (plan fragment 1: Exchange + HashJoin + PartitionedOutput)
+    ├── Worker A → Task-1-A
+    ├── Worker B → Task-1-B
+    └── Worker C → Task-1-C
+</code></pre>
 <p><strong>关键约束：</strong></p>
 <ul>
 <li><code>(worker, stage)</code> → 唯一一个 task，同一 stage 在同一 worker 上不会有两个 task</li>
@@ -458,14 +682,24 @@
 <li>Coordinator 把属于某 worker 的所有 splits 都增量发给同一个 task，Driver 并行消费</li>
 </ul>
 <hr>
-<h2 id="一、Worker-接收查询：HTTP-→-Velox-Task"><a href="#一、Worker-接收查询：HTTP-→-Velox-Task" class="headerlink" title="一、Worker 接收查询：HTTP → Velox Task"></a>一、Worker 接收查询：HTTP → Velox Task</h2><h3 id="HTTP-端点（TaskResource）"><a href="#HTTP-端点（TaskResource）" class="headerlink" title="HTTP 端点（TaskResource）"></a>HTTP 端点（TaskResource）</h3><p>Coordinator 通过 REST API 驱动每个 Worker：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">POST   /v1/task/&#123;taskId&#125;                              创建/更新 task（含 plan fragment + splits）</span><br><span class="line">GET    /v1/task/&#123;taskId&#125;/results/&#123;bufferId&#125;/&#123;token&#125;   下游拉取输出数据</span><br><span class="line">GET    /v1/task/&#123;taskId&#125;/status                       轮询 task 状态（支持 long-polling）</span><br><span class="line">DELETE /v1/task/&#123;taskId&#125;                              终止 task</span><br><span class="line">GET    /v1/task/&#123;taskId&#125;/results/.../acknowledge      ACK 已收数据</span><br><span class="line">DELETE /v1/task/&#123;taskId&#125;/results/&#123;bufferId&#125;           释放 output buffer</span><br></pre></td></tr></table></figure>
-
-<h3 id="Plan-Fragment-转换（PrestoToVeloxQueryPlan）"><a href="#Plan-Fragment-转换（PrestoToVeloxQueryPlan）" class="headerlink" title="Plan Fragment 转换（PrestoToVeloxQueryPlan）"></a>Plan Fragment 转换（PrestoToVeloxQueryPlan）</h3><p><code>TaskUpdateRequest</code> 中的 <code>fragment</code> 字段是 Base64 编码的 JSON Plan：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Presto JSON PlanFragment</span><br><span class="line">        ↓  VeloxInteractiveQueryPlanConverter</span><br><span class="line">Velox PlanFragment（PlanNode 树）</span><br></pre></td></tr></table></figure>
-
+<h2 id="一、worker-接收查询：http-→-velox-task">一、Worker 接收查询：HTTP → Velox Task</h2>
+<h3 id="http-端点（taskresource）">HTTP 端点（TaskResource）</h3>
+<p>Coordinator 通过 REST API 驱动每个 Worker：</p>
+<pre><code>POST   /v1/task/&#123;taskId&#125;                              创建/更新 task（含 plan fragment + splits）
+GET    /v1/task/&#123;taskId&#125;/results/&#123;bufferId&#125;/&#123;token&#125;   下游拉取输出数据
+GET    /v1/task/&#123;taskId&#125;/status                       轮询 task 状态（支持 long-polling）
+DELETE /v1/task/&#123;taskId&#125;                              终止 task
+GET    /v1/task/&#123;taskId&#125;/results/.../acknowledge      ACK 已收数据
+DELETE /v1/task/&#123;taskId&#125;/results/&#123;bufferId&#125;           释放 output buffer
+</code></pre>
+<h3 id="plan-fragment-转换（prestotoveloxqueryplan）">Plan Fragment 转换（PrestoToVeloxQueryPlan）</h3>
+<p><code>TaskUpdateRequest</code> 中的 <code>fragment</code> 字段是 Base64 编码的 JSON Plan：</p>
+<pre><code>Presto JSON PlanFragment
+        ↓  VeloxInteractiveQueryPlanConverter
+Velox PlanFragment（PlanNode 树）
+</code></pre>
 <p>关键 PlanNode 映射：</p>
-<table>
+<div class="tbl-wrap"><table>
 <thead>
 <tr>
 <th>Presto PlanNode</th>
@@ -498,37 +732,77 @@
 <td><code>LocalExchangeNode</code></td>
 <td>task 内重分区</td>
 </tr>
-</tbody></table>
-<h3 id="Task-创建流程（TaskManager）"><a href="#Task-创建流程（TaskManager）" class="headerlink" title="Task 创建流程（TaskManager）"></a>Task 创建流程（TaskManager）</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">POST /v1/task/&#123;taskId&#125;</span><br><span class="line">    ↓</span><br><span class="line">findOrCreateTask()         → 创建 PrestoTask（状态 kPlanned，暂无 Velox Task）</span><br><span class="line">    ↓</span><br><span class="line">createOrUpdateTaskImpl()</span><br><span class="line">    ├── exec::Task::create(planFragment, queryCtx, ExecutionMode::kParallel)</span><br><span class="line">    ├── execTask-&gt;addSplitWithSequence()   ← 注册 splits</span><br><span class="line">    └── startTaskLocked()</span><br><span class="line">            └── execTask-&gt;start(maxDrivers, concurrentLifespans)</span><br></pre></td></tr></table></figure>
-
+</tbody></table></div>
+<h3 id="task-创建流程（taskmanager）">Task 创建流程（TaskManager）</h3>
+<pre><code>POST /v1/task/&#123;taskId&#125;
+    ↓
+findOrCreateTask()         → 创建 PrestoTask（状态 kPlanned，暂无 Velox Task）
+    ↓
+createOrUpdateTaskImpl()
+    ├── exec::Task::create(planFragment, queryCtx, ExecutionMode::kParallel)
+    ├── execTask-&gt;addSplitWithSequence()   ← 注册 splits
+    └── startTaskLocked()
+            └── execTask-&gt;start(maxDrivers, concurrentLifespans)
+</code></pre>
 <p><code>PrestoTask</code> 是 Velox <code>exec::Task</code> 的包装，额外持有：</p>
 <ul>
 <li>待处理的 <code>ResultRequest</code>（下游长轮询的 HTTP 请求）</li>
 <li>状态变更 Promise（用于 long-polling）</li>
 </ul>
 <hr>
-<h2 id="二、Task-内部：Pipeline-×-Driver-×-Operator"><a href="#二、Task-内部：Pipeline-×-Driver-×-Operator" class="headerlink" title="二、Task 内部：Pipeline × Driver × Operator"></a>二、Task 内部：Pipeline × Driver × Operator</h2><h3 id="Task-内结构"><a href="#Task-内结构" class="headerlink" title="Task 内结构"></a>Task 内结构</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">Task</span><br><span class="line">├── Pipeline 0  (probe side: Exchange → HashProbe → Agg → PartitionedOutput)</span><br><span class="line">│   ├── Driver 0  ── 一个线程，处理若干 splits</span><br><span class="line">│   ├── Driver 1</span><br><span class="line">│   └── Driver N   (N = maxDrivers，通常 ≈ CPU 核数)</span><br><span class="line">│</span><br><span class="line">└── Pipeline 1  (build side: Exchange → HashBuild)</span><br><span class="line">    └── Driver 0   (build side 通常只需 1 个 driver)</span><br></pre></td></tr></table></figure>
-
+<h2 id="二、task-内部：pipeline-×-driver-×-operator">二、Task 内部：Pipeline × Driver × Operator</h2>
+<h3 id="task-内结构">Task 内结构</h3>
+<pre><code>Task
+├── Pipeline 0  (probe side: Exchange → HashProbe → Agg → PartitionedOutput)
+│   ├── Driver 0  ── 一个线程，处理若干 splits
+│   ├── Driver 1
+│   └── Driver N   (N = maxDrivers，通常 ≈ CPU 核数)
+│
+└── Pipeline 1  (build side: Exchange → HashBuild)
+    └── Driver 0   (build side 通常只需 1 个 driver)
+</code></pre>
 <ul>
-<li><strong>Pipeline 数量</strong>由 plan 决定（每个 HashJoin&#x2F;CrossJoin 会拆出 build&#x2F;probe 两条 pipeline）</li>
+<li><strong>Pipeline 数量</strong>由 plan 决定（每个 HashJoin/CrossJoin 会拆出 build/probe 两条 pipeline）</li>
 <li><strong>Driver 数量</strong>（每条 pipeline 内的并行度）由 <code>maxDrivers</code> 配置决定</li>
 <li>每个 Driver 独立运行，处理不同的 split 或不同分区的数据</li>
 <li>每个 Driver 内部<strong>单线程</strong>串行执行算子链</li>
 </ul>
-<h3 id="Driver-执行循环（Driver-runInternal）"><a href="#Driver-执行循环（Driver-runInternal）" class="headerlink" title="Driver 执行循环（Driver::runInternal）"></a>Driver 执行循环（<code>Driver::runInternal</code>）</h3><p>核心是<strong>从 sink 向 source 反向推进</strong>的 pull 模型：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">loop:</span><br><span class="line">    从 sink 向上游遍历每个 operator:</span><br><span class="line">        if 下游.needsInput():</span><br><span class="line">            output = 上游.getOutput()</span><br><span class="line">            if output: 下游.addInput(output)</span><br><span class="line">        if operator.isBlocked(&amp;future):</span><br><span class="line">            // 注册 future，退出线程池；future 完成后重新入队</span><br><span class="line">            break</span><br></pre></td></tr></table></figure>
-
+<h3 id="driver-执行循环（driverruninternal）">Driver 执行循环（<code>Driver::runInternal</code>）</h3>
+<p>核心是<strong>从 sink 向 source 反向推进</strong>的 pull 模型：</p>
+<pre><code>loop:
+    从 sink 向上游遍历每个 operator:
+        if 下游.needsInput():
+            output = 上游.getOutput()
+            if output: 下游.addInput(output)
+        if operator.isBlocked(&amp;future):
+            // 注册 future，退出线程池；future 完成后重新入队
+            break
+</code></pre>
 <p><strong>Operator 核心接口</strong>（<code>velox/exec/Operator.h</code>）：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">RowVectorPtr <span class="title">getOutput</span><span class="params">()</span></span>;                            <span class="comment">// 产生一批行（RowVector）</span></span><br><span class="line"><span class="function"><span class="type">void</span>         <span class="title">addInput</span><span class="params">(RowVectorPtr input)</span></span>;           <span class="comment">// 消费上游输出</span></span><br><span class="line"><span class="function"><span class="type">bool</span>         <span class="title">needsInput</span><span class="params">()</span></span>;                           <span class="comment">// 是否能接收更多输入</span></span><br><span class="line"><span class="function">BlockingReason <span class="title">isBlocked</span><span class="params">(ContinueFuture* future)</span></span>;   <span class="comment">// 是否阻塞，设置 future</span></span><br><span class="line"><span class="function"><span class="type">bool</span>         <span class="title">isFinished</span><span class="params">()</span></span>;                           <span class="comment">// 是否全部完成</span></span><br></pre></td></tr></table></figure>
-
+<pre><code class="language-cpp">RowVectorPtr getOutput();                            // 产生一批行（RowVector）
+void         addInput(RowVectorPtr input);           // 消费上游输出
+bool         needsInput();                           // 是否能接收更多输入
+BlockingReason isBlocked(ContinueFuture* future);   // 是否阻塞，设置 future
+bool         isFinished();                           // 是否全部完成
+</code></pre>
 <p><strong>数据流示例（Pipeline 0）</strong>：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">TableScan.getOutput()        → RowVector（一批行）</span><br><span class="line">    ↓ addInput</span><br><span class="line">Filter.addInput/getOutput    → 过滤后的行</span><br><span class="line">    ↓ addInput</span><br><span class="line">HashProbe.addInput           → 关联 HashTable</span><br><span class="line">HashProbe.getOutput()        → join 结果行</span><br><span class="line">    ↓ addInput</span><br><span class="line">PartitionedOutput.addInput   → 序列化，写入 OutputBuffer</span><br></pre></td></tr></table></figure>
-
-<h3 id="阻塞与调度"><a href="#阻塞与调度" class="headerlink" title="阻塞与调度"></a>阻塞与调度</h3><p>Driver 运行于共享线程池（<code>folly::CPUThreadPoolExecutor</code>）。算子阻塞时（如等待 HashTable 建好、等待 Exchange 数据到来），Driver 持有 <code>ContinueFuture</code> 后退出线程；Future 完成后重新入队：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Driver → isBlocked() → 得到 future → 退出线程池</span><br><span class="line">                                     ↓  future 完成</span><br><span class="line">                            Driver::enqueue() → 重新调度</span><br></pre></td></tr></table></figure>
-
+<pre><code>TableScan.getOutput()        → RowVector（一批行）
+    ↓ addInput
+Filter.addInput/getOutput    → 过滤后的行
+    ↓ addInput
+HashProbe.addInput           → 关联 HashTable
+HashProbe.getOutput()        → join 结果行
+    ↓ addInput
+PartitionedOutput.addInput   → 序列化，写入 OutputBuffer
+</code></pre>
+<h3 id="阻塞与调度">阻塞与调度</h3>
+<p>Driver 运行于共享线程池（<code>folly::CPUThreadPoolExecutor</code>）。算子阻塞时（如等待 HashTable 建好、等待 Exchange 数据到来），Driver 持有 <code>ContinueFuture</code> 后退出线程；Future 完成后重新入队：</p>
+<pre><code>Driver → isBlocked() → 得到 future → 退出线程池
+                                     ↓  future 完成
+                            Driver::enqueue() → 重新调度
+</code></pre>
 <p><strong>阻塞原因（BlockingReason）</strong>：</p>
-<table>
+<div class="tbl-wrap"><table>
 <thead>
 <tr>
 <th>原因</th>
@@ -541,7 +815,7 @@
 </tr>
 <tr>
 <td><code>kWaitForProducer</code></td>
-<td>Exchange&#x2F;LocalExchange 等待上游数据</td>
+<td>Exchange/LocalExchange 等待上游数据</td>
 </tr>
 <tr>
 <td><code>kWaitForConsumer</code></td>
@@ -555,37 +829,73 @@
 <td><code>kWaitForMemory</code></td>
 <td>内存仲裁，等待 spill 释放内存</td>
 </tr>
-</tbody></table>
-<h3 id="Pipeline-间同步：HashJoinBridge"><a href="#Pipeline-间同步：HashJoinBridge" class="headerlink" title="Pipeline 间同步：HashJoinBridge"></a>Pipeline 间同步：HashJoinBridge</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Pipeline 1 (build): TableScan → HashBuild ──写入──► HashJoinBridge</span><br><span class="line">                                                          │ build done</span><br><span class="line">Pipeline 0 (probe): Exchange → HashProbe ◄──读取──────────┘</span><br></pre></td></tr></table></figure>
-
+</tbody></table></div>
+<h3 id="pipeline-间同步：hashjoinbridge">Pipeline 间同步：HashJoinBridge</h3>
+<pre><code>Pipeline 1 (build): TableScan → HashBuild ──写入──► HashJoinBridge
+                                                          │ build done
+Pipeline 0 (probe): Exchange → HashProbe ◄──读取──────────┘
+</code></pre>
 <p>HashBuild 完成后通过 <code>HashJoinBridge</code> 通知 HashProbe 的所有 Driver 解除阻塞。</p>
 <hr>
-<h2 id="三、Task-内数据交换：LocalPartition-x2F-LocalExchange"><a href="#三、Task-内数据交换：LocalPartition-x2F-LocalExchange" class="headerlink" title="三、Task 内数据交换：LocalPartition &#x2F; LocalExchange"></a>三、Task 内数据交换：LocalPartition &#x2F; LocalExchange</h2><p><strong>适用场景</strong>：同一 task 内，不同 pipeline 之间需要重分区（如两阶段聚合、repartitioned join probe 侧重分区）。纯共享内存，无序列化，无网络。</p>
-<p><strong>“local” 的含义是 local to the task（同进程同 task），不是 local to the machine。</strong></p>
-<h3 id="整体结构"><a href="#整体结构" class="headerlink" title="整体结构"></a>整体结构</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">Task 内部</span><br><span class="line"></span><br><span class="line">Pipeline 0（上游，N 个 producer driver）</span><br><span class="line">  Driver 0 → ... → LocalPartition ┐</span><br><span class="line">  Driver 1 → ... → LocalPartition ┼─→ LocalExchangeQueue[0] ─→ LocalExchange → Driver 0</span><br><span class="line">  Driver 2 → ... → LocalPartition ┘─→ LocalExchangeQueue[1] ─→ LocalExchange → Driver 1</span><br><span class="line">                   (按 key 哈希分桶)    (按 partition 分桶)    (source 算子)</span><br><span class="line"></span><br><span class="line">Pipeline 1（下游，M 个 consumer driver，M = numPartitions）</span><br></pre></td></tr></table></figure>
+<h2 id="三、task-内数据交换：localpartition--localexchange">三、Task 内数据交换：LocalPartition / LocalExchange</h2>
+<p><strong>适用场景</strong>：同一 task 内，不同 pipeline 之间需要重分区（如两阶段聚合、repartitioned join probe 侧重分区）。纯共享内存，无序列化，无网络。</p>
+<p><strong>&quot;local&quot; 的含义是 local to the task（同进程同 task），不是 local to the machine。</strong></p>
+<h3 id="整体结构">整体结构</h3>
+<pre><code>Task 内部
 
+Pipeline 0（上游，N 个 producer driver）
+  Driver 0 → ... → LocalPartition ┐
+  Driver 1 → ... → LocalPartition ┼─→ LocalExchangeQueue[0] ─→ LocalExchange → Driver 0
+  Driver 2 → ... → LocalPartition ┘─→ LocalExchangeQueue[1] ─→ LocalExchange → Driver 1
+                   (按 key 哈希分桶)    (按 partition 分桶)    (source 算子)
+
+Pipeline 1（下游，M 个 consumer driver，M = numPartitions）
+</code></pre>
 <ul>
 <li>每个 <code>LocalExchangeQueue</code> 对应一个分区，有且只有一个 consumer driver 消费</li>
 <li>所有 <code>LocalPartition</code> producer 共享同一个 <code>LocalExchangeMemoryManager</code>，统一控制总缓冲上限</li>
 </ul>
-<h3 id="LocalExchangeMemoryManager"><a href="#LocalExchangeMemoryManager" class="headerlink" title="LocalExchangeMemoryManager"></a>LocalExchangeMemoryManager</h3><p><strong>职责</strong>：跨所有 <code>LocalExchangeQueue</code> 追踪总内存用量，在超限时阻塞 producer。</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// velox/exec/LocalPartition.h</span></span><br><span class="line"><span class="type">int64_t</span>         maxBufferSize_;     <span class="comment">// 总缓冲上限</span></span><br><span class="line"><span class="type">int64_t</span>         bufferedBytes_;     <span class="comment">// 当前已用字节（原子）</span></span><br><span class="line">std::vector&lt;ContinuePromise&gt; promises_;  <span class="comment">// 被阻塞的 producer</span></span><br></pre></td></tr></table></figure>
-
+<h3 id="localexchangememorymanager">LocalExchangeMemoryManager</h3>
+<p><strong>职责</strong>：跨所有 <code>LocalExchangeQueue</code> 追踪总内存用量，在超限时阻塞 producer。</p>
+<pre><code class="language-cpp">// velox/exec/LocalPartition.h
+int64_t         maxBufferSize_;     // 总缓冲上限
+int64_t         bufferedBytes_;     // 当前已用字节（原子）
+std::vector&lt;ContinuePromise&gt; promises_;  // 被阻塞的 producer
+</code></pre>
 <ul>
 <li>**<code>increaseMemoryUsage(added)</code>**：producer 入队后调用。若 <code>bufferedBytes_ &gt;= maxBufferSize_</code>，创建 <code>ContinuePromise</code> 存入 <code>promises_</code>，返回 true（producer 阻塞）</li>
 <li>**<code>decreaseMemoryUsage(removed)</code>**：consumer 出队后调用。若降到 <code>maxBufferSize_</code> 以下，取出所有 <code>promises_</code> 并 fulfill，唤醒所有阻塞的 producer</li>
 </ul>
-<h3 id="LocalExchangeQueue"><a href="#LocalExchangeQueue" class="headerlink" title="LocalExchangeQueue"></a>LocalExchangeQueue</h3><p><strong>职责</strong>：单个分区的 FIFO 队列，协调多 producer 写入 &#x2F; 单 consumer 读取。</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">folly::Synchronized&lt;Queue&gt; queue_;        <span class="comment">// std::queue&lt;pair&lt;RowVectorPtr, int64_t&gt;&gt;</span></span><br><span class="line">std::vector&lt;ContinuePromise&gt; consumerPromises_;  <span class="comment">// consumer 等待数据</span></span><br><span class="line"><span class="type">int</span> pendingProducers_&#123;<span class="number">0</span>&#125;;                 <span class="comment">// 尚未完成的 producer 数量</span></span><br><span class="line"><span class="type">bool</span> noMoreProducers_&#123;<span class="literal">false</span>&#125;;             <span class="comment">// 不再有新 producer</span></span><br><span class="line"><span class="type">bool</span> closed_&#123;<span class="literal">false</span>&#125;;</span><br></pre></td></tr></table></figure>
-
+<h3 id="localexchangequeue">LocalExchangeQueue</h3>
+<p><strong>职责</strong>：单个分区的 FIFO 队列，协调多 producer 写入 / 单 consumer 读取。</p>
+<pre><code class="language-cpp">folly::Synchronized&lt;Queue&gt; queue_;        // std::queue&lt;pair&lt;RowVectorPtr, int64_t&gt;&gt;
+std::vector&lt;ContinuePromise&gt; consumerPromises_;  // consumer 等待数据
+int pendingProducers_&#123;0&#125;;                 // 尚未完成的 producer 数量
+bool noMoreProducers_&#123;false&#125;;             // 不再有新 producer
+bool closed_&#123;false&#125;;
+</code></pre>
 <p><strong>入队（producer 调用）</strong>：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">BlockingReason <span class="title">enqueue</span><span class="params">(RowVectorPtr input, <span class="type">int64_t</span> inputBytes, ContinueFuture* future)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 1. 追加到 queue_</span></span><br><span class="line">    <span class="comment">// 2. 唤醒等待的 consumer（fulfil consumerPromises_）</span></span><br><span class="line">    <span class="comment">// 3. 调用 memoryManager_-&gt;increaseMemoryUsage()</span></span><br><span class="line">    <span class="comment">//    → 若超限，返回 kWaitForConsumer（producer 阻塞）</span></span><br><span class="line">    <span class="comment">//    → 否则返回 kNotBlocked</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
+<pre><code class="language-cpp">BlockingReason enqueue(RowVectorPtr input, int64_t inputBytes, ContinueFuture* future) &#123;
+    // 1. 追加到 queue_
+    // 2. 唤醒等待的 consumer（fulfil consumerPromises_）
+    // 3. 调用 memoryManager_-&gt;increaseMemoryUsage()
+    //    → 若超限，返回 kWaitForConsumer（producer 阻塞）
+    //    → 否则返回 kNotBlocked
+&#125;
+</code></pre>
 <p><strong>出队（consumer 调用）</strong>：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">BlockingReason <span class="title">next</span><span class="params">(ContinueFuture* future, memory::MemoryPool*, RowVectorPtr* data, <span class="type">bool</span>&amp; drained)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 1. 队列为空：</span></span><br><span class="line">    <span class="comment">//    - 若所有 producer 已完成 → 返回 finished</span></span><br><span class="line">    <span class="comment">//    - 否则创建 consumerPromise → 返回 kWaitForProducer</span></span><br><span class="line">    <span class="comment">// 2. 有数据：</span></span><br><span class="line">    <span class="comment">//    - 弹出队头</span></span><br><span class="line">    <span class="comment">//    - 调用 memoryManager_-&gt;decreaseMemoryUsage() → 可能唤醒 producer</span></span><br><span class="line">    <span class="comment">//    - 返回 kNotBlocked</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
+<pre><code class="language-cpp">BlockingReason next(ContinueFuture* future, memory::MemoryPool*, RowVectorPtr* data, bool&amp; drained) &#123;
+    // 1. 队列为空：
+    //    - 若所有 producer 已完成 → 返回 finished
+    //    - 否则创建 consumerPromise → 返回 kWaitForProducer
+    // 2. 有数据：
+    //    - 弹出队头
+    //    - 调用 memoryManager_-&gt;decreaseMemoryUsage() → 可能唤醒 producer
+    //    - 返回 kNotBlocked
+&#125;
+</code></pre>
 <p><strong>Producer 生命周期管理</strong>：</p>
-<table>
+<div class="tbl-wrap"><table>
 <thead>
 <tr>
 <th>方法</th>
@@ -613,44 +923,118 @@
 <td>barrier 处理（grouped execution）</td>
 <td><code>drainedProducers_++</code>；全部 drain 后唤醒 consumer</td>
 </tr>
-</tbody></table>
-<h3 id="LocalPartition-算子（Producer，sink）"><a href="#LocalPartition-算子（Producer，sink）" class="headerlink" title="LocalPartition 算子（Producer，sink）"></a>LocalPartition 算子（Producer，sink）</h3><p><strong>构造</strong>：从 task 获取所有分区队列，并对每个队列调用 <code>addProducer()</code>。</p>
+</tbody></table></div>
+<h3 id="localpartition-算子（producer，sink）">LocalPartition 算子（Producer，sink）</h3>
+<p><strong>构造</strong>：从 task 获取所有分区队列，并对每个队列调用 <code>addProducer()</code>。</p>
 <p><strong><code>addInput()</code> 分区逻辑</strong>：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">1. partitionFunction_-&gt;partition(*input, partitions_)</span><br><span class="line">      → partitions_[i] = 第 i 行应去的分区号</span><br><span class="line"></span><br><span class="line">2. 若所有行去同一个分区：直接调用 queue[p]-&gt;enqueue(input)</span><br><span class="line"></span><br><span class="line">3. 若行分散到多个分区：</span><br><span class="line">   a. 统计每分区行数，构建索引数组 rawIndices_[partition]</span><br><span class="line">   b. 根据 singlePartitionBufferSize_ 判断用哪种策略：</span><br><span class="line">      - Buffer 模式（numPartitions 较多）：</span><br><span class="line">          populatePartitionBuffer() 把行 copy 进 partitionBuffers_[p]</span><br><span class="line">          累积到 singlePartitionBufferSize_ * numPartitions 时统一 flush</span><br><span class="line">      - 即时模式（numPartitions 少或 eagerFlush）：</span><br><span class="line">          wrapChildren() 用 dictionary 索引包装列，零拷贝创建 RowVector</span><br><span class="line">          立即 enqueue</span><br></pre></td></tr></table></figure>
+<pre><code>1. partitionFunction_-&gt;partition(*input, partitions_)
+      → partitions_[i] = 第 i 行应去的分区号
 
+2. 若所有行去同一个分区：直接调用 queue[p]-&gt;enqueue(input)
+
+3. 若行分散到多个分区：
+   a. 统计每分区行数，构建索引数组 rawIndices_[partition]
+   b. 根据 singlePartitionBufferSize_ 判断用哪种策略：
+      - Buffer 模式（numPartitions 较多）：
+          populatePartitionBuffer() 把行 copy 进 partitionBuffers_[p]
+          累积到 singlePartitionBufferSize_ * numPartitions 时统一 flush
+      - 即时模式（numPartitions 少或 eagerFlush）：
+          wrapChildren() 用 dictionary 索引包装列，零拷贝创建 RowVector
+          立即 enqueue
+</code></pre>
 <p><strong><code>wrapChildren()</code><strong>：用 dictionary 向量包装输入列，指向原始数据，</strong>零拷贝</strong>。适合分区数少、批次大的场景。</p>
-<p>**<code>copy()</code> &#x2F; <code>populatePartitionBuffer()</code>**：把行物理复制进 <code>partitionBuffers_[p]</code>，适合分区数多（字典开销大）的场景。</p>
+<p>**<code>copy()</code> / <code>populatePartitionBuffer()</code>**：把行物理复制进 <code>partitionBuffers_[p]</code>，适合分区数多（字典开销大）的场景。</p>
 <p><strong>阻塞</strong>：若任意队列 <code>enqueue()</code> 返回 <code>kWaitForConsumer</code>，收集对应 future，在 <code>isBlocked()</code> 时返回，driver 退出线程池。</p>
 <p>**<code>noMoreInput()</code>**：flush 剩余 buffer，对所有队列调用 <code>noMoreData()</code>，通知 consumer 不再有数据。</p>
-<h3 id="LocalExchange-算子（Consumer，source）"><a href="#LocalExchange-算子（Consumer，source）" class="headerlink" title="LocalExchange 算子（Consumer，source）"></a>LocalExchange 算子（Consumer，source）</h3><p><strong>构造</strong>：从 task 获取自己负责的分区队列（<code>partition_ = driverId mod numPartitions</code>）。</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// getOutput()</span></span><br><span class="line">BlockingReason reason = queue_-&gt;<span class="built_in">next</span>(&amp;future_, <span class="built_in">pool</span>(), &amp;data, drained);</span><br><span class="line"><span class="keyword">if</span> (reason != kNotBlocked) &#123;</span><br><span class="line">    blockingReason_ = reason;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">nullptr</span>;    <span class="comment">// driver 将在 isBlocked() 中返回 future_</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">return</span> data;</span><br></pre></td></tr></table></figure>
-
+<h3 id="localexchange-算子（consumer，source）">LocalExchange 算子（Consumer，source）</h3>
+<p><strong>构造</strong>：从 task 获取自己负责的分区队列（<code>partition_ = driverId mod numPartitions</code>）。</p>
+<pre><code class="language-cpp">// getOutput()
+BlockingReason reason = queue_-&gt;next(&amp;future_, pool(), &amp;data, drained);
+if (reason != kNotBlocked) &#123;
+    blockingReason_ = reason;
+    return nullptr;    // driver 将在 isBlocked() 中返回 future_
+&#125;
+return data;
+</code></pre>
 <p><code>isBlocked()</code> 直接返回 <code>blockingReason_</code> 和 <code>future_</code>，无额外逻辑。</p>
 <hr>
-<h2 id="四、Task-间数据交换：Remote-Exchange"><a href="#四、Task-间数据交换：Remote-Exchange" class="headerlink" title="四、Task 间数据交换：Remote Exchange"></a>四、Task 间数据交换：Remote Exchange</h2><p><strong>适用场景</strong>：不同 task 之间（跨 stage），始终走 HTTP，即使两个 task 在同一台物理机上也不例外。</p>
-<h3 id="整体数据流"><a href="#整体数据流" class="headerlink" title="整体数据流"></a>整体数据流</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">Worker A（上游 task）                              Worker B（下游 task）</span><br><span class="line">┌────────────────────────────────┐               ┌──────────────────────────────────────┐</span><br><span class="line">│  PartitionedOutput             │               │  ExchangeNode（SourceOperator）      │</span><br><span class="line">│   ├─ partitionFunction_        │               │   └─ ExchangeClient                  │</span><br><span class="line">│   ├─ Destination[0..N]         │               │       ├─ ExchangeQueue               │</span><br><span class="line">│   │   └─ VectorStreamGroup     │               │       │   └─ SerializedPage deque    │</span><br><span class="line">│   └─ OutputBufferManager       │  HTTP GET     │       └─ ExchangeSource[0..M]        │</span><br><span class="line">│       └─ OutputBuffer          │ ◄──────────── │           └─ PrestoExchangeSource    │</span><br><span class="line">│           └─ DestinationBuffer │               │               (HTTP client)          │</span><br><span class="line">│               [partition 0..N] │               └──────────────────────────────────────┘</span><br><span class="line">└────────────────────────────────┘</span><br></pre></td></tr></table></figure>
-
-<h3 id="上游：PartitionedOutput"><a href="#上游：PartitionedOutput" class="headerlink" title="上游：PartitionedOutput"></a>上游：PartitionedOutput</h3><p><strong><code>addInput()</code> 分区流程</strong>：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1. 估算每行序列化大小（用于 flush 时机判断）</span><br><span class="line">2. partitionFunction_-&gt;partition(*input, partitions_)</span><br><span class="line">3. 将每行的索引分配到 Destination[p].rows_</span><br></pre></td></tr></table></figure>
-
+<h2 id="四、task-间数据交换：remote-exchange">四、Task 间数据交换：Remote Exchange</h2>
+<p><strong>适用场景</strong>：不同 task 之间（跨 stage），始终走 HTTP，即使两个 task 在同一台物理机上也不例外。</p>
+<h3 id="整体数据流">整体数据流</h3>
+<div class="fig">
+  <svg viewBox="0 0 880 360" xmlns="http://www.w3.org/2000/svg" font-family="'DM Mono','Noto Sans Mono CJK SC',monospace">
+  <defs><marker id="ex" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#c1440e"/></marker></defs>
+<rect x="40" y="40" width="360" height="300" rx="0" fill="#f5f0e8" stroke="#d4cdc0"/><rect x="40" y="40" width="360" height="26" rx="0" fill="#1c4fa0" stroke="#1c4fa0"/><text x="54" y="58" font-size="12" fill="#fff" text-anchor="start" font-weight="500">Worker A — 上游 task</text><text x="58" y="92" font-size="12" fill="#0c0e1a" xml:space="preserve">PartitionedOutput</text><text x="58" y="118" font-size="12" fill="#0c0e1a" xml:space="preserve"> ├─ partitionFunction_</text><text x="58" y="144" font-size="12" fill="#0c0e1a" xml:space="preserve"> ├─ Destination[0..N]</text><text x="58" y="170" font-size="12" fill="#0c0e1a" xml:space="preserve"> │    └─ VectorStreamGroup</text><text x="58" y="196" font-size="12" fill="#0c0e1a" xml:space="preserve"> └─ OutputBufferManager</text><text x="58" y="222" font-size="12" fill="#0c0e1a" xml:space="preserve">      └─ OutputBuffer</text><text x="58" y="248" font-size="12" fill="#0c0e1a" xml:space="preserve">           └─ DestinationBuffer</text><text x="58" y="274" font-size="12" fill="#0c0e1a" xml:space="preserve">                [partition 0..N]</text><rect x="480" y="40" width="360" height="300" rx="0" fill="#f5f0e8" stroke="#d4cdc0"/><rect x="480" y="40" width="360" height="26" rx="0" fill="#1a6b3c" stroke="#1a6b3c"/><text x="494" y="58" font-size="12" fill="#fff" text-anchor="start" font-weight="500">Worker B — 下游 task</text><text x="498" y="92" font-size="12" fill="#0c0e1a" xml:space="preserve">ExchangeNode (SourceOperator)</text><text x="498" y="118" font-size="12" fill="#0c0e1a" xml:space="preserve"> └─ ExchangeClient</text><text x="498" y="144" font-size="12" fill="#0c0e1a" xml:space="preserve">      ├─ ExchangeQueue</text><text x="498" y="170" font-size="12" fill="#0c0e1a" xml:space="preserve">      │    └─ SerializedPage deque</text><text x="498" y="196" font-size="12" fill="#0c0e1a" xml:space="preserve">      └─ ExchangeSource[0..M]</text><text x="498" y="222" font-size="12" fill="#0c0e1a" xml:space="preserve">           └─ PrestoExchangeSource</text><text x="498" y="248" font-size="12" fill="#0c0e1a" xml:space="preserve">                (HTTP client)</text><line x1="478" y1="190" x2="402" y2="190" stroke="#5f5e5a" marker-end="url(#ex)"/><text x="440" y="178" font-size="11" fill="#9a3409" text-anchor="middle">HTTP GET</text><text x="440" y="206" font-size="10" fill="#7a7060" text-anchor="middle">(B 拉 A)</text>
+  </svg>
+  <div class="fig-cap"><b>Fig.</b>　上下游 Exchange:下游 ExchangeSource 通过 HTTP GET 拉上游 PartitionedOutput 的分区数据</div>
+</div>
+<h3 id="上游：partitionedoutput">上游：PartitionedOutput</h3>
+<p><strong><code>addInput()</code> 分区流程</strong>：</p>
+<pre><code>1. 估算每行序列化大小（用于 flush 时机判断）
+2. partitionFunction_-&gt;partition(*input, partitions_)
+3. 将每行的索引分配到 Destination[p].rows_
+</code></pre>
 <p><strong><code>getOutput()</code> 序列化 + flush 流程</strong>：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">for each Destination:</span><br><span class="line">    advance():</span><br><span class="line">        收集 rows_ 中的行索引</span><br><span class="line">        用 VectorStreamGroup 序列化（Presto / CompactRow / UnsafeRow 格式）</span><br><span class="line">        累积到 maxPageSize 或行数阈值时 flush()</span><br><span class="line"></span><br><span class="line">flush():</span><br><span class="line">    VectorStreamGroup → IOBufOutputStream → IOBuf chain（Presto Page 格式）</span><br><span class="line">    bufferManager_.enqueue(taskId, partition, page)</span><br><span class="line">        → OutputBuffer::enqueue()</span><br><span class="line">        → DestinationBuffer[p].data_.push_back(page)</span><br><span class="line">        → 若 bufferedBytes_ &gt; maxSize_ → 返回 blocking future（producer 阻塞）</span><br></pre></td></tr></table></figure>
+<pre><code>for each Destination:
+    advance():
+        收集 rows_ 中的行索引
+        用 VectorStreamGroup 序列化（Presto / CompactRow / UnsafeRow 格式）
+        累积到 maxPageSize 或行数阈值时 flush()
 
-<p><strong>随机 flush 阈值</strong>（<code>targetSizePct_</code> &#x3D; 70~120%）：各 Driver 的 flush 时机错开，避免同时写入造成突发压力。</p>
-<h3 id="上游：OutputBuffer-x2F-OutputBufferManager"><a href="#上游：OutputBuffer-x2F-OutputBufferManager" class="headerlink" title="上游：OutputBuffer &#x2F; OutputBufferManager"></a>上游：OutputBuffer &#x2F; OutputBufferManager</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// velox/exec/OutputBuffer.h</span></span><br><span class="line">OutputBuffer &#123;</span><br><span class="line">    std::vector&lt;DestinationBuffer&gt; buffers_;  <span class="comment">// 每个下游分区一个</span></span><br><span class="line">    <span class="type">int64_t</span>  maxSize_;                        <span class="comment">// 总缓冲上限</span></span><br><span class="line">    <span class="type">int64_t</span>  continueSize_;                   <span class="comment">// 恢复阈值（= maxSize_ * 0.9）</span></span><br><span class="line">    <span class="type">int64_t</span>  bufferedBytes_;                  <span class="comment">// 当前已缓冲字节</span></span><br><span class="line">    std::vector&lt;ContinuePromise&gt; promises_;   <span class="comment">// 被阻塞的 producer</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">DestinationBuffer &#123;</span><br><span class="line">    std::deque&lt;SerializedPageBase&gt; data_;     <span class="comment">// 待下游拉取的 pages</span></span><br><span class="line">    <span class="type">int64_t</span> sequence_;                        <span class="comment">// data_[0] 对应的全局序列号</span></span><br><span class="line">    std::function&lt;...&gt; notify_;              <span class="comment">// 有数据时唤醒等待的 HTTP 请求</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+flush():
+    VectorStreamGroup → IOBufOutputStream → IOBuf chain（Presto Page 格式）
+    bufferManager_.enqueue(taskId, partition, page)
+        → OutputBuffer::enqueue()
+        → DestinationBuffer[p].data_.push_back(page)
+        → 若 bufferedBytes_ &gt; maxSize_ → 返回 blocking future（producer 阻塞）
+</code></pre>
+<p><strong>随机 flush 阈值</strong>（<code>targetSizePct_</code> = 70~120%）：各 Driver 的 flush 时机错开，避免同时写入造成突发压力。</p>
+<h3 id="上游：outputbuffer--outputbuffermanager">上游：OutputBuffer / OutputBufferManager</h3>
+<pre><code class="language-cpp">// velox/exec/OutputBuffer.h
+OutputBuffer &#123;
+    std::vector&lt;DestinationBuffer&gt; buffers_;  // 每个下游分区一个
+    int64_t  maxSize_;                        // 总缓冲上限
+    int64_t  continueSize_;                   // 恢复阈值（= maxSize_ * 0.9）
+    int64_t  bufferedBytes_;                  // 当前已缓冲字节
+    std::vector&lt;ContinuePromise&gt; promises_;   // 被阻塞的 producer
+&#125;
 
+DestinationBuffer &#123;
+    std::deque&lt;SerializedPageBase&gt; data_;     // 待下游拉取的 pages
+    int64_t sequence_;                        // data_[0] 对应的全局序列号
+    std::function&lt;...&gt; notify_;              // 有数据时唤醒等待的 HTTP 请求
+&#125;
+</code></pre>
 <p><strong>背压</strong>：<code>bufferedBytes_ &gt; maxSize_</code> 时，<code>enqueue()</code> 返回 <code>ContinueFuture</code>，producer（<code>PartitionedOutput</code>）阻塞。当下游 ACK 消费数据后，<code>bufferedBytes_</code> 降到 <code>continueSize_</code> 以下时 fulfill promises，解除阻塞。</p>
 <p><strong><code>getData()</code> 回调机制</strong>：下游 HTTP GET 到来时若无数据，注册 <code>notify_</code> 回调；有数据入队时回调触发，立即响应 HTTP 请求。</p>
-<h3 id="下游：ExchangeClient"><a href="#下游：ExchangeClient" class="headerlink" title="下游：ExchangeClient"></a>下游：ExchangeClient</h3><p>同一 pipeline 的所有 Driver 共享一个 <code>ExchangeClient</code>，但各自独立从 <code>ExchangeQueue</code> 消费（多消费者）。</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">ExchangeClient &#123;</span><br><span class="line">    ExchangeQueue queue_;                    <span class="comment">// 多 source 入队，多 driver 消费</span></span><br><span class="line">    std::vector&lt;ExchangeSource&gt; sources_;   <span class="comment">// 每个上游 task 一个</span></span><br><span class="line">    <span class="type">int64_t</span> maxQueuedBytes_;               <span class="comment">// 本地缓冲上限（默认 32MB）</span></span><br><span class="line">    <span class="type">int64_t</span> minOutputBatchBytes_;          <span class="comment">// 最小返回批次（防止消费者空跑）</span></span><br><span class="line">    std::deque&lt;ProducingSource&gt; producingSources_;  <span class="comment">// 有剩余数据的 source</span></span><br><span class="line">    std::deque&lt;ExchangeSource*&gt;  emptySources_;     <span class="comment">// 尚未探测数据量的 source</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
+<h3 id="下游：exchangeclient">下游：ExchangeClient</h3>
+<p>同一 pipeline 的所有 Driver 共享一个 <code>ExchangeClient</code>，但各自独立从 <code>ExchangeQueue</code> 消费（多消费者）。</p>
+<pre><code class="language-cpp">ExchangeClient &#123;
+    ExchangeQueue queue_;                    // 多 source 入队，多 driver 消费
+    std::vector&lt;ExchangeSource&gt; sources_;   // 每个上游 task 一个
+    int64_t maxQueuedBytes_;               // 本地缓冲上限（默认 32MB）
+    int64_t minOutputBatchBytes_;          // 最小返回批次（防止消费者空跑）
+    std::deque&lt;ProducingSource&gt; producingSources_;  // 有剩余数据的 source
+    std::deque&lt;ExchangeSource*&gt;  emptySources_;     // 尚未探测数据量的 source
+&#125;
+</code></pre>
 <p>**<code>addRemoteTaskId()</code>**：为每个上游 task 创建一个 <code>ExchangeSource</code>，加入 <code>emptySources_</code> 队列，启动首次数据量探测请求。</p>
 <p>**<code>next(consumerId, maxBytes)</code>**（由 ExchangeNode.isBlocked() 调用）：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">1. queue_-&gt;dequeueLocked(maxBytes) → 若有足够数据立即返回</span><br><span class="line">2. 若数据不足：pickSourcesToRequestLocked()</span><br><span class="line">   a. 对 emptySources_ 中的 source 发 requestDataSizes()（HEAD 请求，探测剩余量）</span><br><span class="line">   b. 按剩余容量（maxQueuedBytes_ - queue_.totalBytes() - totalPendingBytes_）</span><br><span class="line">      分配请求量给 producingSources_</span><br><span class="line">   c. 特殊处理：若单个 page 超过容量上限，强制发一次请求防止死锁</span><br></pre></td></tr></table></figure>
-
+<pre><code>1. queue_-&gt;dequeueLocked(maxBytes) → 若有足够数据立即返回
+2. 若数据不足：pickSourcesToRequestLocked()
+   a. 对 emptySources_ 中的 source 发 requestDataSizes()（HEAD 请求，探测剩余量）
+   b. 按剩余容量（maxQueuedBytes_ - queue_.totalBytes() - totalPendingBytes_）
+      分配请求量给 producingSources_
+   c. 特殊处理：若单个 page 超过容量上限，强制发一次请求防止死锁
+</code></pre>
 <p>**<code>ExchangeQueue</code>**：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">ExchangeQueue &#123;</span><br><span class="line">    std::deque&lt;SerializedPageBase&gt; queue_;</span><br><span class="line">    <span class="type">int64_t</span> totalBytes_;</span><br><span class="line">    <span class="type">int64_t</span> minOutputBatchBytes_;        <span class="comment">// 消费者唤醒阈值</span></span><br><span class="line">    std::map&lt;<span class="type">int</span>, ContinuePromise&gt; promises_;  <span class="comment">// consumerId → promise</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
+<pre><code class="language-cpp">ExchangeQueue &#123;
+    std::deque&lt;SerializedPageBase&gt; queue_;
+    int64_t totalBytes_;
+    int64_t minOutputBatchBytes_;        // 消费者唤醒阈值
+    std::map&lt;int, ContinuePromise&gt; promises_;  // consumerId → promise
+&#125;
+</code></pre>
 <p>**<code>enqueueLocked()</code>**（ExchangeSource 收到数据后调用）：</p>
 <ul>
 <li><code>nullptr</code> 入队表示某个 source 数据结束</li>
@@ -658,25 +1042,72 @@
 <li><code>minOutputBatchBytes_</code> 自适应：<code>min(配置值, 已接收总量 / 100)</code>，防止小流量场景下消费者频繁空唤醒</li>
 </ul>
 <p>**<code>dequeueLocked(maxBytes)</code>**：取出页面直到达到 maxBytes 或队列耗尽；数据不足时返回 <code>ContinueFuture</code>（消费者 driver 阻塞）。</p>
-<h3 id="下游：ExchangeSource-抽象接口"><a href="#下游：ExchangeSource-抽象接口" class="headerlink" title="下游：ExchangeSource 抽象接口"></a>下游：ExchangeSource 抽象接口</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// velox/exec/ExchangeSource.h</span></span><br><span class="line">ExchangeSource &#123;</span><br><span class="line">    std::string remoteTaskId_;</span><br><span class="line">    <span class="type">int</span>         destination_;       <span class="comment">// 拉取上游哪个分区</span></span><br><span class="line">    ExchangeQueue* queue_;</span><br><span class="line">    <span class="type">int64_t</span>     sequence_;          <span class="comment">// 下次请求的序列号（可靠传输）</span></span><br><span class="line">    <span class="type">bool</span>        requestPending_;    <span class="comment">// 防止并发发起重复请求</span></span><br><span class="line">    <span class="type">bool</span>        atEnd_;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">virtual</span> Response <span class="title">request</span><span class="params">(<span class="type">uint32_t</span> maxBytes, <span class="type">uint32_t</span> maxWaitMs)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">requestDataSizes</span><span class="params">(<span class="type">uint32_t</span> maxWaitMs)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">pause</span><span class="params">()</span></span>;    <span class="comment">// 提示暂停（队列满时）</span></span><br><span class="line"><span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">close</span><span class="params">()</span></span>;</span><br></pre></td></tr></table></figure>
+<h3 id="下游：exchangesource-抽象接口">下游：ExchangeSource 抽象接口</h3>
+<pre><code class="language-cpp">// velox/exec/ExchangeSource.h
+ExchangeSource &#123;
+    std::string remoteTaskId_;
+    int         destination_;       // 拉取上游哪个分区
+    ExchangeQueue* queue_;
+    int64_t     sequence_;          // 下次请求的序列号（可靠传输）
+    bool        requestPending_;    // 防止并发发起重复请求
+    bool        atEnd_;
+&#125;
 
+virtual Response request(uint32_t maxBytes, uint32_t maxWaitMs);
+virtual void requestDataSizes(uint32_t maxWaitMs);
+virtual void pause();    // 提示暂停（队列满时）
+virtual void close();
+</code></pre>
 <p><code>Response</code> 含：</p>
 <ul>
 <li><code>bytes</code>：本次响应数据量</li>
 <li><code>atEnd</code>：source 是否已全部传完</li>
 <li><code>remainingBytes</code>：上游 DestinationBuffer 中各 page 的剩余大小列表（用于 ExchangeClient 调度决策）</li>
 </ul>
-<h3 id="下游：PrestoExchangeSource（HTTP-实现）"><a href="#下游：PrestoExchangeSource（HTTP-实现）" class="headerlink" title="下游：PrestoExchangeSource（HTTP 实现）"></a>下游：PrestoExchangeSource（HTTP 实现）</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">shouldRequestLocked() → true（无 pending 请求且未 atEnd）</span><br><span class="line">    ↓</span><br><span class="line">request(maxBytes, maxWaitMs)</span><br><span class="line">    ↓</span><br><span class="line">doRequest(sequence_, maxBytes, maxWaitMs)</span><br><span class="line">    HTTP GET /v1/task/&#123;remoteTaskId&#125;/results/&#123;destination&#125;/&#123;sequence_&#125;</span><br><span class="line">    Headers: X-Presto-Max-Size: maxBytes</span><br><span class="line">             X-Presto-Max-Wait: maxWaitMs</span><br><span class="line">    ↓</span><br><span class="line">processDataResponse(response)</span><br><span class="line">    读 response headers:</span><br><span class="line">        X-Presto-Page-Next-Token        → 更新 sequence_（下次请求用）</span><br><span class="line">        X-Presto-Buffer-Complete        → 若 true，入队 nullptr（end marker）</span><br><span class="line">        X-Presto-Buffer-Remaining-Bytes → remainingBytes（返回给 ExchangeClient）</span><br><span class="line">    IOBuf chain → SerializedPage → queue_-&gt;enqueueLocked()</span><br><span class="line">    fulfill 请求 promise → ExchangeClient 调度下一批请求</span><br></pre></td></tr></table></figure>
-
+<h3 id="下游：prestoexchangesource（http-实现）">下游：PrestoExchangeSource（HTTP 实现）</h3>
+<pre><code>shouldRequestLocked() → true（无 pending 请求且未 atEnd）
+    ↓
+request(maxBytes, maxWaitMs)
+    ↓
+doRequest(sequence_, maxBytes, maxWaitMs)
+    HTTP GET /v1/task/&#123;remoteTaskId&#125;/results/&#123;destination&#125;/&#123;sequence_&#125;
+    Headers: X-Presto-Max-Size: maxBytes
+             X-Presto-Max-Wait: maxWaitMs
+    ↓
+processDataResponse(response)
+    读 response headers:
+        X-Presto-Page-Next-Token        → 更新 sequence_（下次请求用）
+        X-Presto-Buffer-Complete        → 若 true，入队 nullptr（end marker）
+        X-Presto-Buffer-Remaining-Bytes → remainingBytes（返回给 ExchangeClient）
+    IOBuf chain → SerializedPage → queue_-&gt;enqueueLocked()
+    fulfill 请求 promise → ExchangeClient 调度下一批请求
+</code></pre>
 <p><strong>重试</strong>：网络失败时指数退避（100ms → 10s，带 jitter），超过 <code>exchangeMaxErrorDuration</code> 后 <code>queue_-&gt;setError()</code>，task 报错。</p>
-<h3 id="下游：Exchange-算子"><a href="#下游：Exchange-算子" class="headerlink" title="下游：Exchange 算子"></a>下游：Exchange 算子</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// isBlocked()：</span></span><br><span class="line"><span class="comment">// 1. 若 currentPages_ 有数据 → kNotBlocked</span></span><br><span class="line"><span class="comment">// 2. getSplits() 获取上游 task ID → 调用 client_-&gt;addRemoteTaskId()</span></span><br><span class="line"><span class="comment">// 3. client_-&gt;next() → 若无数据返回 kWaitForProducer + future</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// getOutput()：</span></span><br><span class="line"><span class="comment">// 根据 serdeKind_ 分发：</span></span><br><span class="line"><span class="comment">//   columnar（Presto）: getOutputFromColumnarPages()</span></span><br><span class="line"><span class="comment">//   row（CompactRow/UnsafeRow）: getOutputFromRowPages()</span></span><br></pre></td></tr></table></figure>
+<h3 id="下游：exchange-算子">下游：Exchange 算子</h3>
+<pre><code class="language-cpp">// isBlocked()：
+// 1. 若 currentPages_ 有数据 → kNotBlocked
+// 2. getSplits() 获取上游 task ID → 调用 client_-&gt;addRemoteTaskId()
+// 3. client_-&gt;next() → 若无数据返回 kWaitForProducer + future
 
+// getOutput()：
+// 根据 serdeKind_ 分发：
+//   columnar（Presto）: getOutputFromColumnarPages()
+//   row（CompactRow/UnsafeRow）: getOutputFromRowPages()
+</code></pre>
 <p>**<code>getOutputFromColumnarPages()</code>**：用 <code>VectorSerde::deserialize()</code> 增量反序列化，每次读满 <code>preferredOutputBatchBytes_</code> 后返回，跨 <code>currentPages_</code> 中多个 page 累积。</p>
 <p>**<code>getOutputFromRowPages()</code>**：先 <code>mergePages()</code> 把多个 page 合并成连续 IOBuf，再用 row iterator 批量反序列化。</p>
-<h3 id="序列号机制（可靠传输）"><a href="#序列号机制（可靠传输）" class="headerlink" title="序列号机制（可靠传输）"></a>序列号机制（可靠传输）</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">ExchangeSource.sequence_  →  HTTP GET .../results/&#123;partition&#125;/&#123;sequence&#125;</span><br><span class="line">                              ↓</span><br><span class="line">上游 DestinationBuffer[partition].sequence_  →  data_[0] 的全局编号</span><br><span class="line">（验证请求序列号是否与当前可用数据对齐）</span><br><span class="line">                              ↓</span><br><span class="line">响应 header X-Presto-Page-Next-Token  →  下次请求的 sequence</span><br><span class="line">（ExchangeSource 更新 sequence_ 用于下次请求）</span><br></pre></td></tr></table></figure>
-
+<h3 id="序列号机制（可靠传输）">序列号机制（可靠传输）</h3>
+<pre><code>ExchangeSource.sequence_  →  HTTP GET .../results/&#123;partition&#125;/&#123;sequence&#125;
+                              ↓
+上游 DestinationBuffer[partition].sequence_  →  data_[0] 的全局编号
+（验证请求序列号是否与当前可用数据对齐）
+                              ↓
+响应 header X-Presto-Page-Next-Token  →  下次请求的 sequence
+（ExchangeSource 更新 sequence_ 用于下次请求）
+</code></pre>
 <p><strong>ACK</strong>：<code>GET .../results/&#123;partition&#125;/&#123;sequence&#125;/acknowledge</code> → <code>OutputBuffer::acknowledge()</code> → 删除 <code>sequence</code> 之前的所有 pages，释放内存。</p>
-<h3 id="流控总结"><a href="#流控总结" class="headerlink" title="流控总结"></a>流控总结</h3><table>
+<h3 id="流控总结">流控总结</h3>
+<div class="tbl-wrap"><table>
 <thead>
 <tr>
 <th>层级</th>
@@ -696,28 +1127,53 @@
 </tr>
 <tr>
 <td>ExchangeClient 请求调度</td>
-<td><code>maxQueuedBytes_ - totalBytes_ - pendingBytes</code> &#x3D; 可发请求量</td>
+<td><code>maxQueuedBytes_ - totalBytes_ - pendingBytes</code> = 可发请求量</td>
 <td>动态计算</td>
 </tr>
 <tr>
 <td>消费者唤醒阈值</td>
 <td><code>minOutputBatchBytes_</code> 防止小批次频繁唤醒</td>
-<td>自适应（已收量 &#x2F; 100）</td>
+<td>自适应（已收量 / 100）</td>
 </tr>
-</tbody></table>
+</tbody></table></div>
 <hr>
-<h2 id="五、内存管理"><a href="#五、内存管理" class="headerlink" title="五、内存管理"></a>五、内存管理</h2><p>内存池形成层级树，每层独立追踪和回收：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">QueryCtx::MemoryPool（query 级，所有 task 共享上限）</span><br><span class="line">└── Task::MemoryPool（task 级）</span><br><span class="line">    ├── Operator pools（每个 operator 实例独立池）</span><br><span class="line">    ├── ExchangeClient pool（每条 pipeline 一个）</span><br><span class="line">    └── LocalExchange pool</span><br></pre></td></tr></table></figure>
-
+<h2 id="五、内存管理">五、内存管理</h2>
+<p>内存池形成层级树，每层独立追踪和回收：</p>
+<pre><code>QueryCtx::MemoryPool（query 级，所有 task 共享上限）
+└── Task::MemoryPool（task 级）
+    ├── Operator pools（每个 operator 实例独立池）
+    ├── ExchangeClient pool（每条 pipeline 一个）
+    └── LocalExchange pool
+</code></pre>
 <ul>
 <li><code>Task::MemoryReclaimer</code> 在内存压力下触发 spill（HashAggregation、HashJoin 等支持 spill 的算子）</li>
 <li>Operator 通过 <code>addOperatorPool(planNodeId, splitGroupId, pipelineId, driverId)</code> 在构造时申请子池</li>
 </ul>
 <hr>
-<h2 id="六、完整端到端数据流"><a href="#六、完整端到端数据流" class="headerlink" title="六、完整端到端数据流"></a>六、完整端到端数据流</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">Coordinator</span><br><span class="line">    │</span><br><span class="line">    ├── POST /v1/task/A0  →  Worker A  (Stage 0: TableScan → HashBuild → PartitionedOutput)</span><br><span class="line">    │   splits: [file0, file1, file2, ...]</span><br><span class="line">    │</span><br><span class="line">    ├── POST /v1/task/B1  →  Worker B  (Stage 1: Exchange → HashProbe → Agg → PartitionedOutput)</span><br><span class="line">    │</span><br><span class="line">    └── POST /v1/task/C2  →  Worker C  (Stage 2: Exchange → FinalAgg → PartitionedOutput)</span><br><span class="line"></span><br><span class="line">执行时序:</span><br><span class="line">Worker A: TableScan(splits) → HashBuild → PartitionedOutput → OutputBuffer[0..N]</span><br><span class="line">                                                                      ↑ HTTP GET</span><br><span class="line">Worker B: PrestoExchangeSource ────────────────────────────────────────┘</span><br><span class="line">          ExchangeNode → HashProbe → Agg → PartitionedOutput → OutputBuffer</span><br><span class="line">                                                                      ↑ HTTP GET</span><br><span class="line">Worker C: PrestoExchangeSource ────────────────────────────────────────┘</span><br><span class="line">          ExchangeNode → FinalAgg → PartitionedOutput → OutputBuffer</span><br><span class="line">                                                              ↑ HTTP GET (coordinator 拉结果)</span><br><span class="line">Coordinator: GET /v1/task/C2/results/0/0</span><br></pre></td></tr></table></figure>
+<h2 id="六、完整端到端数据流">六、完整端到端数据流</h2>
+<pre><code>Coordinator
+    │
+    ├── POST /v1/task/A0  →  Worker A  (Stage 0: TableScan → HashBuild → PartitionedOutput)
+    │   splits: [file0, file1, file2, ...]
+    │
+    ├── POST /v1/task/B1  →  Worker B  (Stage 1: Exchange → HashProbe → Agg → PartitionedOutput)
+    │
+    └── POST /v1/task/C2  →  Worker C  (Stage 2: Exchange → FinalAgg → PartitionedOutput)
 
+执行时序:
+Worker A: TableScan(splits) → HashBuild → PartitionedOutput → OutputBuffer[0..N]
+                                                                      ↑ HTTP GET
+Worker B: PrestoExchangeSource ────────────────────────────────────────┘
+          ExchangeNode → HashProbe → Agg → PartitionedOutput → OutputBuffer
+                                                                      ↑ HTTP GET
+Worker C: PrestoExchangeSource ────────────────────────────────────────┘
+          ExchangeNode → FinalAgg → PartitionedOutput → OutputBuffer
+                                                              ↑ HTTP GET (coordinator 拉结果)
+Coordinator: GET /v1/task/C2/results/0/0
+</code></pre>
 <hr>
-<h2 id="七、关键代码位置"><a href="#七、关键代码位置" class="headerlink" title="七、关键代码位置"></a>七、关键代码位置</h2><table>
+<h2 id="七、关键代码位置">七、关键代码位置</h2>
+<div class="tbl-wrap"><table>
 <thead>
 <tr>
 <th>组件</th>
@@ -749,7 +1205,7 @@
 <td><code>velox/exec/Operator.h</code></td>
 </tr>
 <tr>
-<td>LocalPartition&#x2F;LocalExchange</td>
+<td>LocalPartition/LocalExchange</td>
 <td><code>velox/exec/LocalPartition.h</code>, <code>velox/exec/LocalPartition.cpp</code></td>
 </tr>
 <tr>
@@ -773,10 +1229,22 @@
 <td><code>velox/exec/PartitionedOutput.h</code>, <code>velox/exec/PartitionedOutput.cpp</code></td>
 </tr>
 <tr>
-<td>OutputBuffer &#x2F; Manager</td>
+<td>OutputBuffer / Manager</td>
 <td><code>velox/exec/OutputBuffer.h/cpp</code>, <code>velox/exec/OutputBufferManager.h/cpp</code></td>
 </tr>
-</tbody></table>
+</tbody></table></div>
+
+  </article>
+  <footer class="colophon">
+    <b>Velox Query In the Presto Worker</b><br>
+    #Velox　#QueryExecution　·　2024-07-30
+  </footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>document.querySelectorAll('.post-body pre code[class*="language-"]').forEach(function(el){try{hljs.highlightElement(el);}catch(e){}});</script>
+</body>
+</html>
 
   </div>
 </article>
@@ -804,7 +1272,7 @@
     </div>
 
     <div id="toc-footer" style="display: none">
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%9B%B6%E3%80%81Query-%E5%A6%82%E4%BD%95%E5%B9%B6%E8%A1%8C%E6%89%A7%E8%A1%8C"><span class="toc-number">1.</span> <span class="toc-text">零、Query 如何并行执行</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-Stage-%E7%BA%A7%EF%BC%9Aquery-%E5%88%87%E6%88%90%E5%A4%9A%E4%B8%AA-plan-fragment"><span class="toc-number">1.1.</span> <span class="toc-text">1. Stage 级：query 切成多个 plan fragment</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-Task-%E7%BA%A7%EF%BC%9A%E6%AF%8F%E4%B8%AA-stage-%E5%88%86%E5%8F%91%E5%88%B0%E5%A4%9A%E4%B8%AA-worker"><span class="toc-number">1.2.</span> <span class="toc-text">2. Task 级：每个 stage 分发到多个 worker</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-Driver-%E7%BA%A7%EF%BC%9A%E6%AF%8F%E4%B8%AA-task-%E5%86%85%E7%9A%84%E5%B9%B6%E8%A1%8C%E9%9D%A0-driver"><span class="toc-number">1.3.</span> <span class="toc-text">3. Driver 级：每个 task 内的并行靠 driver</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Splits-%E4%B8%8E-plan-fragment-%E5%88%86%E5%BC%80%E4%BC%A0%E8%BE%93"><span class="toc-number">1.4.</span> <span class="toc-text">Splits 与 plan fragment 分开传输</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B9%B6%E8%A1%8C%E5%BA%A6%E5%B0%8F%E7%BB%93"><span class="toc-number">1.5.</span> <span class="toc-text">并行度小结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%9B%B6%E4%B9%8B%E4%BA%8C%E3%80%81Split-%E5%88%86%E5%8F%91%E4%B8%8E%E6%B6%88%E8%B4%B9%E6%9C%BA%E5%88%B6"><span class="toc-number">2.</span> <span class="toc-text">零之二、Split 分发与消费机制</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%A8%E9%93%BE%E8%B7%AF%E6%A6%82%E8%A7%88"><span class="toc-number">2.1.</span> <span class="toc-text">全链路概览</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC-1-%E6%AD%A5%EF%BC%9AWorker-%E6%8E%A5%E6%94%B6%E4%B8%8E%E8%BD%AC%E6%8D%A2"><span class="toc-number">2.2.</span> <span class="toc-text">第 1 步：Worker 接收与转换</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC-2-%E6%AD%A5%EF%BC%9AaddSplitWithSequence-%E2%80%94%E2%80%94-%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81-sequence"><span class="toc-number">2.3.</span> <span class="toc-text">第 2 步：addSplitWithSequence —— 为什么需要 sequence</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC-3-%E6%AD%A5%EF%BC%9AVelox-%E4%BE%A7-split-%E9%98%9F%E5%88%97%E7%BB%93%E6%9E%84"><span class="toc-number">2.4.</span> <span class="toc-text">第 3 步：Velox 侧 split 队列结构</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E6%8B%86%E6%88%90-SplitsState-x2F-SplitsStore-%E4%B8%A4%E5%B1%82"><span class="toc-number">2.4.1.</span> <span class="toc-text">为什么拆成 SplitsState &#x2F; SplitsStore 两层</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%9D%9E-grouped-%E6%89%A7%E8%A1%8C%EF%BC%88ungrouped%EF%BC%89%E9%95%BF%E4%BB%80%E4%B9%88%E6%A0%B7"><span class="toc-number">2.4.2.</span> <span class="toc-text">非 grouped 执行（ungrouped）长什么样</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC-4-%E6%AD%A5%EF%BC%9ASource-operator-%E9%A2%86%E5%8F%96-split"><span class="toc-number">2.5.</span> <span class="toc-text">第 4 步：Source operator 领取 split</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC-5-%E6%AD%A5%EF%BC%9AnoMoreSplits-%E7%9A%84%E4%B8%A4%E4%B8%AA%E5%B1%82%E7%BA%A7-%E5%BB%B6%E8%BF%9F%E5%A4%84%E7%90%86"><span class="toc-number">2.6.</span> <span class="toc-text">第 5 步：noMoreSplits 的两个层级 + 延迟处理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC-6-%E6%AD%A5%EF%BC%9ASplit-group%EF%BC%88bucketed-x2F-grouped-%E6%89%A7%E8%A1%8C%EF%BC%89"><span class="toc-number">2.7.</span> <span class="toc-text">第 6 步：Split group（bucketed&#x2F;grouped 执行）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Split-%E5%88%86%E5%8F%91%E5%85%B3%E9%94%AE%E4%BB%A3%E7%A0%81%E4%BD%8D%E7%BD%AE"><span class="toc-number">2.8.</span> <span class="toc-text">Split 分发关键代码位置</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B1%82%E7%BA%A7%E7%BB%93%E6%9E%84%E6%80%BB%E8%A7%88"><span class="toc-number">3.</span> <span class="toc-text">层级结构总览</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81Worker-%E6%8E%A5%E6%94%B6%E6%9F%A5%E8%AF%A2%EF%BC%9AHTTP-%E2%86%92-Velox-Task"><span class="toc-number">4.</span> <span class="toc-text">一、Worker 接收查询：HTTP → Velox Task</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#HTTP-%E7%AB%AF%E7%82%B9%EF%BC%88TaskResource%EF%BC%89"><span class="toc-number">4.1.</span> <span class="toc-text">HTTP 端点（TaskResource）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Plan-Fragment-%E8%BD%AC%E6%8D%A2%EF%BC%88PrestoToVeloxQueryPlan%EF%BC%89"><span class="toc-number">4.2.</span> <span class="toc-text">Plan Fragment 转换（PrestoToVeloxQueryPlan）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Task-%E5%88%9B%E5%BB%BA%E6%B5%81%E7%A8%8B%EF%BC%88TaskManager%EF%BC%89"><span class="toc-number">4.3.</span> <span class="toc-text">Task 创建流程（TaskManager）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81Task-%E5%86%85%E9%83%A8%EF%BC%9APipeline-%C3%97-Driver-%C3%97-Operator"><span class="toc-number">5.</span> <span class="toc-text">二、Task 内部：Pipeline × Driver × Operator</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Task-%E5%86%85%E7%BB%93%E6%9E%84"><span class="toc-number">5.1.</span> <span class="toc-text">Task 内结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Driver-%E6%89%A7%E8%A1%8C%E5%BE%AA%E7%8E%AF%EF%BC%88Driver-runInternal%EF%BC%89"><span class="toc-number">5.2.</span> <span class="toc-text">Driver 执行循环（Driver::runInternal）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%98%BB%E5%A1%9E%E4%B8%8E%E8%B0%83%E5%BA%A6"><span class="toc-number">5.3.</span> <span class="toc-text">阻塞与调度</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Pipeline-%E9%97%B4%E5%90%8C%E6%AD%A5%EF%BC%9AHashJoinBridge"><span class="toc-number">5.4.</span> <span class="toc-text">Pipeline 间同步：HashJoinBridge</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81Task-%E5%86%85%E6%95%B0%E6%8D%AE%E4%BA%A4%E6%8D%A2%EF%BC%9ALocalPartition-x2F-LocalExchange"><span class="toc-number">6.</span> <span class="toc-text">三、Task 内数据交换：LocalPartition &#x2F; LocalExchange</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%B4%E4%BD%93%E7%BB%93%E6%9E%84"><span class="toc-number">6.1.</span> <span class="toc-text">整体结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#LocalExchangeMemoryManager"><span class="toc-number">6.2.</span> <span class="toc-text">LocalExchangeMemoryManager</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#LocalExchangeQueue"><span class="toc-number">6.3.</span> <span class="toc-text">LocalExchangeQueue</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#LocalPartition-%E7%AE%97%E5%AD%90%EF%BC%88Producer%EF%BC%8Csink%EF%BC%89"><span class="toc-number">6.4.</span> <span class="toc-text">LocalPartition 算子（Producer，sink）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#LocalExchange-%E7%AE%97%E5%AD%90%EF%BC%88Consumer%EF%BC%8Csource%EF%BC%89"><span class="toc-number">6.5.</span> <span class="toc-text">LocalExchange 算子（Consumer，source）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81Task-%E9%97%B4%E6%95%B0%E6%8D%AE%E4%BA%A4%E6%8D%A2%EF%BC%9ARemote-Exchange"><span class="toc-number">7.</span> <span class="toc-text">四、Task 间数据交换：Remote Exchange</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%B4%E4%BD%93%E6%95%B0%E6%8D%AE%E6%B5%81"><span class="toc-number">7.1.</span> <span class="toc-text">整体数据流</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8A%E6%B8%B8%EF%BC%9APartitionedOutput"><span class="toc-number">7.2.</span> <span class="toc-text">上游：PartitionedOutput</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8A%E6%B8%B8%EF%BC%9AOutputBuffer-x2F-OutputBufferManager"><span class="toc-number">7.3.</span> <span class="toc-text">上游：OutputBuffer &#x2F; OutputBufferManager</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8B%E6%B8%B8%EF%BC%9AExchangeClient"><span class="toc-number">7.4.</span> <span class="toc-text">下游：ExchangeClient</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8B%E6%B8%B8%EF%BC%9AExchangeSource-%E6%8A%BD%E8%B1%A1%E6%8E%A5%E5%8F%A3"><span class="toc-number">7.5.</span> <span class="toc-text">下游：ExchangeSource 抽象接口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8B%E6%B8%B8%EF%BC%9APrestoExchangeSource%EF%BC%88HTTP-%E5%AE%9E%E7%8E%B0%EF%BC%89"><span class="toc-number">7.6.</span> <span class="toc-text">下游：PrestoExchangeSource（HTTP 实现）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8B%E6%B8%B8%EF%BC%9AExchange-%E7%AE%97%E5%AD%90"><span class="toc-number">7.7.</span> <span class="toc-text">下游：Exchange 算子</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BA%8F%E5%88%97%E5%8F%B7%E6%9C%BA%E5%88%B6%EF%BC%88%E5%8F%AF%E9%9D%A0%E4%BC%A0%E8%BE%93%EF%BC%89"><span class="toc-number">7.8.</span> <span class="toc-text">序列号机制（可靠传输）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B5%81%E6%8E%A7%E6%80%BB%E7%BB%93"><span class="toc-number">7.9.</span> <span class="toc-text">流控总结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86"><span class="toc-number">8.</span> <span class="toc-text">五、内存管理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E5%AE%8C%E6%95%B4%E7%AB%AF%E5%88%B0%E7%AB%AF%E6%95%B0%E6%8D%AE%E6%B5%81"><span class="toc-number">9.</span> <span class="toc-text">六、完整端到端数据流</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E5%85%B3%E9%94%AE%E4%BB%A3%E7%A0%81%E4%BD%8D%E7%BD%AE"><span class="toc-number">10.</span> <span class="toc-text">七、关键代码位置</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">Velox Query In the Presto Worker</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%9B%B6%E3%80%81query-%E5%A6%82%E4%BD%95%E5%B9%B6%E8%A1%8C%E6%89%A7%E8%A1%8C"><span class="toc-number">1.1.</span> <span class="toc-text">零、Query 如何并行执行</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-stage-%E7%BA%A7%EF%BC%9Aquery-%E5%88%87%E6%88%90%E5%A4%9A%E4%B8%AA-plan-fragment"><span class="toc-number">1.1.1.</span> <span class="toc-text">1. Stage 级：query 切成多个 plan fragment</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-task-%E7%BA%A7%EF%BC%9A%E6%AF%8F%E4%B8%AA-stage-%E5%88%86%E5%8F%91%E5%88%B0%E5%A4%9A%E4%B8%AA-worker"><span class="toc-number">1.1.2.</span> <span class="toc-text">2. Task 级：每个 stage 分发到多个 worker</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-driver-%E7%BA%A7%EF%BC%9A%E6%AF%8F%E4%B8%AA-task-%E5%86%85%E7%9A%84%E5%B9%B6%E8%A1%8C%E9%9D%A0-driver"><span class="toc-number">1.1.3.</span> <span class="toc-text">3. Driver 级：每个 task 内的并行靠 driver</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#splits-%E4%B8%8E-plan-fragment-%E5%88%86%E5%BC%80%E4%BC%A0%E8%BE%93"><span class="toc-number">1.1.4.</span> <span class="toc-text">Splits 与 plan fragment 分开传输</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B9%B6%E8%A1%8C%E5%BA%A6%E5%B0%8F%E7%BB%93"><span class="toc-number">1.1.5.</span> <span class="toc-text">并行度小结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%9B%B6%E4%B9%8B%E4%BA%8C%E3%80%81split-%E5%88%86%E5%8F%91%E4%B8%8E%E6%B6%88%E8%B4%B9%E6%9C%BA%E5%88%B6"><span class="toc-number">1.2.</span> <span class="toc-text">零之二、Split 分发与消费机制</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%A8%E9%93%BE%E8%B7%AF%E6%A6%82%E8%A7%88"><span class="toc-number">1.2.1.</span> <span class="toc-text">全链路概览</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC-1-%E6%AD%A5%EF%BC%9Aworker-%E6%8E%A5%E6%94%B6%E4%B8%8E%E8%BD%AC%E6%8D%A2"><span class="toc-number">1.2.2.</span> <span class="toc-text">第 1 步：Worker 接收与转换</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC-2-%E6%AD%A5%EF%BC%9Aaddsplitwithsequence--%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81-sequence"><span class="toc-number">1.2.3.</span> <span class="toc-text">第 2 步：addSplitWithSequence —— 为什么需要 sequence</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC-3-%E6%AD%A5%EF%BC%9Avelox-%E4%BE%A7-split-%E9%98%9F%E5%88%97%E7%BB%93%E6%9E%84"><span class="toc-number">1.2.4.</span> <span class="toc-text">第 3 步：Velox 侧 split 队列结构</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E6%8B%86%E6%88%90-splitsstate--splitsstore-%E4%B8%A4%E5%B1%82"><span class="toc-number">1.2.4.1.</span> <span class="toc-text">为什么拆成 SplitsState &#x2F; SplitsStore 两层</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%9D%9E-grouped-%E6%89%A7%E8%A1%8C%EF%BC%88ungrouped%EF%BC%89%E9%95%BF%E4%BB%80%E4%B9%88%E6%A0%B7"><span class="toc-number">1.2.4.2.</span> <span class="toc-text">非 grouped 执行（ungrouped）长什么样</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC-4-%E6%AD%A5%EF%BC%9Asource-operator-%E9%A2%86%E5%8F%96-split"><span class="toc-number">1.2.5.</span> <span class="toc-text">第 4 步：Source operator 领取 split</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC-5-%E6%AD%A5%EF%BC%9Anomoresplits-%E7%9A%84%E4%B8%A4%E4%B8%AA%E5%B1%82%E7%BA%A7--%E5%BB%B6%E8%BF%9F%E5%A4%84%E7%90%86"><span class="toc-number">1.2.6.</span> <span class="toc-text">第 5 步：noMoreSplits 的两个层级 + 延迟处理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC-6-%E6%AD%A5%EF%BC%9Asplit-group%EF%BC%88bucketedgrouped-%E6%89%A7%E8%A1%8C%EF%BC%89"><span class="toc-number">1.2.7.</span> <span class="toc-text">第 6 步：Split group（bucketed&#x2F;grouped 执行）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#split-%E5%88%86%E5%8F%91%E5%85%B3%E9%94%AE%E4%BB%A3%E7%A0%81%E4%BD%8D%E7%BD%AE"><span class="toc-number">1.2.8.</span> <span class="toc-text">Split 分发关键代码位置</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B1%82%E7%BA%A7%E7%BB%93%E6%9E%84%E6%80%BB%E8%A7%88"><span class="toc-number">1.3.</span> <span class="toc-text">层级结构总览</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81worker-%E6%8E%A5%E6%94%B6%E6%9F%A5%E8%AF%A2%EF%BC%9Ahttp-%E2%86%92-velox-task"><span class="toc-number">1.4.</span> <span class="toc-text">一、Worker 接收查询：HTTP → Velox Task</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#http-%E7%AB%AF%E7%82%B9%EF%BC%88taskresource%EF%BC%89"><span class="toc-number">1.4.1.</span> <span class="toc-text">HTTP 端点（TaskResource）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#plan-fragment-%E8%BD%AC%E6%8D%A2%EF%BC%88prestotoveloxqueryplan%EF%BC%89"><span class="toc-number">1.4.2.</span> <span class="toc-text">Plan Fragment 转换（PrestoToVeloxQueryPlan）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#task-%E5%88%9B%E5%BB%BA%E6%B5%81%E7%A8%8B%EF%BC%88taskmanager%EF%BC%89"><span class="toc-number">1.4.3.</span> <span class="toc-text">Task 创建流程（TaskManager）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81task-%E5%86%85%E9%83%A8%EF%BC%9Apipeline-%C3%97-driver-%C3%97-operator"><span class="toc-number">1.5.</span> <span class="toc-text">二、Task 内部：Pipeline × Driver × Operator</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#task-%E5%86%85%E7%BB%93%E6%9E%84"><span class="toc-number">1.5.1.</span> <span class="toc-text">Task 内结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#driver-%E6%89%A7%E8%A1%8C%E5%BE%AA%E7%8E%AF%EF%BC%88driverruninternal%EF%BC%89"><span class="toc-number">1.5.2.</span> <span class="toc-text">Driver 执行循环（Driver::runInternal）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%98%BB%E5%A1%9E%E4%B8%8E%E8%B0%83%E5%BA%A6"><span class="toc-number">1.5.3.</span> <span class="toc-text">阻塞与调度</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#pipeline-%E9%97%B4%E5%90%8C%E6%AD%A5%EF%BC%9Ahashjoinbridge"><span class="toc-number">1.5.4.</span> <span class="toc-text">Pipeline 间同步：HashJoinBridge</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81task-%E5%86%85%E6%95%B0%E6%8D%AE%E4%BA%A4%E6%8D%A2%EF%BC%9Alocalpartition--localexchange"><span class="toc-number">1.6.</span> <span class="toc-text">三、Task 内数据交换：LocalPartition &#x2F; LocalExchange</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%B4%E4%BD%93%E7%BB%93%E6%9E%84"><span class="toc-number">1.6.1.</span> <span class="toc-text">整体结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#localexchangememorymanager"><span class="toc-number">1.6.2.</span> <span class="toc-text">LocalExchangeMemoryManager</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#localexchangequeue"><span class="toc-number">1.6.3.</span> <span class="toc-text">LocalExchangeQueue</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#localpartition-%E7%AE%97%E5%AD%90%EF%BC%88producer%EF%BC%8Csink%EF%BC%89"><span class="toc-number">1.6.4.</span> <span class="toc-text">LocalPartition 算子（Producer，sink）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#localexchange-%E7%AE%97%E5%AD%90%EF%BC%88consumer%EF%BC%8Csource%EF%BC%89"><span class="toc-number">1.6.5.</span> <span class="toc-text">LocalExchange 算子（Consumer，source）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81task-%E9%97%B4%E6%95%B0%E6%8D%AE%E4%BA%A4%E6%8D%A2%EF%BC%9Aremote-exchange"><span class="toc-number">1.7.</span> <span class="toc-text">四、Task 间数据交换：Remote Exchange</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%B4%E4%BD%93%E6%95%B0%E6%8D%AE%E6%B5%81"><span class="toc-number">1.7.1.</span> <span class="toc-text">整体数据流</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8A%E6%B8%B8%EF%BC%9Apartitionedoutput"><span class="toc-number">1.7.2.</span> <span class="toc-text">上游：PartitionedOutput</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8A%E6%B8%B8%EF%BC%9Aoutputbuffer--outputbuffermanager"><span class="toc-number">1.7.3.</span> <span class="toc-text">上游：OutputBuffer &#x2F; OutputBufferManager</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8B%E6%B8%B8%EF%BC%9Aexchangeclient"><span class="toc-number">1.7.4.</span> <span class="toc-text">下游：ExchangeClient</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8B%E6%B8%B8%EF%BC%9Aexchangesource-%E6%8A%BD%E8%B1%A1%E6%8E%A5%E5%8F%A3"><span class="toc-number">1.7.5.</span> <span class="toc-text">下游：ExchangeSource 抽象接口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8B%E6%B8%B8%EF%BC%9Aprestoexchangesource%EF%BC%88http-%E5%AE%9E%E7%8E%B0%EF%BC%89"><span class="toc-number">1.7.6.</span> <span class="toc-text">下游：PrestoExchangeSource（HTTP 实现）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8B%E6%B8%B8%EF%BC%9Aexchange-%E7%AE%97%E5%AD%90"><span class="toc-number">1.7.7.</span> <span class="toc-text">下游：Exchange 算子</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BA%8F%E5%88%97%E5%8F%B7%E6%9C%BA%E5%88%B6%EF%BC%88%E5%8F%AF%E9%9D%A0%E4%BC%A0%E8%BE%93%EF%BC%89"><span class="toc-number">1.7.8.</span> <span class="toc-text">序列号机制（可靠传输）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B5%81%E6%8E%A7%E6%80%BB%E7%BB%93"><span class="toc-number">1.7.9.</span> <span class="toc-text">流控总结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86"><span class="toc-number">1.8.</span> <span class="toc-text">五、内存管理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E5%AE%8C%E6%95%B4%E7%AB%AF%E5%88%B0%E7%AB%AF%E6%95%B0%E6%8D%AE%E6%B5%81"><span class="toc-number">1.9.</span> <span class="toc-text">六、完整端到端数据流</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E5%85%B3%E9%94%AE%E4%BB%A3%E7%A0%81%E4%BD%8D%E7%BD%AE"><span class="toc-number">1.10.</span> <span class="toc-text">七、关键代码位置</span></a></li></ol></li></ol>
     </div>
 
     <div id="share-footer" style="display: none">
