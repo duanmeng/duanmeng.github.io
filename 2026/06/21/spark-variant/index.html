@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="1. 第一性原理：为什么需要 Variant1.1 半结构化数据的本质矛盾关系型数据库和列式存储引擎建立在一个基本假设上：每一列的类型在写入前已知且固定。这在 OLTP&#x2F;OLAP 场景运转良好，但在以下场景产生根本性摩擦：  用户行为事件：不同事件类型有完全不同的属性结构 API 响应日志：第三方接口的 JSON 格式随版本迭代不断变化 IoT 设备数据：不同设备型号上报不同的传感器字段">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Variant原理与实现">
+<meta property="og:url" content="http://example.com/2026/06/21/spark-variant/index.html">
+<meta property="og:site_name" content="Macduan Notes">
+<meta property="og:description" content="1. 第一性原理：为什么需要 Variant1.1 半结构化数据的本质矛盾关系型数据库和列式存储引擎建立在一个基本假设上：每一列的类型在写入前已知且固定。这在 OLTP&#x2F;OLAP 场景运转良好，但在以下场景产生根本性摩擦：  用户行为事件：不同事件类型有完全不同的属性结构 API 响应日志：第三方接口的 JSON 格式随版本迭代不断变化 IoT 设备数据：不同设备型号上报不同的传感器字段">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2026-06-21T11:23:50.000Z">
+<meta property="article:modified_time" content="2026-06-21T11:28:38.454Z">
+<meta property="article:author" content="duanmeng">
+<meta property="article:tag" content="Spark">
+<meta property="article:tag" content="Iceberg">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Variant原理与实现</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/categories/technology">Technology</a></li><!--
+     --><!--
+       --><li><a href="/categories/life">Life</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Archives</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tags</a></li><!--
+     --><!--
+       --><li><a href="/about">About</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2026/06/10/listener-html/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2026/06/21/spark-variant/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2026/06/21/spark-variant/&text=Variant原理与实现"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2026/06/21/spark-variant/&title=Variant原理与实现"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2026/06/21/spark-variant/&is_video=false&description=Variant原理与实现"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Variant原理与实现&body=Check out this article: http://example.com/2026/06/21/spark-variant/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2026/06/21/spark-variant/&title=Variant原理与实现"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2026/06/21/spark-variant/&title=Variant原理与实现"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2026/06/21/spark-variant/&title=Variant原理与实现"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2026/06/21/spark-variant/&title=Variant原理与实现"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2026/06/21/spark-variant/&name=Variant原理与实现&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2026/06/21/spark-variant/&t=Variant原理与实现"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E7%AC%AC%E4%B8%80%E6%80%A7%E5%8E%9F%E7%90%86%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81-Variant"><span class="toc-number">1.</span> <span class="toc-text">1. 第一性原理：为什么需要 Variant</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-%E5%8D%8A%E7%BB%93%E6%9E%84%E5%8C%96%E6%95%B0%E6%8D%AE%E7%9A%84%E6%9C%AC%E8%B4%A8%E7%9F%9B%E7%9B%BE"><span class="toc-number">1.1.</span> <span class="toc-text">1.1 半结构化数据的本质矛盾</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-%E7%8E%B0%E6%9C%89%E6%96%B9%E6%A1%88%E7%9A%84%E6%9D%83%E8%A1%A1"><span class="toc-number">1.2.</span> <span class="toc-text">1.2 现有方案的权衡</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3-Variant-%E5%B8%A6%E6%9D%A5%E7%9A%84%E6%94%B6%E7%9B%8A"><span class="toc-number">1.3.</span> <span class="toc-text">1.3 Variant 带来的收益</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Variant-%E7%9A%84%E6%A0%B8%E5%BF%83%E8%AE%BE%E8%AE%A1"><span class="toc-number">2.</span> <span class="toc-text">2. Variant 的核心设计</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E6%80%BB%E4%BD%93%E7%BB%93%E6%9E%84%EF%BC%9Avalue-metadata-%E4%B8%A4%E6%AE%B5%E7%8B%AC%E7%AB%8B-bytes"><span class="toc-number">2.1.</span> <span class="toc-text">2.1 总体结构：value + metadata 两段独立 bytes</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-Header-byte%EF%BC%9A%E6%AF%8F%E4%B8%AA-value-%E8%8A%82%E7%82%B9%E7%9A%84%E7%AC%AC%E4%B8%80%E4%B8%AA%E5%AD%97%E8%8A%82"><span class="toc-number">2.2.</span> <span class="toc-text">2.2 Header byte：每个 value 节点的第一个字节</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-PRIMITIVE-%E5%AD%90%E7%B1%BB%E5%9E%8B%E7%BC%96%E7%A0%81%EF%BC%88bt-x3D-0%EF%BC%89"><span class="toc-number">2.3.</span> <span class="toc-text">2.3 PRIMITIVE 子类型编码（bt &#x3D; 0）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-OBJECT-layout%EF%BC%88bt-x3D-2%EF%BC%89"><span class="toc-number">2.4.</span> <span class="toc-text">2.4 OBJECT layout（bt &#x3D; 2）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-5-ARRAY-layout%EF%BC%88bt-x3D-3%EF%BC%89"><span class="toc-number">2.5.</span> <span class="toc-text">2.5 ARRAY layout（bt &#x3D; 3）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-6-Metadata-layout%EF%BC%88%E5%AD%97%E6%AE%B5%E5%90%8D%E5%AD%97%E5%85%B8%EF%BC%89"><span class="toc-number">2.6.</span> <span class="toc-text">2.6 Metadata layout（字段名字典）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-7-%E5%AE%8C%E6%95%B4%E7%BC%96%E7%A0%81%E5%AE%9E%E4%BE%8B%EF%BC%9A-quot-a-quot-1-quot-b-quot-quot-hi-quot"><span class="toc-number">2.7.</span> <span class="toc-text">2.7 完整编码实例：{&quot;a&quot;: 1, &quot;b&quot;: &quot;hi&quot;}</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-8-%E4%B8%89%E4%B8%AA%E5%B1%82%E6%AC%A1%EF%BC%9A%E5%BC%95%E6%93%8E%E7%B1%BB%E5%9E%8B%E3%80%81%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F%E3%80%81%E8%A1%A8%E6%A0%BC%E5%BC%8F"><span class="toc-number">2.8.</span> <span class="toc-text">2.8 三个层次：引擎类型、文件格式、表格式</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E5%9C%BA%E6%99%AF%E4%B8%80%EF%BC%9A%E5%8F%AA%E6%9C%89-Spark-%E6%94%AF%E6%8C%81%EF%BC%88%E5%BC%95%E6%93%8E%E5%B1%82%E6%9C%89-VariantType%EF%BC%89"><span class="toc-number">3.</span> <span class="toc-text">3. 场景一：只有 Spark 支持（引擎层有 VariantType）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-%E7%B1%BB%E5%9E%8B%E5%AE%9A%E4%B9%89"><span class="toc-number">3.1.</span> <span class="toc-text">3.1 类型定义</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-%E4%B8%A4%E7%A7%8D%E8%90%BD%E7%9B%98%E5%BD%A2%E6%80%81%E5%86%B3%E5%AE%9A%E4%BA%86%E8%83%BD%E5%8A%9B%E4%B8%8A%E9%99%90"><span class="toc-number">3.2.</span> <span class="toc-text">3.2 两种落盘形态决定了能力上限</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-%E7%B1%BB%E5%9E%8B%E8%A7%A3%E6%9E%90%E4%B8%8E-Subfield-%E8%A7%A3%E6%9E%90"><span class="toc-number">3.3.</span> <span class="toc-text">3.3 类型解析与 Subfield 解析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4-%E8%B0%93%E8%AF%8D%E4%B8%8B%E6%8E%A8%E4%B8%8E%E5%88%97%E8%A3%81%E5%89%AA%EF%BC%9A%E5%8F%96%E5%86%B3%E4%BA%8E%E6%98%AF%E5%90%A6-shredding"><span class="toc-number">3.4.</span> <span class="toc-text">3.4 谓词下推与列裁剪：取决于是否 shredding</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-5-%E4%BC%98%E7%BC%BA%E7%82%B9%E5%B0%8F%E7%BB%93"><span class="toc-number">3.5.</span> <span class="toc-text">3.5 优缺点小结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E5%9C%BA%E6%99%AF%E4%BA%8C%EF%BC%9A%E5%8F%AA%E6%9C%89-Iceberg-%E6%94%AF%E6%8C%81%EF%BC%88Spark-%E5%BC%95%E6%93%8E%E5%B1%82%E6%97%A0-VariantType%EF%BC%89"><span class="toc-number">4.</span> <span class="toc-text">4. 场景二：只有 Iceberg 支持（Spark 引擎层无 VariantType）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-%E9%97%AE%E9%A2%98%E7%9A%84%E6%9C%AC%E8%B4%A8"><span class="toc-number">4.1.</span> <span class="toc-text">4.1 问题的本质</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-%E7%B1%BB%E5%9E%8B%E6%98%A0%E5%B0%84%E7%9A%84%E4%B8%89%E7%A7%8D%E9%80%89%E9%A1%B9"><span class="toc-number">4.2.</span> <span class="toc-text">4.2 类型映射的三种选项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-Subfield-%E8%A7%A3%E6%9E%90%E4%B8%8E%E4%B8%8B%E6%8E%A8"><span class="toc-number">4.3.</span> <span class="toc-text">4.3 Subfield 解析与下推</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-4-%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="toc-number">4.4.</span> <span class="toc-text">4.4 优缺点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E5%9C%BA%E6%99%AF%E4%B8%89%EF%BC%9ASpark-Iceberg-%E4%B8%A4%E6%96%B9%E5%8D%8F%E5%90%8C"><span class="toc-number">5.</span> <span class="toc-text">5. 场景三：Spark + Iceberg 两方协同</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-%E4%B8%A4%E6%96%B9%E7%9A%84%E8%81%8C%E8%B4%A3%E5%88%92%E5%88%86"><span class="toc-number">5.1.</span> <span class="toc-text">5.1 两方的职责划分</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-%E7%B1%BB%E5%9E%8B%E9%93%BE%E4%B8%8E%E7%B1%BB%E5%9E%8B%E8%A7%A3%E6%9E%90"><span class="toc-number">5.2.</span> <span class="toc-text">5.2 类型链与类型解析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-3-Subfield-%E8%A7%A3%E6%9E%90%EF%BC%9ADSv2-%E5%A5%91%E7%BA%A6%EF%BC%8C%E4%B8%8D%E6%98%AF-PushVariantIntoScan"><span class="toc-number">5.3.</span> <span class="toc-text">5.3 Subfield 解析：DSv2 契约，不是 PushVariantIntoScan</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-4-%E8%B0%93%E8%AF%8D%E4%B8%8B%E6%8E%A8%EF%BC%9A%E4%B8%A4%E5%B1%82%E8%A3%81%E5%89%AA"><span class="toc-number">5.4.</span> <span class="toc-text">5.4 谓词下推：两层裁剪</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-5-%E5%88%97%E8%A3%81%E5%89%AA%EF%BC%9AShredding-DSv2-%E5%88%97%E5%89%AA%E6%9E%9D"><span class="toc-number">5.5.</span> <span class="toc-text">5.5 列裁剪：Shredding + DSv2 列剪枝</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-6-%E4%B8%A5%E6%A0%BC-Cast-%E9%94%99%E8%AF%AF%E7%9A%84%E5%BB%B6%E8%BF%9F%EF%BC%88DSv2-%E7%89%88%EF%BC%89"><span class="toc-number">5.6.</span> <span class="toc-text">5.6 严格 Cast 错误的延迟（DSv2 版）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-7-%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="toc-number">5.7.</span> <span class="toc-text">5.7 优缺点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E6%A8%AA%E5%90%91%E5%AF%B9%E6%AF%94%EF%BC%9A%E5%9B%9B%E4%B8%AA%E5%85%B3%E9%94%AE%E8%83%BD%E5%8A%9B%E7%BB%B4%E5%BA%A6"><span class="toc-number">6.</span> <span class="toc-text">6. 横向对比：四个关键能力维度</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#6-1-%E7%B1%BB%E5%9E%8B%E5%AE%9A%E4%B9%89"><span class="toc-number">6.1.</span> <span class="toc-text">6.1 类型定义</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-2-Subfield-%E8%A7%A3%E6%9E%90"><span class="toc-number">6.2.</span> <span class="toc-text">6.2 Subfield 解析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-3-%E8%B0%93%E8%AF%8D%E4%B8%8B%E6%8E%A8"><span class="toc-number">6.3.</span> <span class="toc-text">6.3 谓词下推</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-4-%E5%88%97%E8%A3%81%E5%89%AA"><span class="toc-number">6.4.</span> <span class="toc-text">6.4 列裁剪</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-5-%E4%B8%80%E5%8F%A5%E8%AF%9D%E6%80%BB%E7%BB%93%E6%AF%8F%E4%B8%AA%E5%9C%BA%E6%99%AF"><span class="toc-number">6.5.</span> <span class="toc-text">6.5 一句话总结每个场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-6-%E7%8E%B0%E5%AE%9E%E7%8A%B6%E6%80%81%EF%BC%88%E6%88%AA%E8%87%B3-Spark-4-x-x2F-Iceberg-main%EF%BC%89"><span class="toc-number">6.6.</span> <span class="toc-text">6.6 现实状态（截至 Spark 4.x &#x2F; Iceberg main）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%99%84%EF%BC%9A%E5%85%B3%E9%94%AE%E6%BA%90%E7%A0%81%E7%B4%A2%E5%BC%95"><span class="toc-number">6.7.</span> <span class="toc-text">附：关键源码索引</span></a></li></ol></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Variant原理与实现
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">duanmeng</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2026-06-21T11:23:50.000Z" itemprop="datePublished">2026-06-21</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/Iceberg/" rel="tag">Iceberg</a>, <a class="tag-link-link" href="/tags/Spark/" rel="tag">Spark</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="1-第一性原理：为什么需要-Variant"><a href="#1-第一性原理：为什么需要-Variant" class="headerlink" title="1. 第一性原理：为什么需要 Variant"></a>1. 第一性原理：为什么需要 Variant</h2><h3 id="1-1-半结构化数据的本质矛盾"><a href="#1-1-半结构化数据的本质矛盾" class="headerlink" title="1.1 半结构化数据的本质矛盾"></a>1.1 半结构化数据的本质矛盾</h3><p>关系型数据库和列式存储引擎建立在一个基本假设上：<strong>每一列的类型在写入前已知且固定</strong>。这在 OLTP&#x2F;OLAP 场景运转良好，但在以下场景产生根本性摩擦：</p>
+<ul>
+<li>用户行为事件：不同事件类型有完全不同的属性结构</li>
+<li>API 响应日志：第三方接口的 JSON 格式随版本迭代不断变化</li>
+<li>IoT 设备数据：不同设备型号上报不同的传感器字段</li>
+<li>机器学习 Feature Store：特征集合动态增减</li>
+</ul>
+<p>这类数据的共同特征是：<strong>schema 在写入时未知，或在不同行之间高度异构</strong>。</p>
+<h3 id="1-2-现有方案的权衡"><a href="#1-2-现有方案的权衡" class="headerlink" title="1.2 现有方案的权衡"></a>1.2 现有方案的权衡</h3><p>面对这个矛盾，业界形成了三条路径：</p>
+<p><strong>路径 A：存为 STRING（JSON 文本）</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> events (id <span class="type">BIGINT</span>, payload STRING);</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> events <span class="keyword">VALUES</span> (<span class="number">1</span>, <span class="string">&#x27;&#123;&quot;user&quot;:&quot;alice&quot;,&quot;action&quot;:&quot;click&quot;,&quot;x&quot;:100&#125;&#x27;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>优点：完全灵活，任何格式都能存。<br>缺点：</p>
+<ul>
+<li>每次查询都要重新解析 JSON 文本，CPU 开销极高</li>
+<li>存储层完全不知道内部结构，无法做列裁剪、谓词下推</li>
+<li>不同行的 <code>payload.user</code> 可能是 string，也可能是 int，没有类型约束</li>
+<li>压缩效率低，字段名被重复存储在每一行里</li>
+</ul>
+<p><strong>路径 B：提前打平为 STRUCT</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> events (id <span class="type">BIGINT</span>, <span class="keyword">user</span> STRING, action STRING, x <span class="type">INT</span>, y <span class="type">INT</span>);</span><br></pre></td></tr></table></figure>
+
+<p>优点：完全利用列式存储的优势，列裁剪、谓词下推、编码压缩全部生效。<br>缺点：</p>
+<ul>
+<li>必须提前定义完整 schema，半结构化场景不可行</li>
+<li>schema 变更成本高（加列需要 ALTER TABLE，历史数据填 NULL）</li>
+<li>高度稀疏：大量列对大多数行是 NULL，浪费存储</li>
+<li>100 种事件类型需要 union 所有字段，产生数千列</li>
+</ul>
+<p><strong>路径 C：Variant</strong></p>
+<p>Variant 的出发点是：<strong>能不能在保持 schema 灵活性的同时，让存储和查询引擎理解内部结构？</strong></p>
+<p>核心思路是把半结构化值编码成一种<strong>自描述的二进制格式</strong>：每个值携带自己的类型信息，字段名存在共享字典里（避免重复），嵌套结构保持树形编码。</p>
+<h3 id="1-3-Variant-带来的收益"><a href="#1-3-Variant-带来的收益" class="headerlink" title="1.3 Variant 带来的收益"></a>1.3 Variant 带来的收益</h3><table>
+<thead>
+<tr>
+<th>能力</th>
+<th>STRING</th>
+<th>STRUCT</th>
+<th>VARIANT</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>schema 灵活性</td>
+<td>完全灵活</td>
+<td>提前固定</td>
+<td>灵活，schema-on-read</td>
+</tr>
+<tr>
+<td>类型安全</td>
+<td>无</td>
+<td>写入时强制</td>
+<td>读取时可强制转换</td>
+</tr>
+<tr>
+<td>列裁剪（只读需要的字段）</td>
+<td>不可能</td>
+<td>完整支持</td>
+<td>需 shredding 才可能</td>
+</tr>
+<tr>
+<td>谓词下推到存储</td>
+<td>不可能</td>
+<td>完整支持</td>
+<td>需 shredding 才可能</td>
+</tr>
+<tr>
+<td>字段名压缩</td>
+<td>每行重复</td>
+<td>无字段名</td>
+<td>共享字典，一份</td>
+</tr>
+<tr>
+<td>跨行 schema 不一致</td>
+<td>透明</td>
+<td>不支持</td>
+<td>完整支持</td>
+</tr>
+<tr>
+<td>查询时 CPU</td>
+<td>每次全量解析</td>
+<td>零解析</td>
+<td>按需解析（仅访问的字段）</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="2-Variant-的核心设计"><a href="#2-Variant-的核心设计" class="headerlink" title="2. Variant 的核心设计"></a>2. Variant 的核心设计</h2><p>Variant 是 Apache Parquet 社区联合制定的开放格式规范（<a target="_blank" rel="noopener" href="https://github.com/apache/parquet-format/blob/master/VariantEncoding.md">VariantEncoding.md</a>）。下面的 layout 描述全部以 Spark 实现 <a href="common/variant/src/main/java/org/apache/spark/types/variant/VariantUtil.java"><code>VariantUtil.java</code></a> 为准。</p>
+<h3 id="2-1-总体结构：value-metadata-两段独立-bytes"><a href="#2-1-总体结构：value-metadata-两段独立-bytes" class="headerlink" title="2.1 总体结构：value + metadata 两段独立 bytes"></a>2.1 总体结构：value + metadata 两段独立 bytes</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">VariantVal</span><br><span class="line">├── value    bytes —— 一棵自描述的值树：编码每个节点的类型和内容，但不含字段名</span><br><span class="line">└── metadata bytes —— 一张字段名字典（去重的 string pool），value 里用整数 id 引用它</span><br></pre></td></tr></table></figure>
+
+<p>两段各自独立、各自有 ≤ 128 MiB 的大小上限（测试环境 16 MiB）。把字段名抽到 metadata 单独存，是为了：① 同名字段（如数组里每个对象都有的 <code>&quot;id&quot;</code>）只存一份；② value 树里用定长整数 id 代替变长字符串，定位更快。</p>
+<h3 id="2-2-Header-byte：每个-value-节点的第一个字节"><a href="#2-2-Header-byte：每个-value-节点的第一个字节" class="headerlink" title="2.2 Header byte：每个 value 节点的第一个字节"></a>2.2 Header byte：每个 value 节点的第一个字节</h3><p>value 里<strong>每个</strong>节点都以一个 header byte 开头：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"> 7 6 5 4 3 2 1 0   bit</span><br><span class="line">┌─────────────┬───┐</span><br><span class="line">│  type_info  │bt │   bt (basic type) = 低 2 bit</span><br><span class="line">│   6 bit     │2b │   type_info        = 高 6 bit</span><br><span class="line">└─────────────┴───┘</span><br></pre></td></tr></table></figure>
+
+<p><code>basic type</code>（低 2 bit）分四大类，<code>type_info</code>（高 6 bit）的含义随大类而变：</p>
+<table>
+<thead>
+<tr>
+<th align="right">bt</th>
+<th>大类</th>
+<th>type_info 的含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="right">0</td>
+<td>PRIMITIVE</td>
+<td>具体的标量子类型编号（见 2.3）</td>
+</tr>
+<tr>
+<td align="right">1</td>
+<td>SHORT_STR</td>
+<td>字符串长度（0–63），字符串内容紧跟 header</td>
+</tr>
+<tr>
+<td align="right">2</td>
+<td>OBJECT</td>
+<td>三个宽度参数 <code>0_b4_b3b2_b1b0</code>（见 2.4）</td>
+</tr>
+<tr>
+<td align="right">3</td>
+<td>ARRAY</td>
+<td>两个宽度参数 <code>000_b2_b1b0</code>（见 2.5）</td>
+</tr>
+</tbody></table>
+<h3 id="2-3-PRIMITIVE-子类型编码（bt-x3D-0）"><a href="#2-3-PRIMITIVE-子类型编码（bt-x3D-0）" class="headerlink" title="2.3 PRIMITIVE 子类型编码（bt &#x3D; 0）"></a>2.3 PRIMITIVE 子类型编码（bt &#x3D; 0）</h3><p><code>type_info</code> 此时是子类型编号。下表的”总字节数”&#x3D; header(1) + 内容，已逐项与 <code>VariantUtil.valueSize</code> 核对：</p>
+<table>
+<thead>
+<tr>
+<th align="right">type_info</th>
+<th>类型</th>
+<th>内容编码</th>
+<th align="right">总字节</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="right">0</td>
+<td>NULL（JSON null）</td>
+<td>无</td>
+<td align="right">1</td>
+</tr>
+<tr>
+<td align="right">1</td>
+<td>TRUE</td>
+<td>无</td>
+<td align="right">1</td>
+</tr>
+<tr>
+<td align="right">2</td>
+<td>FALSE</td>
+<td>无</td>
+<td align="right">1</td>
+</tr>
+<tr>
+<td align="right">3</td>
+<td>INT1</td>
+<td>1 字节小端<strong>有符号</strong></td>
+<td align="right">2</td>
+</tr>
+<tr>
+<td align="right">4</td>
+<td>INT2</td>
+<td>2 字节小端有符号</td>
+<td align="right">3</td>
+</tr>
+<tr>
+<td align="right">5</td>
+<td>INT4</td>
+<td>4 字节小端有符号</td>
+<td align="right">5</td>
+</tr>
+<tr>
+<td align="right">6</td>
+<td>INT8</td>
+<td>8 字节小端有符号</td>
+<td align="right">9</td>
+</tr>
+<tr>
+<td align="right">7</td>
+<td>DOUBLE</td>
+<td>8 字节 IEEE 754</td>
+<td align="right">9</td>
+</tr>
+<tr>
+<td align="right">8</td>
+<td>DECIMAL4</td>
+<td>1 字节 scale + 4 字节小端 unscaled</td>
+<td align="right">6</td>
+</tr>
+<tr>
+<td align="right">9</td>
+<td>DECIMAL8</td>
+<td>1 字节 scale + 8 字节小端 unscaled</td>
+<td align="right">10</td>
+</tr>
+<tr>
+<td align="right">10</td>
+<td>DECIMAL16</td>
+<td>1 字节 scale + 16 字节<strong>小端</strong> unscaled</td>
+<td align="right">18</td>
+</tr>
+<tr>
+<td align="right">11</td>
+<td>DATE</td>
+<td>4 字节小端（距 epoch 天数）</td>
+<td align="right">5</td>
+</tr>
+<tr>
+<td align="right">12</td>
+<td>TIMESTAMP</td>
+<td>8 字节小端微秒（UTC）</td>
+<td align="right">9</td>
+</tr>
+<tr>
+<td align="right">13</td>
+<td>TIMESTAMP_NTZ</td>
+<td>8 字节小端微秒（按 UTC 解释）</td>
+<td align="right">9</td>
+</tr>
+<tr>
+<td align="right">14</td>
+<td>FLOAT</td>
+<td>4 字节 IEEE 754</td>
+<td align="right">5</td>
+</tr>
+<tr>
+<td align="right">15</td>
+<td>BINARY</td>
+<td>4 字节小端长度 + N 字节内容</td>
+<td align="right">5+N</td>
+</tr>
+<tr>
+<td align="right">16</td>
+<td>LONG_STR</td>
+<td>4 字节小端长度 + N 字节 UTF-8</td>
+<td align="right">5+N</td>
+</tr>
+<tr>
+<td align="right">20</td>
+<td>UUID</td>
+<td>16 字节<strong>大端</strong></td>
+<td align="right">17</td>
+</tr>
+</tbody></table>
+<p>注意两个反直觉点（都已从源码核实）：<strong>DECIMAL16 的 unscaled 整数是小端存储</strong>（读取时 <code>getDecimal</code> 才反转成大端交给 <code>BigInteger</code>）；而 <strong>UUID 反而是大端</strong>（<code>getUuid</code> 显式用 <code>BIG_ENDIAN</code>）。整数写入时自动选最小宽度：值 1 存成 INT1，10 万存成 INT4。字符串 ≤63 字节走 SHORT_STR（长度塞进 header），否则走 LONG_STR。</p>
+<h3 id="2-4-OBJECT-layout（bt-x3D-2）"><a href="#2-4-OBJECT-layout（bt-x3D-2）" class="headerlink" title="2.4 OBJECT layout（bt &#x3D; 2）"></a>2.4 OBJECT layout（bt &#x3D; 2）</h3><p><code>type_info</code> 是 <code>0_b4_b3b2_b1b0</code>，三个宽度参数让 layout 随对象大小自适应：</p>
+<ul>
+<li><code>b4</code> → size 字段宽度：0 &#x3D; 1 字节，1 &#x3D; 4 字节</li>
+<li><code>b3b2</code> → id 列每个元素宽度：0&#x2F;1&#x2F;2 &#x3D; 1&#x2F;2&#x2F;3 字节</li>
+<li><code>b1b0</code> → offset 列每个元素宽度：0&#x2F;1&#x2F;2 &#x3D; 1&#x2F;2&#x2F;3 字节</li>
+</ul>
+<p>字节布局（<code>size</code> &#x3D; 字段数；字段按<strong>字段名字典序</strong>排列，不允许重复名）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">┌────────┬──────┬─────────────────┬───────────────────────┬──────────────┐</span><br><span class="line">│ header │ size │ id 列            │ offset 列              │ field data   │</span><br><span class="line">│ 1 byte │ 1/4B │ size × idSize    │ (size+1) × offsetSize  │ 各字段值拼接 │</span><br><span class="line">└────────┴──────┴─────────────────┴───────────────────────┴──────────────┘</span><br><span class="line">                  ↑ 每个 id 是      ↑ offset[i] = 第 i 个字段值</span><br><span class="line">                    metadata 字典     相对 data 区起点的偏移；</span><br><span class="line">                    里的下标          offset[size] = data 区总长</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>id[i]</code>：第 i 个字段的<strong>字段名</strong>在 metadata 字典里的 id（不是值！）</li>
+<li><code>offset[i]</code>：第 i 个字段<strong>值</strong>在 data 区的起始偏移；<code>offset[i+1]-offset[i]</code> 即第 i 个字段值的字节数</li>
+<li>取字段名：<code>getMetadataKey(metadata, id[i])</code>；取字段值：递归解析 <code>data 区起点 + offset[i]</code> 处的节点</li>
+</ul>
+<h3 id="2-5-ARRAY-layout（bt-x3D-3）"><a href="#2-5-ARRAY-layout（bt-x3D-3）" class="headerlink" title="2.5 ARRAY layout（bt &#x3D; 3）"></a>2.5 ARRAY layout（bt &#x3D; 3）</h3><p><code>type_info</code> 是 <code>000_b2_b1b0</code>：<code>b2</code> → size 宽度，<code>b1b0</code> → offset 宽度。与 OBJECT 相比<strong>省掉了 id 列</strong>（数组元素无字段名）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">┌────────┬──────┬───────────────────────┬──────────────┐</span><br><span class="line">│ header │ size │ offset 列              │ element data │</span><br><span class="line">│ 1 byte │ 1/4B │ (size+1) × offsetSize  │ 各元素值拼接 │</span><br><span class="line">└────────┴──────┴───────────────────────┴──────────────┘</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-6-Metadata-layout（字段名字典）"><a href="#2-6-Metadata-layout（字段名字典）" class="headerlink" title="2.6 Metadata layout（字段名字典）"></a>2.6 Metadata layout（字段名字典）</h3><p>metadata 的第一个字节是它自己的 header，<strong>与 value 的 header 编码规则不同</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"> 7 6 5 4 3 2 1 0   bit</span><br><span class="line">┌───┬─┬───────┐</span><br><span class="line">│oss│ │version│   version  = 低 4 bit，当前恒为 1（VERSION_MASK = 0x0F）</span><br><span class="line">│2b │ │ 4 bit │   oss       = 最高 2 bit = offsetSize - 1</span><br><span class="line">└───┴─┴───────┘</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>这是个<strong>容易写错</strong>的点：version 在低 4 bit，offset 宽度在最高 2 bit（<code>(metadata[0] &gt;&gt; 6) &amp; 0x3</code>），中间 bit 4（<code>sorted_strings</code> 标志）此实现未使用。</p>
+</blockquote>
+<p>整体布局（<code>offsetSize</code> 由上面 header 的最高 2 bit 决定，取 1–4 字节）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">┌────────┬───────────┬───────────────────────────┬──────────────────┐</span><br><span class="line">│ header │ dict_size │ offset 列                  │ 字符串数据       │</span><br><span class="line">│ 1 byte │ offsetSize│ (dict_size+1) × offsetSize │ 所有 key 拼接    │</span><br><span class="line">└────────┴───────────┴───────────────────────────┴──────────────────┘</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>dict_size</code>：字典里 key 的个数</li>
+<li><code>offset[i]</code>：第 i 个 key 在字符串数据区的起始偏移；key 连续拼接、不存各自长度，靠 <code>offset[i+1]-offset[i]</code> 求长</li>
+<li>字符串数据区起点 &#x3D; <code>1 + (dict_size + 2) × offsetSize</code></li>
+</ul>
+<h3 id="2-7-完整编码实例：-quot-a-quot-1-quot-b-quot-quot-hi-quot"><a href="#2-7-完整编码实例：-quot-a-quot-1-quot-b-quot-quot-hi-quot" class="headerlink" title="2.7 完整编码实例：{&quot;a&quot;: 1, &quot;b&quot;: &quot;hi&quot;}"></a>2.7 完整编码实例：<code>&#123;&quot;a&quot;: 1, &quot;b&quot;: &quot;hi&quot;&#125;</code></h3><p>把这三层拼起来走一遍。字段名字典 &#x3D; <code>[&quot;a&quot;,&quot;b&quot;]</code>（id 0 &#x3D; <code>a</code>，id 1 &#x3D; <code>b</code>）。</p>
+<p><strong>metadata</strong>（7 字节，offsetSize&#x3D;1）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">01    header：version=1, offsetSize-1=0</span><br><span class="line">02    dict_size = 2</span><br><span class="line">00 01 02   offsets：a∈[0,1), b∈[1,2)，末尾 2 = 总长</span><br><span class="line">61 62      字符串数据 &quot;ab&quot;</span><br></pre></td></tr></table></figure>
+
+<p><strong>value</strong>（12 字节，一个 OBJECT）。字段按名排序后是 <code>a</code> 再 <code>b</code>；<code>a</code> 的值 <code>1</code> → INT1（<code>0C 01</code>），<code>b</code> 的值 <code>&quot;hi&quot;</code> → SHORT_STR 长度2（<code>09 68 69</code>）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">02    header：OBJECT, largeSize=0, idSize=1, offsetSize=1</span><br><span class="line">02    size = 2（两个字段）</span><br><span class="line">00 01      id 列：字段 a→id0, 字段 b→id1</span><br><span class="line">00 02 05   offset 列：a 的值∈[0,2), b 的值∈[2,5)，末尾 5 = data 总长</span><br><span class="line">0C 01      data[0..2)：字段 a 的值 = INT1(1)</span><br><span class="line">09 68 69   data[2..5)：字段 b 的值 = SHORT_STR(&quot;hi&quot;)</span><br></pre></td></tr></table></figure>
+
+<p>要取 <code>$.b</code>：读 value header 知道是 OBJECT → 在 id 列二分找 <code>getMetadataKey(meta, id)==&quot;b&quot;</code> 的位置（这里第 1 个）→ 用对应 offset 跳到 <code>data 起点+2</code> → 解析出 SHORT_STR <code>&quot;hi&quot;</code>。整个过程只触碰需要的字节，不必解析字段 <code>a</code>。</p>
+<h3 id="2-8-三个层次：引擎类型、文件格式、表格式"><a href="#2-8-三个层次：引擎类型、文件格式、表格式" class="headerlink" title="2.8 三个层次：引擎类型、文件格式、表格式"></a>2.8 三个层次：引擎类型、文件格式、表格式</h3><p>理解 Variant 实现的关键，是把三个不同层次的”支持”分开看。它们各自独立，可以单独具备或缺失：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">┌─────────────────────────────────────────────────────────┐</span><br><span class="line">│  引擎层 (Spark catalyst)                                  │</span><br><span class="line">│    VariantType —— plan / expression / InternalRow 里的类型 │</span><br><span class="line">│    variant_get / parse_json 等函数在这里求值             │</span><br><span class="line">├─────────────────────────────────────────────────────────┤</span><br><span class="line">│  表格式层 (Iceberg / Delta / Hive)                       │</span><br><span class="line">│    表 schema 里的列类型；负责文件级元数据、统计、裁剪    │</span><br><span class="line">├─────────────────────────────────────────────────────────┤</span><br><span class="line">│  文件格式层 (Parquet / ORC / Avro)                       │</span><br><span class="line">│    物理字节如何落盘；shredding 是这一层的能力            │</span><br><span class="line">└─────────────────────────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>内存中</strong>：Variant 是 <code>VariantVal</code>（<code>value bytes</code> + <code>metadata bytes</code>），只在 executor 里存在，是引擎层的概念。</li>
+<li><strong>持久化时</strong>：需要文件格式来保存这两段 bytes；表格式负责把这些文件组织成”表”。</li>
+</ul>
+<p><code>parse_json(&#39;&#123;&quot;a&quot;:1&#125;&#39;)</code> 这个表达式只发生在引擎层，构建一个 VariantVal 放进内存，<strong>与任何文件&#x2F;表格式无关</strong>。这就是为什么”Variant 支持”在不同层次可以解耦——后面三个场景正是这三层的不同组合。</p>
+<p>一个常被忽略的事实：<strong>同一个 Spark 集群里有两条完全不同的 Parquet 读写路径</strong>：</p>
+<ol>
+<li><strong>Spark 自带的 Parquet 数据源</strong>（<code>ParquetFileFormat</code>，V1 file source）——<code>spark.read.parquet(path)</code> 走这条</li>
+<li><strong>DataSourceV2 表格式自带的 Parquet 读写</strong>——Iceberg &#x2F; Delta 用自己的 <code>iceberg-parquet</code> reader，<strong>不经过</strong> <code>ParquetFileFormat</code></li>
+</ol>
+<p>这两条路径对 Variant 的处理机制<strong>完全不同</strong>，是区分场景一和场景三的根本。</p>
+<hr>
+<h2 id="3-场景一：只有-Spark-支持（引擎层有-VariantType）"><a href="#3-场景一：只有-Spark-支持（引擎层有-VariantType）" class="headerlink" title="3. 场景一：只有 Spark 支持（引擎层有 VariantType）"></a>3. 场景一：只有 Spark 支持（引擎层有 VariantType）</h2><p>这里”只有 Spark”指：用 Spark <strong>自带的</strong> Parquet&#x2F;JSON 数据源读写，不经过 Iceberg 等表格式。</p>
+<h3 id="3-1-类型定义"><a href="#3-1-类型定义" class="headerlink" title="3.1 类型定义"></a>3.1 类型定义</h3><p>Spark 4.0 在 catalyst 类型系统中引入了 <code>VariantType</code>（<code>@Unstable</code>，<code>@since 4.0.0</code>）：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// sql/api/src/main/scala/org/apache/spark/sql/types/VariantType.scala</span></span><br><span class="line"><span class="keyword">case</span> <span class="class"><span class="keyword">object</span> <span class="title">VariantType</span> <span class="keyword">extends</span> <span class="title">AtomicType</span> </span>&#123;</span><br><span class="line">  <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">defaultSize</span></span>: <span class="type">Int</span> = <span class="number">2048</span></span><br><span class="line">  <span class="comment">// Variant 值永远 nullable，asNullable 是 no-op</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这是 <strong>Spark 引擎层的原生类型</strong>，存在于 catalyst plan、expression tree 和运行时的 <code>InternalRow</code> 里。</p>
+<h3 id="3-2-两种落盘形态决定了能力上限"><a href="#3-2-两种落盘形态决定了能力上限" class="headerlink" title="3.2 两种落盘形态决定了能力上限"></a>3.2 两种落盘形态决定了能力上限</h3><p>Spark 自带 Parquet 写 Variant 有两种形态，能力差异巨大：</p>
+<p><strong>形态 A：不透明 blob（无 shredding）</strong></p>
+<p><code>VariantType</code> 映射为一个 Parquet GROUP（<a href="sql/core/src/main/scala/org/apache/spark/sql/execution/datasources/parquet/ParquetSchemaConverter.scala:902"><code>ParquetSchemaConverter.scala:902</code></a>）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">col_name: GROUP (LogicalType = variant) &#123;</span><br><span class="line">  value:    BYTE_ARRAY (required)   ← 完整 value bytes</span><br><span class="line">  metadata: BYTE_ARRAY (required)   ← 完整 metadata bytes</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>整个 Variant 是两块对存储引擎不透明的 bytes。</p>
+<p><strong>形态 B：shredding（拆字段）</strong></p>
+<p>Spark 自带 Parquet 写入器可开启 shredding（<a href="sql/core/src/main/scala/org/apache/spark/sql/execution/datasources/parquet/ParquetOutputWriterWithVariantShredding.scala"><code>ParquetOutputWriterWithVariantShredding.scala</code></a>），把高频字段拆成独立列：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">col_name: GROUP (LogicalType = variant) &#123;</span><br><span class="line">  value:        BYTE_ARRAY        ← 未被拆出的部分（fallback）</span><br><span class="line">  metadata:     BYTE_ARRAY        ← 字段名字典</span><br><span class="line">  typed_value:  GROUP &#123;           ← 拆出的字段，独立 Parquet 列</span><br><span class="line">    a:   INT64</span><br><span class="line">    b:   BYTE_ARRAY</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>写入流程：缓冲前 4096 行（或 64 MiB）→ <code>InferVariantShreddingSchema</code> 分析字段分布并推断 shredding schema（整数统一 widen 为 long，类型冲突或超过 300 字段的退回 value blob）→ 落盘。</p>
+<blockquote>
+<p>写 JSON 文件时则完全不同：Variant 被 <code>v.toJson()</code> 还原为 JSON 文本写出（<a href="sql/catalyst/src/main/scala/org/apache/spark/sql/catalyst/json/JacksonGenerator.scala:341"><code>JacksonGenerator.scala:341</code></a>）。CSV 仅支持读不支持写，ORC 完全不支持。</p>
+</blockquote>
+<h3 id="3-3-类型解析与-Subfield-解析"><a href="#3-3-类型解析与-Subfield-解析" class="headerlink" title="3.3 类型解析与 Subfield 解析"></a>3.3 类型解析与 Subfield 解析</h3><p><code>variant_get(col, &#39;$.a.b&#39;, &#39;int&#39;)</code> 的解析过程：</p>
+<p><strong>Analysis 阶段</strong>：</p>
+<ol>
+<li>解析 <code>col</code> → 确认类型为 <code>VariantType</code>，通过</li>
+<li>解析 <code>&#39;$.a.b&#39;</code> → 这只是字符串字面量，<strong>不做路径有效性检查</strong>，不在 schema 里查找字段 <code>a.b</code></li>
+<li><code>dataType</code> 由第三个参数决定，返回 <code>IntegerType</code></li>
+</ol>
+<p>这与 <code>STRUCT</code> 子字段解析截然不同——后者在 analysis 阶段就验证字段存在性：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> s.nonexistent <span class="keyword">FROM</span> t;                            <span class="comment">-- STRUCT：编译报错</span></span><br><span class="line"><span class="keyword">SELECT</span> variant_get(v, <span class="string">&#x27;$.nonexistent&#x27;</span>, <span class="string">&#x27;int&#x27;</span>) <span class="keyword">FROM</span> t;   <span class="comment">-- VARIANT：运行时返回 NULL</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>运行时</strong>：<code>VariantPathParser</code> 把路径解析为 <code>Array[VariantPathSegment]</code> → 在 VariantVal binary 里逐层定位 → 用 <code>Cast</code> 转目标类型 → 找不到返回 NULL；转换失败时 <code>variant_get</code> 抛异常、<code>try_variant_get</code> 返回 NULL。</p>
+<h3 id="3-4-谓词下推与列裁剪：取决于是否-shredding"><a href="#3-4-谓词下推与列裁剪：取决于是否-shredding" class="headerlink" title="3.4 谓词下推与列裁剪：取决于是否 shredding"></a>3.4 谓词下推与列裁剪：取决于是否 shredding</h3><p>这是形态 A 与形态 B 的分水岭。<strong>纯引擎层的 VariantType 本身不带来下推能力，下推来自 shredding + 一条优化器规则。</strong></p>
+<p>**关键优化器规则 <code>PushVariantIntoScan</code>**（<a href="sql/core/src/main/scala/org/apache/spark/sql/execution/datasources/PushVariantIntoScan.scala"><code>PushVariantIntoScan.scala</code></a>）：</p>
+<p>它把 Variant 列改写成一个带注解的 struct，把 <code>variant_get</code> 改写成普通 struct 字段访问：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">改写前：</span><br><span class="line">  Project [v:a::int, v:b::string]</span><br><span class="line">    Filter [v:a::int = 1]</span><br><span class="line">      Relation [v: variant]</span><br><span class="line"></span><br><span class="line">改写后：</span><br><span class="line">  Project [v.0, v.1]</span><br><span class="line">    Filter [v.0 = 1]</span><br><span class="line">      Relation [v: struct&lt;0: int @path=&quot;$.a&quot;, 1: string @path=&quot;$.b&quot;&gt;]</span><br></pre></td></tr></table></figure>
+
+<p>之后 <code>v.0 = 1</code> 就是一个普通 struct 字段谓词，能下推到 Parquet 的 <code>typed_value.a</code> 列，利用 row group min&#x2F;max 统计跳过数据；列裁剪也只读 <code>typed_value.a</code> 这一列，不读完整 value blob。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>形态 A（blob）</th>
+<th>形态 B（shredding）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>谓词下推</td>
+<td>不可能（blob 对存储不透明）</td>
+<td>可能（仅 shredded 字段）</td>
+</tr>
+<tr>
+<td>列裁剪</td>
+<td>不可能（必读整个 blob）</td>
+<td>可能（仅 shredded 列）</td>
+</tr>
+<tr>
+<td>Parquet statistics</td>
+<td>无效</td>
+<td>shredded 字段有效</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>关键限制</strong>：<code>PushVariantIntoScan</code> 的匹配条件被**硬编码为 <code>ParquetFileFormat</code>**（<a href="sql/core/src/main/scala/org/apache/spark/sql/execution/datasources/PushVariantIntoScan.scala:374"><code>PushVariantIntoScan.scala:374</code></a>）：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">case</span> ...<span class="type">HadoopFsRelation</span>(_, _, _, _, _: <span class="type">ParquetFileFormat</span>, _)... =&gt;</span><br></pre></td></tr></table></figure>
+<p>也就是说，<strong>这条规则只对 Spark 自带的 Parquet 数据源生效</strong>。Iceberg 等 DataSourceV2 表走的是完全不同的代码路径，这条规则对它们不触发——这正是场景三需要另一套机制的根本原因。</p>
+</blockquote>
+<h3 id="3-5-优缺点小结"><a href="#3-5-优缺点小结" class="headerlink" title="3.5 优缺点小结"></a>3.5 优缺点小结</h3><p><strong>优点</strong>：完整 SQL 函数集；不依赖表格式；shredding 下可获得字段级下推和裁剪；跨文件格式（JSON&#x2F;XML&#x2F;CSV 读、Parquet 写）。</p>
+<p><strong>缺点</strong>：</p>
+<ul>
+<li>无 shredding 时，每行 Variant blob 必须全量读入，无下推无裁剪</li>
+<li>下推能力强绑定 Spark 自带 Parquet 数据源，换成 DSv2 表格式即失效</li>
+<li>没有表级元数据&#x2F;事务&#x2F;schema 演进（那是表格式的职责）</li>
+<li>Spark 写出的 Parquet（带 variant logical type 或 shredding）需 reader 认识该约定才能正确读回</li>
+</ul>
+<hr>
+<h2 id="4-场景二：只有-Iceberg-支持（Spark-引擎层无-VariantType）"><a href="#4-场景二：只有-Iceberg-支持（Spark-引擎层无-VariantType）" class="headerlink" title="4. 场景二：只有 Iceberg 支持（Spark 引擎层无 VariantType）"></a>4. 场景二：只有 Iceberg 支持（Spark 引擎层无 VariantType）</h2><h3 id="4-1-问题的本质"><a href="#4-1-问题的本质" class="headerlink" title="4.1 问题的本质"></a>4.1 问题的本质</h3><p>假设 Iceberg 在其类型系统中加入了 <code>Types.VariantType</code>，但 Spark 的 catalyst 层<strong>没有</strong> <code>VariantType</code>（例如旧版本 Spark）。Spark-Iceberg 连接器读到 Iceberg 表 schema 里的 <code>VARIANT</code> 时，必须把它<strong>映射到某个 Spark 能理解的类型</strong>。这是问题的核心。</p>
+<h3 id="4-2-类型映射的三种选项"><a href="#4-2-类型映射的三种选项" class="headerlink" title="4.2 类型映射的三种选项"></a>4.2 类型映射的三种选项</h3><table>
+<thead>
+<tr>
+<th>映射</th>
+<th>用户看到的类型</th>
+<th>可用函数</th>
+<th>代价</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>A: BinaryType</strong></td>
+<td><code>Array[Byte]</code></td>
+<td>无</td>
+<td>完全不可用，仅作 bytes 逃生通道</td>
+</tr>
+<tr>
+<td><strong>B: StringType</strong></td>
+<td>JSON 文本</td>
+<td><code>get_json_object</code>&#x2F;<code>json_tuple</code>&#x2F;<code>from_json</code></td>
+<td>精度损失、UDF 黑盒、反序列化贵</td>
+</tr>
+<tr>
+<td><strong>C: StructType</strong></td>
+<td><code>struct&lt;a:bigint,b:string&gt;</code></td>
+<td>普通字段访问</td>
+<td>schema 静态，新字段需 migration</td>
+</tr>
+</tbody></table>
+<p><strong>选项 B（StringType）</strong> 是最容易落地的：连接器读 Variant 后 <code>toJson()</code> 暴露为字符串。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> get_json_object(variant_col, <span class="string">&#x27;$.age&#x27;</span>) <span class="keyword">FROM</span> t;</span><br></pre></td></tr></table></figure>
+
+<p>但 <code>get_json_object</code> 对 Spark 优化器是黑盒 UDF，无法产生下推计划；JSON 文本对 timestamp&#x2F;decimal 有精度歧义。</p>
+<p><strong>选项 C（StructType）</strong> 让连接器通过 schema 推断把 Variant 暴露成 struct：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> variant_col.user_id, variant_col.event_type <span class="keyword">FROM</span> t;  <span class="comment">-- Spark 当成普通 struct</span></span><br></pre></td></tr></table></figure>
+
+<p>子字段在 analysis 阶段解析（<code>GetStructField</code>），常规谓词下推和列裁剪能生效，但 schema 是静态的——不在推断 schema 里的字段无法访问，新字段写入后需要更新映射。</p>
+<h3 id="4-3-Subfield-解析与下推"><a href="#4-3-Subfield-解析与下推" class="headerlink" title="4.3 Subfield 解析与下推"></a>4.3 Subfield 解析与下推</h3><table>
+<thead>
+<tr>
+<th>映射</th>
+<th>Subfield 解析时机</th>
+<th>未知字段行为</th>
+<th>下推 &#x2F; 裁剪</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>BinaryType</td>
+<td>不支持</td>
+<td>无法访问</td>
+<td>无</td>
+</tr>
+<tr>
+<td>StringType</td>
+<td>运行时（UDF）</td>
+<td>返回 NULL</td>
+<td>无（优化器黑盒）</td>
+</tr>
+<tr>
+<td>StructType</td>
+<td>Analysis 阶段</td>
+<td>编译报错</td>
+<td>有（在连接器层实现）</td>
+</tr>
+</tbody></table>
+<p>在这个场景下，<strong>Spark 引擎完全不懂 Variant</strong>，所有优化只能在 Iceberg 连接器内部、用 Spark 已有的类型语义（struct）去实现。</p>
+<h3 id="4-4-优缺点"><a href="#4-4-优缺点" class="headerlink" title="4.4 优缺点"></a>4.4 优缺点</h3><p><strong>优点</strong>：对 Spark 透明，旧版本 Spark 也能用；列裁剪、部分下推可在连接器层独立实现；schema 演进由 Iceberg 管理。</p>
+<p><strong>缺点</strong>：映射类型丢失语义（Binary 不可用 &#x2F; String 精度损失 &#x2F; Struct 不灵活）；用不了 <code>variant_get</code> 等原生函数；codegen 无法针对 Variant 优化；除 StructType 外路径错误延迟到运行时。</p>
+<hr>
+<h2 id="5-场景三：Spark-Iceberg-两方协同"><a href="#5-场景三：Spark-Iceberg-两方协同" class="headerlink" title="5. 场景三：Spark + Iceberg 两方协同"></a>5. 场景三：Spark + Iceberg 两方协同</h2><p>这是真正”原生支持”的形态：<strong>Spark 引擎懂 Variant，Iceberg 表格式也懂 Variant，两方各司其职</strong>。注意 Parquet 在这里只是两方共用的物理底座——Iceberg 用自己的 <code>iceberg-parquet</code> reader 读写它，<strong>不经过</strong> Spark 的 <code>ParquetFileFormat</code>，所以这是”两方”而非”三方”。</p>
+<h3 id="5-1-两方的职责划分"><a href="#5-1-两方的职责划分" class="headerlink" title="5.1 两方的职责划分"></a>5.1 两方的职责划分</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">┌──────────────────────────── Spark（引擎，&quot;提问方&quot;）────────────────────────────┐</span><br><span class="line">│  - VariantType（catalyst 类型）                                                  │</span><br><span class="line">│  - variant_get / parse_json / schema_of_variant 等函数的求值                     │</span><br><span class="line">│  - 把用户查询中的 variant 提取，通过 DSv2 接口&quot;递&quot;给数据源                       │</span><br><span class="line">│       SupportsPushDownVariantExtractions（@since 4.1.0, @Experimental）          │</span><br><span class="line">└────────────────────────────────────┬───────────────────────────────────────────┘</span><br><span class="line">                                      │  DSv2 pushdown 契约</span><br><span class="line">┌────────────────────────────────────┴──── Iceberg（表格式，&quot;执行方&quot;）────────────┐</span><br><span class="line">│  - Types.VariantType（Iceberg schema 类型 + field-id）                           │</span><br><span class="line">│  - 连接器类型转换：Iceberg VariantType ←→ Spark VariantType                      │</span><br><span class="line">│  - 自己的 Parquet reader/writer，理解 shredding 布局，重建 VariantVal            │</span><br><span class="line">│  - 实现 SupportsPushDownVariantExtractions，决定接受哪些提取                     │</span><br><span class="line">│  - manifest 级统计与文件裁剪（built-in Parquet 路径没有的额外一层）              │</span><br><span class="line">└──────────────────────────────────────────────────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>现状提示：截至当前，Apache Iceberg 的 <code>TypeID</code> 枚举里<strong>还没有</strong> <code>VARIANT</code>，Spark-Iceberg 连接器也<strong>还没有</strong> VariantType 映射。本节描述的是 Spark 侧已经备好的契约（<code>SupportsPushDownVariantExtractions</code> 等接口确实存在于代码中）和 Iceberg 侧需要补齐的实现。</p>
+</blockquote>
+<h3 id="5-2-类型链与类型解析"><a href="#5-2-类型链与类型解析" class="headerlink" title="5.2 类型链与类型解析"></a>5.2 类型链与类型解析</h3><p>三层类型，但读写由 Spark 引擎和 Iceberg 两方负责：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Iceberg 表 schema：   Types.VariantType（带 field-id）</span><br><span class="line">        ↕  连接器 TypeToSparkType / SparkTypeToType</span><br><span class="line">Spark catalyst：      VariantType</span><br><span class="line">        ↕  Iceberg 自己的 iceberg-parquet reader（非 ParquetFileFormat）</span><br><span class="line">Parquet 物理：        GROUP &#123; value, metadata, typed_value&#123;...&#125; &#125;</span><br></pre></td></tr></table></figure>
+
+<p>读路径类型解析：Iceberg reader 读到带 variant logical type 的 Parquet GROUP → 还原为 VariantVal → 连接器声明该列 Spark 类型为 <code>VariantType</code> → 用户 SQL 里 <code>col</code> 即 VariantType。</p>
+<h3 id="5-3-Subfield-解析：DSv2-契约，不是-PushVariantIntoScan"><a href="#5-3-Subfield-解析：DSv2-契约，不是-PushVariantIntoScan" class="headerlink" title="5.3 Subfield 解析：DSv2 契约，不是 PushVariantIntoScan"></a>5.3 Subfield 解析：DSv2 契约，不是 PushVariantIntoScan</h3><p>这是与场景一最大的区别。Iceberg 是 DSv2 源，**<code>PushVariantIntoScan</code> 不触发**。取而代之，Spark 通过 <code>SupportsPushDownVariantExtractions</code> 把提取请求”递”给 Iceberg：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Spark 调用，Iceberg 的 SparkScanBuilder 实现</span></span><br><span class="line"><span class="type">boolean</span>[] pushVariantExtractions(VariantExtraction[] extractions);</span><br></pre></td></tr></table></figure>
+
+<p>每个 <code>VariantExtraction</code> 描述一次提取（<a href="sql/catalyst/src/main/java/org/apache/spark/sql/connector/read/VariantExtraction.java"><code>VariantExtraction.java</code></a>）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">interface</span> <span class="title class_">VariantExtraction</span> &#123;</span><br><span class="line">  String[] columnName();        <span class="comment">// [&quot;payload&quot;] 或 [&quot;structCol&quot;,&quot;innerVariant&quot;]</span></span><br><span class="line">  DataType <span class="title function_">expectedDataType</span><span class="params">()</span>;  <span class="comment">// 目标类型，如 IntegerType</span></span><br><span class="line">  Metadata <span class="title function_">metadata</span><span class="params">()</span>;          <span class="comment">// path=&quot;$.age&quot;, failOnError, timeZoneId</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>协同流程：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">用户：variant_get(payload, &#x27;$.age&#x27;, &#x27;int&#x27;)</span><br><span class="line">  ↓</span><br><span class="line">Spark 优化器：构造 VariantExtraction(columnName=[&quot;payload&quot;], path=&quot;$.age&quot;, type=int)</span><br><span class="line">  ↓</span><br><span class="line">调用 iceberg.scanBuilder.pushVariantExtractions([该 extraction])</span><br><span class="line">  ↓</span><br><span class="line">Iceberg 检查：$.age 是否被 shredding？类型/路径是否支持？</span><br><span class="line">  ├─ 接受 → 返回 true，Iceberg 负责读 typed_value.age 并产出 int 列</span><br><span class="line">  └─ 拒绝 → 返回 false，Spark 读回完整 Variant 后自己用 variant_get 求值</span><br></pre></td></tr></table></figure>
+
+<p>返回的 <code>boolean[]</code> 让下推可以<strong>部分接受</strong>：Iceberg 能处理的字段下推，不能处理的回退给 Spark。这比场景一的”全有或全无”更灵活。</p>
+<blockquote>
+<p>Subfield → 物理列的绑定发生在 <strong>Iceberg reader 内部</strong>（根据 Spark 递来的 extractions），而不是 Spark 的优化器里。路径字符串本身依旧不在 analysis 阶段校验，未命中返回 NULL。</p>
+</blockquote>
+<h3 id="5-4-谓词下推：两层裁剪"><a href="#5-4-谓词下推：两层裁剪" class="headerlink" title="5.4 谓词下推：两层裁剪"></a>5.4 谓词下推：两层裁剪</h3><p>Iceberg 路径比场景一多了一层 manifest 级裁剪：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> iceberg_tbl <span class="keyword">WHERE</span> variant_get(payload, <span class="string">&#x27;$.age&#x27;</span>, <span class="string">&#x27;int&#x27;</span>) <span class="operator">&gt;</span> <span class="number">18</span>;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">① Iceberg manifest 级（文件裁剪，built-in Parquet 没有这层）</span><br><span class="line">     若 manifest 记录了 shredded 字段 age 的 min/max</span><br><span class="line">     → 整个 data file 在 scan planning 阶段直接跳过</span><br><span class="line">  ↓</span><br><span class="line">② Iceberg Parquet reader 级（row group 裁剪）</span><br><span class="line">     typed_value.age 列的 row group min/max</span><br><span class="line">     → 跳过不满足的 row group</span><br><span class="line">  ↓</span><br><span class="line">③ 引擎层（剩余行）</span><br><span class="line">     Iceberg 未接受的部分，Spark 读回 VariantVal 后用 variant_get 过滤</span><br></pre></td></tr></table></figure>
+
+<p>能否下推的前提同样是：<code>$.age</code> 被 shredding 拆出来了。未 shred 的字段留在 value blob 里，对统计不可见，只能回退到引擎层逐行过滤。</p>
+<h3 id="5-5-列裁剪：Shredding-DSv2-列剪枝"><a href="#5-5-列裁剪：Shredding-DSv2-列剪枝" class="headerlink" title="5.5 列裁剪：Shredding + DSv2 列剪枝"></a>5.5 列裁剪：Shredding + DSv2 列剪枝</h3><p>Iceberg reader 根据 Spark 递来的 extractions 与列剪枝信息，<strong>只从 Parquet 读被请求的 shredded 列</strong>（如只读 <code>typed_value.name</code>），不读 <code>value</code> blob、不读未访问字段。这与场景一形态 B 的效果一致，但实现位于 Iceberg 自己的 reader 中。</p>
+<h3 id="5-6-严格-Cast-错误的延迟（DSv2-版）"><a href="#5-6-严格-Cast-错误的延迟（DSv2-版）" class="headerlink" title="5.6 严格 Cast 错误的延迟（DSv2 版）"></a>5.6 严格 Cast 错误的延迟（DSv2 版）</h3><p><code>variant_get</code> 严格模式下，若把 cast 下推给 reader，出错时会丢失原始值信息。DSv2 契约用 companion 字段解决（<code>SupportsPushDownVariantExtractions.supportsDeferCastError()</code>）：reader 正常填数据字段，cast 失败时填 companion 字段存原始值，引擎层 <code>UnwrapVariantCastError</code> 再据此抛出带原始值的错误。这套机制在场景一（built-in Parquet，<code>VariantMetadata.castErrorFor</code>）和场景三（DSv2，<code>castErrorFor</code> metadata key）里是对称的两套实现。</p>
+<h3 id="5-7-优缺点"><a href="#5-7-优缺点" class="headerlink" title="5.7 优缺点"></a>5.7 优缺点</h3><p><strong>优点</strong>：</p>
+<ul>
+<li>Spark 原生函数 + Iceberg 表能力（事务、snapshot、schema 演进、隐藏分区）兼得</li>
+<li>两层裁剪：Iceberg manifest 文件级 + Parquet row group 级</li>
+<li>部分下推（<code>boolean[]</code>）比 built-in 路径更灵活</li>
+<li>field-id 让 Variant 列也能安全地重命名&#x2F;演进</li>
+<li>写出的文件任何认识 Variant shredding 规范的引擎都能读（Trino、Flink 等）</li>
+</ul>
+<p><strong>缺点</strong>：</p>
+<ul>
+<li>需要 Iceberg 在类型系统、连接器、<code>iceberg-parquet</code> reader&#x2F;writer、manifest 统计四处都补齐实现（目前尚未完成）</li>
+<li>shredding schema 由谁决定、如何随 snapshot 演进，是额外的工程复杂度</li>
+<li>依赖较新的 Spark（DSv2 变体提取接口 <code>@since 4.1.0</code>）和未来的 Iceberg 版本</li>
+</ul>
+<hr>
+<h2 id="6-横向对比：四个关键能力维度"><a href="#6-横向对比：四个关键能力维度" class="headerlink" title="6. 横向对比：四个关键能力维度"></a>6. 横向对比：四个关键能力维度</h2><p>为精确起见，把”只有 Spark”按是否 shredding 拆成两列。</p>
+<h3 id="6-1-类型定义"><a href="#6-1-类型定义" class="headerlink" title="6.1 类型定义"></a>6.1 类型定义</h3><table>
+<thead>
+<tr>
+<th>层</th>
+<th>Spark·blob</th>
+<th>Spark·shredding</th>
+<th>只有 Iceberg</th>
+<th>Spark+Iceberg</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>引擎（catalyst）</td>
+<td>VariantType</td>
+<td>VariantType</td>
+<td>Binary&#x2F;String&#x2F;Struct</td>
+<td>VariantType</td>
+</tr>
+<tr>
+<td>表格式（Iceberg）</td>
+<td>不经过</td>
+<td>不经过</td>
+<td>Types.VariantType</td>
+<td>Types.VariantType</td>
+</tr>
+<tr>
+<td>文件（Parquet）</td>
+<td>GROUP{value,metadata}</td>
+<td>+typed_value</td>
+<td>+typed_value</td>
+<td>+typed_value</td>
+</tr>
+<tr>
+<td>读写者</td>
+<td>Spark ParquetFileFormat</td>
+<td>Spark ParquetFileFormat</td>
+<td>iceberg-parquet</td>
+<td>iceberg-parquet</td>
+</tr>
+</tbody></table>
+<h3 id="6-2-Subfield-解析"><a href="#6-2-Subfield-解析" class="headerlink" title="6.2 Subfield 解析"></a>6.2 Subfield 解析</h3><table>
+<thead>
+<tr>
+<th></th>
+<th>Spark·blob</th>
+<th>Spark·shredding</th>
+<th>Iceberg·Struct 映射</th>
+<th>Spark+Iceberg</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>解析时机</td>
+<td>运行时</td>
+<td>优化器（PushVariantIntoScan）</td>
+<td>Analysis</td>
+<td>Iceberg reader（DSv2 extractions）</td>
+</tr>
+<tr>
+<td>路径校验</td>
+<td>无</td>
+<td>无</td>
+<td>编译期</td>
+<td>无</td>
+</tr>
+<tr>
+<td>新字段</td>
+<td>透明</td>
+<td>透明</td>
+<td>需 migration</td>
+<td>透明</td>
+</tr>
+<tr>
+<td>绑定机制</td>
+<td>VariantPathParser</td>
+<td>改写为 GetStructField</td>
+<td>GetStructField</td>
+<td>pushVariantExtractions</td>
+</tr>
+</tbody></table>
+<h3 id="6-3-谓词下推"><a href="#6-3-谓词下推" class="headerlink" title="6.3 谓词下推"></a>6.3 谓词下推</h3><table>
+<thead>
+<tr>
+<th></th>
+<th>Spark·blob</th>
+<th>Spark·shredding</th>
+<th>只有 Iceberg</th>
+<th>Spark+Iceberg</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>触发机制</td>
+<td>无</td>
+<td>PushVariantIntoScan（仅 ParquetFileFormat）</td>
+<td>连接器内部</td>
+<td>SupportsPushDownVariantExtractions</td>
+</tr>
+<tr>
+<td>Parquet row group</td>
+<td>✗</td>
+<td>✓（shredded）</td>
+<td>✓（Struct 映射）</td>
+<td>✓（shredded）</td>
+</tr>
+<tr>
+<td>Iceberg 文件级</td>
+<td>✗</td>
+<td>✗</td>
+<td>✓（manifest）</td>
+<td>✓（manifest）</td>
+</tr>
+<tr>
+<td>部分下推</td>
+<td>—</td>
+<td>全有或全无</td>
+<td>—</td>
+<td>✓（boolean[]）</td>
+</tr>
+</tbody></table>
+<h3 id="6-4-列裁剪"><a href="#6-4-列裁剪" class="headerlink" title="6.4 列裁剪"></a>6.4 列裁剪</h3><table>
+<thead>
+<tr>
+<th></th>
+<th>Spark·blob</th>
+<th>Spark·shredding</th>
+<th>只有 Iceberg</th>
+<th>Spark+Iceberg</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>整列跳过</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>字段级 I&#x2F;O 裁剪</td>
+<td>✗（读整个 blob）</td>
+<td>✓（shredded 列）</td>
+<td>连接器可实现</td>
+<td>✓（shredded 列）</td>
+</tr>
+<tr>
+<td>实现位置</td>
+<td>—</td>
+<td>Spark 内置 Parquet reader</td>
+<td>Iceberg reader</td>
+<td>Iceberg reader</td>
+</tr>
+</tbody></table>
+<h3 id="6-5-一句话总结每个场景"><a href="#6-5-一句话总结每个场景" class="headerlink" title="6.5 一句话总结每个场景"></a>6.5 一句话总结每个场景</h3><ul>
+<li><strong>Spark·blob</strong>：引擎懂 Variant，但落盘是不透明 bytes —— 函数齐全，零下推零裁剪。</li>
+<li><strong>Spark·shredding</strong>：引擎 + 自带 Parquet 协同，<code>PushVariantIntoScan</code> 把提取改写成 struct 访问 —— 仅对 <code>ParquetFileFormat</code> 生效。</li>
+<li><strong>只有 Iceberg</strong>：引擎不懂 Variant，连接器把它”翻译”成 String&#x2F;Struct —— 损失语义，优化在连接器内闭环。</li>
+<li><strong>Spark+Iceberg</strong>：引擎出 <code>VariantType</code> + 下推契约，Iceberg 出类型 + 自有 reader + manifest 裁剪 —— 走 DSv2 而非 <code>PushVariantIntoScan</code>，多一层文件级裁剪，支持部分下推。</li>
+</ul>
+<h3 id="6-6-现实状态（截至-Spark-4-x-x2F-Iceberg-main）"><a href="#6-6-现实状态（截至-Spark-4-x-x2F-Iceberg-main）" class="headerlink" title="6.6 现实状态（截至 Spark 4.x &#x2F; Iceberg main）"></a>6.6 现实状态（截至 Spark 4.x &#x2F; Iceberg main）</h3><ul>
+<li><strong>Spark</strong>：完整支持 <code>VariantType</code>（4.0），shredding 写入 + <code>PushVariantIntoScan</code>（仅 <code>ParquetFileFormat</code>）；DSv2 变体提取接口 <code>SupportsPushDownVariantExtractions</code>（4.1，<code>@Experimental</code>）已就位</li>
+<li><strong>Iceberg</strong>：<code>TypeID</code> 枚举<strong>无</strong> <code>VARIANT</code>，连接器<strong>无</strong> VariantType 映射 —— 场景三尚未在 Iceberg 侧落地</li>
+<li><strong>当前可用路径</strong>：用 Spark 自带 Parquet 读写 Variant（场景一）；或在 Iceberg 表把 JSON 存为 <code>STRING</code> 列，查询时 <code>parse_json()</code> 动态转换</li>
+</ul>
+<hr>
+<h3 id="附：关键源码索引"><a href="#附：关键源码索引" class="headerlink" title="附：关键源码索引"></a>附：关键源码索引</h3><table>
+<thead>
+<tr>
+<th>组件</th>
+<th>文件</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>引擎类型定义</td>
+<td><a href="sql/api/src/main/scala/org/apache/spark/sql/types/VariantType.scala"><code>sql/api/.../types/VariantType.scala</code></a></td>
+</tr>
+<tr>
+<td>运行时表示</td>
+<td><a href="common/unsafe/src/main/java/org/apache/spark/unsafe/types/VariantVal.java"><code>common/unsafe/.../types/VariantVal.java</code></a></td>
+</tr>
+<tr>
+<td>二进制编码</td>
+<td><a href="common/variant/src/main/java/org/apache/spark/types/variant/VariantUtil.java"><code>common/variant/.../variant/VariantUtil.java</code></a></td>
+</tr>
+<tr>
+<td>SQL 表达式</td>
+<td><a href="sql/catalyst/src/main/scala/org/apache/spark/sql/catalyst/expressions/variant/variantExpressions.scala"><code>sql/catalyst/.../expressions/variant/variantExpressions.scala</code></a></td>
+</tr>
+<tr>
+<td>优化器下推规则（仅 built-in Parquet）</td>
+<td><a href="sql/core/src/main/scala/org/apache/spark/sql/execution/datasources/PushVariantIntoScan.scala"><code>sql/core/.../datasources/PushVariantIntoScan.scala</code></a></td>
+</tr>
+<tr>
+<td>DSv2 下推接口（表格式用）</td>
+<td><a href="sql/catalyst/src/main/java/org/apache/spark/sql/connector/read/SupportsPushDownVariantExtractions.java"><code>sql/catalyst/.../connector/read/SupportsPushDownVariantExtractions.java</code></a></td>
+</tr>
+<tr>
+<td>DSv2 提取描述</td>
+<td><a href="sql/catalyst/src/main/java/org/apache/spark/sql/connector/read/VariantExtraction.java"><code>sql/catalyst/.../connector/read/VariantExtraction.java</code></a></td>
+</tr>
+<tr>
+<td>Parquet 类型映射</td>
+<td><a href="sql/core/src/main/scala/org/apache/spark/sql/execution/datasources/parquet/ParquetSchemaConverter.scala:902"><code>sql/core/.../parquet/ParquetSchemaConverter.scala:902</code></a></td>
+</tr>
+<tr>
+<td>Shredding 推断</td>
+<td><a href="sql/core/src/main/scala/org/apache/spark/sql/execution/datasources/parquet/InferVariantShreddingSchema.scala"><code>sql/core/.../parquet/InferVariantShreddingSchema.scala</code></a></td>
+</tr>
+<tr>
+<td>Shredding Writer</td>
+<td><a href="sql/core/src/main/scala/org/apache/spark/sql/execution/datasources/parquet/ParquetOutputWriterWithVariantShredding.scala"><code>sql/core/.../parquet/ParquetOutputWriterWithVariantShredding.scala</code></a></td>
+</tr>
+<tr>
+<td>Iceberg 类型系统</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/apache/iceberg/blob/main/api/src/main/java/org/apache/iceberg/types/Type.java"><code>apache/iceberg: api/.../types/Type.java</code></a></td>
+</tr>
+</tbody></table>
+
+  </div>
+</article>
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/categories/technology">Technology</a></li>
+         
+          <li><a href="/categories/life">Life</a></li>
+         
+          <li><a href="/archives/">Archives</a></li>
+         
+          <li><a href="/tags/">Tags</a></li>
+         
+          <li><a href="/about">About</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E7%AC%AC%E4%B8%80%E6%80%A7%E5%8E%9F%E7%90%86%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81-Variant"><span class="toc-number">1.</span> <span class="toc-text">1. 第一性原理：为什么需要 Variant</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-%E5%8D%8A%E7%BB%93%E6%9E%84%E5%8C%96%E6%95%B0%E6%8D%AE%E7%9A%84%E6%9C%AC%E8%B4%A8%E7%9F%9B%E7%9B%BE"><span class="toc-number">1.1.</span> <span class="toc-text">1.1 半结构化数据的本质矛盾</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-%E7%8E%B0%E6%9C%89%E6%96%B9%E6%A1%88%E7%9A%84%E6%9D%83%E8%A1%A1"><span class="toc-number">1.2.</span> <span class="toc-text">1.2 现有方案的权衡</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3-Variant-%E5%B8%A6%E6%9D%A5%E7%9A%84%E6%94%B6%E7%9B%8A"><span class="toc-number">1.3.</span> <span class="toc-text">1.3 Variant 带来的收益</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Variant-%E7%9A%84%E6%A0%B8%E5%BF%83%E8%AE%BE%E8%AE%A1"><span class="toc-number">2.</span> <span class="toc-text">2. Variant 的核心设计</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E6%80%BB%E4%BD%93%E7%BB%93%E6%9E%84%EF%BC%9Avalue-metadata-%E4%B8%A4%E6%AE%B5%E7%8B%AC%E7%AB%8B-bytes"><span class="toc-number">2.1.</span> <span class="toc-text">2.1 总体结构：value + metadata 两段独立 bytes</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-Header-byte%EF%BC%9A%E6%AF%8F%E4%B8%AA-value-%E8%8A%82%E7%82%B9%E7%9A%84%E7%AC%AC%E4%B8%80%E4%B8%AA%E5%AD%97%E8%8A%82"><span class="toc-number">2.2.</span> <span class="toc-text">2.2 Header byte：每个 value 节点的第一个字节</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-PRIMITIVE-%E5%AD%90%E7%B1%BB%E5%9E%8B%E7%BC%96%E7%A0%81%EF%BC%88bt-x3D-0%EF%BC%89"><span class="toc-number">2.3.</span> <span class="toc-text">2.3 PRIMITIVE 子类型编码（bt &#x3D; 0）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-OBJECT-layout%EF%BC%88bt-x3D-2%EF%BC%89"><span class="toc-number">2.4.</span> <span class="toc-text">2.4 OBJECT layout（bt &#x3D; 2）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-5-ARRAY-layout%EF%BC%88bt-x3D-3%EF%BC%89"><span class="toc-number">2.5.</span> <span class="toc-text">2.5 ARRAY layout（bt &#x3D; 3）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-6-Metadata-layout%EF%BC%88%E5%AD%97%E6%AE%B5%E5%90%8D%E5%AD%97%E5%85%B8%EF%BC%89"><span class="toc-number">2.6.</span> <span class="toc-text">2.6 Metadata layout（字段名字典）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-7-%E5%AE%8C%E6%95%B4%E7%BC%96%E7%A0%81%E5%AE%9E%E4%BE%8B%EF%BC%9A-quot-a-quot-1-quot-b-quot-quot-hi-quot"><span class="toc-number">2.7.</span> <span class="toc-text">2.7 完整编码实例：{&quot;a&quot;: 1, &quot;b&quot;: &quot;hi&quot;}</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-8-%E4%B8%89%E4%B8%AA%E5%B1%82%E6%AC%A1%EF%BC%9A%E5%BC%95%E6%93%8E%E7%B1%BB%E5%9E%8B%E3%80%81%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F%E3%80%81%E8%A1%A8%E6%A0%BC%E5%BC%8F"><span class="toc-number">2.8.</span> <span class="toc-text">2.8 三个层次：引擎类型、文件格式、表格式</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E5%9C%BA%E6%99%AF%E4%B8%80%EF%BC%9A%E5%8F%AA%E6%9C%89-Spark-%E6%94%AF%E6%8C%81%EF%BC%88%E5%BC%95%E6%93%8E%E5%B1%82%E6%9C%89-VariantType%EF%BC%89"><span class="toc-number">3.</span> <span class="toc-text">3. 场景一：只有 Spark 支持（引擎层有 VariantType）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-%E7%B1%BB%E5%9E%8B%E5%AE%9A%E4%B9%89"><span class="toc-number">3.1.</span> <span class="toc-text">3.1 类型定义</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-%E4%B8%A4%E7%A7%8D%E8%90%BD%E7%9B%98%E5%BD%A2%E6%80%81%E5%86%B3%E5%AE%9A%E4%BA%86%E8%83%BD%E5%8A%9B%E4%B8%8A%E9%99%90"><span class="toc-number">3.2.</span> <span class="toc-text">3.2 两种落盘形态决定了能力上限</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-%E7%B1%BB%E5%9E%8B%E8%A7%A3%E6%9E%90%E4%B8%8E-Subfield-%E8%A7%A3%E6%9E%90"><span class="toc-number">3.3.</span> <span class="toc-text">3.3 类型解析与 Subfield 解析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4-%E8%B0%93%E8%AF%8D%E4%B8%8B%E6%8E%A8%E4%B8%8E%E5%88%97%E8%A3%81%E5%89%AA%EF%BC%9A%E5%8F%96%E5%86%B3%E4%BA%8E%E6%98%AF%E5%90%A6-shredding"><span class="toc-number">3.4.</span> <span class="toc-text">3.4 谓词下推与列裁剪：取决于是否 shredding</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-5-%E4%BC%98%E7%BC%BA%E7%82%B9%E5%B0%8F%E7%BB%93"><span class="toc-number">3.5.</span> <span class="toc-text">3.5 优缺点小结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E5%9C%BA%E6%99%AF%E4%BA%8C%EF%BC%9A%E5%8F%AA%E6%9C%89-Iceberg-%E6%94%AF%E6%8C%81%EF%BC%88Spark-%E5%BC%95%E6%93%8E%E5%B1%82%E6%97%A0-VariantType%EF%BC%89"><span class="toc-number">4.</span> <span class="toc-text">4. 场景二：只有 Iceberg 支持（Spark 引擎层无 VariantType）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-%E9%97%AE%E9%A2%98%E7%9A%84%E6%9C%AC%E8%B4%A8"><span class="toc-number">4.1.</span> <span class="toc-text">4.1 问题的本质</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-%E7%B1%BB%E5%9E%8B%E6%98%A0%E5%B0%84%E7%9A%84%E4%B8%89%E7%A7%8D%E9%80%89%E9%A1%B9"><span class="toc-number">4.2.</span> <span class="toc-text">4.2 类型映射的三种选项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-Subfield-%E8%A7%A3%E6%9E%90%E4%B8%8E%E4%B8%8B%E6%8E%A8"><span class="toc-number">4.3.</span> <span class="toc-text">4.3 Subfield 解析与下推</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-4-%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="toc-number">4.4.</span> <span class="toc-text">4.4 优缺点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E5%9C%BA%E6%99%AF%E4%B8%89%EF%BC%9ASpark-Iceberg-%E4%B8%A4%E6%96%B9%E5%8D%8F%E5%90%8C"><span class="toc-number">5.</span> <span class="toc-text">5. 场景三：Spark + Iceberg 两方协同</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-%E4%B8%A4%E6%96%B9%E7%9A%84%E8%81%8C%E8%B4%A3%E5%88%92%E5%88%86"><span class="toc-number">5.1.</span> <span class="toc-text">5.1 两方的职责划分</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-%E7%B1%BB%E5%9E%8B%E9%93%BE%E4%B8%8E%E7%B1%BB%E5%9E%8B%E8%A7%A3%E6%9E%90"><span class="toc-number">5.2.</span> <span class="toc-text">5.2 类型链与类型解析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-3-Subfield-%E8%A7%A3%E6%9E%90%EF%BC%9ADSv2-%E5%A5%91%E7%BA%A6%EF%BC%8C%E4%B8%8D%E6%98%AF-PushVariantIntoScan"><span class="toc-number">5.3.</span> <span class="toc-text">5.3 Subfield 解析：DSv2 契约，不是 PushVariantIntoScan</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-4-%E8%B0%93%E8%AF%8D%E4%B8%8B%E6%8E%A8%EF%BC%9A%E4%B8%A4%E5%B1%82%E8%A3%81%E5%89%AA"><span class="toc-number">5.4.</span> <span class="toc-text">5.4 谓词下推：两层裁剪</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-5-%E5%88%97%E8%A3%81%E5%89%AA%EF%BC%9AShredding-DSv2-%E5%88%97%E5%89%AA%E6%9E%9D"><span class="toc-number">5.5.</span> <span class="toc-text">5.5 列裁剪：Shredding + DSv2 列剪枝</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-6-%E4%B8%A5%E6%A0%BC-Cast-%E9%94%99%E8%AF%AF%E7%9A%84%E5%BB%B6%E8%BF%9F%EF%BC%88DSv2-%E7%89%88%EF%BC%89"><span class="toc-number">5.6.</span> <span class="toc-text">5.6 严格 Cast 错误的延迟（DSv2 版）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-7-%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="toc-number">5.7.</span> <span class="toc-text">5.7 优缺点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E6%A8%AA%E5%90%91%E5%AF%B9%E6%AF%94%EF%BC%9A%E5%9B%9B%E4%B8%AA%E5%85%B3%E9%94%AE%E8%83%BD%E5%8A%9B%E7%BB%B4%E5%BA%A6"><span class="toc-number">6.</span> <span class="toc-text">6. 横向对比：四个关键能力维度</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#6-1-%E7%B1%BB%E5%9E%8B%E5%AE%9A%E4%B9%89"><span class="toc-number">6.1.</span> <span class="toc-text">6.1 类型定义</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-2-Subfield-%E8%A7%A3%E6%9E%90"><span class="toc-number">6.2.</span> <span class="toc-text">6.2 Subfield 解析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-3-%E8%B0%93%E8%AF%8D%E4%B8%8B%E6%8E%A8"><span class="toc-number">6.3.</span> <span class="toc-text">6.3 谓词下推</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-4-%E5%88%97%E8%A3%81%E5%89%AA"><span class="toc-number">6.4.</span> <span class="toc-text">6.4 列裁剪</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-5-%E4%B8%80%E5%8F%A5%E8%AF%9D%E6%80%BB%E7%BB%93%E6%AF%8F%E4%B8%AA%E5%9C%BA%E6%99%AF"><span class="toc-number">6.5.</span> <span class="toc-text">6.5 一句话总结每个场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-6-%E7%8E%B0%E5%AE%9E%E7%8A%B6%E6%80%81%EF%BC%88%E6%88%AA%E8%87%B3-Spark-4-x-x2F-Iceberg-main%EF%BC%89"><span class="toc-number">6.6.</span> <span class="toc-text">6.6 现实状态（截至 Spark 4.x &#x2F; Iceberg main）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%99%84%EF%BC%9A%E5%85%B3%E9%94%AE%E6%BA%90%E7%A0%81%E7%B4%A2%E5%BC%95"><span class="toc-number">6.7.</span> <span class="toc-text">附：关键源码索引</span></a></li></ol></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2026/06/21/spark-variant/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2026/06/21/spark-variant/&text=Variant原理与实现"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2026/06/21/spark-variant/&title=Variant原理与实现"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2026/06/21/spark-variant/&is_video=false&description=Variant原理与实现"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Variant原理与实现&body=Check out this article: http://example.com/2026/06/21/spark-variant/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2026/06/21/spark-variant/&title=Variant原理与实现"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2026/06/21/spark-variant/&title=Variant原理与实现"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2026/06/21/spark-variant/&title=Variant原理与实现"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2026/06/21/spark-variant/&title=Variant原理与实现"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2026/06/21/spark-variant/&name=Variant原理与实现&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2026/06/21/spark-variant/&t=Variant原理与实现"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2026
+    duanmeng
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/categories/technology">Technology</a></li><!--
+     --><!--
+       --><li><a href="/categories/life">Life</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Archives</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tags</a></li><!--
+     --><!--
+       --><li><a href="/about">About</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+
+  <script src='https://unpkg.com/mermaid@10.3.0/dist/mermaid.min.js'></script>
+  <script>
+    if (window.mermaid) {
+      mermaid.initialize({theme: 'forest'});
+    }
+  </script>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
