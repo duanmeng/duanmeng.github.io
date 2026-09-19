@@ -6,22 +6,26 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
-    <meta name="description" content="What Is SIMDSIMD代表单指令多数据（Single Instruction, Multiple Data）。它是一种计算机指令集架构，旨在同时处理多个数据元素。SIMD指令允许在单个指令中对多个数据元素执行相同的操作，从而实现并行处理和向量化计算。 在SIMD架构中，数据被组织为向量（也称为寄存器），其中每个向量元素都可以是整数、浮点数或其他数据类型。SIMD指令可以同时对向量中的多个">
+    <meta name="description" content="body:has(.simd-article) #header-post #toc .toc-level-2::before, body:has(.simd-article) #toc-footer .toc-level-2::before { display: none; } .simd-article .simd-figure { margin: 2rem 0; } .simd-articl">
 <meta property="og:type" content="article">
 <meta property="og:title" content="SIMD Basic Using AVX and AVX2">
 <meta property="og:url" content="https://duanmeng.github.io/2021/08/22/simd-basic/index.html">
 <meta property="og:site_name" content="Macduan Notes">
-<meta property="og:description" content="What Is SIMDSIMD代表单指令多数据（Single Instruction, Multiple Data）。它是一种计算机指令集架构，旨在同时处理多个数据元素。SIMD指令允许在单个指令中对多个数据元素执行相同的操作，从而实现并行处理和向量化计算。 在SIMD架构中，数据被组织为向量（也称为寄存器），其中每个向量元素都可以是整数、浮点数或其他数据类型。SIMD指令可以同时对向量中的多个">
+<meta property="og:description" content="body:has(.simd-article) #header-post #toc .toc-level-2::before, body:has(.simd-article) #toc-footer .toc-level-2::before { display: none; } .simd-article .simd-figure { margin: 2rem 0; } .simd-articl">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="https://www.codeproject.com/KB/cpp/874396/Fig4.jpg">
-<meta property="og:image" content="https://www.codeproject.com/KB/cpp/874396/Fig5.jpg">
+<meta property="og:image" content="https://duanmeng.github.io/images/simd-basic/lanes.svg">
+<meta property="og:image" content="https://duanmeng.github.io/images/simd-basic/memory.svg">
+<meta property="og:image" content="https://duanmeng.github.io/images/simd-basic/masks.svg">
+<meta property="og:image" content="https://duanmeng.github.io/images/simd-basic/shuffle.svg">
+<meta property="og:image" content="https://duanmeng.github.io/images/simd-basic/reduction.svg">
+<meta property="og:image" content="https://duanmeng.github.io/images/simd-basic/dispatch.svg">
 <meta property="article:published_time" content="2021-08-22T02:20:20.000Z">
-<meta property="article:modified_time" content="2026-09-18T06:32:14.365Z">
+<meta property="article:modified_time" content="2026-09-18T16:00:00.000Z">
 <meta property="article:author" content="duanmeng">
 <meta property="article:tag" content="C++">
 <meta property="article:tag" content="SIMD">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://www.codeproject.com/KB/cpp/874396/Fig4.jpg">
+<meta name="twitter:image" content="https://duanmeng.github.io/images/simd-basic/lanes.svg">
     
     
       
@@ -97,7 +101,7 @@
 
     </div>
     <div id="toc">
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#What-Is-SIMD"><span class="toc-number">1.</span> <span class="toc-text">What Is SIMD</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Fundamentals-of-AVX-Programming"><span class="toc-number">2.</span> <span class="toc-text">Fundamentals of AVX Programming</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#SIMD-Data-Type"><span class="toc-number">2.1.</span> <span class="toc-text">SIMD Data Type</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Function-Naming-Conventions"><span class="toc-number">2.2.</span> <span class="toc-text">Function Naming Conventions</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E4%BE%8B%E5%AD%90"><span class="toc-number">2.3.</span> <span class="toc-text">一个简单例子</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Initialization-Intrinsics"><span class="toc-number">3.</span> <span class="toc-text">Initialization Intrinsics</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Initialization-with-Scalar-Values"><span class="toc-number">3.1.</span> <span class="toc-text">Initialization with Scalar Values</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Loading-Data-from-Memory"><span class="toc-number">3.2.</span> <span class="toc-text">Loading Data from Memory</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Arithmetic-Intrinsics"><span class="toc-number">4.</span> <span class="toc-text">Arithmetic Intrinsics</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Addition-and-Subtraction"><span class="toc-number">4.1.</span> <span class="toc-text">Addition and Subtraction</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Multiplication-and-Division"><span class="toc-number">4.2.</span> <span class="toc-text">Multiplication and Division</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Fused-Multiply-and-Add-FMA"><span class="toc-number">4.3.</span> <span class="toc-text">Fused Multiply and Add (FMA)</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Permuting-and-Shuffling"><span class="toc-number">5.</span> <span class="toc-text">Permuting and Shuffling</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Permuting"><span class="toc-number">5.1.</span> <span class="toc-text">Permuting</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Shuffling"><span class="toc-number">5.2.</span> <span class="toc-text">Shuffling</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">6.</span> <span class="toc-text">References</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#model"><span class="toc-number">1.</span> <span class="toc-text">1. SIMD 的执行模型：一条指令，多份数据</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#256-%E4%BD%8D%E4%B8%8D%E4%BB%A3%E8%A1%A8%E4%BB%BB%E6%84%8F%E5%85%83%E7%B4%A0%E9%83%BD%E8%83%BD%E4%BA%92%E7%9B%B8%E4%BA%A4%E6%8D%A2"><span class="toc-number">1.1.</span> <span class="toc-text">256 位不代表任意元素都能互相交换</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#isa"><span class="toc-number">2.</span> <span class="toc-text">2. AVX、AVX2、FMA 与编译选项</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#intrinsic-%E6%98%AF%E7%BC%96%E8%AF%91%E5%99%A8%E6%8E%A5%E5%8F%A3%EF%BC%8C%E4%B8%8D%E6%98%AF%E6%9C%BA%E5%99%A8%E6%8C%87%E4%BB%A4%E6%B8%85%E5%8D%95%E7%9A%84%E4%B8%80%E6%AF%94%E4%B8%80%E5%88%AB%E5%90%8D"><span class="toc-number">2.1.</span> <span class="toc-text">Intrinsic 是编译器接口，不是机器指令清单的一比一别名</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%A4%E7%A7%8D%E7%BC%96%E8%AF%91%E6%96%B9%E5%BC%8F"><span class="toc-number">2.2.</span> <span class="toc-text">两种编译方式</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#layout"><span class="toc-number">3.</span> <span class="toc-text">3. 元素顺序、常量与内存布局</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#aos-%E4%B8%8E-soa-%E5%86%B3%E5%AE%9A%E4%BA%86%E6%95%B0%E6%8D%AE%E6%90%AC%E8%BF%90%E6%88%90%E6%9C%AC"><span class="toc-number">3.1.</span> <span class="toc-text">AoS 与 SoA 决定了数据搬运成本</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#memory"><span class="toc-number">4.</span> <span class="toc-text">4. Load、Store、对齐与尾部</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%B8%80%E4%B8%AA%E5%AE%8C%E6%95%B4%E5%BE%AA%E7%8E%AF%EF%BC%9A%E6%95%B0%E7%BB%84%E7%9B%B8%E5%8A%A0"><span class="toc-number">4.1.</span> <span class="toc-text">第一个完整循环：数组相加</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#maskload-%E7%9A%84%E6%8E%A9%E7%A0%81%E4%B8%8D%E6%98%AF-01-%E5%B8%83%E5%B0%94%E6%95%B0%E7%BB%84"><span class="toc-number">4.2.</span> <span class="toc-text">Maskload 的掩码不是 0&#x2F;1 布尔数组</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#gather-%E8%A7%A3%E5%86%B3%E5%9C%B0%E5%9D%80%E8%A1%A8%E8%BE%BE%EF%BC%8C%E4%B8%8D%E4%BF%9D%E8%AF%81%E6%9B%B4%E5%BF%AB"><span class="toc-number">4.3.</span> <span class="toc-text">Gather 解决地址表达，不保证更快</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#arithmetic"><span class="toc-number">5.</span> <span class="toc-text">5. 算术：整数溢出、乘法与 FMA</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%B4%E6%95%B0%E5%8A%A0%E5%87%8F%E6%9C%89%E6%A8%A1%E8%BF%90%E7%AE%97%E4%B8%8E%E9%A5%B1%E5%92%8C%E4%B8%A4%E7%B1%BB"><span class="toc-number">5.1.</span> <span class="toc-text">整数加减有模运算与饱和两类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#32-%E4%BD%8D%E4%B9%98%E6%B3%95%E5%BF%85%E9%A1%BB%E5%85%88%E9%97%AE%EF%BC%9A%E9%9C%80%E8%A6%81%E5%93%AA%E5%87%A0%E4%BD%8D%E3%80%81%E5%93%AA%E5%87%A0%E4%B8%AA%E5%85%83%E7%B4%A0"><span class="toc-number">5.2.</span> <span class="toc-text">32 位乘法必须先问：需要哪几位、哪几个元素</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B5%AE%E7%82%B9%E6%AF%94%E8%BE%83%E3%80%81%E9%99%A4%E6%B3%95%E4%B8%8E%E8%BF%91%E4%BC%BC%E6%8C%87%E4%BB%A4%E8%A6%81%E4%BF%9D%E7%95%99%E8%AF%AD%E4%B9%89"><span class="toc-number">5.3.</span> <span class="toc-text">浮点比较、除法与近似指令要保留语义</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#fma-%E5%8F%AA%E6%9C%89%E4%B8%80%E6%AC%A1%E6%9C%80%E7%BB%88%E8%88%8D%E5%85%A5%EF%BC%8C%E4%BD%86%E7%BB%93%E6%9E%9C%E5%8F%AF%E4%BB%A5%E6%94%B9%E5%8F%98"><span class="toc-number">5.4.</span> <span class="toc-text">FMA 只有一次最终舍入，但结果可以改变</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#masks"><span class="toc-number">6.</span> <span class="toc-text">6. 比较、Mask 与无分支处理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#movemask-%E4%B8%8E-blend-%E6%9C%8D%E5%8A%A1%E4%BA%8E%E4%B8%8D%E5%90%8C%E7%9A%84%E6%8E%A7%E5%88%B6%E6%96%B9%E5%BC%8F"><span class="toc-number">6.1.</span> <span class="toc-text">Movemask 与 blend 服务于不同的控制方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%8C%E6%95%B4%E6%A8%A1%E5%BC%8F%EF%BC%9A%E7%BB%9F%E8%AE%A1%E5%A4%A7%E4%BA%8E%E9%98%88%E5%80%BC%E7%9A%84-uint32"><span class="toc-number">6.2.</span> <span class="toc-text">完整模式：统计大于阈值的 uint32</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#shuffle"><span class="toc-number">7.</span> <span class="toc-text">7. Shuffle、Permute、Unpack：先画索引再写 immediate</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#_mm_shuffle-%E4%BB%8E%E5%8F%B3%E8%BE%B9%E5%86%B3%E5%AE%9A-lane-0"><span class="toc-number">7.1.</span> <span class="toc-text">_MM_SHUFFLE 从右边决定 lane 0</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#byte-shuffle-%E5%8F%AF%E5%BD%93%E4%BD%9C%E5%B0%8F%E6%9F%A5%E8%A1%A8%EF%BC%8C%E4%BD%86%E6%AF%8F%E5%8D%8A%E5%8F%AA%E6%9C%89-16-%E4%B8%AA%E5%85%A5%E5%8F%A3"><span class="toc-number">7.2.</span> <span class="toc-text">Byte shuffle 可当作小查表，但每半只有 16 个入口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#unpack-%E5%92%8C-pack-%E4%B9%9F%E4%BF%9D%E7%95%99%E8%BF%99%E4%B8%AA%E4%B8%AD%E9%97%B4%E8%BE%B9%E7%95%8C"><span class="toc-number">7.3.</span> <span class="toc-text">Unpack 和 pack 也保留这个中间边界</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#conversion"><span class="toc-number">8.</span> <span class="toc-text">8. 数值转换、扩宽、收窄与位移</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#simd-%E4%BD%8D%E7%A7%BB%E4%B8%8D%E6%80%BB%E6%98%AF%E9%81%B5%E5%BE%AA%E6%A0%87%E9%87%8F%E8%AE%A1%E6%95%B0%E5%8F%96%E6%A8%A1"><span class="toc-number">8.1.</span> <span class="toc-text">SIMD 位移不总是遵循标量计数取模</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reduction"><span class="toc-number">9.</span> <span class="toc-text">9. Horizontal 运算与真正的全向量归约</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#dispatch"><span class="toc-number">10.</span> <span class="toc-text">10. 运行时分派：不支持 AVX2 的机器也要能启动</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#avx-%E4%B8%8E-sse-%E7%9A%84%E8%BE%B9%E7%95%8C"><span class="toc-number">10.1.</span> <span class="toc-text">AVX 与 SSE 的边界</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#performance"><span class="toc-number">11.</span> <span class="toc-text">11. 性能分析：先找瓶颈，再数指令</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%87%AA%E5%8A%A8%E5%90%91%E9%87%8F%E5%8C%96%E6%98%AF%E5%BF%85%E9%A1%BB%E6%AF%94%E8%BE%83%E7%9A%84%E5%9F%BA%E7%BA%BF"><span class="toc-number">11.1.</span> <span class="toc-text">自动向量化是必须比较的基线</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E4%B8%AA%E5%8F%AF%E5%A4%8D%E6%A0%B8%E7%9A%84%E6%B5%8B%E9%87%8F%E5%BA%94%E5%8C%85%E5%90%AB%E4%BB%80%E4%B9%88"><span class="toc-number">11.2.</span> <span class="toc-text">一个可复核的测量应包含什么</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#examples"><span class="toc-number">12.</span> <span class="toc-text">12. 完整源码、验证与继续阅读</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%8E%E5%9F%BA%E7%A1%80%E6%8C%87%E4%BB%A4%E8%B5%B0%E5%90%91-velox"><span class="toc-number">12.1.</span> <span class="toc-text">从基础指令走向 Velox</span></a></li></ol></li></ol>
     </div>
   </span>
 </div>
@@ -168,368 +172,467 @@
   
 
   <div class="content" itemprop="articleBody">
-    <h2 id="What-Is-SIMD"><a href="#What-Is-SIMD" class="headerlink" title="What Is SIMD"></a>What Is SIMD</h2><p>SIMD代表单指令多数据（Single Instruction, Multiple Data）。它是一种计算机指令集架构，旨在同时处理多个数据元素。SIMD指令允许在单个指令中对多个数据元素执行相同的操作，从而实现并行处理和向量化计算。</p>
-<p>在SIMD架构中，数据被组织为向量（也称为寄存器），其中每个向量元素都可以是整数、浮点数或其他数据类型。SIMD指令可以同时对向量中的多个元素执行相同的操作，例如加法、乘法、逻辑运算等。这种并行处理方式可以显著加速计算过程，尤其是在处理大规模数据集时。</p>
-<p>现代处理器和图形处理器（GPU）通常支持SIMD指令集，如Intel的SSE（Streaming SIMD Extensions）和AVX（Advanced Vector Extensions），以及ARM的NEON（Advanced SIMD）。这些指令集提供了丰富的SIMD操作，使开发者能够利用硬件并行性来优化程序性能。</p>
-<h2 id="Fundamentals-of-AVX-Programming"><a href="#Fundamentals-of-AVX-Programming" class="headerlink" title="Fundamentals of AVX Programming"></a>Fundamentals of AVX Programming</h2><h3 id="SIMD-Data-Type"><a href="#SIMD-Data-Type" class="headerlink" title="SIMD Data Type"></a>SIMD Data Type</h3><table>
+    <style>
+body:has(.simd-article) #header-post #toc .toc-level-2::before,
+body:has(.simd-article) #toc-footer .toc-level-2::before { display: none; }
+.simd-article .simd-figure { margin: 2rem 0; }
+.simd-article .simd-diagram-scroll { max-width: 100%; overflow-x: auto; }
+.simd-article .simd-diagram-scroll img { display: block; width: 100%; min-width: 960px; max-width: none; height: auto; }
+.simd-article .simd-diagram-scroll:focus-visible { outline: 1px solid #58758A; outline-offset: 4px; }
+.simd-article figcaption { margin-top: .65rem; color: #706B63; font-size: 13px; line-height: 1.7; }
+.simd-article .tbl-wrap { max-width: 100%; overflow-x: auto; margin: 1.5rem 0; }
+.simd-article .tbl-wrap table { width: 100%; border-collapse: collapse; }
+.simd-article .simd-legacy-anchor { display: block; height: 0; scroll-margin-top: 2rem; }
+@media print { .simd-article .simd-diagram-scroll img { min-width: 0; } }
+</style>
+<div class="post-body simd-article">
+<p>写 AVX/AVX2 代码，难点往往不是找到一个 intrinsic，而是回答五个问题：<strong>数据怎样进入寄存器、每条指令实际操作哪些元素、条件怎样表示、尾部怎样安全处理，以及为什么这段代码会更快。</strong> 本文按这条顺序建立编程模型，再给出可编译、带运行时分派和边界检查的完整示例。</p>
+<p>2026-09-19 全面重写。示例面向 <strong>x86-64、C++17、GCC / Clang</strong>，分别标明 AVX、AVX2、FMA 要求。文末提供<a href="/code/simd-basic/simd_examples.cpp">完整源码</a>和实际验证记录；不要求读者安装 Velox。</p>
+<span class="simd-legacy-anchor" id="What-Is-SIMD" aria-hidden="true"></span>
+<span class="simd-legacy-anchor" id="SIMD-Data-Type" aria-hidden="true"></span>
+<h2 id="model">1. SIMD 的执行模型：一条指令，多份数据</h2>
+
+<p>SIMD 把同一种操作应用到多个元素。例如把 8 个 float 装入一个 256 位寄存器，<code>_mm256_add_ps(a, b)</code> 对应 <code>out[i] = a[i] + b[i]</code>，其中 <code>i=0..7</code>。这是寄存器内的数据并行，不等同于创建 8 个线程，也不意味着整个循环一定加速 8 倍。</p>
+<figure class="simd-figure">
+ <div class="simd-diagram-scroll" tabindex="0" role="region" aria-label="图 1，可横向滚动">
+ <img src="/images/simd-basic/lanes.svg" alt="同一个 256 位寄存器可以解释为不同宽度的元素；元素 lane 与某些指令的 128 位子块边界需要区分。" loading="lazy">
+ </div>
+ <figcaption>图 1 · 同一个 256 位寄存器可以解释为不同宽度的元素；元素 lane 与某些指令的 128 位子块边界需要区分。 <a href="/images/simd-basic/lanes.svg">打开原图</a></figcaption>
+ </figure>
+
+<div class="tbl-wrap"><table>
 <thead>
 <tr>
-<th><b>Data Type</b></th>
-<th>Description</th>
+<th>类型</th>
+<th>常见解释</th>
+<th>元素数</th>
 </tr>
 </thead>
 <tbody><tr>
-<td>__m128</td>
-<td>vector containing 4 floats</td>
+<td><code>__m128</code> / <code>__m256</code></td>
+<td>32 位 float</td>
+<td>4 / 8</td>
 </tr>
 <tr>
-<td>__m128d</td>
-<td>vector containing 2 doubles</td>
+<td><code>__m128d</code> / <code>__m256d</code></td>
+<td>64 位 double</td>
+<td>2 / 4</td>
 </tr>
 <tr>
-<td>__m128i</td>
-<td>vector containing integers</td>
-</tr>
-<tr>
-<td>__m256</td>
-<td>vector containing 8 floats</td>
-</tr>
-<tr>
-<td>__m256d</td>
-<td>vector containing 4 doubles</td>
-</tr>
-<tr>
-<td>__m256i</td>
-<td>vector containing integers, int8&#x2F;32&#x2F;64, uint8&#x2F;32&#x2F;64</td>
+<td><code>__m128i</code> / <code>__m256i</code></td>
+<td>8、16、32、64 位整数或位串</td>
+<td>16/32、8/16、4/8、2/4</td>
 </tr>
 </tbody></table>
-<h3 id="Function-Naming-Conventions"><a href="#Function-Naming-Conventions" class="headerlink" title="Function Naming Conventions"></a>Function Naming Conventions</h3><p><code>_mm&lt;bit_width&gt;_&lt;name&gt;_&lt;data_type&gt;</code></p>
+</div>
+<p><code>__m256i</code> 自身没有“这是 uint32 还是 int16”的运行时标签。具体 intrinsic 决定如何解释这些位。位与、相等比较、低位加法通常不区分符号；大小比较、扩宽和饱和运算则必须选对有符号 / 无符号版本。</p>
+<p>在 x86-64 中，YMM 的低 128 位与同编号 XMM 重叠。AVX 使用 VEX 编码，许多运算支持独立的两个输入和一个输出；编译器把 C++ 中的向量变量分配到寄存器，变量并不固定对应某一个 YMM。</p>
+<h3 id="256-位不代表任意元素都能互相交换">256 位不代表任意元素都能互相交换</h3>
+<p>本文用“元素 lane”表示一个 float / integer 位置，用“128 位子块”表示 YMM 的低半与高半。许多 AVX/AVX2 shuffle、unpack、pack、horizontal 指令在两个 128 位子块内分别工作；另一些 permute 可以跨越中间边界。</p>
+<p>这条区别会影响重排、求和、压缩和查表。只记住寄存器总宽度，往往会写出“低半对了，高半顺序错了”的代码。</p>
+<span class="simd-legacy-anchor" id="Fundamentals-of-AVX-Programming" aria-hidden="true"></span>
+<span class="simd-legacy-anchor" id="Function-Naming-Conventions" aria-hidden="true"></span>
+<h2 id="isa">2. AVX、AVX2、FMA 与编译选项</h2>
+
+<div class="tbl-wrap"><table>
+<thead>
+<tr>
+<th>能力</th>
+<th>代表操作</th>
+<th>编译 / 运行要求</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>AVX</td>
+<td>256 位 float / double 算术，浮点比较、load/store、部分重排</td>
+<td>AVX 与操作系统的扩展寄存器状态支持</td>
+</tr>
+<tr>
+<td>AVX2</td>
+<td>广泛的 256 位整数算术、整数比较、变量移位、gather、更多重排</td>
+<td>AVX2</td>
+</tr>
+<tr>
+<td>FMA3</td>
+<td><code>a*b+c</code> 等单次舍入的融合运算</td>
+<td>单独的 FMA 特性，常用 <code>-mfma</code></td>
+</tr>
+<tr>
+<td>POPCNT / BMI 等</td>
+<td>标量 bit count、bit manipulation</td>
+<td>各自独立的 CPU 特性；不能只凭 AVX2 名称推断</td>
+</tr>
+</tbody></table>
+</div>
+<p><code>__m256i</code> 类型和 256 位整数 load/store 的存在不代表 AVX 已支持所有 256 位整数运算。类似地，<strong>FMA 不属于 AVX2 的必然组成部分</strong>，需要独立检查。AVX-512 的 mask registers、compress / scatter 等也不能直接套到 AVX2 上。</p>
+<h3 id="intrinsic-是编译器接口，不是机器指令清单的一比一别名">Intrinsic 是编译器接口，不是机器指令清单的一比一别名</h3>
+<p>常见命名形如 <code>_mm256_add_epi32</code>：<code>256</code> 提示向量宽度，<code>add</code> 是操作，<code>epi32</code> 描述元素解释。但不能机械地说前缀总是返回值宽度：<code>_mm256_movemask_epi8</code> 返回标量 int；某些 conversion 的输入与输出宽度不同。</p>
+<p><code>set</code>、<code>setr</code>、cast 等 intrinsic 可能变成常量加载、多条指令或不产生指令；算术 intrinsic 也可能与加载合并，或被编译器优化掉。看实际生成代码，才能判断执行了什么。</p>
+<h3 id="两种编译方式">两种编译方式</h3>
+<p>如果程序只在已知支持 AVX2 的机器运行，可对专用目标使用 <code>-mavx2</code>；使用 FMA 再加 <code>-mfma</code>。这会允许编译器在整个目标中生成相应指令，包括看起来“只是标量”的代码。</p>
+<p>本文的完整示例采用函数级 target attribute，基线目标不加 <code>-mavx2</code>：</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> TARGET_AVX  __attribute__((target(<span class="string">&quot;avx&quot;</span>), noinline))</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> TARGET_AVX2 __attribute__((target(<span class="string">&quot;avx2&quot;</span>), noinline))</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> TARGET_FMA  __attribute__((target(<span class="string">&quot;avx,fma&quot;</span>), noinline))</span></span><br></pre></td></tr></table></figure><p>这些宏用于隔离示例函数的 ISA，<code>noinline</code> 也便于检查汇编。生产代码可采用独立编译单元或编译器 multiversioning。<code>-march=native</code> 适合针对本机的实验，会降低二进制可移植性，不能当成通用部署设置。</p>
+<span class="simd-legacy-anchor" id="一个简单例子" aria-hidden="true"></span>
+<span class="simd-legacy-anchor" id="Initialization-Intrinsics" aria-hidden="true"></span>
+<span class="simd-legacy-anchor" id="Initialization-with-Scalar-Values" aria-hidden="true"></span>
+<h2 id="layout">3. 元素顺序、常量与内存布局</h2>
+
+<p>本文把数组低地址和元素 0 画在左边。通过 load 从 <code>a[0]</code> 读入后，lane 0 就对应 <code>a[0]</code>；通过 store 写回也按相同顺序。Little endian 决定单个多字节元素内部的字节顺序，不会自动把数组元素倒序。</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line">__m256 a = _mm256_set_ps(<span class="number">7</span>, <span class="number">6</span>, <span class="number">5</span>, <span class="number">4</span>, <span class="number">3</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="number">0</span>);</span><br><span class="line">__m256 b = _mm256_setr_ps(<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>);</span><br><span class="line"><span class="built_in">alignas</span>(<span class="number">32</span>) <span class="type">float</span> out[<span class="number">8</span>];</span><br><span class="line">_mm256_store_ps(out, a);  <span class="comment">// 内存里是 0,1,2,3,4,5,6,7，与 b 相同</span></span><br></pre></td></tr></table></figure><p><code>set</code> 的参数从高 lane 写到低 lane；<code>setr</code> 按 lane 0 开始排列，适合展示索引。<code>set1</code> 广播一个值；<code>setzero</code> 生成全零。64 位整数构造的常用确切名字是 <code>_mm256_set_epi64x</code>、<code>_mm256_setr_epi64x</code>、<code>_mm256_set1_epi64x</code>，不要把所有后缀都机械地拼成 <code>epi64</code>。</p>
+<p>调试时先 store 到正确类型的数组再打印。不要依赖把向量对象地址直接转成 <code>float*</code> / <code>int*</code> 后解引用，这会把编译器扩展、对象表示与 C++ aliasing 规则混在一起。</p>
+<h3 id="aos-与-soa-决定了数据搬运成本">AoS 与 SoA 决定了数据搬运成本</h3>
+<p><code>struct Point &#123; float x, y, z; &#125;;</code> 的数组是 AoS，8 个 x 分散在内存中；分别保存 x、y、z 的数组是 SoA，8 个 x 连续。若热点只处理 x，SoA 常能省掉 gather 或 shuffle；若每次都完整消费一个对象，AoS 可能更合适。</p>
+<p>SIMD 优化经常首先是布局优化。为了省一条乘法而引入大量跨 lane 重排或散乱访存，未必划算。</p>
+<span class="simd-legacy-anchor" id="Loading-Data-from-Memory" aria-hidden="true"></span>
+<h2 id="memory">4. Load、Store、对齐与尾部</h2>
+
+<figure class="simd-figure">
+ <div class="simd-diagram-scroll" tabindex="0" role="region" aria-label="图 2，可横向滚动">
+ <img src="/images/simd-basic/memory.svg" alt="完整批次使用向量 load / compute / store；余下元素走标量尾部。loadu 放宽对齐要求，不放宽有效内存范围。" loading="lazy">
+ </div>
+ <figcaption>图 2 · 完整批次使用向量 load / compute / store；余下元素走标量尾部。loadu 放宽对齐要求，不放宽有效内存范围。 <a href="/images/simd-basic/memory.svg">打开原图</a></figcaption>
+ </figure>
+
+<div class="tbl-wrap"><table>
+<thead>
+<tr>
+<th>操作</th>
+<th>例子</th>
+<th>契约</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>连续未对齐加载 / 存储</td>
+<td><code>_mm256_loadu_ps</code> / <code>_mm256_storeu_ps</code></td>
+<td>地址无需 32 字节对齐，但完整 32 字节范围必须可读 / 可写</td>
+</tr>
+<tr>
+<td>连续对齐加载 / 存储</td>
+<td><code>_mm256_load_ps</code> / <code>_mm256_store_ps</code></td>
+<td>地址需要 32 字节对齐；整数版为 load / store_si256</td>
+</tr>
+<tr>
+<td>浮点 maskload / maskstore</td>
+<td><code>_mm256_maskload_ps</code> / <code>_mm256_maskstore_ps</code></td>
+<td>AVX；每个 mask 元素最高位决定是否访问</td>
+</tr>
+<tr>
+<td>整数 maskload / maskstore</td>
+<td><code>_mm256_maskload_epi32</code> / <code>_mm256_maskstore_epi32</code></td>
+<td>AVX2；支持 32 / 64 位元素</td>
+</tr>
+<tr>
+<td>Gather</td>
+<td><code>_mm256_i32gather_epi32(base, index, 4)</code></td>
+<td>AVX2；地址为 base + 有符号 index × scale，scale 取 1、2、4、8</td>
+</tr>
+</tbody></table>
+</div>
+<p><code>alignas(32)</code> 只保证对象起点；对齐数组的 <code>a+1</code> 通常不再 32 字节对齐。<code>loadu</code> 也可以用于恰好对齐的地址，现代 CPU 上实际成本还受跨 cache line / page、缓存命中和微架构影响，不能简单说“未对齐总是慢两倍”。</p>
+<h3 id="第一个完整循环：数组相加">第一个完整循环：数组相加</h3>
+<p>下面要求三个数组各有 n 个元素；输出可与某一个输入完全重合，但不支持任意的部分重叠。若业务允许部分重叠，需要单独定义遍历方向或缓冲策略。</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="function">TARGET_AVX</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">add_f32_avx</span><span class="params">(<span class="type">const</span> <span class="type">float</span>* a, <span class="type">const</span> <span class="type">float</span>* b, <span class="type">float</span>* out, std::<span class="type">size_t</span> n)</span> </span>{</span><br><span class="line">  std::<span class="type">size_t</span> i = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">for</span> (; n - i &gt;= <span class="number">8</span>; i += <span class="number">8</span>) {</span><br><span class="line">    <span class="type">const</span> __m256 x = _mm256_loadu_ps(a + i);</span><br><span class="line">    <span class="type">const</span> __m256 y = _mm256_loadu_ps(b + i);</span><br><span class="line">    _mm256_storeu_ps(out + i, _mm256_add_ps(x, y));</span><br><span class="line">  }</span><br><span class="line">  <span class="keyword">for</span> (; i &lt; n; ++i) out[i] = a[i] + b[i];</span><br><span class="line">}</span><br></pre></td></tr></table></figure><p><code>n-i &gt;= 8</code> 保证每次完整访问 8 个 float，也避免 <code>i+8</code> 在极端 size_t 值上溢出。小于 8 个元素时直接进入标量循环。大多数算法先写出这种可验证的尾部，再考虑 maskload 或带 padding 的专门契约。</p>
+<h3 id="maskload-的掩码不是-01-布尔数组">Maskload 的掩码不是 0/1 布尔数组</h3>
+<p>每个 32 位 mask 的最高位为 1 才启用该元素，例如全 1 的 <code>-1</code>；数值 <code>1</code> 的最高位为 0，反而不加载。禁用位置的 load 结果为零；maskstore 对禁用位置不写入，而不是写零。</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="function">TARGET_AVX2</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">load_tail_u32</span><span class="params">(<span class="type">const</span> std::<span class="type">uint32_t</span>* input, <span class="type">int</span> count, std::<span class="type">uint32_t</span>* out8)</span> </span>{</span><br><span class="line">  <span class="comment">// Contract: 0 &lt;= count &lt;= 8, input has count readable elements;</span></span><br><span class="line">  <span class="comment">// out8 always has eight writable elements. Disabled lanes become zero.</span></span><br><span class="line">  <span class="type">const</span> __m256i index = _mm256_setr_epi32(<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>);</span><br><span class="line">  <span class="type">const</span> __m256i mask = _mm256_cmpgt_epi32(_mm256_set1_epi32(count), index);</span><br><span class="line">  <span class="type">const</span> __m256i x = _mm256_maskload_epi32(<span class="built_in">reinterpret_cast</span>&lt;<span class="type">const</span> <span class="type">int</span>*&gt;(input), mask);</span><br><span class="line">  _mm256_storeu_si256(<span class="built_in">reinterpret_cast</span>&lt;__m256i*&gt;(out8), x);</span><br><span class="line">}</span><br></pre></td></tr></table></figure><p>输入只需有 count 个可读元素，但这里 out8 必须容纳完整 8 个元素。禁用 lane 不进行相应架构内存访问；仍应按 intrinsic 文档构造有效的启用地址，并注意 sanitizer 未必能完整建模每一种掩码访存。完整测试还把尾部放在不可访问页之前检查。</p>
+<p><strong>先完整 load，再 blend 掉多余元素，不能修复已经发生的越界。</strong> AVX2 也没有通用的 8/16 位 maskload；字节尾部可标量处理，或复制到清零的局部 32 字节缓冲再加载。</p>
+<h3 id="gather-解决地址表达，不保证更快">Gather 解决地址表达，不保证更快</h3>
+<p>Gather 的索引决定各元素地址，scale 是字节倍率，不是“元素数量”。使用 int32 索引配 32 位元素时常用 scale=4。AVX2 的 gather 返回宽度与元素 / 索引组合有关，不是每一种都返回 8 个结果；还要查确切签名。</p>
+<p>Gather 无法把随机内存访问变成连续访问。一批数据可能触及多条 cache line、多个页面，收益取决于缓存和地址分布。AVX2 没有对应的通用 scatter store；散乱输出常需要标量写回或改变布局。</p>
+<span class="simd-legacy-anchor" id="Arithmetic-Intrinsics" aria-hidden="true"></span>
+<span class="simd-legacy-anchor" id="Addition-and-Subtraction" aria-hidden="true"></span>
+<span class="simd-legacy-anchor" id="Multiplication-and-Division" aria-hidden="true"></span>
+<span class="simd-legacy-anchor" id="Fused-Multiply-and-Add-FMA" aria-hidden="true"></span>
+<h2 id="arithmetic">5. 算术：整数溢出、乘法与 FMA</h2>
+
+<h3 id="整数加减有模运算与饱和两类">整数加减有模运算与饱和两类</h3>
+<p><code>_mm256_add_epi32</code> 按每个 32 位元素做模 2³² 的加法；低位结果对有符号 / 无符号解释相同。C++ 标量有符号溢出却是未定义行为，所以写 scalar reference 时应使用 unsigned，或先扩宽再计算。</p>
+<p><code>adds/subs</code> 是饱和加减，AVX2 常用版本针对 8 位和 16 位，分 signed / unsigned。不能推导出不存在的 <code>_mm256_adds_epi32</code>。例如 uint8 的 250+20，普通 add 保留低 8 位得到 14，饱和 add 得到 255。</p>
+<h3 id="32-位乘法必须先问：需要哪几位、哪几个元素">32 位乘法必须先问：需要哪几位、哪几个元素</h3>
+<div class="tbl-wrap"><table>
+<thead>
+<tr>
+<th>Intrinsic</th>
+<th>实际结果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>_mm256_mullo_epi32</code></td>
+<td>全部 8 对 int32 相乘，每对只保留低 32 位</td>
+</tr>
+<tr>
+<td><code>_mm256_mul_epi32</code></td>
+<td>选输入元素 0、2、4、6，做 signed 32×32→64，返回 4 个结果</td>
+</tr>
+<tr>
+<td><code>_mm256_mul_epu32</code></td>
+<td>同样选 0、2、4、6，做 unsigned 32×32→64</td>
+</tr>
+<tr>
+<td><code>_mm256_mulhi_epi16</code> / <code>_mm256_mulhi_epu16</code></td>
+<td>保留 16×16 乘积的高 16 位，符号语义不同</td>
+</tr>
+</tbody></table>
+</div>
+<p><code>mul_epi32</code> 不是“计算前四个元素”。若要 8 个完整 64 位乘积，可以分别处理偶数元素和移动后的奇数元素，再按需要组织输出。AVX2 没有通用的 packed integer divide，也没有通用的 256 位逐元素 64×64→低64乘法 intrinsic；需要分解、标量路径或更高 ISA 的对应能力。</p>
+<h3 id="浮点比较、除法与近似指令要保留语义">浮点比较、除法与近似指令要保留语义</h3>
+<p><code>add/mul/div_ps</code> 分别操作 8 个 float；pd 操作 4 个 double。<code>rcp_ps</code>、<code>rsqrt_ps</code> 是近似倒数 / 倒平方根，不能无条件替代除法或 sqrt；误差、特殊值和 refinement 的需求取决于业务。</p>
+<p><code>min/max</code> 对 NaN、相等值和有符号零的行为不能只凭名字类比 <code>std::min</code> 或 <code>std::fmin</code>。涉及 NaN、±0、舍入模式、subnormal 时，需要查对应指令语义。<code>-ffast-math</code> 允许更激进的变换，不只是“让程序更快”的开关。</p>
+<h3 id="fma-只有一次最终舍入，但结果可以改变">FMA 只有一次最终舍入，但结果可以改变</h3>
+<p>FMA 计算 <code>round(a*b+c)</code>，分离乘加通常计算 <code>round(round(a*b)+c)</code>。例如 float 中取 <code>a=1+2^-23</code>、<code>b=1-2^-23</code>、<code>c=-1</code>：分离乘加可得到 0，而 FMA 保留结果 <code>-2^-46</code>。</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line">__m256 result = _mm256_fmadd_ps(a, b, c);  <span class="comment">// 需要 FMA</span></span><br></pre></td></tr></table></figure><p>FMA 常有利于精度与吞吐，但不会自动让整个算法更快，也不保证与原表达式逐位相同。若主体用 FMA、尾部也要求相同单次舍入语义，标量尾部应使用 <code>std::fma</code>。本文测试使用 <code>-ffp-contract=off</code> 控制普通乘加的自动融合，显式 FMA intrinsic 不受此禁止融合设置替代。</p>
+<p><code>fmaddsub</code> 的偶数 lane 减、奇数 lane 加；<code>fmsubadd</code> 相反。不要只看名称而忽略交替方向。</p>
+<h2 id="masks">6. 比较、Mask 与无分支处理</h2>
+
+<figure class="simd-figure">
+ <div class="simd-diagram-scroll" tabindex="0" role="region" aria-label="图 3，可横向滚动">
+ <img src="/images/simd-basic/masks.svg" alt="比较产生逐元素全 1 / 全 0，movemask 提取符号位形成标量 bitset；bit i 对应元素 i。" loading="lazy">
+ </div>
+ <figcaption>图 3 · 比较产生逐元素全 1 / 全 0，movemask 提取符号位形成标量 bitset；bit i 对应元素 i。 <a href="/images/simd-basic/masks.svg">打开原图</a></figcaption>
+ </figure>
+
+<p>AVX/AVX2 常规比较生成普通向量 mask：true 是该元素所有位为 1，false 是所有位为 0。它不是 AVX-512 的 k-mask 寄存器。</p>
+<p>浮点比较使用带谓词的 <code>_mm256_cmp_ps(a, b, imm)</code>。例如 <code>_CMP_GT_OQ</code> 表示 ordered、greater-than、quiet：任一输入为 NaN 时该位置为 false。Quiet 指的是对 quiet NaN 的异常行为，不代表 signaling NaN 在所有情况下都不会引发 invalid。</p>
+<p>整数常见比较有 <code>cmpeq</code> 和 signed <code>cmpgt</code>。对 uint32 做大于比较时，可以先把两个输入都 XOR <code>0x80000000</code>，将无符号顺序映射为有符号顺序，再用 <code>_mm256_cmpgt_epi32</code>。</p>
+<h3 id="movemask-与-blend-服务于不同的控制方式">Movemask 与 blend 服务于不同的控制方式</h3>
+<ul>
+<li><code>_mm256_movemask_ps</code> 提取 8 个 32 位元素的最高位，返回低 8 位 bitset。</li>
+<li><code>_mm256_movemask_epi8</code> 提取 32 个字节的最高位。对 int32 比较结果直接使用它，每个 true 元素会产生连续 4 个置位 bit。</li>
+<li><code>_mm256_blendv_ps(a,b,mask)</code> 根据每个 float mask 元素的最高位，选 a 或 b；<code>blendv_epi8</code> 则按每个字节选择。</li>
+<li>位运算选择可写成 <code>(mask &amp; b) | (~mask &amp; a)</code>，前提是相应选择范围内 mask 确实为全 1 / 全 0。</li>
+</ul>
+<p>Blend 不短路执行。两侧表达式、分配或加载若已提前执行，不会因为最终未被选中就免除其成本或异常。真正按条件访问内存，需要合适的 masked memory 指令或分支。</p>
+<h3 id="完整模式：统计大于阈值的-uint32">完整模式：统计大于阈值的 uint32</h3>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="function">TARGET_AVX2</span></span><br><span class="line"><span class="function">std::<span class="type">size_t</span> <span class="title">count_gt_u32_avx2</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">    <span class="type">const</span> std::<span class="type">uint32_t</span>* data, std::<span class="type">size_t</span> n, std::<span class="type">uint32_t</span> threshold)</span> </span>{</span><br><span class="line">  <span class="type">const</span> __m256i sign = _mm256_set1_epi32(std::numeric_limits&lt;<span class="type">int</span>&gt;::<span class="built_in">min</span>());</span><br><span class="line">  std::<span class="type">int32_t</span> thresholdBits;</span><br><span class="line">  std::<span class="built_in">memcpy</span>(&amp;thresholdBits, &amp;threshold, <span class="built_in">sizeof</span>(thresholdBits));</span><br><span class="line">  <span class="type">const</span> __m256i limit = _mm256_xor_si256(_mm256_set1_epi32(thresholdBits), sign);</span><br><span class="line">  std::<span class="type">size_t</span> count = <span class="number">0</span>, i = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">for</span> (; n - i &gt;= <span class="number">8</span>; i += <span class="number">8</span>) {</span><br><span class="line">    <span class="type">const</span> __m256i x = _mm256_loadu_si256(</span><br><span class="line">        <span class="built_in">reinterpret_cast</span>&lt;<span class="type">const</span> __m256i*&gt;(data + i));</span><br><span class="line">    <span class="type">const</span> __m256i mask = _mm256_cmpgt_epi32(_mm256_xor_si256(x, sign), limit);</span><br><span class="line">    <span class="type">unsigned</span> bits = <span class="built_in">static_cast</span>&lt;<span class="type">unsigned</span>&gt;(</span><br><span class="line">        _mm256_movemask_ps(_mm256_castsi256_ps(mask)));</span><br><span class="line">    <span class="keyword">while</span> (bits != <span class="number">0</span>) {</span><br><span class="line">      bits &amp;= bits - <span class="number">1</span>;</span><br><span class="line">      ++count;</span><br><span class="line">    }</span><br><span class="line">  }</span><br><span class="line">  <span class="keyword">for</span> (; i &lt; n; ++i) count += data[i] &gt; threshold;</span><br><span class="line">  <span class="keyword">return</span> count;</span><br><span class="line">}</span><br></pre></td></tr></table></figure><p><code>_mm256_castsi256_ps</code> 只重新解释位，不把整数数值转换为 float，也无需发出数值转换指令。它让 movemask 对每个 int32 mask 只取一个 bit。示例用清最低置位 bit 的循环计数，避免引入额外 POPCNT ISA 前提；需要更高吞吐时，可根据特性检查和实测换成 popcount 或向量计数策略。</p>
+<p>同样的 bitset 还可用于“是否任意命中”“是否全部命中”“首个命中位置”或输出选择索引。调用 <code>__builtin_ctz</code> 之类的接口前必须排除零；它们并不都为零输入定义结果。</p>
+<span class="simd-legacy-anchor" id="Permuting-and-Shuffling" aria-hidden="true"></span>
+<span class="simd-legacy-anchor" id="Permuting" aria-hidden="true"></span>
+<span class="simd-legacy-anchor" id="Shuffling" aria-hidden="true"></span>
+<h2 id="shuffle">7. Shuffle、Permute、Unpack：先画索引再写 immediate</h2>
+
+<figure class="simd-figure">
+ <div class="simd-diagram-scroll" tabindex="0" role="region" aria-label="图 4，可横向滚动">
+ <img src="/images/simd-basic/shuffle.svg" alt="同一个输入，128 位子块内 reverse 与全 256 位 reverse 得到不同结果。byte shuffle 还有独立的控制字节规则。" loading="lazy">
+ </div>
+ <figcaption>图 4 · 同一个输入，128 位子块内 reverse 与全 256 位 reverse 得到不同结果。byte shuffle 还有独立的控制字节规则。 <a href="/images/simd-basic/shuffle.svg">打开原图</a></figcaption>
+ </figure>
+
+<p>把输入写成 <code>[a0,a1,a2,a3 | a4,a5,a6,a7]</code>，中线表示 128 位边界。以下规律是 AVX/AVX2 最值得记住的部分：</p>
+<div class="tbl-wrap"><table>
+<thead>
+<tr>
+<th>Intrinsic</th>
+<th>控制方式</th>
+<th>可选范围</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>_mm256_permute_ps</code></td>
+<td>immediate，四组 2-bit 选择器</td>
+<td>每个 128 位子块内的 4 个 float，同一规则作用于两半</td>
+</tr>
+<tr>
+<td><code>_mm256_shuffle_ps(a,b,imm)</code></td>
+<td>immediate</td>
+<td>每半输出前两项取 a，后两项取 b；仍不跨中线</td>
+</tr>
+<tr>
+<td><code>_mm256_permute2f128_ps</code></td>
+<td>immediate</td>
+<td>从 a.low / a.high / b.low / b.high 选择两个 128 位块，也能置零</td>
+</tr>
+<tr>
+<td><code>_mm256_permutevar8x32_epi32</code> / <code>_ps</code></td>
+<td>8 个运行时索引</td>
+<td>AVX2；各输出在完整 8 个 32 位元素中选择，索引低 3 位有效</td>
+</tr>
+<tr>
+<td><code>_mm256_permute4x64_epi64</code> / <code>_pd</code></td>
+<td>immediate</td>
+<td>AVX2；在完整 4 个 64 位元素中选择</td>
+</tr>
+<tr>
+<td><code>_mm256_shuffle_epi8</code></td>
+<td>每字节一个控制字节，<strong>不是 immediate</strong></td>
+<td>AVX2；各 128 位子块内的 16 字节，支持置零</td>
+</tr>
+<tr>
+<td><code>_mm256_shufflelo_epi16</code> / <code>_shufflehi_epi16</code></td>
+<td>immediate</td>
+<td>分别重排每个 128 位子块的低 4 / 高 4 个 word，其余不变</td>
+</tr>
+</tbody></table>
+</div>
+<h3 id="_mm_shuffle-从右边决定-lane-0"><code>_MM_SHUFFLE</code> 从右边决定 lane 0</h3>
+<p><code>_MM_SHUFFLE(z,y,x,w)</code> 等价于 <code>(z&lt;&lt;6)|(y&lt;&lt;4)|(x&lt;&lt;2)|w</code>。例如：</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="comment">// a = [0,1,2,3 | 4,5,6,7]</span></span><br><span class="line">__m256 r = _mm256_permute_ps(a, _MM_SHUFFLE(<span class="number">0</span>,<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>));</span><br><span class="line"><span class="comment">// r = [3,2,1,0 | 7,6,5,4]，不是完整八元素倒序</span></span><br></pre></td></tr></table></figure><p>对 <code>_mm256_shuffle_ps(a,b,_MM_SHUFFLE(3,2,1,0))</code>，结果是 <code>[a0,a1,b2,b3 | a4,a5,b6,b7]</code>。所有四组选择位都有意义，不能说只使用 immediate 的高四位。</p>
+<p>需要运行时变化的索引时，不能把普通变量硬传给要求 immediate 常量的 intrinsic；应选择变量 permute、少量分支模板，或重新设计算法。</p>
+<h3 id="byte-shuffle-可当作小查表，但每半只有-16-个入口">Byte shuffle 可当作小查表，但每半只有 16 个入口</h3>
+<p><code>_mm256_shuffle_epi8(data, control)</code> 对输出字节 i 的规则为：若 control[i] 的 bit7 为 1，输出 0；否则取同一个 128 位子块中 <code>control[i] &amp; 0x0f</code> 位置的字节，bits4..6 不参与索引。</p>
+<p>因此索引 16 并不会访问低半之外的第 17 个字节，而是选择本半的第 0 个字节。若用它实现 nibble lookup，通常把相同的 16 字节查表复制到两半；若处理 32 入口查表，需要额外的跨半选择与合并。</p>
+<h3 id="unpack-和-pack-也保留这个中间边界">Unpack 和 pack 也保留这个中间边界</h3>
+<p><code>unpacklo_epi32(a,b)</code> 得到 <code>[a0,b0,a1,b1 | a4,b4,a5,b5]</code>，不是把整个 256 位的前四项都交错。<code>packs_epi32(a,b)</code> 把 signed int32 饱和收窄为 int16，输出顺序是 <code>[a0..a3,b0..b3 | a4..a7,b4..b7]</code>。</p>
+<p>重排代码最可靠的起点是写出索引数组，并用 0..N-1 的唯一值做测试。真实业务值可能重复，会掩盖错误的 lane 顺序。</p>
+<h2 id="conversion">8. 数值转换、扩宽、收窄与位移</h2>
+
+<div class="tbl-wrap"><table>
+<thead>
+<tr>
+<th>需求</th>
+<th>常用方式</th>
+<th>容易遗漏的语义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>原位解释相同 bits</td>
+<td><code>_mm256_castsi256_ps</code> 等 cast</td>
+<td>没有数值转换</td>
+</tr>
+<tr>
+<td>int32 → float</td>
+<td><code>_mm256_cvtepi32_ps</code></td>
+<td>大于 2²⁴ 的整数可能不能被 float 精确表示</td>
+</tr>
+<tr>
+<td>float → int32</td>
+<td><code>_mm256_cvtps_epi32</code></td>
+<td>使用 MXCSR 舍入模式</td>
+</tr>
+<tr>
+<td>float → int32，向零截断</td>
+<td><code>_mm256_cvttps_epi32</code></td>
+<td>不等于 round；NaN / 越界有指令异常与 indefinite 结果语义</td>
+</tr>
+<tr>
+<td>uint32 → uint64</td>
+<td><code>_mm256_cvtepu32_epi64</code></td>
+<td>输入是 128 位的 4 个 uint32，输出 4 个 uint64</td>
+</tr>
+<tr>
+<td>int32 → int64</td>
+<td><code>_mm256_cvtepi32_epi64</code></td>
+<td>符号扩展；不能与 unsigned 版本混用</td>
+</tr>
+<tr>
+<td>收窄</td>
+<td>pack / shuffle / mask 组合</td>
+<td>区分饱和、截断与输出的子块顺序</td>
+</tr>
+</tbody></table>
+</div>
+<p><code>cvttps_epi32</code> 的失效结果常为 <code>0x80000000</code>（masked invalid 时的 integer indefinite），而这个位型又是合法 INT_MIN。不能仅凭结果等于 INT_MIN 判断输入是否合法，应在转换前检查范围 / NaN，或使用业务允许的明确边界策略。</p>
+<h3 id="simd-位移不总是遵循标量计数取模">SIMD 位移不总是遵循标量计数取模</h3>
+<p><code>_mm256_slli_epi32</code> 对所有元素使用同一个 immediate；<code>_mm256_sllv_epi32</code> 使用各元素自己的计数。AVX2 有 32 / 64 位逻辑变量位移和 32 位算术右移，但没有通用的逐元素 64 位算术右移版本。</p>
+<p>对 32 位逻辑 SIMD 位移，计数达到或超过 32 时结果为零，不是先对计数取 <code>&amp;31</code>。算术右移还要按对应指令的符号填充规则理解。与此同时，C++ 标量移位计数超宽是未定义行为，不能用 <code>x &lt;&lt; 32</code> 当测试参考。</p>
+<p>命名中的 <code>si256</code> 也不表示“把整个 256 位当成一个大整数”：<code>_mm256_slli_si256</code> 实际按 128 位子块做字节移动。位移、shuffle 和跨 128 位块搬运是不同的工具。</p>
+<h2 id="reduction">9. Horizontal 运算与真正的全向量归约</h2>
+
+<figure class="simd-figure">
+ <div class="simd-diagram-scroll" tabindex="0" role="region" aria-label="图 5，可横向滚动">
+ <img src="/images/simd-basic/reduction.svg" alt="先在循环内累积多个独立向量，循环结束后合并高低 128 位，再归约为标量。浮点加法的组合顺序会改变。" loading="lazy">
+ </div>
+ <figcaption>图 5 · 先在循环内累积多个独立向量，循环结束后合并高低 128 位，再归约为标量。浮点加法的组合顺序会改变。 <a href="/images/simd-basic/reduction.svg">打开原图</a></figcaption>
+ </figure>
+
+<p><code>hadd</code> 只是按特定顺序配对相加，不是“一条指令把 8 个值求和”。例如 <code>_mm256_hadd_ps(a,b)</code> 的结果为 <code>[a0+a1,a2+a3,b0+b1,b2+b3 | a4+a5,a6+a7,b4+b5,b6+b7]</code>。重复 hadd 仍需处理两个 128 位子块的合并。</p>
+<p>常见做法是让热循环只做垂直加法，保留多个独立 accumulator，最后执行一次横向归约。这样减少了循环内重排，也缩短了单条依赖链。</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="function">TARGET_AVX</span></span><br><span class="line"><span class="function"><span class="type">float</span> <span class="title">sum_f32_avx</span><span class="params">(<span class="type">const</span> <span class="type">float</span>* data, std::<span class="type">size_t</span> n)</span> </span>{</span><br><span class="line">  __m256 acc0 = _mm256_setzero_ps(), acc1 = _mm256_setzero_ps();</span><br><span class="line">  std::<span class="type">size_t</span> i = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">for</span> (; n - i &gt;= <span class="number">16</span>; i += <span class="number">16</span>) {</span><br><span class="line">    acc0 = _mm256_add_ps(acc0, _mm256_loadu_ps(data + i));</span><br><span class="line">    acc1 = _mm256_add_ps(acc1, _mm256_loadu_ps(data + i + <span class="number">8</span>));</span><br><span class="line">  }</span><br><span class="line">  __m256 v = _mm256_add_ps(acc0, acc1);</span><br><span class="line">  <span class="keyword">if</span> (n - i &gt;= <span class="number">8</span>) {</span><br><span class="line">    v = _mm256_add_ps(v, _mm256_loadu_ps(data + i));</span><br><span class="line">    i += <span class="number">8</span>;</span><br><span class="line">  }</span><br><span class="line">  __m128 s = _mm_add_ps(_mm256_castps256_ps128(v), _mm256_extractf128_ps(v, <span class="number">1</span>));</span><br><span class="line">  s = _mm_add_ps(s, _mm_movehl_ps(s, s));</span><br><span class="line">  s = _mm_add_ss(s, _mm_shuffle_ps(s, s, _MM_SHUFFLE(<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>)));</span><br><span class="line">  <span class="type">float</span> result = _mm_cvtss_f32(s);</span><br><span class="line">  <span class="keyword">for</span> (; i &lt; n; ++i) result += data[i];</span><br><span class="line">  <span class="keyword">return</span> result;</span><br><span class="line">}</span><br></pre></td></tr></table></figure><p>这段使用 AVX，最后落到 128 位再合并为一个 float。它适合说明执行顺序，但 <strong>与逐元素从左到右的 scalar sum 不保证逐位一致</strong>。需要明确的误差容忍度、可重现求和、double accumulator 或补偿算法时，应先选择数值契约，再选择 SIMD 实现。</p>
+<p>整数求和也要决定累加器宽度。8 个 uint32 的和最多需要 35 位；如果先用 32 位向量加法溢出了，再转换成 64 位无法挽回丢失的高位。需要精确宽和时，应先扩宽再累加，并对整个数组的总范围作约束。</p>
+<p>前缀和、min/max reduction、dot product、filter compaction 都可以从这些模式组合，但它们的数据依赖不同，不应把一个水平加法模板原样套到所有任务。</p>
+<h2 id="dispatch">10. 运行时分派：不支持 AVX2 的机器也要能启动</h2>
+
+<figure class="simd-figure">
+ <div class="simd-diagram-scroll" tabindex="0" role="region" aria-label="图 6，可横向滚动">
+ <img src="/images/simd-basic/dispatch.svg" alt="基线入口不含目标 ISA 指令；检查特性后才调用专门编译的 AVX2 或 AVX+FMA 函数。" loading="lazy">
+ </div>
+ <figcaption>图 6 · 基线入口不含目标 ISA 指令；检查特性后才调用专门编译的 AVX2 或 AVX+FMA 函数。 <a href="/images/simd-basic/dispatch.svg">打开原图</a></figcaption>
+ </figure>
+
+<p>CPU 宣告支持 AVX 还不够，操作系统需要启用 XSAVE / OSXSAVE，并在 XCR0 中允许 XMM 和 YMM 状态。手写检测通常涉及 CPUID、OSXSAVE 检查、再执行 XGETBV 检查 <code>(XCR0 &amp; 0x6)==0x6</code>；不能在不满足前提时盲目执行 XGETBV。</p>
+<p>常规 GCC / Clang 程序可用编译器提供的 CPU feature 检测，避免重复实现这些平台细节。本文示例使用普通函数内初始化的缓存分派：</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="function">std::<span class="type">size_t</span> <span class="title">count_gt_u32</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">    <span class="type">const</span> std::<span class="type">uint32_t</span>* data, std::<span class="type">size_t</span> n, std::<span class="type">uint32_t</span> threshold)</span> </span>{</span><br><span class="line">  <span class="keyword">using</span> Fn = std::<span class="built_in">size_t</span> (*)(<span class="type">const</span> std::<span class="type">uint32_t</span>*, std::<span class="type">size_t</span>, std::<span class="type">uint32_t</span>);</span><br><span class="line">  <span class="type">static</span> <span class="type">const</span> Fn fn = __builtin_cpu_supports(<span class="string">&quot;avx2&quot;</span>)</span><br><span class="line">      ? count_gt_u32_avx2</span><br><span class="line">      : count_gt_u32_scalar;</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">fn</span>(data, n, threshold);</span><br><span class="line">}</span><br></pre></td></tr></table></figure><p>这里 translation unit 以基线 ISA 编译，只有目标函数标注 <code>target(&quot;avx2&quot;)</code>。若整个文件都加了 <code>-mavx2</code>，dispatcher 或所谓 scalar fallback 也可能出现 AVX2 指令，那么外层 if 就失去保护作用。</p>
+<p>对 FMA 路径独立检查 AVX 和 FMA；<code>avx2</code> 通过不能替代 <code>fma</code> 检查。在 ELF IFUNC resolver 或某些早于编译器初始化的特殊场合使用 GCC builtin，需要按文档先调用 <code>__builtin_cpu_init()</code>；普通 main 之后的调用与此不同。</p>
+<p>本文只实测了本机具备特性的运行路径，并直接测试 scalar reference；没有把它描述成已经在无 AVX2 硬件上验证。跨机器部署还应在相应 CPU / VM 特性配置上验证 fallback。</p>
+<h3 id="avx-与-sse-的边界">AVX 与 SSE 的边界</h3>
+<p>某些 CPU 在脏 YMM 高半状态与 legacy SSE 编码之间切换会有额外成本；编译器通常在合适边界插入 <code>vzeroupper</code>。不要在热循环每轮手动清零高半，或把所有 XMM 运算都当成 legacy SSE：AVX 编译模式下的 128 位 intrinsic 也可能使用 VEX 编码。</p>
+<h2 id="performance">11. 性能分析：先找瓶颈，再数指令</h2>
+
+<p>SIMD 最适合大量元素执行相同操作、地址容易预测、分支可转为 mask 的热点。它的收益由多个限制共同决定：</p>
+<div class="tbl-wrap"><table>
+<thead>
+<tr>
+<th>限制</th>
+<th>典型现象</th>
+<th>可考虑的方向</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>内存带宽</td>
+<td>大数组相加速度主要随读写字节数变化</td>
+<td>减少中间数组、融合遍历、调整布局</td>
+</tr>
+<tr>
+<td>缓存 / TLB miss</td>
+<td>gather、随机 lookup 的延迟占主导</td>
+<td>改善局部性、批处理、适量预取</td>
+</tr>
+<tr>
+<td>指令吞吐</td>
+<td>数据在 L1 中仍被某类指令限制</td>
+<td>减少昂贵重排，查目标 CPU 的吞吐和端口</td>
+</tr>
+<tr>
+<td>依赖链延迟</td>
+<td>单 accumulator 的串行链很长</td>
+<td>适量展开、多个独立 accumulator</td>
+</tr>
+<tr>
+<td>分支 / 选择输出</td>
+<td>命中率改变时性能波动</td>
+<td>比较 branch、mask、bitset 和压缩策略</td>
+</tr>
+<tr>
+<td>调用与尾部开销</td>
+<td>很小的 n 上向量版更慢</td>
+<td>小规模标量路径，减少分派开销</td>
+</tr>
+</tbody></table>
+</div>
+<p>数组相加每个 float 至少涉及两个读和一个写的逻辑流量，即 12 字节；实际内存总线流量还受 write allocate、缓存状态和存储策略影响。8 lane 指令并不会把这些数据搬运需求除以 8。</p>
+<p>Latency 决定依赖链上的等待，reciprocal throughput 描述独立指令能以多高频率发射 / 完成；二者不能互换。一条 256 位指令可能拆成多个微操作，不同 Intel / AMD CPU 的执行宽度和 shuffle 成本也可能不同。</p>
+<h3 id="自动向量化是必须比较的基线">自动向量化是必须比较的基线</h3>
+<p>先给编译器清楚的循环、别名契约和数据布局，查看是否已经自动向量化。GCC 可使用 <code>-fopt-info-vec-optimized -fopt-info-vec-missed</code>，Clang 可使用 <code>-Rpass=loop-vectorize -Rpass-missed=loop-vectorize</code>。</p>
+<p>手写 intrinsic 应与同样优化等级、合理 aliasing 信息和数值语义的自动向量化版本比较。不能只拿 <code>-O0</code> 标量代码作对照，或把禁止向量化的参考实现说成编译器的最佳表现。若确实需要严格 scalar 基线，单独控制 loop / SLP vectorization，并说明这是实验对照。</p>
+<h3 id="一个可复核的测量应包含什么">一个可复核的测量应包含什么</h3>
 <ol>
-<li><strong>bit_width</strong>，函数返回的vector的宽度. 空代表128-bit vectors, 256代表256-bit vectors.</li>
-<li><strong>name</strong>，intrinsic操作如<code>add</code>, <code>set</code>, <code>shuffle</code>等</li>
-<li><strong>data_type</strong>，函数主要参数的数据类型，详细如下<ul>
-<li><code>ps</code> - float vectors (ps stands for packed single-precision)</li>
-<li><code>pd</code> - double vectors (pd stands for packed double-precision)</li>
-<li><code>epi8/epi16/epi32/epi64</code> - signed integer vectors</li>
-<li><code>epu8/epu16/epu32/epu64</code> - unsigned integer vectors</li>
-<li><code>si128/si256</code> - unspecified 128-bit vector or 256-bit vector</li>
-<li><code>m128/m128i/m128d/m256/m256i/m256d</code> - identifies input vector types when they’re different than the type of the returned vector</li>
-</ul>
-</li>
+<li>先验证结果和边界，再计时；使用循环外初始化的输入，确保输出被消费，避免死代码删除。</li>
+<li>分开测试小数组、L1/L2/LLC 内数组和超出缓存的大数组，记录长度、对齐、命中率 / 索引分布。</li>
+<li>重复测量，报告分布或中位数；控制线程迁移、并发负载与预热条件，必要时记录 cycles、instructions、cache misses。</li>
+<li>查看汇编，确认期望的向量宽度、加载、FMA 和尾部路径确实生成；注意 register spill 和代码体积。</li>
+<li>对齐业务的端到端时间。更宽向量还可能影响部分 CPU 的频率，局部 kernel 的收益不直接等于整个查询的收益。</li>
 </ol>
-<h3 id="一个简单例子"><a href="#一个简单例子" class="headerlink" title="一个简单例子"></a>一个简单例子</h3><p><strong>set_ps.cpp</strong></p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;immintrin.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iomanip&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> E&gt;</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">print</span><span class="params">(T result)</span> </span>&#123;</span><br><span class="line">  <span class="comment">/* Display the elements of the result vector */</span></span><br><span class="line">  <span class="type">size_t</span> cnt = <span class="built_in">sizeof</span>(T) / <span class="built_in">sizeof</span>(E);</span><br><span class="line">  E* ptr = <span class="built_in">reinterpret_cast</span>&lt;E*&gt;(&amp;result);</span><br><span class="line">  <span class="keyword">for</span> (<span class="type">size_t</span> i = <span class="number">0</span>; i &lt; cnt; ++i) &#123;</span><br><span class="line">      std::cout &lt;&lt; std::fixed &lt;&lt; std::<span class="built_in">setprecision</span>(<span class="number">1</span>) &lt;&lt; <span class="string">&quot; &quot;</span> &lt;&lt; ptr[i];</span><br><span class="line">  &#125;</span><br><span class="line">  std::cout &lt;&lt; std::endl;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  __m256 floatNums = _mm256_set_ps(<span class="number">2.0</span>, <span class="number">4.0</span>, <span class="number">6.0</span>, <span class="number">8.0</span>, <span class="number">10.0</span>, <span class="number">12.0</span>, <span class="number">14.0</span>, <span class="number">16.0</span>);</span><br><span class="line">  std::cout &lt;&lt; <span class="string">&quot;Print float nums\n&quot;</span>;</span><br><span class="line">  <span class="built_in">print</span>&lt;__m256, <span class="type">float</span>&gt;(floatNums);</span><br><span class="line"></span><br><span class="line">  __m256d doubleNums= _mm256_set_pd(<span class="number">2.0</span>, <span class="number">4.0</span>, <span class="number">6.0</span>, <span class="number">8.0</span>);</span><br><span class="line">  std::cout &lt;&lt; <span class="string">&quot;Print double nums\n&quot;</span>;</span><br><span class="line">  <span class="built_in">print</span>&lt;__m256d, <span class="type">double</span>&gt;(doubleNums);</span><br><span class="line"></span><br><span class="line">  __m256i intNums = _mm256_set_epi32(<span class="number">1</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">7</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">6</span>, <span class="number">8</span>);</span><br><span class="line">  std::cout &lt;&lt; <span class="string">&quot;Print int32 nums\n&quot;</span>;</span><br><span class="line">  <span class="built_in">print</span>&lt;__m256i, <span class="type">int32_t</span>&gt;(intNums);</span><br><span class="line"></span><br><span class="line">  __m256i bigIntNums = _mm256_set_epi64x(<span class="number">1</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">7</span>);</span><br><span class="line">  std::cout &lt;&lt; <span class="string">&quot;Print int64 nums\n&quot;</span>;</span><br><span class="line">  <span class="built_in">print</span>&lt;__m256i, <span class="type">int64_t</span>&gt;(bigIntNums);</span><br><span class="line">  </span><br><span class="line">  __m256i uBigIntNums = _mm256_set_epi64x(<span class="number">1</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">7</span>);</span><br><span class="line">  std::cout &lt;&lt; <span class="string">&quot;Print uint64 nums\n&quot;</span>;</span><br><span class="line">  <span class="built_in">print</span>&lt;__m256i, <span class="type">uint64_t</span>&gt;(uBigIntNums);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>本文不给未经测量的加速倍数。完整程序是正确性演示，不是严谨的 benchmark；测试机器为虚拟化环境，其结果也不应冒充某款 CPU 的裸机吞吐指标。</p>
+<span class="simd-legacy-anchor" id="References" aria-hidden="true"></span>
+<h2 id="examples">12. 完整源码、验证与继续阅读</h2>
 
-<p>运行结果</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">g++ -mavx2 set_ps.cpp</span> </span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">./a.out</span>        </span><br><span class="line">Print float nums</span><br><span class="line"> 16.0 14.0 12.0 10.0 8.0 6.0 4.0 2.0</span><br><span class="line">Print double nums</span><br><span class="line"> 8.0 6.0 4.0 2.0</span><br><span class="line">Print int32 nums</span><br><span class="line"> 8 6 4 2 7 5 3 1</span><br><span class="line">Print int64 nums</span><br><span class="line"> 7 5 3 1</span><br><span class="line">Print uint64 nums</span><br><span class="line"> 7 5 3 1</span><br></pre></td></tr></table></figure>
-
-<h2 id="Initialization-Intrinsics"><a href="#Initialization-Intrinsics" class="headerlink" title="Initialization Intrinsics"></a>Initialization Intrinsics</h2><p>在对AVX向量进行操作之前，需要填充向量数据，有两种方法可以实现这一点：使用标量值初始化向量和使用从内存加载的数据初始化向量。</p>
-<h3 id="Initialization-with-Scalar-Values"><a href="#Initialization-with-Scalar-Values" class="headerlink" title="Initialization with Scalar Values"></a>Initialization with Scalar Values</h3><p>AVX提供了将一个或多个值组合成256位向量的内嵌函数，还有类似的内嵌函数可以初始化128位向量，但这些函数是由SSE提供的，而不是AVX。这些函数的名称唯一的区别是将_mm256_替换为_mm_。</p>
-<table>
-<thead>
-<tr>
-<th align="left">Function</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left">_mm256_setzero_ps&#x2F;pd</td>
-<td align="left">Returns a floating-point vector filled with zeros</td>
-</tr>
-<tr>
-<td align="left">_mm256_setzero_si256</td>
-<td align="left">Returns an integer vector whose bytes are set to zero</td>
-</tr>
-<tr>
-<td align="left">_mm256_set1_ps&#x2F;pd</td>
-<td align="left">Fill a vector with a floating-point value</td>
-</tr>
-<tr>
-<td align="left">_mm256_set1_epi8&#x2F;epi16&#x2F;epi32&#x2F;epi64</td>
-<td align="left">Fill a vector with an integer</td>
-</tr>
-<tr>
-<td align="left">_mm256_set_ps&#x2F;pd</td>
-<td align="left">Initialize a vector with eight floats (ps) or four doubles (pd)</td>
-</tr>
-<tr>
-<td align="left">_mm256_set_epi8&#x2F;epi16&#x2F;epi32&#x2F;epi64</td>
-<td align="left">Initialize a vector with integers</td>
-</tr>
-<tr>
-<td align="left">_mm256_set_m128&#x2F;m128d&#x2F;m128i</td>
-<td align="left">Initialize a 256-bit vector with two 128-bit vectors</td>
-</tr>
-<tr>
-<td align="left">_mm256_setr_ps&#x2F;pd</td>
-<td align="left">Initialize a vector with eight floats (ps) or four doubles (pd) in reverse order</td>
-</tr>
-<tr>
-<td align="left">_mm256_setr_epi8&#x2F;epi16&#x2F;epi32&#x2F;epi64</td>
-<td align="left">Initialize a vector with i</td>
-</tr>
-</tbody></table>
-<p><strong>Example</strong></p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;immintrin.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="type">int</span> int_array[<span class="number">8</span>] = &#123;<span class="number">100</span>, <span class="number">200</span>, <span class="number">300</span>, <span class="number">400</span>, <span class="number">500</span>, <span class="number">600</span>, <span class="number">700</span>, <span class="number">800</span>&#125;;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">/* Initialize the mask vector */</span></span><br><span class="line">  __m256i mask = _mm256_setr_epi32(<span class="number">-20</span>, <span class="number">-72</span>, <span class="number">-48</span>, <span class="number">-9</span>, <span class="number">-100</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">8</span>);</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* Selectively load data into the vector */</span></span><br><span class="line">  __m256i result = _mm256_maskload_epi32(int_array, mask);</span><br><span class="line">  </span><br><span class="line">  <span class="comment">/* Display the elements of the result vector */</span></span><br><span class="line">  <span class="type">int</span>* res = (<span class="type">int</span>*)&amp;result;</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;%d %d %d %d %d %d %d %d\n&quot;</span>,</span><br><span class="line">  	res[<span class="number">0</span>], res[<span class="number">1</span>], res[<span class="number">2</span>], res[<span class="number">3</span>], res[<span class="number">4</span>], res[<span class="number">5</span>], res[<span class="number">6</span>], res[<span class="number">7</span>]);</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">gcc -O3 -mavx2 test.cpp</span> </span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">./a.out</span> </span><br><span class="line">100 200 300 400 500 0 0 0</span><br></pre></td></tr></table></figure>
-
-<p>这里用<code>_mm256_setr_epi32</code>而不是<code>_mm256_set_epi32</code>主要是为了更自然的展示set的效果（从0到7），负数最高位的bit是1，所以<code>_mm256_maskload_epi32</code>选择性到将前5个数据load到result中了。</p>
-<h3 id="Loading-Data-from-Memory"><a href="#Loading-Data-from-Memory" class="headerlink" title="Loading Data from Memory"></a>Loading Data from Memory</h3><p>AVX&#x2F;AVX2的常见用法是将数据从内存加载到向量中，对向量进行处理，然后将结果存回内存。</p>
-<table>
-<thead>
-<tr>
-<th align="left">Data Type</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left">_mm256_load_ps&#x2F;pd</td>
-<td align="left">Loads a floating-point vector from an aligned memory address</td>
-</tr>
-<tr>
-<td align="left">_mm256_load_si256</td>
-<td align="left">Loads an integer vector from an aligned memory address</td>
-</tr>
-<tr>
-<td align="left">_mm256_loadu_ps&#x2F;pd</td>
-<td align="left">Loads a floating-point vector from an unaligned memory address</td>
-</tr>
-<tr>
-<td align="left">_mm256_loadu_si256</td>
-<td align="left">Loads an integer vector from an unaligned memory address</td>
-</tr>
-<tr>
-<td align="left">_mm_maskload_ps&#x2F;pd &#x2F; _mm256_maskload_ps&#x2F;pd</td>
-<td align="left">Load portions of a 128-bit&#x2F;256-bit floating-point vector according to a mask</td>
-</tr>
-<tr>
-<td align="left">_mm_maskload_epi32&#x2F;64 &#x2F; _mm256_maskload_epi32&#x2F;64</td>
-<td align="left">Load portions of a 128-bit&#x2F;256-bit integer vector according to a mask</td>
-</tr>
-</tbody></table>
-<h2 id="Arithmetic-Intrinsics"><a href="#Arithmetic-Intrinsics" class="headerlink" title="Arithmetic Intrinsics"></a>Arithmetic Intrinsics</h2><h3 id="Addition-and-Subtraction"><a href="#Addition-and-Subtraction" class="headerlink" title="Addition and Subtraction"></a>Addition and Subtraction</h3><table>
-<thead>
-<tr>
-<th align="left">Data Type</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left">_mm256_add_ps&#x2F;pd</td>
-<td align="left">Add two floating-point vectors</td>
-</tr>
-<tr>
-<td align="left">_mm256_sub_ps&#x2F;pd</td>
-<td align="left">Subtract two floating-point vectors</td>
-</tr>
-<tr>
-<td align="left">_mm256_add_epi8&#x2F;16&#x2F;32&#x2F;64</td>
-<td align="left">Add two integer vectors</td>
-</tr>
-<tr>
-<td align="left">_mm236_sub_epi8&#x2F;16&#x2F;32&#x2F;64</td>
-<td align="left">Subtract two integer vectors</td>
-</tr>
-<tr>
-<td align="left">_mm256_adds_epi8&#x2F;16&#x2F;_epu8&#x2F;16 Add two integer vectors with saturation</td>
-<td align="left"></td>
-</tr>
-<tr>
-<td align="left">_mm256_subs_epi8&#x2F;16&#x2F;epu8&#x2F;16 Subtract two integer vectors with saturation</td>
-<td align="left"></td>
-</tr>
-<tr>
-<td align="left">_mm256_hadd_ps&#x2F;pd</td>
-<td align="left">Add two floating-point vectors horizontally</td>
-</tr>
-<tr>
-<td align="left">_mm256_hsub_ps&#x2F;pd</td>
-<td align="left">Subtract two floating-point vectors horizontally</td>
-</tr>
-<tr>
-<td align="left">_mm256_hadd_epi16&#x2F;32</td>
-<td align="left">Add two integer vectors horizontally</td>
-</tr>
-<tr>
-<td align="left">_mm256_hsub_epi16&#x2F;32</td>
-<td align="left">Subtract two integer vectors horizontally</td>
-</tr>
-<tr>
-<td align="left">_mm256_hadds_epi16</td>
-<td align="left">Add two vectors containing shorts horizontally with saturation</td>
-</tr>
-<tr>
-<td align="left">_mm256_hsubs_epi16</td>
-<td align="left">Subtract two vectors containing shorts horizontally with saturation</td>
-</tr>
-<tr>
-<td align="left">_mm256_addsub_ps&#x2F;pd</td>
-<td align="left">Add and subtract two floating-point vectors</td>
-</tr>
-</tbody></table>
-<h3 id="Multiplication-and-Division"><a href="#Multiplication-and-Division" class="headerlink" title="Multiplication and Division"></a>Multiplication and Division</h3><table>
-<thead>
-<tr>
-<th align="left">Data Type</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left">_mm256_mul_ps&#x2F;pd</td>
-<td align="left">Multiply two floating-point vectors</td>
-</tr>
-<tr>
-<td align="left">_mm256_mul_epi32&#x2F;epu32</td>
-<td align="left">Multiply the lowest four elements of vectors containing 32-bit integers</td>
-</tr>
-<tr>
-<td align="left">_mm256_mullo_epi16&#x2F;32</td>
-<td align="left">Multiply integers and store low halves</td>
-</tr>
-<tr>
-<td align="left">_mm256_mulhi_epi16&#x2F;epu16</td>
-<td align="left">Multiply integers and store high halves</td>
-</tr>
-<tr>
-<td align="left">_mm256_mulhrs_epi16</td>
-<td align="left">Multiply 16-bit elements to form 32-bit elements</td>
-</tr>
-<tr>
-<td align="left">_mm256_div_ps&#x2F;pd</td>
-<td align="left">Divide two floating-point vectors</td>
-</tr>
-</tbody></table>
-<h3 id="Fused-Multiply-and-Add-FMA"><a href="#Fused-Multiply-and-Add-FMA" class="headerlink" title="Fused Multiply and Add (FMA)"></a>Fused Multiply and Add (FMA)</h3><p>两个N位数相乘的结果可以占据2N位。因此，当您将两个浮点数a和b相乘时，实际上得到的结果是<code>round(a * b)</code>，其中<code>round(x)</code>返回最接近x的浮点数值。随着进一步的操作，精度损失会增加。AVX2提供了将乘法和加法融合在一起的指令。也就是说，它们返回的结果是<code>round(a * b + c)</code>，而不是<code>round(round(a * b) + c)</code>。因此，这些指令比分别执行乘法和加法提供了更高的速度和精度。</p>
-<table>
-<thead>
-<tr>
-<th align="left">Data Type</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left">_mm_fmadd_ps&#x2F;pd &#x2F; _mm256_fmadd_ps&#x2F;pd</td>
-<td align="left">Multiply two vectors and add the product to a third (res &#x3D; a * b + c)</td>
-</tr>
-<tr>
-<td align="left">_mm_fmsub_ps&#x2F;pd &#x2F; _mm256_fmsub_ps&#x2F;pd</td>
-<td align="left">Multiply two vectors and subtract a vector from the product (res &#x3D; a * b - c)</td>
-</tr>
-<tr>
-<td align="left">_mm_fmadd_ss&#x2F;sd</td>
-<td align="left">Multiply and add the lowest element in the vectors (res[0] &#x3D; a[0] * b[0] + c[0])</td>
-</tr>
-<tr>
-<td align="left">_mm_fmsub_ss&#x2F;sd</td>
-<td align="left">Multiply and subtract the lowest element in the vectors (res[0] &#x3D; a[0] * b[0] - c[0])</td>
-</tr>
-<tr>
-<td align="left">_mm_fnmadd_ps&#x2F;pd &#x2F; _mm256_fnmadd_ps&#x2F;pd</td>
-<td align="left">Multiply two vectors and add the negated product to a third (res &#x3D; -(a * b) + c)</td>
-</tr>
-<tr>
-<td align="left">_mm_fnmsub_ps&#x2F;pd &#x2F; _mm256_fnmsub_ps&#x2F;pd</td>
-<td align="left">Multiply two vectors and add the negated product to a third (res &#x3D; -(a * b) - c)</td>
-</tr>
-<tr>
-<td align="left">_mm_fnmadd_ss&#x2F;sd</td>
-<td align="left">Multiply the two lowest elements and add the negated product to the lowest element of the third vector (res[0] &#x3D; -(a[0] * b[0]) + c[0])</td>
-</tr>
-<tr>
-<td align="left">_mm_fnmsub_ss&#x2F;sd</td>
-<td align="left">Multiply the lowest elements and subtract the lowest element of the third vector from the negated product (res[0] &#x3D; -(a[0] * b[0]) - c[0])</td>
-</tr>
-<tr>
-<td align="left">_mm_fmaddsub_ps&#x2F;pd &#x2F; _mm256_fmaddsub_ps&#x2F;pd</td>
-<td align="left">Multiply two vectors and alternately add and subtract from the product (res &#x3D; a * b - c)</td>
-</tr>
-<tr>
-<td align="left">_mm_fmsubadd_ps&#x2F;pd &#x2F; _mmf256_fmsubadd_ps&#x2F;pd</td>
-<td align="left">Multiply two vectors and alternately subtract and add from the product (res &#x3D; a * b - c)</td>
-</tr>
-</tbody></table>
-<p><strong>Example</strong></p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;immintrin.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  __m256d veca = _mm256_setr_pd(<span class="number">6.0</span>, <span class="number">6.0</span>, <span class="number">6.0</span>, <span class="number">6.0</span>);</span><br><span class="line">  __m256d vecb = _mm256_setr_pd(<span class="number">2.0</span>, <span class="number">2.0</span>, <span class="number">2.0</span>, <span class="number">2.0</span>);</span><br><span class="line">  __m256d vecc = _mm256_setr_pd(<span class="number">7.0</span>, <span class="number">7.0</span>, <span class="number">7.0</span>, <span class="number">7.0</span>);</span><br><span class="line">  </span><br><span class="line">  <span class="comment">/* Alternately subtract and add the third vector</span></span><br><span class="line"><span class="comment">     from the product of the first and second vectors */</span></span><br><span class="line">  __m256d result = _mm256_fmaddsub_pd(veca, vecb, vecc);</span><br><span class="line">  </span><br><span class="line">  <span class="comment">/* Display the elements of the result vector */</span></span><br><span class="line">  <span class="type">double</span>* res = (<span class="type">double</span>*)&amp;result;</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;%lf %lf %lf %lf\n&quot;</span>, res[<span class="number">0</span>], res[<span class="number">1</span>], res[<span class="number">2</span>], res[<span class="number">3</span>]);</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">g++ -mavx2 -mfma test.cpp</span> </span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">./a.out</span> </span><br><span class="line">5.000000 19.000000 5.000000 19.000000</span><br></pre></td></tr></table></figure>
-
-<h2 id="Permuting-and-Shuffling"><a href="#Permuting-and-Shuffling" class="headerlink" title="Permuting and Shuffling"></a>Permuting and Shuffling</h2><p>许多应用程序需要重新排列向量元素，以确保操作正确执行。AVX&#x2F;AVX2提供了许多内嵌函数来实现这个目的，其中两个主要类别是_permute_函数和_shuffle_函数。</p>
-<h3 id="Permuting"><a href="#Permuting" class="headerlink" title="Permuting"></a>Permuting</h3><table>
-<thead>
-<tr>
-<th align="left">Data Type</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left">_mm_permute_ps&#x2F;pd &#x2F; _mm256_permute_ps&#x2F;pd</td>
-<td align="left">Select elements from the input vector based on an 8-bitcontrol value</td>
-</tr>
-<tr>
-<td align="left">_mm256_permute4x64_pd &#x2F; _mm256_permute4x64_epi64</td>
-<td align="left">Select 64-bit elements from the input vector based on an 8-bit control value</td>
-</tr>
-<tr>
-<td align="left">_mm256_permute2f128_ps&#x2F;pd</td>
-<td align="left">Select 128-bit chunks from two input vectors based on an 8-bit control value</td>
-</tr>
-<tr>
-<td align="left">_mm256_permute2f128_si256</td>
-<td align="left">Select 128-bit chunks from two input vectors based on an 8-bit control value</td>
-</tr>
-<tr>
-<td align="left"><br></td>
-<td align="left"></td>
-</tr>
-<tr>
-<td align="left">_mm_permutevar_ps&#x2F;pd <br> _mm256_permutevar_ps&#x2F;pd</td>
-<td align="left">Select elements from the input vector based on bits in an integer vector</td>
-</tr>
-<tr>
-<td align="left"><br></td>
-<td align="left"></td>
-</tr>
-<tr>
-<td align="left">_mm256_permutevar8x32_ps <br> _mm256_permutevar8x32_epi32</td>
-<td align="left">Select 32-bit elements (floats and ints) using indices in an integer vector</td>
-</tr>
-</tbody></table>
-<p>_permute_内嵌函数接受两个参数：一个输入向量和一个8位控制值。控制值的位确定了要插入输出的输入向量元素。对于_mm256_permute_ps，每对控制位通过选择输入向量中的上半部分或下半部分元素之一，确定一个上半部分和下半部分的输出元素，如下图所示：</p>
-<p><a><img src="https://www.codeproject.com/KB/cpp/874396/Fig4.jpg" width="800" height="462" alt="permute"/></a></p>
-<p>如图所示，输入向量的值可能在输出中重复多次。其他输入值可能根本不被选中。在_mm256_permute_pd中，控制值的低四位在相邻的双精度数对之间进行选择。_mm256_permute4x4_pd类似，但使用所有的控制位来选择放置在输出中的64位元素。在_permute2f128_内嵌函数中，控制值选择两个输入向量的128位块，而不是从一个输入向量中选择元素。_permutevar_内嵌函数执行与_permute_内嵌函数相同的操作。但是，它们不使用8位控制值来选择元素，而是依赖于与输入向量大小相同的整数向量。例如，_mm256_permute_ps的输入向量是_mm256，因此整数向量是_mm256i。整数向量的高位以与_permute_内嵌函数的8位控制值的位相同的方式进行选择。</p>
-<h3 id="Shuffling"><a href="#Shuffling" class="headerlink" title="Shuffling"></a>Shuffling</h3><p>与_permute_内嵌函数类似，_shuffle_内嵌函数从一个或两个输入向量中选择元素，并将它们放置在输出向量中。</p>
-<table>
-<thead>
-<tr>
-<th align="left">Data Type</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left">_mm256_shuffle_ps&#x2F;pd</td>
-<td align="left">Select floating-point elements according to an 8-bit value</td>
-</tr>
-<tr>
-<td align="left">_mm256_shuffle_epi8 &#x2F; _mm256_shuffle_epi32</td>
-<td align="left">Select integer elements according to an 8-bit value</td>
-</tr>
-<tr>
-<td align="left">_mm256_shufflelo_epi16 &#x2F; _mm256_shufflehi_epi16</td>
-<td align="left">Select 128-bit chunks from two input vectors based on an 8-bit control value</td>
-</tr>
-</tbody></table>
-<p>所有_shuffle_内嵌函数都操作256位向量。在每种情况下，最后一个参数是一个8位值，确定应该将哪些输入元素放置在输出向量中。对于_mm256_shuffle_ps，只使用控制值的高四位。如果输入向量包含整数或浮点数，所有控制位都会被使用。对于_mm256_shuffle_ps，前两对位选择第一个向量的元素，后两对位选择第二个向量的元素。</p>
-<p><a><img src="https://www.codeproject.com/KB/cpp/874396/Fig5.jpg" width="800" height="462" alt="permute"/></a></p>
-<p>为了对16位值进行洗牌，AVX2提供了_mm256_shufflelo_epi16和_mm256_shufflehi_epi16。与_mm256_shuffle_ps类似，控制值被分为4对bits，从8个元素中进行选择。但对于_mm256_shufflelo_epi16，这8个元素来自8个低16位值。对于_mm256_shufflehi_epi16，这8个元素来自8个高16位值。</p>
-<p><strong>Example</strong></p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;immintrin.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">  __m256d vec1 = _mm256_setr_pd(<span class="number">4.0</span>, <span class="number">5.0</span>, <span class="number">13.0</span>, <span class="number">6.0</span>);</span><br><span class="line">  __m256d vec2 = _mm256_setr_pd(<span class="number">9.0</span>, <span class="number">3.0</span>, <span class="number">6.0</span>, <span class="number">7.0</span>);</span><br><span class="line">  __m256d neg = _mm256_setr_pd(<span class="number">1.0</span>, <span class="number">-1.0</span>, <span class="number">1.0</span>, <span class="number">-1.0</span>);</span><br><span class="line">  </span><br><span class="line">  <span class="comment">/* Step 1: Multiply vec1 and vec2 */</span></span><br><span class="line">  __m256d vec3 = _mm256_mul_pd(vec1, vec2);</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* Step 2: Switch the real and imaginary elements of vec2 */</span></span><br><span class="line">  vec2 = _mm256_permute_pd(vec2, <span class="number">0x5</span>);</span><br><span class="line">  <span class="comment">/* Step 3: Negate the imaginary elements of vec2 */</span></span><br><span class="line">  vec2 = _mm256_mul_pd(vec2, neg);  </span><br><span class="line">  <span class="comment">/* Step 4: Multiply vec1 and the modified vec2 */</span></span><br><span class="line">  __m256d vec4 = _mm256_mul_pd(vec1, vec2);</span><br><span class="line">  <span class="comment">/* Horizontally subtract the elements in vec3 and vec4 */</span></span><br><span class="line">  vec1 = _mm256_hsub_pd(vec3, vec4);</span><br><span class="line">  <span class="comment">/* Display the elements of the result vector */</span></span><br><span class="line">  <span class="type">double</span>* res = (<span class="type">double</span>*)&amp;vec1;</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;%lf %lf %lf %lf\n&quot;</span>, res[<span class="number">0</span>], res[<span class="number">1</span>], res[<span class="number">2</span>], res[<span class="number">3</span>]);</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">g++ -mavx2 -mfma test.cpp</span> </span><br><span class="line">[root@VM-76-184-tencentos~/native/test]</span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">./a.out</span> </span><br><span class="line">21.000000 57.000000 36.000000 127.000000</span><br></pre></td></tr></table></figure>
-
-<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ul>
-<li><a target="_blank" rel="noopener" href="https://www.codeproject.com/Articles/874396/Crunching-Numbers-with-AVX-and-AVX">https://www.codeproject.com/Articles/874396/Crunching-Numbers-with-AVX-and-AVX</a></li>
+<p>下载 <a href="/code/simd-basic/simd_examples.cpp">simd_examples.cpp</a>。它包含 AVX 数组相加、uint32 比较计数、maskload 尾部、浮点归约、FMA，以及针对构造顺序、shuffle、扩宽乘法、gather、变量位移的检查。</p>
+<pre><code>g++ -std&#x3D;c++17 -O3 -Wall -Wextra -Werror -ffp-contract&#x3D;off \
+  simd_examples.cpp -o simd_examples
+.&#x2F;simd_examples</code></pre>
+<p>不要为这份带 dispatcher 的示例加全局 <code>-mavx2</code>。它依靠函数级 target attribute 生成多个 ISA 路径。</p>
+<p>本次在 Intel Xeon Platinum 8260 的 KVM 环境中使用 GCC 12.2 与 Clang 22.1.8 编译运行。检查覆盖长度 0..257、非 32 字节对齐起点、全部尾长、uint32 符号边界 / 相等值、NaN ordered 比较，以及掩码尾部位于不可访问页前的情形。另运行 AddressSanitizer / UndefinedBehaviorSanitizer；当前执行环境不支持 LeakSanitizer，使用 <code>ASAN_OPTIONS=detect_leaks=0</code>。</p>
+<h3 id="从基础指令走向-velox">从基础指令走向 Velox</h3>
+<p>Velox 的 <a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/common/base/SimdUtil.h">SimdUtil.h</a> 使用 xsimd 和架构模板组织 SIMD 能力。例如 <code>byteSetBits</code> 提供 bitset 到位置数组的查表，服务于索引提取 / permute；<code>kPadding</code> 又体现了数据结构为了完整宽度访问预留空间的专门契约。</p>
+<p>这些都建立在本文的 mask、索引、重排和访存边界之上，但通用数组循环不能直接假设自己也拥有 Velox 内部 buffer 的 padding。后续可结合 <a href="/2023/08/19/simd-in-velox-filter/">SIMD in Velox</a> 看实际过滤器如何组织批处理。</p>
+<p>参考资料：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html">Intel Intrinsics Guide</a>：查精确签名、ISA、伪代码和指令映射。</li>
+<li><a target="_blank" rel="noopener" href="https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html">Intel Software Developer’s Manuals</a>：查异常、舍入、掩码访存与寄存器状态等架构语义。</li>
+<li><a target="_blank" rel="noopener" href="https://gcc.gnu.org/onlinedocs/gcc/x86-Function-Attributes.html">GCC x86 Function Attributes</a> 与 <a target="_blank" rel="noopener" href="https://gcc.gnu.org/onlinedocs/gcc/x86-Built-in-Functions.html">x86 Built-in Functions</a>：函数级 target 与运行时特性检测。</li>
+<li><a target="_blank" rel="noopener" href="https://clang.llvm.org/docs/LanguageExtensions.html">Clang Language Extensions</a>：编译器扩展和 feature detection。</li>
+<li><a target="_blank" rel="noopener" href="https://uops.info/">uops.info</a>：按具体微架构查看已测量的指令 latency / throughput，结合自己的访问模式验证。</li>
 </ul>
+</div>
 
   </div>
 </article>
@@ -557,7 +660,7 @@
     </div>
 
     <div id="toc-footer" style="display: none">
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#What-Is-SIMD"><span class="toc-number">1.</span> <span class="toc-text">What Is SIMD</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Fundamentals-of-AVX-Programming"><span class="toc-number">2.</span> <span class="toc-text">Fundamentals of AVX Programming</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#SIMD-Data-Type"><span class="toc-number">2.1.</span> <span class="toc-text">SIMD Data Type</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Function-Naming-Conventions"><span class="toc-number">2.2.</span> <span class="toc-text">Function Naming Conventions</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E4%BE%8B%E5%AD%90"><span class="toc-number">2.3.</span> <span class="toc-text">一个简单例子</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Initialization-Intrinsics"><span class="toc-number">3.</span> <span class="toc-text">Initialization Intrinsics</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Initialization-with-Scalar-Values"><span class="toc-number">3.1.</span> <span class="toc-text">Initialization with Scalar Values</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Loading-Data-from-Memory"><span class="toc-number">3.2.</span> <span class="toc-text">Loading Data from Memory</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Arithmetic-Intrinsics"><span class="toc-number">4.</span> <span class="toc-text">Arithmetic Intrinsics</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Addition-and-Subtraction"><span class="toc-number">4.1.</span> <span class="toc-text">Addition and Subtraction</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Multiplication-and-Division"><span class="toc-number">4.2.</span> <span class="toc-text">Multiplication and Division</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Fused-Multiply-and-Add-FMA"><span class="toc-number">4.3.</span> <span class="toc-text">Fused Multiply and Add (FMA)</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Permuting-and-Shuffling"><span class="toc-number">5.</span> <span class="toc-text">Permuting and Shuffling</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Permuting"><span class="toc-number">5.1.</span> <span class="toc-text">Permuting</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Shuffling"><span class="toc-number">5.2.</span> <span class="toc-text">Shuffling</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">6.</span> <span class="toc-text">References</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#model"><span class="toc-number">1.</span> <span class="toc-text">1. SIMD 的执行模型：一条指令，多份数据</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#256-%E4%BD%8D%E4%B8%8D%E4%BB%A3%E8%A1%A8%E4%BB%BB%E6%84%8F%E5%85%83%E7%B4%A0%E9%83%BD%E8%83%BD%E4%BA%92%E7%9B%B8%E4%BA%A4%E6%8D%A2"><span class="toc-number">1.1.</span> <span class="toc-text">256 位不代表任意元素都能互相交换</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#isa"><span class="toc-number">2.</span> <span class="toc-text">2. AVX、AVX2、FMA 与编译选项</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#intrinsic-%E6%98%AF%E7%BC%96%E8%AF%91%E5%99%A8%E6%8E%A5%E5%8F%A3%EF%BC%8C%E4%B8%8D%E6%98%AF%E6%9C%BA%E5%99%A8%E6%8C%87%E4%BB%A4%E6%B8%85%E5%8D%95%E7%9A%84%E4%B8%80%E6%AF%94%E4%B8%80%E5%88%AB%E5%90%8D"><span class="toc-number">2.1.</span> <span class="toc-text">Intrinsic 是编译器接口，不是机器指令清单的一比一别名</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%A4%E7%A7%8D%E7%BC%96%E8%AF%91%E6%96%B9%E5%BC%8F"><span class="toc-number">2.2.</span> <span class="toc-text">两种编译方式</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#layout"><span class="toc-number">3.</span> <span class="toc-text">3. 元素顺序、常量与内存布局</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#aos-%E4%B8%8E-soa-%E5%86%B3%E5%AE%9A%E4%BA%86%E6%95%B0%E6%8D%AE%E6%90%AC%E8%BF%90%E6%88%90%E6%9C%AC"><span class="toc-number">3.1.</span> <span class="toc-text">AoS 与 SoA 决定了数据搬运成本</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#memory"><span class="toc-number">4.</span> <span class="toc-text">4. Load、Store、对齐与尾部</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%B8%80%E4%B8%AA%E5%AE%8C%E6%95%B4%E5%BE%AA%E7%8E%AF%EF%BC%9A%E6%95%B0%E7%BB%84%E7%9B%B8%E5%8A%A0"><span class="toc-number">4.1.</span> <span class="toc-text">第一个完整循环：数组相加</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#maskload-%E7%9A%84%E6%8E%A9%E7%A0%81%E4%B8%8D%E6%98%AF-01-%E5%B8%83%E5%B0%94%E6%95%B0%E7%BB%84"><span class="toc-number">4.2.</span> <span class="toc-text">Maskload 的掩码不是 0&#x2F;1 布尔数组</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#gather-%E8%A7%A3%E5%86%B3%E5%9C%B0%E5%9D%80%E8%A1%A8%E8%BE%BE%EF%BC%8C%E4%B8%8D%E4%BF%9D%E8%AF%81%E6%9B%B4%E5%BF%AB"><span class="toc-number">4.3.</span> <span class="toc-text">Gather 解决地址表达，不保证更快</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#arithmetic"><span class="toc-number">5.</span> <span class="toc-text">5. 算术：整数溢出、乘法与 FMA</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%B4%E6%95%B0%E5%8A%A0%E5%87%8F%E6%9C%89%E6%A8%A1%E8%BF%90%E7%AE%97%E4%B8%8E%E9%A5%B1%E5%92%8C%E4%B8%A4%E7%B1%BB"><span class="toc-number">5.1.</span> <span class="toc-text">整数加减有模运算与饱和两类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#32-%E4%BD%8D%E4%B9%98%E6%B3%95%E5%BF%85%E9%A1%BB%E5%85%88%E9%97%AE%EF%BC%9A%E9%9C%80%E8%A6%81%E5%93%AA%E5%87%A0%E4%BD%8D%E3%80%81%E5%93%AA%E5%87%A0%E4%B8%AA%E5%85%83%E7%B4%A0"><span class="toc-number">5.2.</span> <span class="toc-text">32 位乘法必须先问：需要哪几位、哪几个元素</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B5%AE%E7%82%B9%E6%AF%94%E8%BE%83%E3%80%81%E9%99%A4%E6%B3%95%E4%B8%8E%E8%BF%91%E4%BC%BC%E6%8C%87%E4%BB%A4%E8%A6%81%E4%BF%9D%E7%95%99%E8%AF%AD%E4%B9%89"><span class="toc-number">5.3.</span> <span class="toc-text">浮点比较、除法与近似指令要保留语义</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#fma-%E5%8F%AA%E6%9C%89%E4%B8%80%E6%AC%A1%E6%9C%80%E7%BB%88%E8%88%8D%E5%85%A5%EF%BC%8C%E4%BD%86%E7%BB%93%E6%9E%9C%E5%8F%AF%E4%BB%A5%E6%94%B9%E5%8F%98"><span class="toc-number">5.4.</span> <span class="toc-text">FMA 只有一次最终舍入，但结果可以改变</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#masks"><span class="toc-number">6.</span> <span class="toc-text">6. 比较、Mask 与无分支处理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#movemask-%E4%B8%8E-blend-%E6%9C%8D%E5%8A%A1%E4%BA%8E%E4%B8%8D%E5%90%8C%E7%9A%84%E6%8E%A7%E5%88%B6%E6%96%B9%E5%BC%8F"><span class="toc-number">6.1.</span> <span class="toc-text">Movemask 与 blend 服务于不同的控制方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%8C%E6%95%B4%E6%A8%A1%E5%BC%8F%EF%BC%9A%E7%BB%9F%E8%AE%A1%E5%A4%A7%E4%BA%8E%E9%98%88%E5%80%BC%E7%9A%84-uint32"><span class="toc-number">6.2.</span> <span class="toc-text">完整模式：统计大于阈值的 uint32</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#shuffle"><span class="toc-number">7.</span> <span class="toc-text">7. Shuffle、Permute、Unpack：先画索引再写 immediate</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#_mm_shuffle-%E4%BB%8E%E5%8F%B3%E8%BE%B9%E5%86%B3%E5%AE%9A-lane-0"><span class="toc-number">7.1.</span> <span class="toc-text">_MM_SHUFFLE 从右边决定 lane 0</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#byte-shuffle-%E5%8F%AF%E5%BD%93%E4%BD%9C%E5%B0%8F%E6%9F%A5%E8%A1%A8%EF%BC%8C%E4%BD%86%E6%AF%8F%E5%8D%8A%E5%8F%AA%E6%9C%89-16-%E4%B8%AA%E5%85%A5%E5%8F%A3"><span class="toc-number">7.2.</span> <span class="toc-text">Byte shuffle 可当作小查表，但每半只有 16 个入口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#unpack-%E5%92%8C-pack-%E4%B9%9F%E4%BF%9D%E7%95%99%E8%BF%99%E4%B8%AA%E4%B8%AD%E9%97%B4%E8%BE%B9%E7%95%8C"><span class="toc-number">7.3.</span> <span class="toc-text">Unpack 和 pack 也保留这个中间边界</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#conversion"><span class="toc-number">8.</span> <span class="toc-text">8. 数值转换、扩宽、收窄与位移</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#simd-%E4%BD%8D%E7%A7%BB%E4%B8%8D%E6%80%BB%E6%98%AF%E9%81%B5%E5%BE%AA%E6%A0%87%E9%87%8F%E8%AE%A1%E6%95%B0%E5%8F%96%E6%A8%A1"><span class="toc-number">8.1.</span> <span class="toc-text">SIMD 位移不总是遵循标量计数取模</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reduction"><span class="toc-number">9.</span> <span class="toc-text">9. Horizontal 运算与真正的全向量归约</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#dispatch"><span class="toc-number">10.</span> <span class="toc-text">10. 运行时分派：不支持 AVX2 的机器也要能启动</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#avx-%E4%B8%8E-sse-%E7%9A%84%E8%BE%B9%E7%95%8C"><span class="toc-number">10.1.</span> <span class="toc-text">AVX 与 SSE 的边界</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#performance"><span class="toc-number">11.</span> <span class="toc-text">11. 性能分析：先找瓶颈，再数指令</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%87%AA%E5%8A%A8%E5%90%91%E9%87%8F%E5%8C%96%E6%98%AF%E5%BF%85%E9%A1%BB%E6%AF%94%E8%BE%83%E7%9A%84%E5%9F%BA%E7%BA%BF"><span class="toc-number">11.1.</span> <span class="toc-text">自动向量化是必须比较的基线</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E4%B8%AA%E5%8F%AF%E5%A4%8D%E6%A0%B8%E7%9A%84%E6%B5%8B%E9%87%8F%E5%BA%94%E5%8C%85%E5%90%AB%E4%BB%80%E4%B9%88"><span class="toc-number">11.2.</span> <span class="toc-text">一个可复核的测量应包含什么</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#examples"><span class="toc-number">12.</span> <span class="toc-text">12. 完整源码、验证与继续阅读</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%8E%E5%9F%BA%E7%A1%80%E6%8C%87%E4%BB%A4%E8%B5%B0%E5%90%91-velox"><span class="toc-number">12.1.</span> <span class="toc-text">从基础指令走向 Velox</span></a></li></ol></li></ol>
     </div>
 
     <div id="share-footer" style="display: none">

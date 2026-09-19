@@ -1,0 +1,109 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="802" viewBox="0 0 1280 802" role="img" aria-labelledby="title desc">
+<title id="title">256 位寄存器：总宽度固定，元素解释不同</title><desc id="desc">下图从左到右是低 lane 到高 lane。竖线标出某些指令不能跨越的 128 位子块边界。</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
+<rect x="0" y="0" width="1280" height="802" rx="0" fill="white" stroke="none" stroke-width="1"/>
+<rect x="8" y="8" width="1264" height="786" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<rect x="9" y="9" width="1262" height="94" rx="0" fill="#edf5ff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="103" x2="1271" y2="103" stroke="#d6d3cc" stroke-width="1"/>
+<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">256 位寄存器：总宽度固定，元素解释不同</text>
+<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">下图从左到右是低 lane 到高 lane。竖线标出某些指令不能跨越的 128 位子块边界。</text>
+<text x="70" y="174" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="22" font-weight="600" text-anchor="start">8 × float / int32</text>
+<rect x="70.0" y="196" width="142.5" height="58" rx="0" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<text x="141.25" y="233" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="22" font-weight="500" text-anchor="middle">0</text>
+<rect x="212.5" y="196" width="142.5" height="58" rx="0" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<text x="283.75" y="233" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="22" font-weight="500" text-anchor="middle">1</text>
+<rect x="355.0" y="196" width="142.5" height="58" rx="0" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<text x="426.25" y="233" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="22" font-weight="500" text-anchor="middle">2</text>
+<rect x="497.5" y="196" width="142.5" height="58" rx="0" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<text x="568.75" y="233" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="22" font-weight="500" text-anchor="middle">3</text>
+<rect x="640.0" y="196" width="142.5" height="58" rx="0" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<text x="711.25" y="233" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="22" font-weight="500" text-anchor="middle">4</text>
+<rect x="782.5" y="196" width="142.5" height="58" rx="0" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<text x="853.75" y="233" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="22" font-weight="500" text-anchor="middle">5</text>
+<rect x="925.0" y="196" width="142.5" height="58" rx="0" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<text x="996.25" y="233" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="22" font-weight="500" text-anchor="middle">6</text>
+<rect x="1067.5" y="196" width="142.5" height="58" rx="0" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<text x="1138.75" y="233" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="22" font-weight="500" text-anchor="middle">7</text>
+<text x="70" y="321" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="22" font-weight="600" text-anchor="start">4 × double / int64</text>
+<rect x="70.0" y="343" width="285.0" height="58" rx="0" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<text x="212.5" y="380" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="22" font-weight="500" text-anchor="middle">0</text>
+<rect x="355.0" y="343" width="285.0" height="58" rx="0" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<text x="497.5" y="380" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="22" font-weight="500" text-anchor="middle">1</text>
+<rect x="640.0" y="343" width="285.0" height="58" rx="0" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<text x="782.5" y="380" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="22" font-weight="500" text-anchor="middle">2</text>
+<rect x="925.0" y="343" width="285.0" height="58" rx="0" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<text x="1067.5" y="380" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="22" font-weight="500" text-anchor="middle">3</text>
+<text x="70" y="468" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="22" font-weight="600" text-anchor="start">32 × int8 / byte</text>
+<rect x="70.0" y="490" width="35.625" height="58" rx="0" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="87.8125" y="527" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="14" font-weight="500" text-anchor="middle">0</text>
+<rect x="105.625" y="490" width="35.625" height="58" rx="0" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="123.4375" y="527" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="14" font-weight="500" text-anchor="middle">1</text>
+<rect x="141.25" y="490" width="35.625" height="58" rx="0" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="159.0625" y="527" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="14" font-weight="500" text-anchor="middle">2</text>
+<rect x="176.875" y="490" width="35.625" height="58" rx="0" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="194.6875" y="527" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="14" font-weight="500" text-anchor="middle">3</text>
+<rect x="212.5" y="490" width="35.625" height="58" rx="0" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="230.3125" y="527" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="14" font-weight="500" text-anchor="middle">4</text>
+<rect x="248.125" y="490" width="35.625" height="58" rx="0" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="265.9375" y="527" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="14" font-weight="500" text-anchor="middle">5</text>
+<rect x="283.75" y="490" width="35.625" height="58" rx="0" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="301.5625" y="527" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="14" font-weight="500" text-anchor="middle">6</text>
+<rect x="319.375" y="490" width="35.625" height="58" rx="0" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="337.1875" y="527" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="14" font-weight="500" text-anchor="middle">7</text>
+<rect x="355.0" y="490" width="35.625" height="58" rx="0" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="372.8125" y="527" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="14" font-weight="500" text-anchor="middle">8</text>
+<rect x="390.625" y="490" width="35.625" height="58" rx="0" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="408.4375" y="527" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="14" font-weight="500" text-anchor="middle">9</text>
+<rect x="426.25" y="490" width="35.625" height="58" rx="0" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="444.0625" y="527" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="14" font-weight="500" text-anchor="middle">10</text>
+<rect x="461.875" y="490" width="35.625" height="58" rx="0" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="479.6875" y="527" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="14" font-weight="500" text-anchor="middle">11</text>
+<rect x="497.5" y="490" width="35.625" height="58" rx="0" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="515.3125" y="527" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="14" font-weight="500" text-anchor="middle">12</text>
+<rect x="533.125" y="490" width="35.625" height="58" rx="0" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="550.9375" y="527" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="14" font-weight="500" text-anchor="middle">13</text>
+<rect x="568.75" y="490" width="35.625" height="58" rx="0" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="586.5625" y="527" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="14" font-weight="500" text-anchor="middle">14</text>
+<rect x="604.375" y="490" width="35.625" height="58" rx="0" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="622.1875" y="527" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="14" font-weight="500" text-anchor="middle">15</text>
+<rect x="640.0" y="490" width="35.625" height="58" rx="0" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="657.8125" y="527" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="14" font-weight="500" text-anchor="middle">16</text>
+<rect x="675.625" y="490" width="35.625" height="58" rx="0" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="693.4375" y="527" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="14" font-weight="500" text-anchor="middle">17</text>
+<rect x="711.25" y="490" width="35.625" height="58" rx="0" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="729.0625" y="527" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="14" font-weight="500" text-anchor="middle">18</text>
+<rect x="746.875" y="490" width="35.625" height="58" rx="0" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="764.6875" y="527" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="14" font-weight="500" text-anchor="middle">19</text>
+<rect x="782.5" y="490" width="35.625" height="58" rx="0" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="800.3125" y="527" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="14" font-weight="500" text-anchor="middle">20</text>
+<rect x="818.125" y="490" width="35.625" height="58" rx="0" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="835.9375" y="527" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="14" font-weight="500" text-anchor="middle">21</text>
+<rect x="853.75" y="490" width="35.625" height="58" rx="0" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="871.5625" y="527" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="14" font-weight="500" text-anchor="middle">22</text>
+<rect x="889.375" y="490" width="35.625" height="58" rx="0" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="907.1875" y="527" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="14" font-weight="500" text-anchor="middle">23</text>
+<rect x="925.0" y="490" width="35.625" height="58" rx="0" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="942.8125" y="527" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="14" font-weight="500" text-anchor="middle">24</text>
+<rect x="960.625" y="490" width="35.625" height="58" rx="0" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="978.4375" y="527" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="14" font-weight="500" text-anchor="middle">25</text>
+<rect x="996.25" y="490" width="35.625" height="58" rx="0" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="1014.0625" y="527" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="14" font-weight="500" text-anchor="middle">26</text>
+<rect x="1031.875" y="490" width="35.625" height="58" rx="0" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="1049.6875" y="527" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="14" font-weight="500" text-anchor="middle">27</text>
+<rect x="1067.5" y="490" width="35.625" height="58" rx="0" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="1085.3125" y="527" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="14" font-weight="500" text-anchor="middle">28</text>
+<rect x="1103.125" y="490" width="35.625" height="58" rx="0" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="1120.9375" y="527" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="14" font-weight="500" text-anchor="middle">29</text>
+<rect x="1138.75" y="490" width="35.625" height="58" rx="0" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="1156.5625" y="527" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="14" font-weight="500" text-anchor="middle">30</text>
+<rect x="1174.375" y="490" width="35.625" height="58" rx="0" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="1192.1875" y="527" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="14" font-weight="500" text-anchor="middle">31</text>
+<line x1="640" y1="138" x2="640" y2="616" stroke="#c2410c" stroke-width="1" stroke-dasharray="6 5"/>
+<rect x="506" y="612" width="268" height="34" rx="0" fill="white" stroke="none" stroke-width="1"/>
+<text x="640" y="636" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#c2410c" font-size="20" font-weight="400" text-anchor="middle">128 位边界</text>
+<text x="320" y="675" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="20" font-weight="400" text-anchor="middle">低 128 位</text>
+<text x="960" y="675" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="20" font-weight="400" text-anchor="middle">高 128 位</text>
+<rect x="40" y="700" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
+<text x="60" y="729" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">元素 lane 与 128 位子块是两个概念；__m256i 没有固定的整数元素类型。</text>
+<text x="60" y="754" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">指令决定元素宽度、符号语义和可选索引范围；不要从寄存器宽度推断重排范围。</text>
+</svg>

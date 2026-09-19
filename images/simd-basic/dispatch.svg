@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="842" viewBox="0 0 1280 842" role="img" aria-labelledby="title desc">
+<title id="title">运行时分派：ISA 检查必须保护真正的入口</title><desc id="desc">整个目标以基线 ISA 编译；专用函数使用 target attribute 或独立编译单元。</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
+<rect x="0" y="0" width="1280" height="842" rx="0" fill="white" stroke="none" stroke-width="1"/>
+<rect x="8" y="8" width="1264" height="826" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<rect x="9" y="9" width="1262" height="94" rx="0" fill="#edf5ff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="103" x2="1271" y2="103" stroke="#d6d3cc" stroke-width="1"/>
+<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">运行时分派：ISA 检查必须保护真正的入口</text>
+<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">整个目标以基线 ISA 编译；专用函数使用 target attribute 或独立编译单元。</text>
+<rect x="365" y="145" width="550" height="95" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="365" y="149" width="4" height="87" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="387" y="180" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">基线入口</text>
+<text x="387" y="213" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">普通代码也不能提前使用 AVX2 指令</text>
+<polyline points="640,252 640,292" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="365" y="307" width="550" height="104" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<rect x="365" y="311" width="4" height="96" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
+<text x="387" y="342" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">CPU + OS 特性检测</text>
+<text x="387" y="375" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">编译器 builtin 或正确的 CPUID / XGETBV 检测</text>
+<polyline points="352,359 203,359 203,476" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="213" y="340" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">不满足 AVX2</text>
+<polyline points="640,423 640,476" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="659" y="457" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">满足 AVX2</text>
+<polyline points="928,359 1075,359 1075,476" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="1080" y="340" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="middle">独立检查 AVX + FMA</text>
+<rect x="50" y="489" width="307" height="110" rx="4" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
+<rect x="50" y="493" width="4" height="102" rx="0" fill="#c2410c" stroke="none" stroke-width="1"/>
+<text x="72" y="524" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Scalar 路径</text>
+<text x="72" y="557" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">基线 ISA，可直接测试</text>
+<rect x="486" y="489" width="307" height="110" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<rect x="486" y="493" width="4" height="102" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
+<text x="508" y="524" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">AVX2 路径</text>
+<text x="508" y="557" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">target(&quot;avx2&quot;)</text>
+<rect x="922" y="489" width="307" height="110" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<rect x="922" y="493" width="4" height="102" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
+<text x="944" y="524" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">FMA 路径</text>
+<text x="944" y="557" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">target(&quot;avx,fma&quot;)</text>
+<text x="640" y="679" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="21" font-weight="400" text-anchor="middle">函数内缓存已选择的函数指针，避免每次循环都做特性检测。</text>
+<rect x="40" y="740" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
+<text x="60" y="769" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">全局 -mavx2 可能把 AVX2 指令带进 dispatcher 和 fallback，外层 if 因而无法保护它们。</text>
+<text x="60" y="794" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">FMA、POPCNT、BMI 等有各自的特性位；不要把它们视为 AVX2 检查的替代结果。</text>
+</svg>

@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="922" viewBox="0 0 1280 922" role="img" aria-labelledby="title desc">
+<title id="title">从比较到 bitset：每个元素贡献一个 bit</title><desc id="desc">示例比较 x &gt; 10。元素顺序从低 lane 到高 lane；标量 bitset 按通常的高位到低位书写。</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
+<rect x="0" y="0" width="1280" height="922" rx="0" fill="white" stroke="none" stroke-width="1"/>
+<rect x="8" y="8" width="1264" height="906" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<rect x="9" y="9" width="1262" height="94" rx="0" fill="#edf5ff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="103" x2="1271" y2="103" stroke="#d6d3cc" stroke-width="1"/>
+<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">从比较到 bitset：每个元素贡献一个 bit</text>
+<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">示例比较 x &gt; 10。元素顺序从低 lane 到高 lane；标量 bitset 按通常的高位到低位书写。</text>
+<text x="60" y="158" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="22" font-weight="600" text-anchor="start">输入 x</text>
+<rect x="60.0" y="178" width="145.0" height="58" rx="0" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<text x="132.5" y="215" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="500" text-anchor="middle">8</text>
+<rect x="205.0" y="178" width="145.0" height="58" rx="0" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<text x="277.5" y="215" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="500" text-anchor="middle">11</text>
+<rect x="350.0" y="178" width="145.0" height="58" rx="0" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<text x="422.5" y="215" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="500" text-anchor="middle">4</text>
+<rect x="495.0" y="178" width="145.0" height="58" rx="0" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<text x="567.5" y="215" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="500" text-anchor="middle">20</text>
+<rect x="640.0" y="178" width="145.0" height="58" rx="0" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<text x="712.5" y="215" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="500" text-anchor="middle">10</text>
+<rect x="785.0" y="178" width="145.0" height="58" rx="0" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<text x="857.5" y="215" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="500" text-anchor="middle">17</text>
+<rect x="930.0" y="178" width="145.0" height="58" rx="0" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<text x="1002.5" y="215" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="500" text-anchor="middle">9</text>
+<rect x="1075.0" y="178" width="145.0" height="58" rx="0" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<text x="1147.5" y="215" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="500" text-anchor="middle">99</text>
+<polyline points="640,251 640,293" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="671" y="281" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="18" font-weight="400" text-anchor="start">compare &gt; 10</text>
+<text x="60" y="327" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="22" font-weight="600" text-anchor="start">比较 mask · 每个 32 位元素</text>
+<rect x="60.0" y="350" width="145.0" height="58" rx="0" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<text x="132.5" y="387" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="500" text-anchor="middle">0</text>
+<rect x="205.0" y="350" width="145.0" height="58" rx="0" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<text x="277.5" y="387" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="500" text-anchor="middle">FFFFFFFF</text>
+<rect x="350.0" y="350" width="145.0" height="58" rx="0" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<text x="422.5" y="387" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="500" text-anchor="middle">0</text>
+<rect x="495.0" y="350" width="145.0" height="58" rx="0" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<text x="567.5" y="387" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="500" text-anchor="middle">FFFFFFFF</text>
+<rect x="640.0" y="350" width="145.0" height="58" rx="0" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<text x="712.5" y="387" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="500" text-anchor="middle">0</text>
+<rect x="785.0" y="350" width="145.0" height="58" rx="0" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<text x="857.5" y="387" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="500" text-anchor="middle">FFFFFFFF</text>
+<rect x="930.0" y="350" width="145.0" height="58" rx="0" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<text x="1002.5" y="387" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="500" text-anchor="middle">0</text>
+<rect x="1075.0" y="350" width="145.0" height="58" rx="0" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<text x="1147.5" y="387" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="500" text-anchor="middle">FFFFFFFF</text>
+<polyline points="640,423 640,465" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="671" y="453" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="18" font-weight="400" text-anchor="start">cast bits → movemask_ps</text>
+<text x="60" y="498" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="22" font-weight="600" text-anchor="start">逐 lane 的最高位</text>
+<rect x="60.0" y="522" width="145.0" height="58" rx="0" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="132.5" y="559" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="500" text-anchor="middle">0</text>
+<rect x="205.0" y="522" width="145.0" height="58" rx="0" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="277.5" y="559" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="500" text-anchor="middle">1</text>
+<rect x="350.0" y="522" width="145.0" height="58" rx="0" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="422.5" y="559" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="500" text-anchor="middle">0</text>
+<rect x="495.0" y="522" width="145.0" height="58" rx="0" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="567.5" y="559" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="500" text-anchor="middle">1</text>
+<rect x="640.0" y="522" width="145.0" height="58" rx="0" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="712.5" y="559" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="500" text-anchor="middle">0</text>
+<rect x="785.0" y="522" width="145.0" height="58" rx="0" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="857.5" y="559" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="500" text-anchor="middle">1</text>
+<rect x="930.0" y="522" width="145.0" height="58" rx="0" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="1002.5" y="559" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="500" text-anchor="middle">0</text>
+<rect x="1075.0" y="522" width="145.0" height="58" rx="0" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="1147.5" y="559" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="500" text-anchor="middle">1</text>
+<rect x="60" y="644" width="520" height="126" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<rect x="60" y="648" width="4" height="118" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
+<text x="82" y="679" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">标量 bitset = 0xAA</text>
+<text x="82" y="712" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">按 bit7..bit0 写作 10101010</text>
+<text x="82" y="745" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">bit i 对应原来的 lane i。</text>
+<rect x="700" y="644" width="520" height="126" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="700" y="648" width="4" height="118" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="722" y="679" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">可继续做什么</text>
+<text x="722" y="712" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">any / all / count / first / 输出索引</text>
+<text x="722" y="745" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">32 位比较宜每元素取一个 bit。</text>
+<polyline points="592,705 688,705" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="40" y="820" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
+<text x="60" y="849" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">比较结果是全 1 / 全 0；maskload 与 blendv 观察的是对应元素的最高位。</text>
+<text x="60" y="874" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">movemask_epi8 每字节取一个 bit：直接作用于 int32 比较结果会每个命中产生 4 个置位。</text>
+</svg>
