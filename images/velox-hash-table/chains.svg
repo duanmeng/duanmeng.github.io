@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="656" viewBox="0 0 1280 656" role="img" aria-labelledby="title desc">
+<title id="title">重复链：交错访问，按 probe 行顺序输出</title><desc id="desc">最多 8 个 slot；只有 head slot 直接输出，其他 slot 最多缓冲 8 个命中。</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
+<rect x="0" y="0" width="1280" height="656" rx="0" fill="white" stroke="none" stroke-width="1"/>
+<rect x="8" y="8" width="1264" height="640" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<rect x="9" y="9" width="1262" height="94" rx="0" fill="#edf5ff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="103" x2="1271" y2="103" stroke="#d6d3cc" stroke-width="1"/>
+<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">重复链：交错访问，按 probe 行顺序输出</text>
+<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">最多 8 个 slot；只有 head slot 直接输出，其他 slot 最多缓冲 8 个命中。</text>
+<text x="40" y="215" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">p0 · head</text>
+<circle cx="258" cy="208" r="27" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<text x="258" y="214" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">A0</text>
+<polyline points="294,208 318,208" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<circle cx="354" cy="208" r="27" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<text x="354" y="214" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">A1</text>
+<polyline points="390,208 414,208" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<circle cx="450" cy="208" r="27" fill="white" stroke="#1d4ed8" stroke-width="1"/>
+<text x="450" y="214" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">A2</text>
+<polyline points="486,208 510,208" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<circle cx="546" cy="208" r="27" fill="white" stroke="#1d4ed8" stroke-width="1"/>
+<text x="546" y="214" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">A3</text>
+<polyline points="586,208 670,208" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="690" y="165" width="550" height="86" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="690" y="169" width="4" height="78" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="712" y="200" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">直接 emit</text>
+<text x="712" y="233" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">当前 probe 行的结果先输出</text>
+<text x="40" y="320" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">p1</text>
+<circle cx="258" cy="313" r="27" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<text x="258" y="319" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">B0</text>
+<polyline points="294,313 318,313" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<circle cx="354" cy="313" r="27" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<text x="354" y="319" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">B1</text>
+<polyline points="390,313 414,313" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<circle cx="450" cy="313" r="27" fill="white" stroke="#7e22ce" stroke-width="1"/>
+<text x="450" y="319" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">B2</text>
+<polyline points="486,313 510,313" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<circle cx="546" cy="313" r="27" fill="white" stroke="#7e22ce" stroke-width="1"/>
+<text x="546" y="319" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">B3</text>
+<polyline points="586,313 670,313" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="690" y="274" width="550" height="78" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<rect x="690" y="278" width="4" height="70" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
+<text x="714" y="319" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="600" text-anchor="start">buffer</text>
+<rect x="801" y="290" width="66" height="46" rx="4" fill="white" stroke="#7e22ce" stroke-width="1"/>
+<text x="834" y="319" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="400" text-anchor="middle">B0</text>
+<rect x="881" y="290" width="66" height="46" rx="4" fill="white" stroke="#7e22ce" stroke-width="1"/>
+<text x="914" y="319" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="400" text-anchor="middle">B1</text>
+<rect x="961" y="290" width="66" height="46" rx="4" fill="white" stroke="#7e22ce" stroke-width="1"/>
+<text x="994" y="319" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="400" text-anchor="middle">…</text>
+<rect x="1041" y="290" width="66" height="46" rx="4" fill="white" stroke="#7e22ce" stroke-width="1"/>
+<text x="1074" y="319" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="400" text-anchor="middle">…</text>
+<rect x="1121" y="290" width="66" height="46" rx="4" fill="white" stroke="#7e22ce" stroke-width="1"/>
+<text x="1154" y="319" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="400" text-anchor="middle">…</text>
+<text x="40" y="425" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">p2</text>
+<circle cx="258" cy="418" r="27" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="258" y="424" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">C0</text>
+<polyline points="294,418 318,418" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<circle cx="354" cy="418" r="27" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="354" y="424" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">C1</text>
+<polyline points="390,418 414,418" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<circle cx="450" cy="418" r="27" fill="white" stroke="#15803d" stroke-width="1"/>
+<text x="450" y="424" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">C2</text>
+<polyline points="486,418 510,418" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<circle cx="546" cy="418" r="27" fill="white" stroke="#15803d" stroke-width="1"/>
+<text x="546" y="424" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">C3</text>
+<polyline points="586,418 670,418" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="690" y="379" width="550" height="78" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<rect x="690" y="383" width="4" height="70" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
+<text x="714" y="424" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="600" text-anchor="start">buffer</text>
+<rect x="801" y="395" width="66" height="46" rx="4" fill="white" stroke="#15803d" stroke-width="1"/>
+<text x="834" y="424" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="400" text-anchor="middle">C0</text>
+<rect x="881" y="395" width="66" height="46" rx="4" fill="white" stroke="#15803d" stroke-width="1"/>
+<text x="914" y="424" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="400" text-anchor="middle">C1</text>
+<rect x="961" y="395" width="66" height="46" rx="4" fill="white" stroke="#15803d" stroke-width="1"/>
+<text x="994" y="424" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="400" text-anchor="middle">…</text>
+<rect x="1041" y="395" width="66" height="46" rx="4" fill="white" stroke="#15803d" stroke-width="1"/>
+<text x="1074" y="424" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="400" text-anchor="middle">…</text>
+<rect x="1121" y="395" width="66" height="46" rx="4" fill="white" stroke="#15803d" stroke-width="1"/>
+<text x="1154" y="424" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="400" text-anchor="middle">…</text>
+<text x="690" y="491" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="18" font-weight="400" text-anchor="start">buffer 满时暂停；head 完成后轮到下一 slot。</text>
+<rect x="40" y="554" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
+<text x="60" y="583" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">输出：p0 的结果 → p1 的已缓冲结果与后续链 → p2 → …</text>
+<text x="60" y="608" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">跨批保存 cursor、buffer 和 drainPosition。图中画 3 个 slot，实际最多 8 个。</text>
+</svg>

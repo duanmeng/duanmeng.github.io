@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="646" viewBox="0 0 1280 646" role="img" aria-labelledby="title desc">
+<title id="title">从输入 key 到真实行</title><desc id="desc">VectorHasher 负责编码；索引负责定位；RowContainer 保存 key、聚合状态与 Join payload。</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
+<rect x="0" y="0" width="1280" height="646" rx="0" fill="white" stroke="none" stroke-width="1"/>
+<rect x="8" y="8" width="1264" height="630" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<rect x="9" y="9" width="1262" height="94" rx="0" fill="#edf5ff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="103" x2="1271" y2="103" stroke="#d6d3cc" stroke-width="1"/>
+<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">从输入 key 到真实行</text>
+<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">VectorHasher 负责编码；索引负责定位；RowContainer 保存 key、聚合状态与 Join payload。</text>
+<rect x="40" y="150" width="320" height="324" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="40" y="154" width="4" height="316" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="62" y="185" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">输入与编码</text>
+<rect x="480" y="150" width="320" height="324" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<rect x="480" y="154" width="4" height="316" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
+<text x="502" y="185" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">索引目录</text>
+<rect x="920" y="150" width="320" height="324" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<rect x="920" y="154" width="4" height="316" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
+<text x="942" y="185" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">真实行</text>
+<rect x="62" y="218" width="84" height="75" rx="4" fill="white" stroke="#1d4ed8" stroke-width="1"/>
+<text x="104" y="244" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">key 0</text>
+<line x1="79" y1="261" x2="129" y2="261" stroke="#d6d3cc" stroke-width="1"/>
+<line x1="79" y1="278" x2="129" y2="278" stroke="#d6d3cc" stroke-width="1"/>
+<rect x="156" y="218" width="84" height="75" rx="4" fill="white" stroke="#1d4ed8" stroke-width="1"/>
+<text x="198" y="244" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">key 1</text>
+<line x1="173" y1="261" x2="223" y2="261" stroke="#d6d3cc" stroke-width="1"/>
+<line x1="173" y1="278" x2="223" y2="278" stroke="#d6d3cc" stroke-width="1"/>
+<rect x="250" y="218" width="84" height="75" rx="4" fill="white" stroke="#1d4ed8" stroke-width="1"/>
+<text x="292" y="244" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">value</text>
+<line x1="267" y1="261" x2="317" y2="261" stroke="#d6d3cc" stroke-width="1"/>
+<line x1="267" y1="278" x2="317" y2="278" stroke="#d6d3cc" stroke-width="1"/>
+<polyline points="200,304 200,338" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="62" y="350" width="276" height="91" rx="4" fill="white" stroke="#1d4ed8" stroke-width="1"/>
+<text x="200" y="383" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="22" font-weight="600" text-anchor="middle">VectorHasher</text>
+<text x="200" y="418" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="18" font-weight="400" text-anchor="middle">value ID / hash</text>
+<polyline points="371,350 467,350" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="502" y="220" width="276" height="93" rx="4" fill="white" stroke="#7e22ce" stroke-width="1"/>
+<text x="522" y="253" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Array</text>
+<text x="522" y="287" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="18" font-weight="400" text-anchor="start">组合 ID → row*</text>
+<rect x="502" y="345" width="276" height="93" rx="4" fill="white" stroke="#7e22ce" stroke-width="1"/>
+<text x="522" y="378" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Bucket</text>
+<text x="522" y="412" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="18" font-weight="400" text-anchor="start">tags → 候选 row*</text>
+<polyline points="811,350 907,350" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="942" y="220" width="276" height="93" rx="4" fill="white" stroke="#15803d" stroke-width="1"/>
+<text x="962" y="253" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">聚合行</text>
+<text x="962" y="287" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">key + flags + accumulator</text>
+<rect x="942" y="345" width="276" height="93" rx="4" fill="white" stroke="#15803d" stroke-width="1"/>
+<text x="962" y="378" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Join 行</text>
+<text x="962" y="412" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">key + flags + payload</text>
+<rect x="40" y="544" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
+<text x="60" y="573" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">索引保存行指针；rehash 后，已有 payload 行继续留在原来的行容器。</text>
+<text x="60" y="598" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">groupProbe 返回 group 供聚合更新；joinProbe 返回入口，由 listJoinResults 展开。</text>
+</svg>
