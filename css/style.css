@@ -425,7 +425,7 @@ body table {
 }
 body th {
   padding: 8px;
-  border-bottom: 1px dashed #e1dcd3;
+  border-bottom: 1px dashed #e5e2dc;
   color: #302e2b;
   font-weight: bold;
   font-size: 15px;
@@ -478,7 +478,7 @@ html {
 body {
   margin: 0;
   height: 100%;
-  background-color: #f6f3ee;
+  background-color: #faf9f6;
   color: #302e2b;
   font-display: swap;
   font-weight: 400;
@@ -574,7 +574,7 @@ body {
   }
 }
 .max-width {
-  max-width: 64rem;
+  max-width: 76rem;
 }
 @media (max-width: 480px) {
   .px3 {
@@ -700,7 +700,7 @@ body {
   top: 2rem;
   left: 50%;
   right: auto;
-  margin-left: 34rem;
+  margin-left: 40rem;
   display: inline-block;
   float: none;
   z-index: 100;
@@ -846,8 +846,8 @@ body {
   max-width: 82vw;
   height: 100vh;
   padding: 4.5rem 1.25rem 2rem;
-  background: #f6f3ee;
-  border-right: 1px solid #e1dcd3;
+  background: #faf9f6;
+  border-right: 1px solid #e5e2dc;
   text-align: left;
 }
 #header-post #toc a:hover {
@@ -917,7 +917,7 @@ body {
     top: 7rem;
     left: auto;
     right: 50%;
-    margin-right: 33.25rem;
+    margin-right: 39.25rem;
     z-index: 100;
     width: 15em;
     max-width: 15em;
@@ -966,8 +966,8 @@ body {
   left: 0;
   z-index: 5000000;
   width: 100%;
-  border-top: 1px solid #e1dcd3;
-  background: #fffefc;
+  border-top: 1px solid #e5e2dc;
+  background: #faf9f6;
   transition: opacity 0.2s;
 }
 #footer-post a {
@@ -984,7 +984,7 @@ body {
 #footer-post #nav-footer {
   padding-right: 1rem;
   padding-left: 1rem;
-  background: #f3f0eb;
+  background: #f2f1ed;
   text-align: center;
 }
 #footer-post #nav-footer a {
@@ -1028,7 +1028,7 @@ body {
 #footer-post #share-footer {
   padding-right: 1rem;
   padding-left: 1rem;
-  background: #f3f0eb;
+  background: #f2f1ed;
   text-align: center;
 }
 #footer-post #share-footer ul {
@@ -1048,7 +1048,7 @@ body {
   clear: both;
   padding-top: 1rem;
   padding-bottom: 1rem;
-  background: #f3f0eb;
+  background: #f2f1ed;
   text-align: left;
 }
 #footer-post #toc-footer ol {
@@ -1321,7 +1321,7 @@ article .content .caption {
   display: inline-block;
   margin-right: 15px;
   border-right: 1px solid;
-  border-color: #e1dcd3;
+  border-color: #e5e2dc;
   vertical-align: middle;
 }
 #footer li a {
@@ -1393,7 +1393,7 @@ article .content .caption {
   outline: none;
   border: solid 1px #706b63;
   border-radius: 5px;
-  background-color: #f6f3ee;
+  background-color: #faf9f6;
   color: #302e2b;
   font-size: 1.2rem;
   -webkit-border-radius: 5px;
@@ -1453,7 +1453,7 @@ article .content .caption {
   display: none;
   padding: 0.2em 0.5em;
   -webkit-font-smoothing: subpixel-antialiased;
-  color: #f6f3ee;
+  color: #faf9f6;
   font-display: swap;
   font-weight: 400;
   font-size: 12.8px;
@@ -1559,7 +1559,7 @@ article .content .caption {
 }
 .highlight {
   color: #302e2b;
-  background: #f3f0eb;
+  background: #f2f1ed;
 }
 .highlight .comment,
 .highlight .quote {
@@ -1599,10 +1599,10 @@ pre {
   overflow-x: auto;
   padding: 10px 15px;
   padding-bottom: 0;
-  border: 1px dotted #e1dcd3;
+  border: 1px dotted #e5e2dc;
   border-radius: 4px;
   font-size: 13px;
-  font-family: "SFMono-Regular", Consolas, "Noto Sans Mono CJK SC", "Liberation Mono", Menlo, monospace;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
   line-height: 22px;
   -webkit-border-radius: 4px;
 }
@@ -1613,7 +1613,7 @@ pre code {
 }
 code {
   padding: 0 5px;
-  border: 1px dotted #e1dcd3;
+  border: 1px dotted #e5e2dc;
   border-radius: 2px;
   -webkit-border-radius: 2px;
 }
@@ -1622,8 +1622,8 @@ code {
   margin: 1rem 0;
   padding: 10px 15px;
   border-radius: 4px;
-  background: #f3f0eb;
-  font-family: "SFMono-Regular", Consolas, "Noto Sans Mono CJK SC", "Liberation Mono", Menlo, monospace;
+  background: #f2f1ed;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
   -webkit-border-radius: 4px;
 }
 .highlight figcaption {
@@ -1682,23 +1682,23 @@ code {
   height: 22px;
 }
 html {
-  border-top: 3px solid #b6a088;
+  border-top: 0;
   color-scheme: light;
 }
 html:root {
-  --paper: #fffefc;
-  --paper-2: #f3f0eb;
+  --paper: #faf9f6;
+  --paper-2: #f2f1ed;
   --ink: #302e2b;
-  --border: #e1dcd3;
+  --border: #e5e2dc;
   --muted: #706b63;
-  --code-bg: #f3f0eb;
+  --code-bg: #f2f1ed;
   --accent: #58758a;
   --link: #302e2b;
   --serif: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Arial, sans-serif;
-  --mono: "SFMono-Regular", Consolas, "Noto Sans Mono CJK SC", "Liberation Mono", Menlo, monospace;
+  --mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
 }
 body.theme-whiteboard {
-  background: #f6f3ee;
+  background: #faf9f6;
   color: #302e2b;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Arial, sans-serif;
   font-size: 16px;
@@ -1708,7 +1708,7 @@ body.theme-whiteboard {
 body.theme-whiteboard > .content {
   padding-top: 3rem;
   padding-bottom: 2rem;
-  gap: 1.5rem;
+  gap: 2rem;
 }
 body.theme-whiteboard ::selection {
   background: #eee7ed;
@@ -1737,12 +1737,14 @@ body.theme-whiteboard .content a.icon {
 }
 body.theme-whiteboard #header {
   margin: 0;
-  padding: 1.5rem 1.75rem;
-  border: 2px solid #d2c4b2;
-  border-radius: 8px;
-  background: #fffefc;
+  padding: 0 0 1.5rem;
+  border: 0;
+  border-radius: 0;
+  background: #faf9f6;
+  border-bottom: 1px solid #e5e2dc;
 }
 body.theme-whiteboard #header h1 {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
   font-size: 28px;
   font-weight: 650;
   letter-spacing: -0.025em;
@@ -1753,7 +1755,8 @@ body.theme-whiteboard #header a {
 body.theme-whiteboard #header #nav {
   margin-top: 0.6rem;
   font-weight: 500;
-  font-size: 14px;
+  font-size: 13px;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
 }
 body.theme-whiteboard #header #nav ul {
   display: flex;
@@ -1772,28 +1775,20 @@ body.theme-whiteboard #header #nav li.icon {
 body.theme-whiteboard #header #nav a {
   display: inline-block;
   margin: 0;
-  padding: 0.35rem 0.65rem;
-  border-radius: 6px;
+  padding: 0.25rem 0;
+  margin-right: 1rem;
+  border-radius: 2px;
   color: #302e2b;
 }
 body.theme-whiteboard #header #nav a:hover,
 body.theme-whiteboard #header #nav a:focus-visible {
-  background: #f3f0eb;
-}
-body.theme-whiteboard #header #nav a[href*="/categories/technology"] {
-  background: #f3f0eb;
-}
-body.theme-whiteboard #header #nav a[href*="/categories/life"] {
-  background: #e8efe3;
-}
-body.theme-whiteboard #header #nav a[href*="/tags"] {
-  background: #eee7ed;
+  background: #f2f1ed;
 }
 body.theme-whiteboard #about {
-  padding: 1.1rem 1.75rem;
-  border-left: 3px solid #9a8097;
-  border-radius: 0 8px 8px 0;
-  background: #eee7ed;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #706b63;
 }
 body.theme-whiteboard #about p {
   margin: 0.4rem 0;
@@ -1808,14 +1803,10 @@ body.theme-whiteboard #projects,
 body.theme-whiteboard article.post,
 body.theme-whiteboard article:not(.post-body):not(.post) {
   min-width: 0;
-  padding: 2rem;
-  border: 2px solid #e1dcd3;
-  border-radius: 8px;
-  background: #fffefc;
-}
-body.theme-whiteboard #writing,
-body.theme-whiteboard #archive {
-  border-top-color: #b6a088;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: #faf9f6;
 }
 body.theme-whiteboard #writing > .h1,
 body.theme-whiteboard #projects > .h1 {
@@ -1837,7 +1828,7 @@ body.theme-whiteboard .post-list .post-item {
   gap: 12px;
   margin: 0;
   padding: 1rem 0;
-  border-bottom: 1px solid #e1dcd3;
+  border-bottom: 1px solid #e5e2dc;
 }
 body.theme-whiteboard .post-list .post-item:last-child {
   border-bottom: none;
@@ -1846,6 +1837,7 @@ body.theme-whiteboard .post-list .post-item .meta {
   margin: 0;
   color: #706b63;
   font-size: 13px;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
   font-variant-numeric: tabular-nums;
 }
 body.theme-whiteboard .post-list .post-item .post-item-title {
@@ -1859,33 +1851,25 @@ body.theme-whiteboard .post-list .post-item a:hover {
   text-decoration: underline;
 }
 body.theme-whiteboard .post-list .post-topic {
-  padding: 0.15rem 0.6rem;
-  border: 1px solid #9a8097;
-  border-radius: 8px;
-  background: #eee7ed;
-  color: #302e2b;
-  font-size: 13px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #706b63;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 12px;
   white-space: nowrap;
 }
-body.theme-whiteboard .post-list [data-topic="technology"] .post-topic {
-  border-color: #58758a;
-  background: #f3f0eb;
-}
-body.theme-whiteboard .post-list [data-topic="life"] .post-topic {
-  border-color: #74896b;
-  background: #e8efe3;
-}
 body.theme-whiteboard article.post {
-  padding: 2.5rem;
+  padding: 0;
 }
 body.theme-whiteboard article.post > header {
   padding-bottom: 1.5rem;
   margin-bottom: 1.5rem;
-  border-bottom: 1px solid #d2c4b2;
+  border-bottom: 1px solid #e5e2dc;
 }
 body.theme-whiteboard article.post .posttitle {
   color: #302e2b;
-  font-size: 32px;
+  font-size: 36px;
   font-weight: 650;
   letter-spacing: -0.02em;
   line-height: 1.35;
@@ -1895,6 +1879,7 @@ body.theme-whiteboard article.post header .meta {
   flex-wrap: wrap;
   align-items: center;
   gap: 8px 14px;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
   margin: 1rem 0 0;
 }
 body.theme-whiteboard article.post header .meta * {
@@ -1908,14 +1893,15 @@ body.theme-whiteboard article.post .article-category:before {
 body.theme-whiteboard article.post .article-tag a,
 body.theme-whiteboard article.post .article-category a {
   display: inline-block;
-  padding: 1px 8px;
-  border-radius: 6px;
-  background: #eee7ed;
-  color: #302e2b;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #58758a;
   text-decoration: none;
 }
-body.theme-whiteboard article.post .article-category a {
-  background: #e8efe3;
+body.theme-whiteboard article.post .author {
+  text-transform: none;
+  font-weight: 400;
 }
 body.theme-whiteboard article.post .content,
 body.theme-whiteboard article.post .post-body {
@@ -1947,12 +1933,11 @@ body.theme-whiteboard article.post .content h1,
 body.theme-whiteboard article.post .post-body h1,
 body.theme-whiteboard article.post .content h2,
 body.theme-whiteboard article.post .post-body h2 {
-  padding: 0.65rem 1rem;
+  padding: 0;
   margin: 2.25rem 0 1rem;
   border: 0;
-  border-left: 3px solid #b6a088;
-  border-radius: 0 8px 8px 0;
-  background: #f1ece4;
+  border-radius: 0;
+  background: transparent;
   font-size: 24px;
 }
 body.theme-whiteboard article.post .content h1:before,
@@ -1981,11 +1966,11 @@ body.theme-whiteboard article.post .post-body p {
 }
 body.theme-whiteboard article.post .content blockquote,
 body.theme-whiteboard article.post .post-body blockquote {
-  padding: 0.9rem 1.25rem;
+  padding: 0.25rem 1.25rem;
   margin: 1.5rem 0;
-  border-left: 3px solid #bea16d;
-  border-radius: 0 8px 8px 0;
-  background: #f8eed8;
+  border-left: 1px solid #b8b1a7;
+  border-radius: 0;
+  background: transparent;
   color: #302e2b;
   font-style: normal;
   font-weight: 400;
@@ -1997,11 +1982,11 @@ body.theme-whiteboard article.post .post-body blockquote:before {
 body.theme-whiteboard article.post .content code,
 body.theme-whiteboard article.post .post-body code {
   padding: 0.1em 0.35em;
-  border: 1px solid #e1dcd3;
-  border-radius: 4px;
-  background: #f3f0eb;
+  border: 0;
+  border-radius: 2px;
+  background: #f2f1ed;
   color: #302e2b;
-  font-family: "SFMono-Regular", Consolas, "Noto Sans Mono CJK SC", "Liberation Mono", Menlo, monospace;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
   font-size: 0.875em;
 }
 body.theme-whiteboard article.post .content pre,
@@ -2011,10 +1996,10 @@ body.theme-whiteboard article.post .post-body .highlight {
   position: relative;
   max-width: 100%;
   padding: 1rem 1.25rem;
-  border: 1px solid #e1dcd3;
-  border-radius: 8px;
-  background: #f3f0eb;
-  font-family: "SFMono-Regular", Consolas, "Noto Sans Mono CJK SC", "Liberation Mono", Menlo, monospace;
+  border: 0;
+  border-radius: 0;
+  background: #f2f1ed;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
   font-size: 14px;
   line-height: 1.7;
 }
@@ -2032,8 +2017,8 @@ body.theme-whiteboard article.post .content table,
 body.theme-whiteboard article.post .post-body table {
   max-width: 100%;
   margin: 1.5rem 0;
-  border: 1px solid #e1dcd3;
-  border-radius: 8px;
+  border: 0;
+  border-radius: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Arial, sans-serif;
   font-size: 14px;
 }
@@ -2041,8 +2026,8 @@ body.theme-whiteboard article.post .content thead th,
 body.theme-whiteboard article.post .post-body thead th {
   padding: 0.75rem 1rem;
   border-bottom: 0;
-  background: #49453f;
-  color: #fffefc;
+  background: #f2f1ed;
+  color: #302e2b;
   font-size: 14px;
   font-weight: 600;
   letter-spacing: normal;
@@ -2052,18 +2037,18 @@ body.theme-whiteboard article.post .content thead th code,
 body.theme-whiteboard article.post .post-body thead th code {
   background: transparent;
   border-color: #706b63;
-  color: #fffefc;
+  color: #302e2b;
 }
 body.theme-whiteboard article.post .content tbody td,
 body.theme-whiteboard article.post .post-body tbody td {
   padding: 0.75rem 1rem;
-  border-bottom: 1px solid #e1dcd3;
+  border-bottom: 1px solid #e5e2dc;
   color: #302e2b;
   font-size: 14px;
 }
 body.theme-whiteboard article.post .content tbody tr:nth-child(even),
 body.theme-whiteboard article.post .post-body tbody tr:nth-child(even) {
-  background: #f3f0eb;
+  background: transparent;
 }
 body.theme-whiteboard article.post .content .highlight table,
 body.theme-whiteboard article.post .post-body .highlight table,
@@ -2080,7 +2065,7 @@ body.theme-whiteboard article.post .post-body .highlight pre {
   border: 0;
   border-radius: 0;
   background: transparent;
-  font-family: "SFMono-Regular", Consolas, "Noto Sans Mono CJK SC", "Liberation Mono", Menlo, monospace;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
   font-size: 14px;
 }
 body.theme-whiteboard article.post .content .highlight .gutter,
@@ -2091,18 +2076,18 @@ body.theme-whiteboard article.post .post-body .highlight .gutter {
 }
 body.theme-whiteboard article.post .content .highlight .btn-copy,
 body.theme-whiteboard article.post .post-body .highlight .btn-copy {
-  background: #fffefc;
+  background: #faf9f6;
   padding: 2px 8px;
-  border-radius: 4px;
+  border-radius: 2px;
 }
 body.theme-whiteboard article.post .content .mermaid,
 body.theme-whiteboard article.post .post-body .mermaid {
   max-height: 80vh;
   overflow: auto;
-  padding: 1.5rem;
-  border: 2px solid #d2c4b2;
-  border-radius: 8px;
-  background: #fffefc;
+  padding: 1rem 0;
+  border: 0;
+  border-radius: 0;
+  background: #faf9f6;
   text-align: center;
 }
 body.theme-whiteboard article.post .content .mermaid svg,
@@ -2115,9 +2100,9 @@ body.theme-whiteboard article.post .content .mermaid .cluster rect,
 body.theme-whiteboard article.post .post-body .mermaid .cluster rect,
 body.theme-whiteboard article.post .content .mermaid rect.actor,
 body.theme-whiteboard article.post .post-body .mermaid rect.actor {
-  rx: 8px;
-  ry: 8px;
-  stroke-width: 2px;
+  rx: 2px;
+  ry: 2px;
+  stroke-width: 1px;
 }
 body.theme-whiteboard article.post .wrap {
   width: 100%;
@@ -2140,9 +2125,9 @@ body.theme-whiteboard article.post .tbl-wrap table {
 }
 body.theme-whiteboard article.post .fig {
   overflow-x: auto;
-  border: 2px solid #e1dcd3;
-  border-radius: 8px;
-  background: #fffefc;
+  border: 0;
+  border-radius: 0;
+  background: #faf9f6;
 }
 body.theme-whiteboard article.post .fig-cap,
 body.theme-whiteboard article.post .colophon {
@@ -2153,8 +2138,8 @@ body.theme-whiteboard article.post .colophon {
   text-transform: none;
 }
 body.theme-whiteboard #toc {
-  background: #fffefc;
-  border-color: #e1dcd3;
+  background: #faf9f6;
+  border-color: #e5e2dc;
 }
 body.theme-whiteboard #toc a {
   color: #302e2b;
@@ -2163,15 +2148,19 @@ body.theme-whiteboard #toc a {
 }
 body.theme-whiteboard #toc a:hover,
 body.theme-whiteboard #toc a:focus-visible {
-  background: #f3f0eb;
+  background: #f2f1ed;
 }
 body.theme-whiteboard #menu-icon,
 body.theme-whiteboard #menu-icon-tablet {
   padding: 0.5rem;
-  border: 1px solid #d2c4b2;
-  border-radius: 8px;
-  background: #fffefc;
+  border: 0;
+  border-radius: 0;
+  background: #faf9f6;
   color: #302e2b;
+}
+body.theme-whiteboard #header-post #nav {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 13px;
 }
 body.theme-whiteboard #header-post #nav a {
   color: #302e2b;
@@ -2194,15 +2183,17 @@ body.theme-whiteboard #toc-footer .toc-level-3 {
 body.theme-whiteboard #actions-footer a {
   color: #302e2b;
 }
-@media (min-width: 1600px) {
+@media (min-width: 1800px) {
   body.theme-whiteboard #header-post #toc {
-    padding: 1rem;
-    border: 1px solid #e1dcd3;
-    border-radius: 8px;
-    background: #fffefc;
+    width: 14rem;
+    max-width: 14rem;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: #faf9f6;
   }
 }
-@media (max-width: 1599px) {
+@media (max-width: 1799px) {
   body.theme-whiteboard #header-post {
     left: auto;
     right: 1rem;
@@ -2218,8 +2209,8 @@ body.theme-whiteboard #actions-footer a {
     overflow-y: auto;
     margin: 0;
     padding: 5rem 1.5rem 1.5rem;
-    border-right: 2px solid #e1dcd3;
-    background: #fffefc;
+    border-right: 1px solid #e5e2dc;
+    background: #faf9f6;
   }
   body.theme-whiteboard #header-post #nav ul {
     display: flex;
@@ -2236,7 +2227,12 @@ body.theme-whiteboard #actions-footer a {
     margin: 0;
     padding: 1rem 0;
     border: 0;
-    background: #fffefc;
+    background: #faf9f6;
+  }
+}
+@media (min-width: 501px) and (max-width: 1350px) {
+  body.theme-whiteboard:has(article.post) > .content {
+    padding-top: 6rem;
   }
 }
 @media (max-width: 700px) {
@@ -2249,13 +2245,15 @@ body.theme-whiteboard #actions-footer a {
     padding-bottom: 5rem;
     gap: 1rem;
   }
-  body.theme-whiteboard #header,
+  body.theme-whiteboard #header {
+    padding: 0 0 1.25rem;
+  }
   body.theme-whiteboard #about,
   body.theme-whiteboard #writing,
   body.theme-whiteboard #archive,
   body.theme-whiteboard #projects,
   body.theme-whiteboard article.post {
-    padding: 1.25rem;
+    padding: 0;
   }
   body.theme-whiteboard #header #logo {
     margin-right: 12px;
@@ -2297,7 +2295,7 @@ body.theme-whiteboard #actions-footer a {
     font-size: 22px;
   }
   body.theme-whiteboard article.post .content .mermaid {
-    padding: 0.75rem;
+    padding: 0.75rem 0;
   }
 }
 @media print {
