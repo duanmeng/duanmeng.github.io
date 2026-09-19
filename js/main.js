@@ -82,12 +82,13 @@ $(document).ready(function() {
       $(window).on("scroll", function() {
         var topDistance = $(window).scrollTop();
 
-        if (topDistance > lastScrollTop){
-          // downscroll -> show menu
-          $("#footer-post").hide();
-        } else {
-          // upscroll -> hide menu
-          $("#footer-post").show();
+        // Keep Home and navigation available while reading in the whiteboard skin.
+        if (!document.body.classList.contains("theme-whiteboard")) {
+          if (topDistance > lastScrollTop) {
+            $("#footer-post").hide();
+          } else {
+            $("#footer-post").show();
+          }
         }
         lastScrollTop = topDistance;
 
