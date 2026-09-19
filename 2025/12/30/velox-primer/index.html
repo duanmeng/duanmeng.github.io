@@ -6,25 +6,23 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
-    <meta name="description" content=":root{     --paper:#f5f0e8; --paper-2:#ede8df; --ink:#0c0e1a; --border:#d4cdc0;     --muted:#7a7060; --code-bg:#f0ece0; --accent:#c1440e; --link:#1c4fa0;     --serif:&#39;Newsreader&#39;,&#39;Noto Se">
+    <meta name="description" content="body:has(.velox-review) #header-post #toc .toc-level-2::before,body:has(.velox-review) #toc-footer .toc-level-2::before{display:none}.velox-review .review-figure{margin:2rem 0}.velox-review .diagram-s">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Velox Primer 1,2,3">
 <meta property="og:url" content="https://duanmeng.github.io/2025/12/30/velox-primer/index.html">
 <meta property="og:site_name" content="Macduan Notes">
-<meta property="og:description" content=":root{     --paper:#f5f0e8; --paper-2:#ede8df; --ink:#0c0e1a; --border:#d4cdc0;     --muted:#7a7060; --code-bg:#f0ece0; --accent:#c1440e; --link:#1c4fa0;     --serif:&#39;Newsreader&#39;,&#39;Noto Se">
+<meta property="og:description" content="body:has(.velox-review) #header-post #toc .toc-level-2::before,body:has(.velox-review) #toc-footer .toc-level-2::before{display:none}.velox-review .review-figure{margin:2rem 0}.velox-review .diagram-s">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="https://velox-lib.io/img/velox-primer-part1.png">
-<meta property="og:image" content="https://velox-lib.io/img/velox-primer-part2-1.png">
-<meta property="og:image" content="https://velox-lib.io/img/velox-primer-part2-2.png">
-<meta property="og:image" content="https://velox-lib.io/img/velox-primer-part2-1.png">
-<meta property="og:image" content="https://velox-lib.io/img/velox-primer-part3-1.png">
+<meta property="og:image" content="https://duanmeng.github.io/images/velox-primer/hierarchy.svg">
+<meta property="og:image" content="https://duanmeng.github.io/images/velox-primer/pipelines.svg">
+<meta property="og:image" content="https://duanmeng.github.io/images/velox-primer/backpressure.svg">
 <meta property="article:published_time" content="2025-12-30T13:30:33.000Z">
-<meta property="article:modified_time" content="2026-09-18T06:32:14.369Z">
+<meta property="article:modified_time" content="2026-09-18T16:00:00.000Z">
 <meta property="article:author" content="duanmeng">
 <meta property="article:tag" content="QueryExecution">
 <meta property="article:tag" content="Velox">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://velox-lib.io/img/velox-primer-part1.png">
+<meta name="twitter:image" content="https://duanmeng.github.io/images/velox-primer/hierarchy.svg">
     
     
       
@@ -100,7 +98,7 @@
 
     </div>
     <div id="toc">
-      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">Velox Primer 1,2,3</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%AC%AC%E4%B8%80%E7%AF%87%EF%BC%9A%E5%88%86%E5%B8%83%E5%BC%8F%E6%9F%A5%E8%AF%A2%E6%89%A7%E8%A1%8C%E5%9F%BA%E7%A1%80"><span class="toc-number">2.</span> <span class="toc-text">第一篇：分布式查询执行基础</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%86%E5%B8%83%E5%BC%8F%E6%9F%A5%E8%AF%A2%E6%89%A7%E8%A1%8C"><span class="toc-number">2.1.</span> <span class="toc-text">分布式查询执行</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#task-%E5%92%8C-split"><span class="toc-number">2.2.</span> <span class="toc-text">Task 和 Split</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#pipeline%E3%80%81driver-%E5%92%8C-operator"><span class="toc-number">2.3.</span> <span class="toc-text">Pipeline、Driver 和 Operator</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AE%97%E5%AD%90%E7%9A%84%E6%95%B0%E6%8D%AE%E6%BA%90%E3%80%81%E6%95%B0%E6%8D%AE%E6%B1%87%E5%92%8C%E7%8A%B6%E6%80%81"><span class="toc-number">2.4.</span> <span class="toc-text">算子的数据源、数据汇和状态</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B0%8F%E7%BB%93"><span class="toc-number">2.5.</span> <span class="toc-text">小结</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%AC%AC%E4%BA%8C%E7%AF%87%EF%BC%9A%E4%BB%8E%E8%AE%A1%E5%88%92%E5%88%B0-driver-%E5%92%8C-operator"><span class="toc-number">3.</span> <span class="toc-text">第二篇：从计划到 Driver 和 Operator</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9F%A5%E8%AF%A2%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="toc-number">3.1.</span> <span class="toc-text">查询初始化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#task-%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="toc-number">3.2.</span> <span class="toc-text">Task 初始化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%8E%E8%AE%A1%E5%88%92%E5%88%B0-driver-%E5%92%8C-operator"><span class="toc-number">3.3.</span> <span class="toc-text">从计划到 Driver 和 Operator</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%80%E7%AE%80-pipeline%EF%BC%9A%E8%A1%A8%E6%89%AB%E6%8F%8F%E4%B8%8E%E9%87%8D%E5%88%86%E5%8C%BA"><span class="toc-number">3.4.</span> <span class="toc-text">最简 Pipeline：表扫描与重分区</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B0%8F%E7%BB%93-1"><span class="toc-number">3.5.</span> <span class="toc-text">小结</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%AC%AC%E4%B8%89%E7%AF%87%EF%BC%9Ashuffle-%E6%B6%88%E8%B4%B9%E3%80%81%E5%AD%97%E5%85%B8%E9%AD%94%E6%B3%95%E4%B8%8E%E8%81%9A%E5%90%88%E5%B1%8F%E9%9A%9C"><span class="toc-number">4.</span> <span class="toc-text">第三篇：Shuffle 消费、字典魔法与聚合屏障</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#shuffle-%E6%B6%88%E8%B4%B9%E8%80%85"><span class="toc-number">4.1.</span> <span class="toc-text">Shuffle 消费者</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#localpartition-%E5%92%8C-localexchange"><span class="toc-number">4.2.</span> <span class="toc-text">LocalPartition 和 LocalExchange</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AD%97%E5%85%B8%E9%AD%94%E6%B3%95"><span class="toc-number">4.3.</span> <span class="toc-text">字典魔法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%81%9A%E5%90%88%E4%B8%8E-pipeline-%E5%B1%8F%E9%9A%9C"><span class="toc-number">4.4.</span> <span class="toc-text">聚合与 Pipeline 屏障</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B0%8F%E7%BB%93-2"><span class="toc-number">4.5.</span> <span class="toc-text">小结</span></a></li></ol></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#distributed"><span class="toc-number">1.</span> <span class="toc-text">1. 第一层：分布式计划与 Velox Task</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#splits"><span class="toc-number">2.</span> <span class="toc-text">2. Task、Split 和“没有数据”的三种含义</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#pipeline"><span class="toc-number">3.</span> <span class="toc-text">3. Pipeline、Driver 和 Operator</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BB%9F%E4%B8%80%E6%8E%A5%E5%8F%A3%EF%BC%8C%E4%B8%8D%E5%90%8C%E7%8A%B6%E6%80%81"><span class="toc-number">3.1.</span> <span class="toc-text">统一接口，不同状态</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#initialization"><span class="toc-number">4.</span> <span class="toc-text">4. 第二层：初始化与资源注入</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#example"><span class="toc-number">5.</span> <span class="toc-text">5. 用一次分组聚合串起流水线</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#local-exchange"><span class="toc-number">6.</span> <span class="toc-text">6. 第三层：LocalPartition 与 LocalExchange</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#barriers"><span class="toc-number">7.</span> <span class="toc-text">7. 字典、阻塞算子与 Pipeline 边界</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#remote"><span class="toc-number">8.</span> <span class="toc-text">8. 本地交换与跨 Task 交换</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reading"><span class="toc-number">9.</span> <span class="toc-text">9. 读代码时先问哪几个问题</span></a></li></ol>
     </div>
   </span>
 </div>
@@ -166,252 +164,172 @@
   
 
   <div class="content" itemprop="articleBody">
-    
+    <style>body:has(.velox-review) #header-post #toc .toc-level-2::before,body:has(.velox-review) #toc-footer .toc-level-2::before{display:none}.velox-review .review-figure{margin:2rem 0}.velox-review .diagram-scroll{max-width:100%;overflow-x:auto}.velox-review .diagram-scroll img{display:block;width:100%;min-width:960px;max-width:none;height:auto}.velox-review figcaption{margin-top:.65rem;color:#706b63;font-size:13px;line-height:1.7}.velox-review .tbl-wrap{max-width:100%;overflow-x:auto;margin:1.5rem 0}article.post .velox-review .tbl-wrap > table{display:table;width:100%;min-width:640px;max-width:none;border-collapse:collapse}.velox-review .legacy-anchor{display:block;height:0;scroll-margin-top:2rem}@media print{.velox-review .diagram-scroll img{min-width:0}}</style>
+<div class="post-body velox-review">
+<p>阅读 Velox，先把“一次查询”拆成不同尺度：集群中的 stage/task、一个 Task 内的 pipeline/driver、一个 Driver 内的 operator，以及算子之间流动的 RowVector。名字相近，但它们的生命周期、并行方式和数据所有权不同。</p>
+<p>本文于 2026-09-19 对照 Velox <strong>1d1b76567870</strong> 重写，沿用原来 Primer 1、2、3 的学习顺序：执行模型、初始化、数据流。示例是结构示意，不依赖某个宿主恰好生成完全相同的计划。</p>
+<span class="legacy-anchor" id="第一篇：分布式查询执行基础" aria-hidden="true"></span>
+<span class="legacy-anchor" id="分布式查询执行" aria-hidden="true"></span>
+<h2 id="distributed">1. 第一层：分布式计划与 Velox Task</h2>
 
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=Noto+Serif+SC:wght@400;500;600&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --paper:#f5f0e8; --paper-2:#ede8df; --ink:#0c0e1a; --border:#d4cdc0;
-    --muted:#7a7060; --code-bg:#f0ece0; --accent:#c1440e; --link:#1c4fa0;
-    --serif:'Newsreader','Noto Serif SC',serif;
-    --mono:'DM Mono','Noto Sans Mono CJK SC','Sarasa Mono SC',monospace;
-  }
-  *{box-sizing:border-box;}
-  html{-webkit-text-size-adjust:100%;}
-  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--serif);font-size:17px;line-height:1.78;font-weight:400;}
-  .wrap{max-width:960px;margin:0 auto;padding:0 28px;}
+<p>宿主把分布式查询切成 plan fragments，再把同一 fragment 的多个 task 调度到不同 worker。Velox Task 执行其中一个 fragment；Stage 的集群级调度和失败重试通常属于宿主，不由单个 Velox Task 管理。</p>
+<div class="tbl-wrap"><table>
+<thead>
+<tr>
+<th>概念</th>
+<th>表示什么</th>
+<th>不应等同于</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Query</td>
+<td>一次逻辑查询</td>
+<td>一个 Velox Task</td>
+</tr>
+<tr>
+<td>Stage</td>
+<td>宿主执行同一 fragment 的一组任务</td>
+<td>一个线程</td>
+</tr>
+<tr>
+<td>Task</td>
+<td>一个 fragment 的执行实例</td>
+<td>一个 split</td>
+</tr>
+<tr>
+<td>Split</td>
+<td>发给某个 source plan node 的工作单元</td>
+<td>一个固定大小 RowVector</td>
+</tr>
+<tr>
+<td>RowVector</td>
+<td>算子间流动的一批数据</td>
+<td>文件或远程 task</td>
+</tr>
+</tbody></table>
+</div><figure class="review-figure"><div class="diagram-scroll" tabindex="0" role="region" aria-label="图 1：Query、Stage 和 Worker 属于宿主视角；Task 内还有独立的 pipeline&#x2F;driver 并行。"><img src="/images/velox-primer/hierarchy.svg" alt="图 1：Query、Stage 和 Worker 属于宿主视角；Task 内还有独立的 pipeline&#x2F;driver 并行。" loading="lazy"></div><figcaption>图 1：Query、Stage 和 Worker 属于宿主视角；Task 内还有独立的 pipeline&#x2F;driver 并行。</figcaption></figure>
 
-  .masthead{padding:34px 0 22px;border-bottom:3px double var(--ink);}
-  .top-bar{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding-bottom:14px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:8px;}
-  .masthead-title{font-family:var(--serif);font-weight:600;font-size:52px;line-height:1.06;letter-spacing:-.01em;margin:20px 0 0;}
-  .masthead-title em{font-style:italic;color:var(--link);}
-  .deck-rule{margin-top:20px;padding-top:12px;border-top:1px solid var(--border);font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);display:flex;gap:22px;flex-wrap:wrap;}
+<p>同一个 Task 可以消费很多 split。文件 split 通常描述路径、范围等 connector 信息，远程 split 则标识交换来源；source operator 根据 split 取数据。一份文件 split 可以产出很多 batch。</p>
+<span class="legacy-anchor" id="task-和-split" aria-hidden="true"></span>
+<h2 id="splits">2. Task、Split 和“没有数据”的三种含义</h2>
 
-  .post-body{padding-top:8px;}
-  .post-body h1{font-family:var(--serif);font-weight:600;font-size:38px;line-height:1.12;letter-spacing:-.01em;margin:54px 0 10px;padding-top:24px;border-top:3px double var(--ink);}
-  .post-body h2{font-family:var(--serif);font-weight:600;font-size:30px;line-height:1.18;letter-spacing:-.01em;margin:44px 0 10px;padding-top:22px;border-top:1px solid var(--border);}
-  .post-body h3{font-family:var(--serif);font-weight:600;font-size:22px;margin:32px 0 6px;line-height:1.3;}
-  .post-body h4{font-family:var(--mono);font-weight:500;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:26px 0 8px;}
-  .post-body h5,.post-body h6{font-family:var(--serif);font-weight:600;font-size:17px;margin:22px 0 4px;}
-  .post-body p{margin:14px 0;}
-  .post-body strong{font-weight:600;}
-  .post-body em{font-style:italic;}
-  .post-body a{color:var(--link);text-decoration:underline;text-underline-offset:2px;}
-  .post-body a:hover{color:var(--accent);}
-  .post-body img{max-width:100%;height:auto;}
-  .post-body hr{border:none;border-top:1px solid var(--border);margin:34px 0;}
-  .post-body ul,.post-body ol{margin:14px 0;padding-left:1.5em;}
-  .post-body li{margin:5px 0;}
-  .post-body li>ul,.post-body li>ol{margin:5px 0;}
-  .post-body blockquote{margin:20px 0;padding:12px 20px;border-left:3px solid var(--accent);background:var(--paper-2);color:#333;}
-  .post-body blockquote p{margin:6px 0;}
-
-  .post-body code{font-family:var(--mono);font-size:14.5px;background:var(--code-bg);border:1px solid var(--border);border-radius:2px;padding:1px 6px;}
-  .post-body pre{font-family:var(--mono);font-size:14px;font-weight:400;line-height:1.6;background:var(--code-bg);border:1px solid var(--border);border-left:3px solid var(--muted);border-radius:2px;padding:16px 18px;margin:20px 0;overflow-x:auto;}
-  .post-body pre code{background:none;border:none;border-radius:0;padding:0;font-size:14px;}
-
-  .tbl-wrap{overflow-x:auto;margin:22px 0;border:1px solid var(--border);border-radius:2px;}
-  .post-body table{width:100%;border-collapse:collapse;font-family:var(--mono);font-weight:400;}
-  .post-body thead th{background:var(--paper-2);font-weight:400;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:left;padding:11px 14px;border-bottom:1px solid var(--border);white-space:nowrap;}
-  .post-body tbody td{font-size:14px;padding:11px 14px;border-bottom:1px solid var(--border);vertical-align:top;line-height:1.55;}
-  .post-body tbody tr:nth-child(even){background:var(--paper-2);}
-  .post-body tbody tr:last-child td{border-bottom:none;}
-
-  .colophon{border-top:3px double var(--ink);margin-top:50px;padding:26px 0 56px;font-family:var(--mono);font-size:12px;letter-spacing:.04em;color:var(--muted);line-height:1.7;}
-  .colophon b{color:var(--ink);font-weight:500;}
-
-  @media (max-width:760px){
-    body{font-size:16px;}
-    .wrap{padding:0 18px;}
-    .masthead-title{font-size:38px;}
-    .post-body h1{font-size:30px;}
-    .post-body h2{font-size:25px;}
-  }
-
-  .post-body pre code.hljs{background:none;padding:0;color:#0c0e1a;}
-  .post-body .hljs-comment,.post-body .hljs-quote{color:#9b917b;font-style:italic;}
-  .post-body .hljs-keyword,.post-body .hljs-selector-tag,.post-body .hljs-doctag,.post-body .hljs-name{color:#a3402a;font-weight:500;}
-  .post-body .hljs-string,.post-body .hljs-meta .hljs-string{color:#4e7a36;}
-  .post-body .hljs-number,.post-body .hljs-literal,.post-body .hljs-symbol,.post-body .hljs-bullet{color:#2f6f9f;}
-  .post-body .hljs-type,.post-body .hljs-class .hljs-title,.post-body .hljs-title.class_,.post-body .hljs-built_in{color:#1c4fa0;}
-  .post-body .hljs-function .hljs-title,.post-body .hljs-title.function_,.post-body .hljs-title{color:#6b3fa0;}
-  .post-body .hljs-attr,.post-body .hljs-attribute,.post-body .hljs-property,.post-body .hljs-meta{color:#9a6a1a;}
-  .post-body .hljs-params,.post-body .hljs-variable,.post-body .hljs-template-variable{color:#0c0e1a;}
-  .post-body .hljs-deletion{background:#f5e0db;}
-  .post-body .hljs-addition{background:#e6f0db;}
-  .post-body .hljs-emphasis{font-style:italic;}
-  .post-body .hljs-strong{font-weight:600;}
-</style>
-</head>
-<body>
-<div class="wrap">
-  <header class="masthead">
-    <div class="top-bar"><span>VELOX · QUERYEXECUTION</span><span>2025-12-30</span></div>
-    <h1 class="masthead-title">Velox Primer 1,2,3</h1>
-    <div class="deck-rule"><span>2025-12-30</span><span>#Velox　#QueryExecution</span></div>
-  </header>
-  <article class="post-body">
-<p><strong>作者：Orri Erling · Pedro Pedreira（Meta Software Engineers）</strong>
-<strong>原文：</strong> <a target="_blank" rel="noopener" href="https://velox-lib.io/blog/velox-primer-part-1">https://velox-lib.io/blog/velox-primer-part-1</a> | part-2 | part-3</p>
-<hr>
-<h1 id="第一篇：分布式查询执行基础">第一篇：分布式查询执行基础</h1>
-<p><strong>发表于：2025 年 2 月 17 日</strong></p>
-<p>本文是系列短文的第一篇，将带你了解 Velox 的内部结构和核心概念。在这一篇中，我们将讨论分布式查询如何执行、数据如何在不同阶段之间进行 Shuffle，并介绍 Task、Split、Pipeline、Driver 和 Operator 等 Velox 核心概念。</p>
-<hr>
-<h2 id="分布式查询执行">分布式查询执行</h2>
-<p>Velox 是一个库，提供分布式计算引擎中<strong>查询片段（Query Fragment）</strong>所需的各种功能。Presto 和 Spark 等分布式计算引擎运行所谓的<strong>交换并行计划（Exchange Parallel Plans）</strong>。Exchange 也称数据 Shuffle，允许数据从一个阶段流向下一个阶段。查询片段是由 Shuffle 连接起来的处理单元，包含在单个 Worker 节点内执行的处理逻辑。Shuffle 接收一组片段的输入，并根据数据的某种特征（即分区键）将输入行路由到特定的消费者。Shuffle 的消费者从 Shuffle 中读取数据，获取分区键与之匹配的行。</p>
-<p>以下面的查询为例：</p>
-<pre><code class="language-sql">SELECT key, count(*) FROM T GROUP BY key
-</code></pre>
-<p>假设有 <strong>n</strong> 个叶子片段扫描 <strong>T</strong> 的不同部分（阶段 1 的绿色圆圈）。在叶子片段末尾，假设有一个基于 <code>key</code> 对行进行 Shuffle 的交换操作。有 <strong>m</strong> 个消费者片段（阶段 2 的黄色圆圈），每个消费者获取基于 <code>key</code> 列的不重叠行子集。每个消费者随后构建一个以 <code>key</code> 为键的哈希表，记录特定 <code>key</code> 值出现的次数。</p>
-<p><img src="https://velox-lib.io/img/velox-primer-part1.png" alt="分布式查询执行示意图"></p>
-<p>如果 <code>key</code> 有 1000 亿个不同值，哈希表将无法方便地放入单台机器。出于效率考虑，将其划分为 100 个各含 10 亿条目的哈希表是有意义的——这正是交换并行横向扩展的意义所在。可以将 Shuffle 理解为：让每个消费者消费由多个 Worker 产生的大型数据流中属于自己的那一不重叠片段。</p>
-<p>Presto 和 Spark 等分布式查询引擎都符合上述描述，区别在于（除其他之外）它们如何执行 Shuffle，这一点后续再讨论。</p>
-<hr>
-<h2 id="task-和-split">Task 和 Split</h2>
-<p>在 Worker 节点内部，Velox 对查询片段的表示称为 <strong>Task</strong>（<code>velox::exec::Task</code>）。一个 Task 主要由两部分信息确定：</p>
+<p>Task 按 source planNodeId 和 split group 组织 split store。TableScan 等 source operator 通过 <a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/Task.cpp#L2173">getSplitOrFuture</a> 请求下一份工作。</p>
 <ul>
-<li><strong>计划（Plan）</strong> - <code>velox::core::PlanNode</code>：指定 Task 执行什么。</li>
-<li><strong>Split</strong> - <code>velox::exec::Split</code>：指定 Task 操作的数据。</li>
+<li>队列有 split：取走并开始处理。</li>
+<li>队列空、未来仍可能来 split：返回等待 future，Driver 暂时让出执行线程。</li>
+<li>队列空、已经收到结束信号：该输入才真正结束。</li>
 </ul>
-<p>Split 与 Task 正在执行的计划相对应。对于第一阶段的 Task（表扫描），Split 指定要扫描的文件片段；对于第二阶段的 Task（Group By），其 Split 标识 Group By 从中读取输入的表扫描 Task。Split 分为两类：文件 Split（<code>velox::connector::ConnectorSplit</code>）标识要读取的数据，远程 Split（<code>velox::exec::RemoteConnectorSplit</code>）标识一个正在运行的 Task。</p>
-<p>分布式引擎生成 PlanNode 和 Split，Velox 接收这些并创建 Task。Task 向分布式引擎反馈统计信息、错误和其他状态。</p>
-<hr>
-<h2 id="pipeline、driver-和-operator">Pipeline、Driver 和 Operator</h2>
-<p>在 Task 内部，有若干 <strong>Pipeline</strong>。每个 Pipeline 是一个算子（<code>velox::exec::Operator</code>）的线性序列，算子是实现关系逻辑的对象。以前述 Group By 示例为例，第一个 Task 有一个 Pipeline，包含 TableScan（<code>velox::exec::TableScan</code>）和 PartitionedOutput（<code>velox::exec::PartitionedOutput</code>）。第二个 Task 同样有一个 Pipeline，包含 Exchange、LocalExchange、HashAggregation 和 PartitionedOutput。</p>
-<p>每个 Pipeline 有一个或多个 <strong>Driver</strong>。Driver 是一个线性 Operator 序列的容器，通常在自己的线程上运行。Pipeline 是具有相同 Operator 序列的 Driver 的集合，各个 Operator 实例属于每个 Driver，Driver 属于 Task，这些通过智能指针互相链接，在需要时保持存活。</p>
-<p>包含两个 Pipeline 的 Task 的例子是哈希 Join，Build 侧和 Probe 侧各有独立的 Pipeline——这是合理的，因为必须在 Probe 可以进行之前完成 Build。后续会对此进行更多讨论。</p>
-<p>每个 Driver 上的算子通过 Driver 相互通信：Driver 从一个算子获取输出，记录统计信息，并将输出传递给下一个算子。算子之间传递的数据是<strong>向量（Vector）</strong>。具体来说，算子产生/消费 RowVector，RowVector 是每列都有一个子向量的向量——它相当于 Arrow 中的 RecordBatch。所有向量都是 <code>velox::BaseVector</code> 的子类。</p>
-<hr>
-<h2 id="算子的数据源、数据汇和状态">算子的数据源、数据汇和状态</h2>
-<p>Driver 中的第一个算子称为<strong>数据源（Source）</strong>。Source 算子通过 Split 确定提供数据的文件/远程 Task，并产生一系列 RowVector。Pipeline 中的最后一个算子称为<strong>数据汇（Sink）</strong>。Sink 算子不产生输出的 RowVector，而是将数据放到某处供消费者获取，通常是 PartitionedOutput。PartitionedOutput 的消费者是另一个 Task 中的 Exchange，其中 Exchange 处于 Source 位置。既非 Source 也非 Sink 的算子有 FilterProject、HashProbe、HashAggregation 等，后续将详细介绍。</p>
-<p>算子还包含<strong>状态</strong>：可以是阻塞中、接受输入、有输出可产生或无输出可产生，以及被通知不会再有更多输入。算子不直接调用其他算子的 API 函数，而是由 Driver 决定下一步推进哪个算子。这样做的好处是，Driver 的状态不会被捕获在嵌套函数调用中——Driver 有一个扁平的调用栈，因此可以在任何时候上下线程，无需展开和恢复嵌套函数帧。</p>
-<hr>
-<h2 id="小结">小结</h2>
-<p>我们了解了分布式查询如何由通过 Shuffle 连接的片段组成。每个片段有一个 Task，Task 包含 Pipeline、Driver 和 Operator。PlanNode 表示 Task 应该做什么，告诉 Task 如何设置 Driver 和 Operator。Split 告诉 Task 在哪里找到输入（如从文件或其他 Task）。Driver 对应一个执行线程，可能处于运行或阻塞状态（如等待数据可用，或等待消费者消费已产生的数据）。算子之间以向量形式传递数据。</p>
-<p>下一篇文章我们将讨论查询生命周期的不同阶段。</p>
-<hr>
-<hr>
-<h1 id="第二篇：从计划到-driver-和-operator">第二篇：从计划到 Driver 和 Operator</h1>
-<p><strong>发表于：2025 年 3 月 25 日</strong></p>
-<p>在本文中，我们将讨论分布式计算引擎如何执行与第一篇文章中类似的查询：</p>
-<pre><code class="language-sql">SELECT l_partkey, count(*) FROM lineitem GROUP BY l_partkey;
-</code></pre>
-<p>我们使用 TPC-H Schema 来说明示例，以 <a target="_blank" rel="noopener" href="https://github.com/prestodb/presto/tree/master/presto-native-execution">Prestissimo</a> 作为编排分布式查询执行的计算引擎。Prestissimo 负责查询引擎的前端（解析、元数据解析、规划、优化）和分布式执行（分配资源和分发查询片段），Velox 负责在单个 Worker 节点内执行计划片段。本文将说明哪些功能由 Velox 执行，哪些由分布式引擎（本例中为 Prestissimo）执行。</p>
-<hr>
-<h2 id="查询初始化">查询初始化</h2>
-<p>Prestissimo 首先通过 <strong>Coordinator 节点</strong>接收查询，Coordinator 负责解析和规划查询。对于我们的示例查询，将创建包含三个查询片段的分布式查询计划：</p>
-<ol>
-<li><strong>第一个片段</strong>从 lineitem 表读取 <code>l_partkey</code> 列，并根据 <code>l_partkey</code> 的哈希值划分输出。</li>
-<li><strong>第二个片段</strong>读取第一个片段的输出，并更新一个以 <code>l_partkey</code> 为键的哈希表，记录特定 <code>l_partkey</code> 值出现的次数（<code>count(*)</code> 聚合函数的实现）。</li>
-<li><strong>最终片段</strong>在第二个片段收到来自第一个片段的所有行后，读取哈希表的内容。</li>
-</ol>
-<p><img src="https://velox-lib.io/img/velox-primer-part2-1.png" alt="三阶段查询计划结构"></p>
-<p>两个前序片段之间的 Shuffle 根据 <code>l_partkey</code> 对数据进行分区。假设第二个片段有 100 个实例：如果 <code>l_partkey</code> 的哈希值对 100 取模为 0，则该行进入第二阶段的第一个 Task；为 1 则进入第二个 Task，以此类推。这样每个第二阶段的 Task 获得不重叠的行子集。第二和第三阶段之间的 Shuffle 是<strong>归并（Gather）</strong>，意味着第三阶段只有一个 Task，它读取所有 100 个第二阶段 Task 的输出。</p>
-<p><strong>Stage</strong> 是共享同一计划片段的 Task 集合。<strong>Task</strong> 是 Prestissimo 与 Velox 的主要集成点，是在 Stage 内物理处理所有或部分数据的 Velox 执行实例。</p>
-<p>在设置分布式执行时，Prestissimo 首先从它管理的 Prestissimo 服务器进程池中选择 Worker。假设第一阶段有 10 个 Worker，它选择 10 个服务器进程并向它们发送第一阶段计划，然后为第二阶段选择 100 个 Worker 并发送第二阶段计划。汇聚结果的最后阶段只有一个 Worker，因此 Prestissimo 只向一个 Worker 发送最终计划。每个阶段的 Worker 集合可以重叠，因此单个 Worker 进程可以承载同一查询的多个阶段。</p>
-<hr>
-<h2 id="task-初始化">Task 初始化</h2>
-<p>在 Prestissimo 中，设置 Worker 中 Task 的消息称为 <strong>Task Update</strong>。Task Update 包含以下信息：计划、配置项，以及可选的 Split 列表。Split 还会标注它们针对的是哪个计划节点，以及该接收方计划节点和 Split 组是否还有更多 Split 即将到来。</p>
-<p>由于 Split 的生成涉及从存储枚举文件（可能需要一些时间），Presto 允许以异步方式将 Split 发送给 Worker，这样 Split 的生成可以与第一批 Split 的执行并行进行。因此，第一次 Task Update 指定计划和配置，后续的 Task Update 只添加更多 Split。</p>
-<p>除计划之外，Coordinator 还以字符串键值对映射的形式提供配置，包括顶层配置和 Connector 级别的配置。Connector 配置为每个 Connector 提供设置；Connector 由表扫描和表写入操作使用，用于处理存储和文件格式。这些配置及其他信息（如线程池、顶层内存池等）通过 <code>QueryCtx</code> 对象传递给 Task。详见 Velox 仓库中的 <code>velox/core/QueryCtx.h</code>。</p>
-<hr>
-<h2 id="从计划到-driver-和-operator">从计划到 Driver 和 Operator</h2>
-<p>一旦 Velox Task 创建完成，TaskManager 就会向其传入需要处理的 Split，通过 <code>Task::addSplit()</code> 完成，可以在 Task 开始执行后进行。详见 <code>velox/exec/Task.h</code>。</p>
-<p>让我们深入了解 Task 创建时发生了什么：指定 Task 执行内容的 PlanNode 树作为 <strong>PlanFragment</strong> 的一部分传给 Task。Task 创建时最重要的步骤是将计划树拆分为 Pipeline。每个 Pipeline 然后获得一个 DriverFactory，DriverFactory 是为 Pipeline 创建 Driver 的工厂类。Driver 依次包含运行查询工作的 Operator。DriverFactory 在 <code>LocalPlanner.cpp</code> 中创建，详见 <code>LocalPlanner::plan</code>。</p>
-<p><img src="https://velox-lib.io/img/velox-primer-part2-2.png" alt="PlanNode 树拆分为 Pipeline 示意"></p>
-<p>遵循 <strong>Volcano 执行模型</strong>，计划由算子树表示，每个节点消费其子算子的输出并将输出返回给父算子。根节点通常是 PartitionedOutputNode 或 TableWriteNode。叶节点是 TableScanNode、ExchangeNode 或 ValuesNode（用于查询字面量）。完整的 Velox PlanNode 集合可在 <code>velox/core/PlanNode.h</code> 中找到。</p>
-<p>PlanNode 大多数情况下与 Operator 一一对应。PlanNode 本身不可执行，它们只是描述如何创建 Driver 和 Operator 的结构。如果节点树只有一个分支，则计划是单一 Pipeline；如果节点有多个子节点（输入），则第二个输入成为独立的 Pipeline。</p>
-<p><code>Task::start()</code> 创建 DriverFactory，DriverFactory 再创建 Driver。为启动执行，Driver 被加入线程池执行器的队列。运行 Operator 的主函数是 <code>Driver::runInternal()</code>。该函数中有 Operator 和 Driver 接口的详细交互：</p>
-<ul>
-<li><code>Operator::isBlocked()</code> 判断 Driver 是否可以推进。如果不能，Driver 会离开线程，直到某个 Future 被实现，Future 再将其放回执行器。</li>
-<li><code>getOutput()</code> 从 Operator 获取数据，<code>addInput()</code> 向另一个 Operator 喂入数据。</li>
-<li>执行顺序是推进能产出输出的最后一个 Operator，然后将其输出喂给下一个 Operator。如果 Operator 无法产出输出，则对它之前的 Operator 调用 <code>getOutput()</code>，直到找到能产出数据的一个。如果没有 Operator 阻塞且没有 Operator 能产出输出，则计划执行结束，每个 Operator 上都调用 <code>noMoreInput()</code>——这可以解除结果产出的阻塞，例如 OrderBy 只有在知道已获得所有输入后才能产出输出。</li>
-</ul>
-<hr>
-<h2 id="最简-pipeline：表扫描与重分区">最简 Pipeline：表扫描与重分区</h2>
-<p><strong>表扫描。</strong> 对于示例查询的表扫描阶段，有一个包含两个算子的 Pipeline：TableScan 和 PartitionedOutput。假设该 Pipeline 有五个 Driver，所有五个 Driver 都进入线程池执行器队列。PartitionedOutput 因为没有输入什么都做不了，于是调用 <code>TableScan::getOutput()</code>，详见 <code>velox/exec/TableScan.cpp</code>。</p>
-<p>TableScan 的第一个动作是调用 <code>task::getSplitOrFuture()</code> 查找 Split。如果没有可用的 Split，这会返回一个 Future；Driver 随后将自己停在线程外，并在 Future 上安装一个回调，当 Split 可用时重新调度 Driver。</p>
-<p>也有可能没有 Split，且 Task 已被通知不会再有更多 Split，此时 TableScan 执行结束。如果 Split 可用，TableScan 将解释它：根据计划中提供的 TableHandle 规格（列和过滤器列表），Connector（如 Split 中所指定）创建一个 DataSource。DataSource 处理 IO 以及文件和表格式的细节，之后 Split 被传给 DataSource，然后可以反复调用 <code>DataSource::next()</code> 获取 Split 所指定的文件/文件段的向量（批次）输出。如果 DataSource 执行结束，TableScan 查找下一个 Split。Connector 和 DataSource 的接口详见 <code>Connector.h</code>。</p>
-<p><strong>重分区。</strong> 至此，我们已追踪到 TableScan 返回其第一批输出。Driver 将其喂给 <code>PartitionedOutput::addInput()</code>，详见 <code>PartitionedOutput.cpp</code>。</p>
-<p>PartitionedOutput 首先对分区键（本例中为 <code>l_partkey</code>）计算哈希，为输入 <code>input_</code>（RowVectorPtr 批次）中的每行产生一个目标编号。每个目标有一个部分填充的序列化缓冲区（<code>VectorStreamGroup</code>）。如果第二阶段有 100 个 Task，每个 PartitionedOutput 有 100 个目标，每个目标一个 VectorStreamGroup。VectorStreamGroup 的主要函数是 <code>append()</code>，接收 RowVectorPtr 和其中一组行号，将行号标识的每个值序列化并添加到部分形成的序列化结果中。当 VectorStreamGroup 中积累了足够多的行时，产生一个 SerializedPage，详见 <code>PartitionedOutput.cpp</code> 中的 <code>flush()</code>。</p>
-<p>SerializedPage 是一个自包含的序列化信息包，可以通过网络传输到下一阶段，每个这样的数据包只包含发往同一接收方的行。这些数据包随后在 Worker 进程的 <code>OutputBufferManager</code> 中排队。注意 <code>flush()</code> 中带有 <code>BlockingReason</code> 的代码——缓冲区管理器为所有 Task 的所有消费者维护独立的队列。如果队列已满，添加输出可能会阻塞，这会返回一个在有空间添加更多数据时被实现的 Future，这取决于 Task 的消费者 Task 何时获取数据。</p>
-<p>Prestissimo 中的 Shuffle 由生产者端的 PartitionedOutput 和消费者端的 Exchange 实现。OutputBufferManager 保存供消费者获取的序列化好的数据。这些数据与 Presto 线协议的绑定在 <code>TaskManager.cpp</code>（生产者端）和 <code>PrestoExchangeSource.cpp</code>（消费者端）中。</p>
-<hr>
-<h2 id="小结-1">小结</h2>
-<p>我们介绍了计划如何变得可执行，以及数据如何在算子之间和内部流动。我们讨论了 Driver 可以阻塞（离开线程）以等待 Split 变得可用，或等待其输出被消费。目前我们只浅尝了运行分布式查询叶子阶段的皮毛，但算子和向量还有更多内容。在下一篇 Velox Primer 文章中，我们将了解示例查询的第二阶段做什么。</p>
-<hr>
-<hr>
-<h1 id="第三篇：shuffle-消费、字典魔法与聚合屏障">第三篇：Shuffle 消费、字典魔法与聚合屏障</h1>
-<p><strong>发表于：2025 年 5 月 12 日</strong></p>
-<p>在上一篇文章结束时，我们的第一个分布式查询已经执行到一半：</p>
-<pre><code class="language-sql">SELECT l_partkey, count(*) FROM lineitem GROUP BY l_partkey;
-</code></pre>
-<p>我们讨论了查询如何启动、Task 如何设置，以及计划、算子和 Driver 之间的交互。我们也展示了查询第一阶段如何执行——从表扫描到分区输出，即 Shuffle 的生产者侧。</p>
-<p>本文将讨论第二查询阶段，即 Shuffle 的消费者侧。</p>
-<hr>
-<h2 id="shuffle-消费者">Shuffle 消费者</h2>
-<p>如上一篇文章所述，在第一查询阶段，每个 Worker 读取表，然后产生一系列面向第二阶段不同 Worker 的信息数据包（SerializedPage）。在我们的示例中，lineitem 表没有特定的物理分区或聚簇键，这意味着表中任何文件的任意行都可能有任意 <code>l_partkey</code> 值。因此，为了按 <code>l_partkey</code> 分组数据，我们首先需要确保包含相同 <code>l_partkey</code> 值的行由同一个 Worker 处理——这正是第一阶段末尾数据 Shuffle 的目的。</p>
-<p>整体查询结构如下：</p>
-<p><img src="https://velox-lib.io/img/velox-primer-part2-1.png" alt="整体查询结构"></p>
-<p>查询 Coordinator 以无特定顺序将表扫描的 Split 分发给第一阶段的 Worker。</p>
-<ul>
-<li>Worker 处理这些 Split，并作为副作用填充将被第二阶段 Worker 消费的目标缓冲区。</li>
-<li>假设有 100 个第二阶段 Worker，每个第一阶段的 Driver 都有自己的 PartitionedOutput，有 100 个目标。当缓冲的序列化数据增长到足够大时，它们被移交给 Worker 的 OutputBufferManager。</li>
-</ul>
-<p>现在让我们聚焦到第二阶段的查询片段。每个第二阶段的 Worker 拥有如下计划片段：PartitionedOutput → Aggregation → LocalExchange → Exchange。</p>
-<p>每个第二阶段的 Task 对应每个第一阶段 Worker 的 OutputBufferManager 中的一个目标。第一个第二阶段 Task 从所有第一阶段 Task 获取目标 0，第二个获取目标 1，以此类推。每个节点与其他所有节点通信，Shuffle 过程无需任何中心协调。</p>
-<p>第二阶段开始时实际发生的事情：计划在 Exchange 之后有一个 LocalExchange 节点。这形成了两个 Pipeline：Exchange 和 LocalPartition 在一侧，LocalExchange、HashAggregation 和 PartitionedOutput 在另一侧。</p>
-<p><img src="https://velox-lib.io/img/velox-primer-part3-1.png" alt="第二阶段两个 Pipeline 结构"></p>
-<p>Velox Task 设计为多线程，通常有 5 到 30 个 Driver。每个阶段可能有数百个 Task，因此每个阶段有数千个线程。也就是说，100 个第二阶段 Worker 中的每个正在消费第一阶段总输出的 1/100，并以多线程方式进行，许多线程从 ExchangeSource 消费。</p>
-<p>为了执行多线程 Group By，我们可以使用线程安全的哈希表，或将数据划分为 <strong>n</strong> 个不相交的流，然后在各自的线程上分别聚合。在 CPU 上，我们几乎总是倾向于让线程处理自己的内存，因此数据将基于 <code>l_partkey</code> 使用本地 Exchange 进行局部分区。CPU 有复杂的缓存一致性协议，对共享内存的一致有序视图进行协调既是必须的，也代价高昂；严格的内存-线程亲和性是让多核可扩展性正常工作的关键。</p>
-<hr>
-<h2 id="localpartition-和-localexchange">LocalPartition 和 LocalExchange</h2>
-<p>为了创建高效且独立的内存访问模式，第二阶段使用本地 Exchange 对数据进行二次 Shuffle。在概念上，这类似于 Task 之间的远程 Exchange，但局限在 Task 内部。生产者侧（LocalPartition）对分区列 <code>l_partkey</code> 计算哈希，并将其划分为消费者 Pipeline 中每个 Driver 对应一个目标。消费者 Pipeline 有一个 LocalExchange 源算子，从 LocalPartition 填充的队列中读取数据。详见 <code>velox/exec/LocalPartition.h</code>，以及 <code>Task.cpp</code> 中设置本地 Exchange 生产者和消费者之间队列的代码。</p>
-<p>与使用序列化数据的远程 Shuffle 不同，本地 Exchange 在线程之间传递内存中的向量。这也是我们第一次遇到使用列式编码来加速向量化执行的概念。Velox 以广泛使用此类技术而闻名，我们将其称为<strong>压缩执行（Compressed Execution）</strong>。在这个实例中，我们使用字典将向量切片到多个目标——下面详细介绍。</p>
-<hr>
-<h2 id="字典魔法">字典魔法</h2>
-<p>查询执行通常需要改变数据的基数（结果中的行数）——这本质上就是过滤器和 Join 所做的事：过滤器或选择性 Join 降低数据基数，而有多个键匹配的 Join 则增加基数。</p>
-<p>LocalPartition 中的重分区根据分区键为输入的每行分配一个目标，然后为每个目标创建一个只包含该目标行的向量。假设当前输入的第 2、8 和 100 行哈希到目标 1，目标 1 的向量应该只包含原始输入中的第 2、8 和 100 行。我们可以通过复制数据来创建一个包含三行的向量，但我们通过将原始输入的每列包装在一个长度为 3、索引为 2、8 和 100 的 <strong>DictionaryVector</strong> 中来省去复制操作。这比复制高效得多，对于宽表和嵌套数据尤为如此。</p>
-<p>之后，运行目标 1 的 LocalExchange 消费者线程将看到一个 3 行的 DictionaryVector。当 HashAggregation 算子访问这个向量时，聚合将通过间接索引访问：对第 0 行访问基础（内部）向量中索引 2 处的值，对第 1 行访问索引 8 处的值，以此类推。目标 0 的消费者做完全相同的事，但可能访问第 4、9 和 50 行。</p>
-<p>所有消费者线程的字典基础向量是相同的。每个消费者线程只查看不同的子集。各核读取相同的缓存行，但由于基础向量不被写入（只读），不会产生缓存一致性开销。</p>
-<p>总结一下，<code>DictionaryVector&lt;T&gt;</code> 是对任意 T 类型向量的包装，DictionaryVector 指定索引，这些索引给出进入基础向量的下标。字典编码通常在列中不同值很少时使用。比如字符串 <code>&quot;experiment&quot;</code> 和 <code>&quot;baseline&quot;</code>：如果某列只有这两个值，将其表示为在位置 0 放 <code>&quot;experiment&quot;</code>、位置 1 放 <code>&quot;baseline&quot;</code> 的向量，以及一个有 1000 个元素（每个都是索引 0 或 1）的 DictionaryVector，效率远高于直接存储 1000 个字符串。</p>
-<p>除此之外，DictionaryVector 还可以用来表示基础元素的子集或重排序。因为所有接受向量的地方也接受 DictionaryVector，DictionaryVector 成为了表示选择操作的通用方式。这是 Velox 和其他现代向量化引擎的核心原则，我们会经常遇到这个概念。</p>
-<hr>
-<h2 id="聚合与-pipeline-屏障">聚合与 Pipeline 屏障</h2>
-<p>我们现在到达了第二阶段的第二个 Pipeline，从 LocalExchange 开始，然后进入 HashAggregation。LocalExchange 选取其本地目标对应的 Task 输入的一部分，大约是 Task 输入的 1/Driver 数量。</p>
-<p>我们将在后续文章中讨论哈希表的具体布局和其他技巧。现在，我们将 HashAggregation 视为黑盒。这个特定的聚合是<strong>最终聚合（Final Aggregation）</strong>，是一个完整的 <strong>Pipeline 屏障（Pipeline Barrier）</strong>，只在接收所有输入后才产出输出。</p>
-<p>聚合如何知道它已经收到了所有输入？让我们追踪完成信号在 Shuffle 中的传播过程：</p>
-<p><strong>叶子 Worker 如何知道结束：</strong> 如果 Task 从 Coordinator 收到了最后一次 Task Update 中的&quot;不会再有更多 Split&quot;消息，叶子 Worker 就知道已到结束。因此，如果 TableScan 内的某个 DataSource 执行结束，且没有更多 Split，则该 TableScan 不再阻塞且已到结束——Driver 会在 TableScan 的 PartitionedOutput 上调用 <code>noMoreInput()</code>，这会导致任何目标的缓冲数据被刷新并移交给 OutputBufferManager，并附注&quot;不会再有更多数据&quot;。OutputBufferManager 知道 TableScan Pipeline 中有多少个 Driver，在收到这么多条&quot;不会再有数据&quot;消息后，它可以告知所有目标该 Task 不再为它们产生数据。</p>
-<p><strong>信号如何传播到第二阶段：</strong> 当第二阶段的 Task 查询第一阶段的生产者时，当所有生产者都发出&quot;不会再有数据&quot;的信号后，它们就知道已到结束。获取目标数据请求的响应中有一个标识最后一批的标志。第二阶段 Task 的 ExchangeSource 设置&quot;无更多数据&quot;标志，所有 Driver 查询此标志，每个 Exchange 算子看到这个标志后在 LocalPartition 上调用 <code>noMoreInput()</code>，这会在本地 Exchange 队列中排队一个&quot;无更多数据&quot;信号。如果第二阶段第二个 Pipeline 开头的 LocalExchange 从其每个数据源都看到了&quot;无更多数据&quot;，它就到达结束，并在 HashAggregation 上调用 <code>noMoreInput()</code>。</p>
-<p>这就是数据结束信号的传播方式。在此之前，HashAggregation 没有产出任何输出，因为在收到所有输入之前，计数是未知的。现在，HashAggregation 开始产出包含 <code>l_partkey</code> 值和该值出现次数的输出批次。这些到达最后的 PartitionedOutput，在本例中它只有一个目标——产生最终结果集的那个 Worker。该 Worker 在所有 100 个数据源都报告了各自的数据结束后，才会到达结束。</p>
-<hr>
-<h2 id="小结-2">小结</h2>
-<p>我们终于完整走完了一个简单查询的分布式执行过程。我们介绍了数据如何在集群的 Worker 之间分区，以及在每个 Worker 内部如何再次分区。</p>
-<p>Velox 和 Presto 的设计是积极并行化执行——这意味着在每个线程上创建不重叠的数据子集来处理。线程越多，吞吐量越高。同时要记住，CPU 线程要高效，必须处理足够大的任务（通常超过 100 微秒的 CPU 时间），并且不要与其他线程过多通信，也不要写入其他线程正在写入的内存——这通过本地 Exchange 来实现。</p>
-<p>本文另一个重要收获是：列式编码（特别是 DictionaryVector）如何作为表示选择/重排序/复制的零拷贝方式。我们将在过滤器、Join 和其他关系操作中再次看到这种模式。</p>
-<p>下一篇，我们将深入研究 Join、过滤器和哈希聚合，敬请期待！</p>
-<hr>
-<p><strong>标签：</strong> tech-blog · primer</p>
+<p><code>noMoreSplits(planNodeId)</code> 表示宿主不会再给这个 source 添加工作；<code>noMoreInput()</code> 是算子之间的结束通知。它们不是同一个接口，也不意味着收到信号那一刻输出已经全部消费。grouped execution 还有 group 级结束信号。参见 <a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/Task.cpp#L1850">split 结束处理</a>。</p>
+<p>split 到达后唤醒等待者，等待者继续获取工作。未来通知和实际队列状态配合形成协议；空队列本身不是完成条件。</p>
+<span class="legacy-anchor" id="pipeline、driver-和-operator" aria-hidden="true"></span>
+<span class="legacy-anchor" id="算子的数据源、数据汇和状态" aria-hidden="true"></span>
+<span class="legacy-anchor" id="最简-pipeline：表扫描与重分区" aria-hidden="true"></span>
+<span class="legacy-anchor" id="聚合与-pipeline-屏障" aria-hidden="true"></span>
+<h2 id="pipeline">3. Pipeline、Driver 和 Operator</h2>
 
-  </article>
-  <footer class="colophon">
-    <b>Velox Primer 1,2,3</b><br>
-    #Velox　#QueryExecution　·　2025-12-30
-  </footer>
+<p>一条 pipeline 是能够顺序推进的一组算子；一个 Driver 是它的运行实例。多个 Driver 可以执行同样的 pipeline，各有自己的 Operator 状态；它们通过 Task 持有的共享对象交流。</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/LocalPlanner.cpp#L299">LocalPlanner</a> 从计划树产生 DriverFactory，<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/LocalPlanner.cpp#L514">createDriver</a> 再建立 Operator 链。一个 PlanNode 不一定只对应一个 Operator：HashJoin 的 probe 在一条 pipeline，build 在另一条 pipeline，两边通过 HashJoinBridge 关联。</p>
+<p>Driver 数也不等于线程数。Driver 在 executor 上运行，阻塞时保存继续执行所需状态和 future；future 就绪后重新入队，后续可能由另一个线程运行。同一个 Driver 的算子链保持串行推进。</p>
+<h3 id="统一接口，不同状态">统一接口，不同状态</h3>
+<p><code>needsInput()</code> 表示当前能否接受输入；<code>addInput()</code> 接管一批输入；<code>getOutput()</code> 尝试产生输出；<code>isBlocked()</code> 提供等待原因和 future；<code>isFinished()</code> 表示不会再有输出。</p>
+<p><code>getOutput() == nullptr</code> 可能是暂时没有输出，也可能是 sink 本来就不通过这个接口输出。Driver 必须结合这些方法推进，不能写成“所有算子循环 getOutput，返回空即退出”。准确执行循环见 <a href="/2026/03/13/velox-task-driver/">Task &amp; Driver</a>。</p>
+<span class="legacy-anchor" id="第二篇：从计划到-driver-和-operator" aria-hidden="true"></span>
+<span class="legacy-anchor" id="查询初始化" aria-hidden="true"></span>
+<span class="legacy-anchor" id="task-初始化" aria-hidden="true"></span>
+<span class="legacy-anchor" id="从计划到-driver-和-operator" aria-hidden="true"></span>
+<h2 id="initialization">4. 第二层：初始化与资源注入</h2>
+
+<p>一个并行 Task 的准备过程可以这样阅读：</p>
+<pre><code>宿主准备 PlanFragment、QueryCtx、executor、connector、输出接口
+    → Task::create
+    → LocalPlanner 生成 DriverFactory
+    → Task 创建共享状态、内存层次及 Driver 实例
+    → Operator 初始化
+    → Task::start 调度执行
+    → split 可以继续逐批到达</code></pre>
+<p>这是依赖关系示意，并不表示所有对象都在 create 调用内立即构造完毕。不同执行模式和 grouped execution 会改变具体时机。代码入口是 <a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/Task.cpp#L371">Task::create</a> 和 <a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/LocalPlanner.cpp#L388">LocalPlanner::plan</a>。</p>
+<p>QueryCtx 提供 query 配置、pool、executor、缓存等。可以让 <a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/core/QueryCtx.h#L138">QueryCtx::Builder</a> 默认创建 root，也可注入宿主创建的 root。executor 的生命周期要长于使用它的 Task，不能在创建 QueryCtx 的局部函数结束时就销毁线程池。</p>
+<p><code>Task::start(maxDrivers, ...)</code> 中的 maxDrivers 是约束，实际每条 pipeline 的 Driver 数还受 plan node、consumer、查询配置与执行模式限制。MergeJoin 等路径可能要求单线程；不能简单估成“plan node 数 × maxDrivers”。参见 <a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/LocalPlanner.cpp#L333">Driver 数量约束</a>。</p>
+<h2 id="example">5. 用一次分组聚合串起流水线</h2>
+
+<p>考虑以下查询的某个 worker 局部执行部分：</p>
+<pre><code>SELECT k, sum(v)
+FROM t
+WHERE v &gt; 0
+GROUP BY k;</code></pre>
+<p>一种可行的本地结构是扫描/过滤/partial aggregation 后按 k 重分区，再由下游合并聚合。分布式计划还可能在 stage 边界添加 PartitionedOutput 和 Exchange；这里先只看 Task 内：</p>
+<figure class="review-figure"><div class="diagram-scroll" tabindex="0" role="region" aria-label="图 2：多个 producer Driver 通过 local exchange 将相同 key 路由到同一个下游分区。"><img src="/images/velox-primer/pipelines.svg" alt="图 2：多个 producer Driver 通过 local exchange 将相同 key 路由到同一个下游分区。" loading="lazy"></div><figcaption>图 2：多个 producer Driver 通过 local exchange 将相同 key 路由到同一个下游分区。</figcaption></figure>
+
+<p>Partial aggregation 不是把最终结果直接打印出来，而是产生可继续合并的状态。对于 sum，状态相对简单；对于 avg，需要保留足够信息以合并总和与数量，不能把各分区平均值再做不加权平均。</p>
+<p>聚合的 partial/intermediate/final/single step 决定输入和输出的语义。物理计划必须保证 final 聚合看到同一个 key 的全部相关中间态。Velox 执行的是宿主给定的计划，不能在阅读一个 HashAggregation 时假定全局分区条件自动成立。</p>
+<span class="legacy-anchor" id="localpartition-和-localexchange" aria-hidden="true"></span>
+<h2 id="local-exchange">6. 第三层：LocalPartition 与 LocalExchange</h2>
+
+<p>LocalPartition 是 producer pipeline 末端的 sink；LocalExchange 是 consumer pipeline 开头的 source。共享的 LocalExchangeQueue 保存待消费 batch，LocalExchangeMemoryManager 管理缓冲占用与背压。</p>
+<p>输入按分区函数拆分后，常用 dictionary 包装引用原始列，从而避免为每个分区复制全部值。<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/LocalPartition.cpp#L384">wrapChildren</a> 还会处理已有包装、lazy/constant 等情况。这里的“零拷贝”主要指复用底层值，索引 buffer、包装对象和某些加载仍有成本。</p>
+<figure class="review-figure"><div class="diagram-scroll" tabindex="0" role="region" aria-label="图 3：数据向 consumer 前进，背压反向约束 producer；future 连接两边的继续执行。"><img src="/images/velox-primer/backpressure.svg" alt="图 3：数据向 consumer 前进，背压反向约束 producer；future 连接两边的继续执行。" loading="lazy"></div><figcaption>图 3：数据向 consumer 前进，背压反向约束 producer；future 连接两边的继续执行。</figcaption></figure>
+
+<p><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/LocalPartition.cpp#L120">enqueue</a> 会先把数据放入队列并计入占用；超过阈值时返回等待 consumer 的 future。因此内存阈值是背压门槛，不是一个 batch 都不能越过的硬上界。consumer 取走数据后释放记账并唤醒 producer；consumer 无数据时则等待 producer。</p>
+<p>结束还需要计数：不再增加 producer、已有 producer 都报告 noMoreData、队列排空，才能宣布消费结束。单个 producer 完成，不代表整个 exchange 完成。</p>
+<span class="legacy-anchor" id="字典魔法" aria-hidden="true"></span>
+<h2 id="barriers">7. 字典、阻塞算子与 Pipeline 边界</h2>
+
+<p>Dictionary 的逻辑是 <code>output[i] = base[indices[i]]</code>。多个输出可以共享 base；这降低搬运成本，也延长 base buffer 的存活时间。若下游只保留少量行，却间接引用一个很大的输入批次，retained memory 可能比逻辑输出大小大得多。</p>
+<p>Local exchange 是显式的数据传递边界，HashJoin 则是构建状态发布的边界：</p>
+<ul>
+<li>HashBuild 消费 build 数据，准备共享 hash table。</li>
+<li>HashProbe 等待 bridge 提供表，然后 probe。</li>
+<li>启用 spill 时，两侧还可能经过多轮 build/probe/restore。</li>
+</ul>
+<p>HashAggregation、OrderBy 等算子内部也会缓存状态，但“算子需要缓冲”不等于 LocalPlanner 一定为它切出一条独立 pipeline。是否拆分以计划节点的边界规则为准。HashAggregation 的某些 partial 路径可以提前输出；OrderBy 的常规完整排序则需要知道输入结束后才能按全局顺序输出。</p>
+<span class="legacy-anchor" id="第三篇：shuffle-消费、字典魔法与聚合屏障" aria-hidden="true"></span>
+<span class="legacy-anchor" id="shuffle-消费者" aria-hidden="true"></span>
+<h2 id="remote">8. 本地交换与跨 Task 交换</h2>
+
+<p>跨 Task 的常规流式交换大致是：</p>
+<pre><code>上游 PartitionedOutput
+    → 序列化页 &#x2F; OutputBuffer
+    → 宿主实现的 ExchangeSource 传输
+    → 下游 InMemoryExchangeClient &#x2F; ExchangeQueue
+    → Exchange 反序列化成 RowVector</code></pre>
+<p>这条路径与 LocalPartition/LocalExchange 不是同一个队列。跨 Task 还涉及来源发现、传输 token、acknowledgement、输出缓冲清理与网络错误。当前 Velox 的 <a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/ExchangeSource.h#L23">ExchangeSource</a> 是抽象扩展点，Presto 的 HTTP 协议位于 Presto 仓库。</p>
+<p>并非所有交换都走这个路径：materialized/file exchange 和其他 transport 可以有不同实现。完整宿主链路见 <a href="/2024/07/30/velox-query/">Query in Presto Worker</a>。</p>
+<span class="legacy-anchor" id="小结" aria-hidden="true"></span>
+<span class="legacy-anchor" id="小结-1" aria-hidden="true"></span>
+<span class="legacy-anchor" id="小结-2" aria-hidden="true"></span>
+<h2 id="reading">9. 读代码时先问哪几个问题</h2>
+
+<p>遇到一个算子，先找输入从哪里来、输出交给谁、哪些状态属于当前 Driver、哪些状态由 Task 共享；再找等待条件和唤醒者，最后找结束、取消和 reclaim 路径。</p>
+<div class="tbl-wrap"><table>
+<thead>
+<tr>
+<th>现象</th>
+<th>优先检查</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>source 一直等 split</td>
+<td>planNodeId、group、split 添加和 noMore 信号</td>
+</tr>
+<tr>
+<td>producer 一直等待</td>
+<td>下游是否消费、队列占用、future 是否被通知</td>
+</tr>
+<tr>
+<td>join 不输出</td>
+<td>build 是否完成、bridge 是否发布、probe 状态</td>
+</tr>
+<tr>
+<td>Driver 很多但 CPU 不高</td>
+<td>split/IO/背压等待、pipeline 单线程约束</td>
+</tr>
+<tr>
+<td>输出很少但内存很大</td>
+<td>dictionary 保留、聚合/join 状态、reserved 与 used</td>
+</tr>
+</tbody></table>
+</div><p>本文核对了当前接口与实现，未运行完整执行测试。进一步阅读：<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/Task.h#L1">Task</a>、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/Driver.cpp#L1">Driver</a>、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/LocalPlanner.cpp#L299">LocalPlanner</a>、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/LocalPartition.cpp#L120">LocalExchangeQueue</a>，再进入 <a href="/2025/10/23/velox-join/">HashJoin</a> 与 <a href="/2025/11/30/velox-spiller/">Spiller</a>。</p>
 </div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-<script>document.querySelectorAll('.post-body pre code[class*="language-"]').forEach(function(el){try{hljs.highlightElement(el);}catch(e){}});</script>
-</body>
-</html>
 
   </div>
 </article>
@@ -439,7 +357,7 @@
     </div>
 
     <div id="toc-footer" style="display: none">
-      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">Velox Primer 1,2,3</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%AC%AC%E4%B8%80%E7%AF%87%EF%BC%9A%E5%88%86%E5%B8%83%E5%BC%8F%E6%9F%A5%E8%AF%A2%E6%89%A7%E8%A1%8C%E5%9F%BA%E7%A1%80"><span class="toc-number">2.</span> <span class="toc-text">第一篇：分布式查询执行基础</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%86%E5%B8%83%E5%BC%8F%E6%9F%A5%E8%AF%A2%E6%89%A7%E8%A1%8C"><span class="toc-number">2.1.</span> <span class="toc-text">分布式查询执行</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#task-%E5%92%8C-split"><span class="toc-number">2.2.</span> <span class="toc-text">Task 和 Split</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#pipeline%E3%80%81driver-%E5%92%8C-operator"><span class="toc-number">2.3.</span> <span class="toc-text">Pipeline、Driver 和 Operator</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AE%97%E5%AD%90%E7%9A%84%E6%95%B0%E6%8D%AE%E6%BA%90%E3%80%81%E6%95%B0%E6%8D%AE%E6%B1%87%E5%92%8C%E7%8A%B6%E6%80%81"><span class="toc-number">2.4.</span> <span class="toc-text">算子的数据源、数据汇和状态</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B0%8F%E7%BB%93"><span class="toc-number">2.5.</span> <span class="toc-text">小结</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%AC%AC%E4%BA%8C%E7%AF%87%EF%BC%9A%E4%BB%8E%E8%AE%A1%E5%88%92%E5%88%B0-driver-%E5%92%8C-operator"><span class="toc-number">3.</span> <span class="toc-text">第二篇：从计划到 Driver 和 Operator</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9F%A5%E8%AF%A2%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="toc-number">3.1.</span> <span class="toc-text">查询初始化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#task-%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="toc-number">3.2.</span> <span class="toc-text">Task 初始化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%8E%E8%AE%A1%E5%88%92%E5%88%B0-driver-%E5%92%8C-operator"><span class="toc-number">3.3.</span> <span class="toc-text">从计划到 Driver 和 Operator</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%80%E7%AE%80-pipeline%EF%BC%9A%E8%A1%A8%E6%89%AB%E6%8F%8F%E4%B8%8E%E9%87%8D%E5%88%86%E5%8C%BA"><span class="toc-number">3.4.</span> <span class="toc-text">最简 Pipeline：表扫描与重分区</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B0%8F%E7%BB%93-1"><span class="toc-number">3.5.</span> <span class="toc-text">小结</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%AC%AC%E4%B8%89%E7%AF%87%EF%BC%9Ashuffle-%E6%B6%88%E8%B4%B9%E3%80%81%E5%AD%97%E5%85%B8%E9%AD%94%E6%B3%95%E4%B8%8E%E8%81%9A%E5%90%88%E5%B1%8F%E9%9A%9C"><span class="toc-number">4.</span> <span class="toc-text">第三篇：Shuffle 消费、字典魔法与聚合屏障</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#shuffle-%E6%B6%88%E8%B4%B9%E8%80%85"><span class="toc-number">4.1.</span> <span class="toc-text">Shuffle 消费者</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#localpartition-%E5%92%8C-localexchange"><span class="toc-number">4.2.</span> <span class="toc-text">LocalPartition 和 LocalExchange</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AD%97%E5%85%B8%E9%AD%94%E6%B3%95"><span class="toc-number">4.3.</span> <span class="toc-text">字典魔法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%81%9A%E5%90%88%E4%B8%8E-pipeline-%E5%B1%8F%E9%9A%9C"><span class="toc-number">4.4.</span> <span class="toc-text">聚合与 Pipeline 屏障</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B0%8F%E7%BB%93-2"><span class="toc-number">4.5.</span> <span class="toc-text">小结</span></a></li></ol></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#distributed"><span class="toc-number">1.</span> <span class="toc-text">1. 第一层：分布式计划与 Velox Task</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#splits"><span class="toc-number">2.</span> <span class="toc-text">2. Task、Split 和“没有数据”的三种含义</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#pipeline"><span class="toc-number">3.</span> <span class="toc-text">3. Pipeline、Driver 和 Operator</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BB%9F%E4%B8%80%E6%8E%A5%E5%8F%A3%EF%BC%8C%E4%B8%8D%E5%90%8C%E7%8A%B6%E6%80%81"><span class="toc-number">3.1.</span> <span class="toc-text">统一接口，不同状态</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#initialization"><span class="toc-number">4.</span> <span class="toc-text">4. 第二层：初始化与资源注入</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#example"><span class="toc-number">5.</span> <span class="toc-text">5. 用一次分组聚合串起流水线</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#local-exchange"><span class="toc-number">6.</span> <span class="toc-text">6. 第三层：LocalPartition 与 LocalExchange</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#barriers"><span class="toc-number">7.</span> <span class="toc-text">7. 字典、阻塞算子与 Pipeline 边界</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#remote"><span class="toc-number">8.</span> <span class="toc-text">8. 本地交换与跨 Task 交换</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reading"><span class="toc-number">9.</span> <span class="toc-text">9. 读代码时先问哪几个问题</span></a></li></ol>
     </div>
 
     <div id="share-footer" style="display: none">

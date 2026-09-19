@@ -1,0 +1,2203 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="body:has(.nimble-article) #header-post #toc .toc-level-2::before,body:has(.nimble-article) #toc-footer .toc-level-2::before{display:none} .nimble-article .nimble-callout{padding:1.1rem 1.4rem;backgro">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Nimble 设计解读：文件布局、Metadata、级联编码与选择性解码">
+<meta property="og:url" content="https://duanmeng.github.io/2026/09/19/nimble-design/index.html">
+<meta property="og:site_name" content="Macduan Notes">
+<meta property="og:description" content="body:has(.nimble-article) #header-post #toc .toc-level-2::before,body:has(.nimble-article) #toc-footer .toc-level-2::before{display:none} .nimble-article .nimble-callout{padding:1.1rem 1.4rem;backgro">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://duanmeng.github.io/images/nimble-design/figure-01.svg">
+<meta property="og:image" content="https://duanmeng.github.io/images/nimble-design/figure-02.svg">
+<meta property="og:image" content="https://duanmeng.github.io/images/nimble-design/figure-03.svg">
+<meta property="og:image" content="https://duanmeng.github.io/images/nimble-design/figure-04.svg">
+<meta property="og:image" content="https://duanmeng.github.io/images/nimble-design/figure-05.svg">
+<meta property="og:image" content="https://duanmeng.github.io/images/nimble-design/figure-06.svg">
+<meta property="og:image" content="https://duanmeng.github.io/images/nimble-design/figure-07.svg">
+<meta property="og:image" content="https://duanmeng.github.io/images/nimble-design/figure-08.svg">
+<meta property="og:image" content="https://duanmeng.github.io/images/nimble-design/figure-09.svg">
+<meta property="og:image" content="https://duanmeng.github.io/images/nimble-design/figure-10.svg">
+<meta property="og:image" content="https://duanmeng.github.io/images/nimble-design/figure-11.svg">
+<meta property="og:image" content="https://duanmeng.github.io/images/nimble-design/figure-12.svg">
+<meta property="og:image" content="https://duanmeng.github.io/images/nimble-design/figure-13.svg">
+<meta property="og:image" content="https://duanmeng.github.io/images/nimble-design/figure-14.svg">
+<meta property="og:image" content="https://duanmeng.github.io/images/nimble-design/figure-15.svg">
+<meta property="og:image" content="https://duanmeng.github.io/images/nimble-design/figure-16.svg">
+<meta property="og:image" content="https://duanmeng.github.io/images/nimble-design/figure-17.svg">
+<meta property="article:published_time" content="2026-09-19T12:30:00.000Z">
+<meta property="article:modified_time" content="2026-09-19T12:32:36.678Z">
+<meta property="article:author" content="duanmeng">
+<meta property="article:tag" content="Velox">
+<meta property="article:tag" content="Storage">
+<meta property="article:tag" content="Nimble">
+<meta property="article:tag" content="Encoding">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://duanmeng.github.io/images/nimble-design/figure-01.svg">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Nimble 设计解读：文件布局、Metadata、级联编码与选择性解码</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr theme-whiteboard">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2026/05/30/velox-hash-table/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://duanmeng.github.io/2026/09/19/nimble-design/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://duanmeng.github.io/2026/09/19/nimble-design/&text=Nimble 设计解读：文件布局、Metadata、级联编码与选择性解码"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://duanmeng.github.io/2026/09/19/nimble-design/&title=Nimble 设计解读：文件布局、Metadata、级联编码与选择性解码"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://duanmeng.github.io/2026/09/19/nimble-design/&is_video=false&description=Nimble 设计解读：文件布局、Metadata、级联编码与选择性解码"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Nimble 设计解读：文件布局、Metadata、级联编码与选择性解码&body=Check out this article: https://duanmeng.github.io/2026/09/19/nimble-design/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://duanmeng.github.io/2026/09/19/nimble-design/&title=Nimble 设计解读：文件布局、Metadata、级联编码与选择性解码"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://duanmeng.github.io/2026/09/19/nimble-design/&title=Nimble 设计解读：文件布局、Metadata、级联编码与选择性解码"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://duanmeng.github.io/2026/09/19/nimble-design/&title=Nimble 设计解读：文件布局、Metadata、级联编码与选择性解码"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://duanmeng.github.io/2026/09/19/nimble-design/&title=Nimble 设计解读：文件布局、Metadata、级联编码与选择性解码"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://duanmeng.github.io/2026/09/19/nimble-design/&name=Nimble 设计解读：文件布局、Metadata、级联编码与选择性解码&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://duanmeng.github.io/2026/09/19/nimble-design/&t=Nimble 设计解读：文件布局、Metadata、级联编码与选择性解码"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#doxcnzPimk7VfNoxzrifzvzp9de"><span class="toc-number">1.</span> <span class="toc-text">1. 用五张布局图逐层展开 Nimble</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnmbqHu0qNzWcCRtyx6nDxBb"><span class="toc-number">1.1.</span> <span class="toc-text">1.1 全局布局：一个 Nimble 文件里有什么</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcn1g8i0XnTjquudAXkpQlSCg"><span class="toc-number">1.2.</span> <span class="toc-text">1.2 展开定位目录：stripe 目录与 stream 目录</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnTzv1uOUDc0zEGOEEmvcbab"><span class="toc-number">1.3.</span> <span class="toc-text">1.3 展开 Stripe：选择需要的 streams</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnren6fdmoBEp2eKFePaScWc"><span class="toc-number">1.4.</span> <span class="toc-text">1.4 展开 Stream：各自独立的 chunk 边界</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnmbeHJwlxp6xTc2QFK2QFEf"><span class="toc-number">1.5.</span> <span class="toc-text">1.5 展开 Chunk：封装头与 encoding 内部布局</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnEr33pnySAlhmbsjjDBpnuc"><span class="toc-number">1.6.</span> <span class="toc-text">1.6 把各层连起来：一次读取的执行顺序</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnWFgIrVGcB4Hj9AcfUc4Xmc"><span class="toc-number">1.7.</span> <span class="toc-text">1.7 各层实现的分工</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#doxcn4Rk5XFWMoU2DVsxqrhtZ5c"><span class="toc-number">2.</span> <span class="toc-text">2. 物理文件布局：Stripe、Stream、Chunk、StripeGroup 与文件尾</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnEQEwyvIM9S6bHPbV1BySfh"><span class="toc-number">2.1.</span> <span class="toc-text">2.1 文件布局详图：对照各层位置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnlkibdWsKJqMpdsHZJ8QwJh"><span class="toc-number">2.2.</span> <span class="toc-text">2.2 各结构分别承担什么职责</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#doxcnDWlUFIdxdPeQQo6R0cCiVf"><span class="toc-number">2.2.1.</span> <span class="toc-text">2.2.1 Footer、Stripes 与 StripeGroup 的分工</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#doxcn8j2PAPo7D6EFspK74vhTng"><span class="toc-number">2.2.2.</span> <span class="toc-text">2.2.2 位置目录如何参与 stripe 裁剪</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnSoQuvi5y3QBoVIKNdJ7LUh"><span class="toc-number">2.3.</span> <span class="toc-text">2.3 Chunk 的 framing 与 Encoding prefix 是两层头</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnCNax5GjXyMjLsevy5vmCVd"><span class="toc-number">2.4.</span> <span class="toc-text">2.4 Stripes 与 StripeGroup：内部结构、关系与分组设计</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#doxcnEMzNiVM0zi5VgNb9FZWikG"><span class="toc-number">2.4.1.</span> <span class="toc-text">2.4.1 先把四个名字分开</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#doxcn2zHXSKZE6eUOW5qOf21V3f"><span class="toc-number">2.4.2.</span> <span class="toc-text">2.4.2 raw 布局如何访问一个 stream</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#doxcn4gEMYoKuZPB3BkSI1kzhFg"><span class="toc-number">2.4.3.</span> <span class="toc-text">2.4.3 为什么把位置表分组，而不全部放进 Footer</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#doxcnc05JYkkURtCnvomFk7LHkc"><span class="toc-number">2.4.4.</span> <span class="toc-text">2.4.4 实验性 stream-major：对位置表自身做 encoding</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#doxcnF6k0w1jDhXyBIj1da1N5nh"><span class="toc-number">3.</span> <span class="toc-text">3. Schema 如何拆成 Streams：Null、Lengths 与行域</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnlKwzLCOKaV9UtzsFYDpiIX"><span class="toc-number">3.1.</span> <span class="toc-text">3.1 一个逻辑列不一定只有一个 stream</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnNsOYM8ZUvrd9GjUZqoRbx3"><span class="toc-number">3.2.</span> <span class="toc-text">3.2 用一个数组例子解释行域</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnFXyGINIGQrt9WPURG3QaWd"><span class="toc-number">3.3.</span> <span class="toc-text">3.3 FlatMap 的意义：把 key 变成可投影的列</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnfy5xrIM0bunh7MrCsArBZg"><span class="toc-number">3.4.</span> <span class="toc-text">3.4 Schema 的落盘结构，以及投影为何要展开成依赖集合</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#doxcnvgpiHf371NZi1HkLNajLSh"><span class="toc-number">4.</span> <span class="toc-text">4. Metadata 的组成与打开文件的过程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnNAclbXeRaZoN2Cs5Jngn2e"><span class="toc-number">4.1.</span> <span class="toc-text">4.1 Postscript 与 Footer：读取链条的根</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnrtpS4GGY1OKEfhS8iqTjRb"><span class="toc-number">4.2.</span> <span class="toc-text">4.2 Metadata 不只是 Footer，也不全是 FlatBuffers</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnzMAGmd9IbAPZqKnPQoqTwe"><span class="toc-number">4.3.</span> <span class="toc-text">4.3 文件与 stripe 统计：内部布局、列映射和读端用途</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnaeNW3C1nxdOFk2Hs0S0wZg"><span class="toc-number">4.4.</span> <span class="toc-text">4.4 打开文件与一次投影读的路径</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnPwC3pkkAv4IFabn6mlzdde"><span class="toc-number">4.5.</span> <span class="toc-text">4.5 Chunk 位置索引：内部数组、查找算法与缺失时的行为</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#doxcnIKOdylu6SnNFKHNHK5qnKh"><span class="toc-number">5.</span> <span class="toc-text">5. Encode 设计：切块、选择策略、成本模型与写出</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnOpXFeOxsXGjKjpjTLwFV6f"><span class="toc-number">5.1.</span> <span class="toc-text">5.1 Writer 如何从 Velox vectors 走到磁盘</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#doxcnjBAgr5KPFovrC7GvK3skPc"><span class="toc-number">5.1.1.</span> <span class="toc-text">5.1.1 写入状态分三层推进：chunk、stripe、StripeGroup</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcn6i1D9Qh4J2h6gbL6TSM9Wg"><span class="toc-number">5.2.</span> <span class="toc-text">5.2 EncodingFactory 的输入、输出和选择契约</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnpMZd75f6oGzWxognpxU8Xc"><span class="toc-number">5.3.</span> <span class="toc-text">5.3 默认策略是“估算大小 × 读成本权重”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnWSREUhLTDdxFDf8J4xWr5f"><span class="toc-number">5.4.</span> <span class="toc-text">5.4 Encoding 与 Compression 是两次决策</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcntel2hou9avPxtg84vfxbLO"><span class="toc-number">5.5.</span> <span class="toc-text">5.5 Capture &#x2F; Replay：复用编码形状，而非复用旧数据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnxIFLn3kFd4PwDkMh9MYxZ2"><span class="toc-number">5.6.</span> <span class="toc-text">5.6 整数编码实例：FBW、BBP 的原理、布局与选择取舍</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#doxcnu7TaVJ56OfaOCMf7ieKdvg"><span class="toc-number">5.6.1.</span> <span class="toc-text">5.6.1 FBW：用一组基准和位宽表示整段整数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#doxcnZ7Sercs4KPBJXiU3sv56Pg"><span class="toc-number">5.6.2.</span> <span class="toc-text">5.6.2 BBP：每块重新选择基准和位宽</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#doxcnr4R2NulLnOFejyFf9Ejkug"><span class="toc-number">5.6.3.</span> <span class="toc-text">5.6.3 把压缩粒度、位布局和执行方式分开比较</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#doxcnqAgbOWMKg10dXqWOWo94yb"><span class="toc-number">6.</span> <span class="toc-text">6. Cascading Encoding：递归组合的代码与数据布局</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnod5TratoWzUks9yBtRoVPc"><span class="toc-number">6.1.</span> <span class="toc-text">6.1 Cascade 的对象是“子序列”，不是重复压缩同一串 bytes</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcn9AKctYLSzkdUnGikF1MdEb"><span class="toc-number">6.2.</span> <span class="toc-text">6.2 一个完整的编码树</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnDEvvcE85JOZ4tM96Sa1tId"><span class="toc-number">6.3.</span> <span class="toc-text">6.3 encodeNested 如何把递归连接起来</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcn6d9A78uVdkBRgO84Grmklf"><span class="toc-number">6.4.</span> <span class="toc-text">6.4 字节布局如何让 decoder 恢复这棵树</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnCWD4sEq6En5uZGbWBG6Ozd"><span class="toc-number">6.5.</span> <span class="toc-text">6.5 Encode 的递归结构，不等于 Decode 总是逐行递归</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnECtms3r5drsMVesUNJs78e"><span class="toc-number">6.6.</span> <span class="toc-text">6.6 从输入到字节再到输出：一个 Nullable + Dictionary + FBW 例子</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcn9YKJX4wPBfLG9L3EzdTT2f"><span class="toc-number">6.7.</span> <span class="toc-text">6.7 其他常用编码分别利用什么规律，如何恢复值</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#doxcn9vQepPyN91YnBwejyiyyzd"><span class="toc-number">7.</span> <span class="toc-text">7. Decode 设计：游标、批量解码、Visitor 与内存生命周期</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnaOdh7T6UjWJNi3OBprm1o4"><span class="toc-number">7.1.</span> <span class="toc-text">7.1 Encoding 首先是一个有状态的批量游标</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#doxcnSUS3glsgGI5fNdEB6mvrj1"><span class="toc-number">7.1.1.</span> <span class="toc-text">7.1.1 调用契约：从当前位置产出 n 行</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#doxcnIq2K1FmOk87jZwzLOHYSMg"><span class="toc-number">7.1.2.</span> <span class="toc-text">7.1.2 同一个接口，不同编码恢复值的方式不同</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#doxcnvpaawBNglFfo2QBsxyCmng"><span class="toc-number">7.1.3.</span> <span class="toc-text">7.1.3 从上层调用链辨认实际执行路径</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcn0MoIfSROyjP7rIQ5Vtlyce"><span class="toc-number">7.2.</span> <span class="toc-text">7.2 Chunked decoder 屏蔽 chunk 边界</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnZP3HryNFALdwMtqFpcIuUg"><span class="toc-number">7.3.</span> <span class="toc-text">7.3 readWithVisitor：让过滤和解码在同一遍推进</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnTUca6lMP4gWpJgerUiq0Cg"><span class="toc-number">7.4.</span> <span class="toc-text">7.4 Nullability 是解码契约，不只是一个额外 bitmap</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcn3MBAe1ULfdzksSAoxBGyWh"><span class="toc-number">7.5.</span> <span class="toc-text">7.5 Ownership 与 pool：不要把 zero-copy 当成统一保证</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnS7eHBlzUEwCssvIpqBW21c"><span class="toc-number">7.6.</span> <span class="toc-text">7.6 回到端到端例子：分别看 I&#x2F;O、decoder 初始化和结果物化</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#doxcnDCbj3Gjkx0bw3exHDtXzoe"><span class="toc-number">8.</span> <span class="toc-text">8. 随机访问：定位能力、点读接口与真实复杂度</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcns1uQaafv3K7760YnwXzGqf"><span class="toc-number">8.1.</span> <span class="toc-text">8.1 “支持随机”至少有四种不同含义</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcner8WMRe2r1ri5nCXrv4Z1g"><span class="toc-number">8.2.</span> <span class="toc-text">8.2 EncodingView 是独立能力，不是 Encoding 的默认模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnlJpPxtITLjMB22Omekj3gh"><span class="toc-number">8.3.</span> <span class="toc-text">8.3 普通 skip 的差异</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcn3hmzWgp1QGc7gDLBDugrKc"><span class="toc-number">8.4.</span> <span class="toc-text">8.4 设计结论</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#doxcnZ9ZYLmZRp5eIkO7fA80Lug"><span class="toc-number">9.</span> <span class="toc-text">9. Slice 设计：编码态切片、行域转换与成本边界</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnMU7deAjmT7ng9E4LTKcdKg"><span class="toc-number">9.1.</span> <span class="toc-text">9.1 EncodingFactory::slice 的产物仍然是编码后的数据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnKudYUzvL6mj6oaRs9RXAln"><span class="toc-number">9.2.</span> <span class="toc-text">9.2 不同 codec 的 slice 做的事情不同</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnIrkppTvpp0sUI2Z5AK3eAh"><span class="toc-number">9.3.</span> <span class="toc-text">9.3 FSST slice 是很直观的例子</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnN5Vmn6WSs0dmsh82lpSM8b"><span class="toc-number">9.4.</span> <span class="toc-text">9.4 StreamSlicer：对复杂 schema 做一致的行范围投影</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcncmFpoTfv0ft1rsSTrTxBJc"><span class="toc-number">9.5.</span> <span class="toc-text">9.5 SliceEncoding 是另一种取舍：延后工作，不一定缩小输入</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#doxcnsrxMWzvo1CAnN1VAoo6MbV"><span class="toc-number">10.</span> <span class="toc-text">10. 与 Parquet 的布局、Metadata 和编码设计对比</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnzvWFzfecKLVVDeLGdOHF5d"><span class="toc-number">10.1.</span> <span class="toc-text">10.1 最接近的层次映射</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcn7Atg0ogREUrOXxOAKIL6dd"><span class="toc-number">10.2.</span> <span class="toc-text">10.2 文件布局与 metadata</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnaqMxnS1SnAyf9sGDxaFSTd"><span class="toc-number">10.3.</span> <span class="toc-text">10.3 嵌套数据：结构 streams 与 Dremel levels</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnRCIlPbaKg3bQg4NzzjQMJb"><span class="toc-number">10.4.</span> <span class="toc-text">10.4 编码组合：自由递归树与规范化的固定组合</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnjJ1cDYB2VEBhCjYEQHRxad"><span class="toc-number">10.5.</span> <span class="toc-text">10.5 Compression、选择性解码与随机读取</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#doxcnXR9TJNOEyQw9lp62RV8ttg"><span class="toc-number">11.</span> <span class="toc-text">11. 设计理念与取舍：从工作负载回看 Nimble</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnlGiCY7U8jX7UVZ221XSu2Z"><span class="toc-number">11.1.</span> <span class="toc-text">11.1 从访问模式出发，同时考虑空间、CPU 与内存</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnnpeoYI79KrNc8GJzI6pj5e"><span class="toc-number">11.2.</span> <span class="toc-text">11.2 分层目录：控制打开成本和 metadata 工作集</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnvzZGiuPmCpa631ra8csgTe"><span class="toc-number">11.3.</span> <span class="toc-text">11.3 类型化 streams 与独立 chunk：让各部分按自身特点组织</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnBPPIgmUYP74W5mdSfdeBah"><span class="toc-number">11.4.</span> <span class="toc-text">11.4 编码与执行共同设计：压得小，也要取值方便</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnunn8n6WOU1jTvduKOLu0Fg"><span class="toc-number">11.5.</span> <span class="toc-text">11.5 保留已有表示，减少重复工作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcn64gwchnegfBfaFpLRul20b"><span class="toc-number">11.6.</span> <span class="toc-text">11.6 演进、兼容与验证：灵活性需要明确边界</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#doxcnecWFS7F6rsMrGffcL4J00c"><span class="toc-number">12.</span> <span class="toc-text">12. 当前能力边界与源码阅读路线</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnewhiNsAJnILRsNUsG0Uqec"><span class="toc-number">12.1.</span> <span class="toc-text">12.1 读这套设计时应保留的几个边界</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcncN7WqjMHGqPiW3qiFEKYef"><span class="toc-number">12.2.</span> <span class="toc-text">12.2 当前可选&#x2F;实验性能力速查</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcndl6IZtf2iu8WldyoDZXKWI"><span class="toc-number">12.3.</span> <span class="toc-text">12.3 建议的源码阅读顺序</span></a></li></ol></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+          <header class="post-site-header">
+  <a class="site-name" href="/">Macduan Notes</a>
+  <nav aria-label="Menu">
+    <ul>
+      
+        <li><a href="/">Home</a></li>
+      
+        <li><a href="/categories/technology">Technology</a></li>
+      
+        <li><a href="/categories/life">Life</a></li>
+      
+        <li><a href="/archives/">Archives</a></li>
+      
+        <li><a href="/tags/">Tags</a></li>
+      
+        <li><a href="/about">About</a></li>
+      
+    </ul>
+  </nav>
+</header>
+
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Nimble 设计解读：文件布局、Metadata、级联编码与选择性解码
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">duanmeng</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2026-09-19T12:30:00.000Z" itemprop="datePublished">2026-09-19</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/technology/">technology</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/Encoding/" rel="tag">Encoding</a>, <a class="tag-link-link" href="/tags/Nimble/" rel="tag">Nimble</a>, <a class="tag-link-link" href="/tags/Storage/" rel="tag">Storage</a>, <a class="tag-link-link" href="/tags/Velox/" rel="tag">Velox</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <style>
+body:has(.nimble-article) #header-post #toc .toc-level-2::before,body:has(.nimble-article) #toc-footer .toc-level-2::before{display:none}
+.nimble-article .nimble-callout{padding:1.1rem 1.4rem;background:#f6f1e9;border-left:2px solid #a58c6c;border-radius:3px;margin:1.5rem 0}
+.nimble-article .nimble-callout p:first-child{margin-top:0}.nimble-article .nimble-callout p:last-child{margin-bottom:0}
+.nimble-article .nimble-figure{margin:1.8rem 0}.nimble-article .nimble-diagram-scroll{max-width:100%;overflow-x:auto}
+.nimble-article .nimble-diagram-scroll img{display:block;width:100%;min-width:960px;max-width:none;height:auto}
+.nimble-article .nimble-table-scroll{max-width:100%;overflow-x:auto;margin:1.5rem 0}article.post .nimble-article .nimble-table-scroll > table{display:table;width:100%;max-width:none;border-collapse:collapse;min-width:640px}
+.nimble-article td p,.nimble-article th p{margin:.35rem 0}.nimble-article pre{overflow-x:auto;white-space:pre}
+.nimble-article [id]{scroll-margin-top:1.5rem}@media print{.nimble-article .nimble-diagram-scroll img{min-width:0}.nimble-article table{min-width:0}}
+</style>
+<div class="post-body nimble-article"><aside id="NsSyd0GeFon69ExsxkhcxEzDnOf" class="nimble-callout"><p id="doxcnmKc6GypPL64D7eW8tizJxc">本文以 Velox 本地 origin/main 的固定源码快照 <a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/tree/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble">21c2e7ec590e83d53897d88ebdaeeff071b608e5</a>
+ 为基线，调研日期为 2026-09-12。所有“当前实现”“默认值”均指这一快照，不混入开发分支；Parquet 对照以同一快照中的 parquet.thrift 和普通未加密文件布局为准。</p>
+<p id="doxcnus22zXnen1WMiYzM58U8Eg">先给结论：<b>Nimble 把复杂列拆成类型化 streams，将每个 stream 分成可独立编码的 chunks，再用可递归组合的 encoding tree 表达数据</b>
+；tablet 层负责这些字节在文件中的位置和分层 metadata。它支持列投影、批量/选择性读取、一定范围的点读和编码态切片，但并没有要求所有 encoding 都具备零初始化成本的 O(1) 随机访问。</p>
+</aside>
+<h2 id="doxcnzPimk7VfNoxzrifzvzp9de">1. 用五张布局图逐层展开 Nimble</h2>
+<p id="doxcnUt3QrG9d3Q2Cg7xXSQE5Cb"><b>File 与 Tablet 指同一个 Nimble 文件。</b>
+先看整份文件的布局，再展开数据的 Stripe → Stream → Chunk → Encoding 层次；位置目录、schema、统计和索引在后文分别展开。</p>
+<h3 id="doxcnmbqHu0qNzWcCRtyx6nDxBb">1.1 全局布局：一个 Nimble 文件里有什么</h3>
+<p id="doxcnbIl6ffONDv9UD6aQ8eRFXp">图 1.1｜外框是一份完整文件，内部展示数据的包含关系，以及独立的位置目录、schema、统计和可选索引。文件主体中的数据与元数据可交错写入；Footer 紧邻末尾的 Postscript。区段大小及主体内排列为示意。</p>
+<figure class="nimble-figure" id="doxcn54nQGQRpiEaCnMT178L5vg"><div class="nimble-diagram-scroll" tabindex="0" role="region" aria-label="可横向滚动的 Nimble SVG 配图"><img src="/images/nimble-design/figure-01.svg" alt="Nimble 设计解读，原文第 1 张配图" loading="lazy"></div></figure><h3 id="doxcn1g8i0XnTjquudAXkpQlSCg">1.2 展开定位目录：stripe 目录与 stream 目录</h3>
+<p id="doxcnTmyxMEh9Oyy3aivDgb8Yu1">从图 1.2 开始，用同一个假设请求贯穿定位与读取：读取文件物理行 [1400,1420)，过滤 score ≥ 80，输出 id；根 ROW、id、score 全非空。图中的地址与行数用于讲解，不是真实 benchmark。</p>
+<p id="doxcn6wppX5VpvmCPe7sbkfRBIf">图 1.2｜<b>Stripes metadata 已经保存 stripe 的绝对地址和大小。</b>
+其中 group_indices[s] 只给出 group ID g；<b>Footer.stripe_groups[g]</b>
+ 给出该组元数据的地址；加载 <b>StripeGroup</b>
+ 后，查到的是已选 stripe 内各 stream 的相对偏移和大小。虚线表示引用，不表示“Group 包住数据 stripe”。</p>
+<figure class="nimble-figure" id="doxcn39f2Uz4Lm0Amp0y5PiXpOc"><div class="nimble-diagram-scroll" tabindex="0" role="region" aria-label="可横向滚动的 Nimble SVG 配图"><img src="/images/nimble-design/figure-02.svg" alt="Nimble 设计解读，原文第 2 张配图" loading="lazy"></div></figure><h3 id="doxcnTzv1uOUDc0zEGOEEmvcbab">1.3 展开 Stripe：选择需要的 streams</h3>
+<p id="doxcnUmIC3ZyEm7wIYYv4M8TxJf">图 1.3｜展开 stripe 1。输出 id、过滤 score，因此申请这两条 streams；note 不投影。Schema / ScanSpec 决定需要哪些 stream IDs，StripeGroup 提供这些 IDs 对应的字节范围。</p>
+<figure class="nimble-figure" id="doxcnL2GdWicDUuCEQ0fsuLX6Zb"><div class="nimble-diagram-scroll" tabindex="0" role="region" aria-label="可横向滚动的 Nimble SVG 配图"><img src="/images/nimble-design/figure-03.svg" alt="Nimble 设计解读，原文第 3 张配图" loading="lazy"></div></figure><h3 id="doxcnren6fdmoBEp2eKFePaScWc">1.4 展开 Stream：各自独立的 chunk 边界</h3>
+<p id="doxcnkfAiqv8omUULdzpQRg9JSf">图 1.4｜继续展开 streams。同一批 stripe 行 [400,420)，落在 id 的 chunk 0、score 的 chunk 1；列之间的 chunk 边界独立。图中行号轴和字节偏移分别标注。</p>
+<figure class="nimble-figure" id="doxcnTcN3QN8a7izFoDKo7dTfBM"><div class="nimble-diagram-scroll" tabindex="0" role="region" aria-label="可横向滚动的 Nimble SVG 配图"><img src="/images/nimble-design/figure-04.svg" alt="Nimble 设计解读，原文第 4 张配图" loading="lazy"></div></figure><p id="doxcnk1OSMUU5b2XkP8EDUhq8Yg">有 chunk index 时按累计行数定位；没有时依次打开 chunks，读取 encoding.rowCount 后推进。chunk index 默认关闭，具体数组见第 4.5 节。</p>
+<h3 id="doxcnmbeHJwlxp6xTc2QFK2QFEf">1.5 展开 Chunk：封装头与 encoding 内部布局</h3>
+<p id="doxcnnWpyeQd50A5bZMXKIN52Xc">图 1.5｜再展开一个 chunk。外层 5 字节 framing 负责 payload 长度和压缩标识；按需解压后，内层 prefix 指定 encoding。子编码仍在该 chunk 内，读值时再恢复成物理值和 null 信息。</p>
+<figure class="nimble-figure" id="doxcnSWHlaNdFqXSae970fgi92e"><div class="nimble-diagram-scroll" tabindex="0" role="region" aria-label="可横向滚动的 Nimble SVG 配图"><img src="/images/nimble-design/figure-05.svg" alt="Nimble 设计解读，原文第 5 张配图" loading="lazy"></div></figure><p id="doxcnMZlfNA1Id4bd2y7mP111Ed">这里的 6 字节 encoding prefix 是默认固定行数格式；compact row-count 由 file properties 指定。实际 codec 参数和组合见第 5–6 章。</p>
+<h3 id="doxcnEr33pnySAlhmbsjjDBpnuc">1.6 把各层连起来：一次读取的执行顺序</h3>
+<p id="doxcnNAEXtCifRjcje2orWjjnzd">按图 1.2 定位字节，按图 1.3 选列，按图 1.4 找到目标 chunks，再按图 1.5 构造 decoder。score 过滤若命中 stripe 行 {402,407,418}，id reader 就取这些位置，最后组织结果 vectors。实际 I/O 可提前预取；定位、初始化、物化的成本分别见第 7.6 节。</p>
+<p id="doxcnuq1bB90MuvRCullsytLt7d">读取时序图｜箭头表示信息依赖；metadata cache、尾部窗口和批量读取可合并实际 I/O。</p>
+<figure class="nimble-figure" id="doxcnCPo7sfXUmOOHqSqzrpRrpf"><div class="nimble-diagram-scroll" tabindex="0" role="region" aria-label="可横向滚动的 Nimble SVG 配图"><img src="/images/nimble-design/figure-06.svg" alt="Nimble 设计解读，原文第 6 张配图" loading="lazy"></div></figure><p id="doxcnaKEwSR3MBKzQtRYUOI5zUf">源码：<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/tablet/TabletReader.cpp#L665">Stripes 初始化与行前缀</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/tablet/StripeGroup.cpp#L82">StripeGroup 点查</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/velox/selective/SelectiveNimbleReader.cpp#L458">selective reader 建列与 load</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/velox/selective/ReaderBase.cpp#L226">stream range / enqueue</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/index/ChunkStatsGroup.cpp#L126">chunk lookup</a>
+。</p>
+<h3 id="doxcnWFgIrVGcB4Hj9AcfUc4Xmc">1.7 各层实现的分工</h3>
+<p id="doxcnCvEMF2NCI56zCISTmf3aid"><b>Schema</b>
+ 把字段映射成 stream IDs；<b>TabletReader</b>
+ 是 Nimble 内部的文件级读取对象，管理 metadata 和 stripe / stream 定位，Velox 的 ReaderBase 持有它；上层 RowReader / ColumnReader 协调选列、过滤、解码和结果向量。<b>Encoding</b>
+ 将编码字节恢复成值。</p>
+<p id="doxcnDv5TymHQOw4CdGom5Ountc">LayoutPlanner 安排 streams 的物理顺序；EncodingLayout 描述 codec 及其子编码配置，供 capture / replay 使用。它们属于实现分工，不在 File → Stripe → Stream 的数据包含层级中增加一层。</p>
+<p id="doxcnG5PRGQvcRaarlHudkgQMPe">源码入口：<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/velox/SchemaBuilder.h">SchemaBuilder.h</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/velox/LayoutPlanner.cpp">LayoutPlanner.cpp</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/encodings/common/EncodingLayout.h">EncodingLayout.h</a>
+。</p>
+<h2 id="doxcn4Rk5XFWMoU2DVsxqrhtZ5c">2. 物理文件布局：Stripe、Stream、Chunk、StripeGroup 与文件尾</h2>
+<h3 id="doxcnEQEwyvIM9S6bHPbV1BySfh">2.1 文件布局详图：对照各层位置</h3>
+<p id="doxcnBNrvzOAmDa0AwWQjTdGSkd">完整布局对照图｜左侧是文件字节，右侧是目录引用，底部放大 chunk 和文件尾。可与第 1 章的五张放大图对照查阅。</p>
+<figure class="nimble-figure" id="doxcn1jVOfNwqrHiy4VhL7N1bSe"><div class="nimble-diagram-scroll" tabindex="0" role="region" aria-label="可横向滚动的 Nimble SVG 配图"><img src="/images/nimble-design/figure-07.svg" alt="Nimble 设计解读，原文第 7 张配图" loading="lazy"></div></figure><p id="doxcnMqMKaoYPcQYVebRzHHRPpg">位置 metadata 可穿插在数据之间；固定的尾部关系是 Footer 紧接 20 字节 Postscript。各区域的位置以目录中的 offset / size 为准。</p>
+<h3 id="doxcnlkibdWsKJqMpdsHZJ8QwJh">2.2 各结构分别承担什么职责</h3>
+<p id="doxcnl7eE84xJKQx727UVe6CWTf">读取时先解析 Footer 的引用，再加载 Stripes 选定 stripe，最后按 group ID 加载需要的 StripeGroup。尾部预读和缓存可以合并实际 I/O；下面按信息依赖区分三者。</p>
+<h4 id="doxcnDWlUFIdxdPeQQo6R0cCiVf">2.2.1 Footer、Stripes 与 StripeGroup 的分工</h4>
+<p id="doxcnRTMP77uoYT0s00feKuDXDf">本文说的 <b>Stripes metadata</b>
+，是源码中的 <code>serialization::Stripes</code>
+，即全文件 stripe 目录。它已经记录每条 stripe 的文件地址；StripeGroup 补充的是各 stripe 内部的 stream 地址。</p>
+<div class="nimble-table-scroll"><table id="doxcnp8sPkeUylQ0EMpMzRiky8g"><thead><tr><th><p id="doxcnusQCpOxkDxSvfZnHsOySw1">结构</p>
+</th>
+<th><p id="doxcnSp0VEDPTZ681MjfwKqWUxb">本体保存什么</p>
+</th>
+<th><p id="doxcn10I1mDhIWfnUE8hiOqERqf">按什么索引，定位什么</p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td><p id="doxcnsv6cnggxxZWeEPAfHmGtOe">Footer</p>
+</td>
+<td><p id="doxcnVyRCI2zgxW1UxCok0TiDff">总行数；Stripes 的 MetadataSection；stripe_groups 的 MetadataSection 数组；命名 optional_sections 目录</p>
+</td>
+<td><p id="doxcnfNA7v69M2zzGPvslZvJGvI">group ID g → stripe_groups[g]；section name → 同下标地址项。定位元数据 blob。</p>
+</td>
+</tr>
+<tr><td><p id="doxcnHBLiRHvPkqtbuISl7Fxamf">Stripes metadata</p>
+</td>
+<td><p id="doxcnnQuiqXf8G3oOeb2ftxwk4l">row_counts[s]；stripe 绝对 offsets[s]、sizes[s]；group_indices[s]</p>
+</td>
+<td><p id="doxcnkzYtzCKZEwhcBm2axo2Utb">stripe ID s → 数据 stripe 的行范围、字节范围和 group ID。该 group 的地址仍查 Footer。</p>
+</td>
+</tr>
+<tr><td><p id="doxcnvXamL6UVpqfVDn3fm1F2db">StripeGroup</p>
+</td>
+<td><p id="doxcnMUSmyPGJIAUwJXDUTq9Usf">stripe_count；组内每个 (stripe, stream) 的 stream_offsets、stream_sizes</p>
+</td>
+<td><p id="doxcnXo7UvwizhpIfvLCSLnIpLj">(组内 stripe ID, stream ID) → stream 相对 stripe 的偏移和大小。加 stripe 绝对 offset 后得到文件地址。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p id="doxcnprw3SWX052Ls1LT50yEUbd">有数据的文件必须有 Stripes 目录；无 stripe 的空文件可以缺省。StripeGroup 把多条 stripes 的 stream 位置表集中保存，按需加载和缓存。raw 数组如何展平与索引，见第 2.4 节。</p>
+<h4 id="doxcn8j2PAPo7D6EFspK74vhTng">2.2.2 位置目录如何参与 stripe 裁剪</h4>
+<p id="doxcnb5mhQFGm11wfX1879of6fK"><b>Stripes 和 StripeGroup 都没有列值的 min/max，因此单靠它们无法判断“这条 stripe 的所有 score 都小于 80”。</b>
+但 Stripes 的行数和地址可以帮助 reader 排除不属于指定读取范围的 stripes。下面明确区分当前文档源码快照中的三种情况：</p>
+<div class="nimble-table-scroll"><table id="doxcnqKN5SYfy1wVgJpfnLh8wEe"><thead><tr><th><p id="doxcnwovLW1oqIZefU0kEgyhtxh">筛选依据</p>
+</th>
+<th><p id="doxcnVP1H0VX3fbYL0NUKQUaGQe">需要哪些信息</p>
+</th>
+<th><p id="doxcnhbzm64zIokZZkl3sSqyQWc">当前 selective reader 的行为</p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td><p id="doxcnE0KX6I4V7egQcLnc6q6KAe">文件 split 的字节范围</p>
+</td>
+<td><p id="doxcnBKBbPFlEorjxjZ0VPlNTUd">Stripes.offsets</p>
+</td>
+<td><p id="doxcnwCRGEa2hx1EwWK9GniBx2c">initReadRange 按 stripe 起点是否落在 split 范围内，确定本 reader 负责的 stripes</p>
+</td>
+</tr>
+<tr><td><p id="doxcn91z4uCKpdKp6dHUmEvh2Rh">ClusterIndex 查询得到的文件行范围</p>
+</td>
+<td><p id="doxcnPvk5BtxuIuoziZN35wc3Af">已写入的 ClusterIndex + Stripes.row_counts 的累计值</p>
+</td>
+<td><p id="doxcnguEhANH4qgmFz85kQKGFme">indexEnabled 开启且谓词能转为该索引的 bounds 时，initIndexBounds 先查行范围，再缩小 stripe 范围；整条不相交的 stripe 不进入数据加载</p>
+</td>
+</tr>
+<tr><td><p id="doxcnLC8o1K3swVN8BmdTOLuIkb">score &gt;= 80 这类条件的 stripe min/max 判断</p>
+</td>
+<td><p id="doxcnrHxmlEHCI1CQGH4sVPorib">额外的逐 stripe 列统计，例如 columnar.stripe_stats</p>
+</td>
+<td><p id="doxcnSGQ0TywauA2o5xaTotQsbe">该快照支持写出及序列化/反序列化 stripe stats，写开关默认 false；普通 selective reader 尚未读取它来做 stripe min/max 谓词裁剪</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p id="doxcn5MJsmBICFoUTp1Np9XeWNg">例如 score 的某条 stripe 若有有效 max=79，使用这份统计的 reader 可以在读列数据前排除它；但 max=79 不在上述两份位置目录中，而且本文快照的普通 reader 尚未接入这条统计裁剪路径。启用 stripe stats 的写开关本身不会让读端自动获得该优化。ClusterIndex 的范围裁剪是另外一条已实现、需要相应索引和配置的路径。</p>
+<p id="doxcnRQ31EjyeERJKhG7gsld83v">列投影也要单独看：只输出 id、过滤 score 时，Schema/ScanSpec 选出相关 stream IDs，StripeGroup 给出它们的字节范围；note stream 不申请。这会减少本条 stripe 中需要读取的列，但本条 stripe 仍然要读。chunk position index 则解决已知行号落在哪个 chunk，不承担普通列谓词的 min/max 判断。</p>
+<p id="doxcnas3XgvE2KPW15EtYKSWZve">源码（本文固定快照）：<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/tablet/Footer.fbs#L29">Stripes / StripeGroup 字段</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/velox/selective/SelectiveNimbleReader.cpp#L407">split 范围选择</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/velox/selective/SelectiveNimbleReader.cpp#L493">ClusterIndex 范围裁剪</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/writer/Writer.cpp#L87">stripe stats 写出开关</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/writer/Writer.cpp#L2199">stripe stats 写出</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/velox/selective/ReaderBase.cpp#L196">ReaderBase 加载的是 file stats</a>
+。</p>
+<h3 id="doxcnSoQuvi5y3QBoVIKNdJ7LUh">2.3 Chunk 的 framing 与 Encoding prefix 是两层头</h3>
+<pre id="doxcnvTP9CfuGwTICZYZgfEyWAc"><code class="language-plaintext">一个物理 stream = chunk 0 || chunk 1 || ...
+
+一个 chunk：
+  uint32 payloadLength             4 bytes
+  uint8  chunkCompressionType      1 byte
+  payload                         payloadLength bytes
+
+去掉 chunk framing 并按需解压后，payload 是一个根 encoding：
+  uint8  EncodingType              1 byte
+  uint8  DataType                  1 byte
+  uint32 rowCount                  4 bytes（默认文件路径）
+  encoding-specific header / children / payload ...</code></pre>
+<p id="doxcnFmVFWnJaFxTpClFouLp8vh"><code>payloadLength</code>
+ 不含 5 字节 chunk header；它在压缩时是压缩后的长度，在未压缩时就是 encoding bytes 的长度。根 encoding 的 rowCount 描述本 stream 的行域，不一定是顶层表的行数。chunk header 没有单独放 rowCount，所以没有额外 chunk index 时，不能仅靠这 5 字节直接按行号找到目标 chunk。</p>
+<p id="doxcnEs8NhLCt3Kbj9K2QhzbCnd">encoding prefix 默认是 6 字节。实验性的 compact row count 改用 1–5 字节 varint 表达 rowCount，此时 prefix 不再固定为 6 字节。该选择由 file properties / serializer version 和 Encoding::Options 传给 decoder，不是看到某一个字节就能自动判断。外层 chunk header 仍固定 5 字节。</p>
+<h3 id="doxcnCNax5GjXyMjLsevy5vmCVd">2.4 Stripes 与 StripeGroup：内部结构、关系与分组设计</h3>
+<h4 id="doxcnEMzNiVM0zi5VgNb9FZWikG">2.4.1 先把四个名字分开</h4>
+<p id="doxcnEEeC6OVNXetjvKaUo5NYQb">本文统一用 <b>stripe</b>
+（条带）。容易口头混称为“stripe meta”的对象，在此快照中应落到具体类型：<code>serialization::Stripes</code>
+ 是全文件 stripe 目录；<code>serialization::StripeGroup</code>
+ 是一组 stripe 的 stream 位置表；<code>MetadataSection</code>
+ 是某份 metadata blob 的地址描述；<code>StripeIdentifier</code>
+ 是 reader 内存里的访问句柄。此处没有一份名为 StripeMeta、内联在每条 stripe 尾部的统一结构。</p>
+<div class="nimble-table-scroll"><table id="doxcnbBAmTRHfkUPHLWa02nSSAc"><thead><tr><th><p id="doxcn2nfDt4vFYoVc1f3HIri5Bd">结构</p>
+</th>
+<th><p id="doxcnc5zqS0rmblia4DyYsSkUhd">内部字段</p>
+</th>
+<th><p id="doxcnMkZqyDADNewSa0xtqestOd">索引单位 / 作用域</p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td><p id="doxcn7aefc2qzoTRB3PRvOUr3Uh">Stripes</p>
+</td>
+<td><p id="doxcnuZo7hZjoy7NmzO1Y3Odl2e">row_counts:uint32[]；offsets:uint64[]；sizes:uint32[]；group_indices:uint32[]</p>
+</td>
+<td><p id="doxcnqSyP0cF69Bahc1gCdFZJ6d">四个等长数组；下标 s 是全文件 stripe ID；整份目录覆盖文件</p>
+</td>
+</tr>
+<tr><td><p id="doxcniO7OAwCzFmgvvEZOqVlKqc">raw StripeGroup</p>
+</td>
+<td><p id="doxcnw9Ng9fqw3QMwK8ranVZraf">stripe_count:uint32；stream_offsets:uint32[]；stream_sizes:uint32[]</p>
+</td>
+<td><p id="doxcnytNr4osQPZgCRkCAQuzXyg">组内 stripe × stream 的矩阵，按 stripe-major 展平；覆盖连续若干 stripes</p>
+</td>
+</tr>
+<tr><td><p id="doxcnJgGKYDy8cbWXBSwuzmXg9g">MetadataSection</p>
+</td>
+<td><p id="doxcnjEWUscpNrF3aW7JsW4GFTh">offset:uint64；size:uint32；compression_type；uncompressed_size:uint32</p>
+</td>
+<td><p id="doxcnU7GPRENNPeUylC1oDYdHXf">描述一个 metadata blob 在文件中的位置和压缩方式；不描述某列的值</p>
+</td>
+</tr>
+<tr><td><p id="doxcnERFTasvPMwf8iLzRFe7lxh">StripeIdentifier（运行时）</p>
+</td>
+<td><p id="doxcnRo6k5VktW9fdvm2fWLLK0b">stripe ID；共享 StripeGroup；可选 ChunkStatsGroup 等引用</p>
+</td>
+<td><p id="doxcnwlKj0ZZFli9ErWFd0zcN2c">连接已加载的目录与当前 stripe；不是额外落盘的 per-stripe header</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p id="doxcnIRNQxCy085oFzN8OOScMye">Stripes 的第 s 项只回答该 stripe 的顶层行数、绝对 byte range 和所属 group ID；它没有逐列 offsets。StripeGroup 的一个矩阵项只回答一个 stream 在该 stripe 中的相对 byte range；它没有顶层行前缀、字段名称、codec 类型或 chunk 边界。二者通过 <code>group_indices[s]</code>
+ 连接。</p>
+<h4 id="doxcn2zHXSKZE6eUOW5qOf21V3f">2.4.2 raw 布局如何访问一个 stream</h4>
+<pre id="doxcnF2eib6SNLRouNyVvtpOZsf"><code class="language-plaintext">g = Stripes.group_indices[s]
+group = load(Footer.stripe_groups[g])
+G = group.stripe_count
+C = group.stream_offsets.length / G        // raw 布局推导；不是落盘字段
+firstStripe = first s0 with group_indices[s0] == g
+localStripe = s - firstStripe
+k = localStripe * C + streamId
+
+absoluteOffset = Stripes.offsets[s] + group.stream_offsets[k]
+byteSize       = group.stream_sizes[k]
+streamRange    = [absoluteOffset, absoluteOffset + byteSize)</code></pre>
+<p id="doxcnJMUAkppj7RfzxmtnUBbsqe">stream offset 是相对所属 stripe 的偏移，所以使用 uint32；stripe 的文件绝对 offset 是 uint64。这把较宽的地址集中放在每条 stripe 的目录项中，再用较窄的位置表描述大量 streams。数组等长、长度可被 stripe_count 整除等约束由 reader 检查。raw 布局在 metadata 已解压/加载后可直接索引两个数组；不必先为每一个 stream 构造独立的小对象。</p>
+<p id="doxcntHmVKujBw3cBhX9Az6mTTY">size=0 表示该 stream 没有存储字节；若新发现的 FlatMap key 只在后续组出现，早期组还可能有 streamId ≥ C 的情况。reader 先判断存在性，再按 schema/type 的约定解释缺失。根 ROW nulls 缺失可代表全非空，某些 scalar/feature 缺失有不同含义，不能一律解释成全 null。</p>
+<h4 id="doxcn4gEMYoKuZPB3BkSI1kzhFg">2.4.3 为什么把位置表分组，而不全部放进 Footer</h4>
+<p id="doxcn5Wq0OSz1UEBygxt8d6uoRb">对于 G 条 stripes、C 个 streams，raw 位置数组主体约为 <code>8 × G × C</code>
+ 字节：offset 和 size 各 4 字节。分组并没有消除 stripes × streams 的规模，而是让 Footer 只保留每组一条 MetadataSection 引用。writer 可以分批刷出并释放当前组的位置数组；reader 打开文件时先拿到较小的 stripe 目录，再按访问范围加载和缓存所需组。wide schema 的 stream 数量很大时，这种分层尤为重要。</p>
+<p id="doxcnfyZWio8VbStsjpGbNMKhTe">组过大，会增加一次加载/解压的 metadata 和缓存占用；组过小，会增加目录引用和小 I/O。此快照默认 metadataFlushThreshold 为 8 MiB，触发依据是 writer 的启发式估算 <code>4 + stripeCount × lastStreamCount × 13</code>
+，不是实际 raw 数组大小，也不是固定每组多少 stripes。理解容量时用 8GC 估算主体，理解 flush 行为时看 shouldWriteStripeGroup 的公式，两者不要混用。</p>
+<p id="doxcnocTMOsVca6Qm1Tsz7m8igb">动态 schema 会让后面的 stripe 出现更多 stream IDs。写组时取组内最大 stream 数 C，把较短 stripe 的位置行补零，再展平成数组。因此不需要回写之前的数据 stripe。LayoutPlanner 可以改变物理顺序，stream deduplication 可以让多个 ID 共享字节；stream ID、schema 顺序、文件地址顺序必须分开理解。</p>
+<h4 id="doxcnc05JYkkURtCnvomFk7LHkc">2.4.4 实验性 stream-major：对位置表自身做 encoding</h4>
+<pre id="doxcnjcgG2xjzu84YID8qxp6Rpe"><code class="language-plaintext">StreamMajorStripeGroup
+  stripe_count : uint32
+  stream_count : uint32
+  stream_offsets : EncodedStream[C]
+  stream_sizes   : EncodedStream[C]
+
+EncodedStream &#123; data : bytes &#125;
+offsets[j] 编码的是 [stripe0 的 stream j offset, stripe1 的 stream j offset, ...]
+每个子 encoding 有 G 个 uint32 值；sizes[j] 同理。</code></pre>
+<p id="doxcn2itUuUH3f4qIlkmxp7NaXe">默认仍为 raw。实验性 kStreamMajor 使用 SGL1 标识，把同一 stream 跨 stripes 的 offsets / sizes 分别编码，默认在 Constant、Trivial、FBW 中选择；reader 构造 EncodingView 后用 readAt(localStripe) 点查。子 encoding 不做妨碍直接 view 的通用压缩；整个 metadata section 的压缩是另一层决策。这样有机会利用位置/大小的相似性，但增加了编码头、view 对象和初始化。它改变的是 metadata 的表示，不是把列值跨 stripe 共用字典或统一编码；旧 reader 是否支持该布局必须单独确认。</p>
+<p id="doxcnlhwpuj9hC1v85bcFlMG0Lg">源码：<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/tablet/Footer.fbs">Footer.fbs</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/tablet/TabletWriter.cpp#L187">TabletWriter::close / writeStripe</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/tablet/StripeGroup.h">StripeGroup.h</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/common/ChunkHeader.h">ChunkHeader.h</a>
+。</p>
+<h2 id="doxcnF6k0w1jDhXyBIj1da1N5nh">3. Schema 如何拆成 Streams：Null、Lengths 与行域</h2>
+<h3 id="doxcnlKwzLCOKaV9UtzsFYDpiIX">3.1 一个逻辑列不一定只有一个 stream</h3>
+<div class="nimble-table-scroll"><table id="doxcnTrPh2QQS0BQ0nXVnmAyGZg"><thead><tr><th><p id="doxcnhZxsLPByICHjRNNgbIkkgb">逻辑类型</p>
+</th>
+<th><p id="doxcnvwYQ7Imbo9uApgEU1sxsdg">典型 stream 分解</p>
+</th>
+<th><p id="doxcnDEyS4EzTAXj3PBCcAcm4gc">子节点行域</p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td><p id="doxcnl7CIs5qWTtCEjSsm4HJnid">Scalar</p>
+</td>
+<td><p id="doxcnWMvUvE2s6MCl1iMWAijNmh">一个 value stream；有 null 时通常由 Nullable encoding 包住 values 和 non-null flags。</p>
+</td>
+<td><p id="doxcnxdpxxxLYFYSKwmI6VrJ2Fd">values child 只有非空值；外层 Nullable 仍覆盖逻辑行。</p>
+</td>
+</tr>
+<tr><td><p id="doxcnZSa8l6ocGyRZA2aB80gmPc">ROW / STRUCT</p>
+</td>
+<td><p id="doxcnwlXKVT2CIOmVSoOVZZCWDb">一个 ROW nulls stream，加各字段递归分解出的 streams；全非空等情形可按约定省略 null stream。</p>
+</td>
+<td><p id="doxcnXApJfaYfvZO1sGtcTFaku1">默认 compact 路径中，子字段只消费非空父 ROW 的位置。</p>
+</td>
+</tr>
+<tr><td><p id="doxcn95LMg26iTDuG8X4kT9dakg">ARRAY</p>
+</td>
+<td><p id="doxcnqY5ud6gARgwhtVxcHyuBEM">一个可空 uint32 lengths stream，加 elements 子树。</p>
+</td>
+<td><p id="doxcnufxwVstDbOadQDboKaiL8e">元素行数为非空数组 lengths 的和，不是数组行数。</p>
+</td>
+</tr>
+<tr><td><p id="doxcnho9aPUaAkjLHMKNGg0qpRe">MAP</p>
+</td>
+<td><p id="doxcntImtwSCRg6GPfyEIMqx1ie">一个可空 uint32 lengths stream，加 keys / values 子树。</p>
+</td>
+<td><p id="doxcnvLOnZkRgkjNGvTEYNsjsee">keys 与 values 都处于 entry 行域，长度为各 map entry 数之和。</p>
+</td>
+</tr>
+<tr><td><p id="doxcnwxF3EZeFHwDT3Feo05ofYe">FlatMap</p>
+</td>
+<td><p id="doxcnZoIpxrHIBy2sCLSvV9CpNe">map nulls；每个已发现/预声明 key 有一个 in-map stream，以及对应 value 子树。</p>
+</td>
+<td><p id="doxcn6jzFBTyZNXOn9kGDt7BUDd">in-map 处于非空 map 行域；value 子树只覆盖 key 实际存在的位置。</p>
+</td>
+</tr>
+<tr><td><p id="doxcnrQHGPJdn8hHsvmO0PH54sh">TimestampMicroNano</p>
+</td>
+<td><p id="doxcnVCxqpOWJKDluMuHeNSWSQh">micros 和 nanos 两个描述符，精度/缺失处理由对应 reader/writer 协调。</p>
+</td>
+<td><p id="doxcnJmNBEJ19wNfUTIvAgjlnkc">不能仅凭有两个 streams 就假设两者每条 stripe 的存在性与行域完全相同。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p id="doxcnyp2blmtHswflnV6MFKOLze">还存在 ArrayWithOffsets、SlidingWindowMap 等表示，增加 offsets 等 streams 来表达可复用/共享的子范围。这些是独立的 schema 表示，不能把普通 ARRAY 的 lengths 规则不加判断地套上去；不同 reader、serializer 和 slicer 对这些表示的支持范围也不完全相同。</p>
+<h3 id="doxcnNsOYM8ZUvrd9GjUZqoRbx3">3.2 用一个数组例子解释行域</h3>
+<p id="doxcnm8S19foFYSgWgqXaO7RD4d">图 2｜从四条数组行得到两条物理 streams，再以顶层 [1, 4) 为例换算 elements 的 [2, 3)。lengths 的 Nullable 子编码与 elements stream 的行域不同。</p>
+<figure class="nimble-figure" id="doxcnmvneuQsM7HmT4R5PNSU0cf"><div class="nimble-diagram-scroll" tabindex="0" role="region" aria-label="可横向滚动的 Nimble SVG 配图"><img src="/images/nimble-design/figure-08.svg" alt="Nimble 设计解读，原文第 8 张配图" loading="lazy"></div></figure><p id="doxcnPLgUMwq7TSUXGqXAoY0nuh">假设根 ROW 全非空，某字段为 ARRAY&lt;STRING&gt;，四条顶层行如下：</p>
+<pre id="doxcn14D8bfFboIuqC7Hx4cLH8f"><code class="language-plaintext">row 0: [&quot;aa&quot;, &quot;bb&quot;]
+row 1: null
+row 2: []
+row 3: [&quot;cc&quot;]
+
+物理 lengths stream 的逻辑值：[2, null, 0, 1]
+若使用 Nullable：
+  non-null flags child = [true, false, true, true]  （4 个）
+  lengths values child = [2, 0, 1]                  （3 个）
+
+elements stream = [&quot;aa&quot;, &quot;bb&quot;, &quot;cc&quot;]              （3 个）</code></pre>
+<p id="doxcnWXqxZ6e9tyCkMq2EBsZDCc">null 数组与空数组不同：前者在 lengths 的 nullable 结构里标记 null，后者是合法长度 0。读取顶层 row 3 时，elements 的起点不是 3，而是之前 lengths 的累计和 2。若 element 本身允许 null，还会在 elements stream 内出现自己的 Nullable；父数组 null 和元素 null 是两层不同的状态。</p>
+<p id="doxcnjgwYYF6xxmalG7EbX3R2mg">因此，skip / slice 一个复杂列，不能对所有 stream 都直接套用同一个 <code>offset, length</code>
+。父 ROW 的非空计数、ARRAY/MAP 的长度求和、FlatMap 的 in-map true 计数，都可能改变子 stream 的范围。</p>
+<h3 id="doxcnFXyGINIGQrt9WPURG3QaWd">3.3 FlatMap 的意义：把 key 变成可投影的列</h3>
+<p id="doxcnR50MgTyJvIC3hOlrFplAvc">普通 MAP 把所有 key/value entries 串在一起。FlatMap 则将 key 展开成 schema 下的子节点：只读取 feature A 时，通常只需要 map nulls、A 的 in-map 及 A 的 value 子树。这样无需为定位 A 而扫描全部 map entries。代价是 key 数量增长会扩大 schema、stream 数量与 metadata，writer 因而提供动态 key discovery、预声明 keys 和 key 数量上限等控制。</p>
+<p id="doxcnzbdbuohCosCwzvz8Sy6vLh">这里还需要区分三种状态：整个 map 为 null；map 非空但 key 不存在；key 存在但 value 为 null。分别由 map nulls、in-map、value nullability 表达，不能合并成一个 bitmap。</p>
+<p id="doxcn2VXKVSS4n5LMqoNcJbM1ic"><code>SchemaNode.offset</code>
+ / <code>StreamDescriptor.offset()</code>
+ 在这个语境里承担 stream 标识/映射作用，不是文件 byte offset。只有结合具体 stripe 的位置表，才得到文件上的字节范围。schema 的树形顺序也不应替代这一映射。</p>
+<p id="doxcnYu2yEcYZ0c7WbIgXzfnpfh">源码：<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/velox/Schema.fbs">Schema.fbs</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/velox/SchemaBuilder.h#L170">各 TypeBuilder 的 stream descriptors</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/velox/FieldWriter.cpp#L601">ROW 与 MultiValueFieldWriter</a>
+。</p>
+<h3 id="doxcnfy5xrIM0bunh7MrCsArBZg">3.4 Schema 的落盘结构，以及投影为何要展开成依赖集合</h3>
+<p id="doxcn9zl3qTZae6Uh3C5dUorkaf">图 3.4｜沿 columnar.schema 找到 schema blob，再展开 nodes 数组和类型树。SchemaNode.offset 表示 stream ID；选定 stripe 后，才由 StripeGroup 将它转换为数据字节范围。</p>
+<figure class="nimble-figure" id="doxcn1JGOfaIIgk7QJTb1Tkoqie"><div class="nimble-diagram-scroll" tabindex="0" role="region" aria-label="可横向滚动的 Nimble SVG 配图"><img src="/images/nimble-design/figure-09.svg" alt="Nimble 设计解读，原文第 9 张配图" loading="lazy"></div></figure><p id="doxcnxosrdQrduS0MRVo1mUE1gh"><b>Schema 存在独立的 columnar.schema section 中。</b>
+先在 Footer.optional_sections.names 查到名称下标 i，用 offsets[i]、sizes[i] 和 compression_types[i] 读取并按需解压 blob，再由 SchemaDeserializer 解析 Schema.nodes。普通列式 reader 的 loadSchema 会检查该 section 存在；即使文件没有数据行，也需要 schema 描述列类型。</p>
+<p id="doxcntDR1pXDk8rY8TK5tEMFHno">schema 用扁平节点数组表示类型树。SchemaBuilder 按遍历顺序输出节点；SchemaReader 根据 kind、children 和类型专属约定递归重建 Type 对象及 StreamDescriptors。children 是结构信息，不是字节长度；offset 对应 stream 标识，不是文件地址。有额外结构 streams 的类型可使用辅助节点，因此不能把 nodes 的数组下标直接当成 stream ID，也不能把每个 SchemaNode 都等同于一个最终输出列。attributes 携带每节点的字符串键值属性，不承担位置索引作用。</p>
+<p id="doxcn1wDrb0Y2hF3urD0Xld7RXb">写时，FieldWriter 将输入 vectors 按这个 schema 分解：例如数组行 [A,B] 产生 length=2，元素 A、B 进入 element 行域；null 数组产生 nullable lengths 的 null，不增加 elements。读时反向执行：ColumnReader 先恢复足够的 nulls/lengths/in-map，把候选父行映射成 child 行，再恢复所需 child values，组装 offsets、sizes、null bitmap 和 children vectors。父子行域的换算，是 schema 层的职责，FBW 等数值 codec 无需认识 ARRAY 或 MAP。</p>
+<div class="nimble-table-scroll"><table id="doxcneyuSRk5SJYdcsIS0upuOHd"><thead><tr><th><p id="doxcnGny1inW0iCWeVzPktGQlqe">请求</p>
+</th>
+<th><p id="doxcneaFZJIDOQPBIYOYjNDmhze">需要的物理 streams</p>
+</th>
+<th><p id="doxcnOXxMMbQIqgl2GQew46ScIh">为什么</p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td><p id="doxcnr0OgKUi7sbObA4cu4S34fh">输出 id，过滤 score</p>
+</td>
+<td><p id="doxcn6C9n1SP5Sl8DAcv3aVAiGd">id、score、所经 ROW 的 nulls（若存在）</p>
+</td>
+<td><p id="doxcnn7LIrDV0C3NUtquPqHFYYh">过滤列即使不输出仍要读取；结构流决定父行是否存在</p>
+</td>
+</tr>
+<tr><td><p id="doxcn09oksLGDYsrLiklusXwtxd">只输出某个嵌套 ROW 的 a</p>
+</td>
+<td><p id="doxcnaDaa0sjdKqBICx0IDoeHnp">祖先 ROW nulls、该 ROW nulls、a 子树</p>
+</td>
+<td><p id="doxcnAJS3G7rquzxFtYOO9wjrGe">父 null 会改变 child 的紧凑位置</p>
+</td>
+</tr>
+<tr><td><p id="doxcnHYr14xYvnBTXxNKpAZZCTb">读取 ARRAY 的元素字段 a</p>
+</td>
+<td><p id="doxcnPWlMlsljIqcnoTrAmfTSQc">lengths、必要的元素 ROW nulls、a 子树</p>
+</td>
+<td><p id="doxcnweJ9rasPvo7Bc1VHgCqorh">长度前缀把数组行区间映射成元素区间</p>
+</td>
+</tr>
+<tr><td><p id="doxcn4Rhl5GyETsSMCPbAbq3Hpe">FlatMap 只取 key=A</p>
+</td>
+<td><p id="doxcnpZqcmF9kBNAOe9RrkR4HJg">map nulls、A 的 in-map、A value 子树</p>
+</td>
+<td><p id="doxcnlTzHVVqsojNSnwq2qTaiUd">先区分 map null / key 缺失 / value null；其余 key 可不投影</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p id="doxcnJolAXRVFxqxUndxn2Nwf1e">投影先发生在 reader 构造和 stream 申请阶段。按第 1 章例子，Schema/ScanSpec 决定要 IDs {1,2}；StripeGroup 才将这两个 ID 翻译成当前 stripe 的字节区间。schema 不参与计算每个 chunk 的压缩长度，StripeGroup 也不负责理解字段名或 SQL 谓词。启用 SharedDictionary 等特殊机制时，还需把对应依赖 stream/catalog 纳入读取计划。</p>
+<p id="doxcncLPRoG3zI0WWQa1MvM8yuh">源码：<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/velox/Schema.fbs#L70">schema 字段</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/velox/SchemaReader.cpp#L363">SchemaReader 类型重建</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/velox/selective/NimbleData.cpp#L36">类型对应 decoder/结构流</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/velox/selective/ReaderBase.cpp#L243">stream 申请</a>
+。</p>
+<p id="doxcn5USOCrG3y0GyzqPigmHyJc">存储与读取入口：<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/writer/Writer.cpp#L2224">Writer 写入 columnar.schema</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/velox/selective/ReaderBase.cpp#L81">loadSchema 按名称读取并检查存在</a>
+；schema 节点定义和 stream 映射见本节末的源码链接。</p>
+<h2 id="doxcnvgpiHf371NZi1HkLNajLSh">4. Metadata 的组成与打开文件的过程</h2>
+<h3 id="doxcnNAclbXeRaZoN2Cs5Jngn2e">4.1 Postscript 与 Footer：读取链条的根</h3>
+<p id="doxcncjFxClJ5lrto6IYSczx8Mb">图 4.1｜从文件尾展开目录。Footer 保存各 metadata blob 的地址；Stripes、StripeGroup、schema 和统计数据分别在被引用的 blob 中。先沿箭头找到 blob，再看其内部字段。</p>
+<figure class="nimble-figure" id="doxcnxWIxsP36XUjpNaSSv5QvVe"><div class="nimble-diagram-scroll" tabindex="0" role="region" aria-label="可横向滚动的 Nimble SVG 配图"><img src="/images/nimble-design/figure-10.svg" alt="Nimble 设计解读，原文第 10 张配图" loading="lazy"></div></figure><p id="doxcn4BfBcbUdjF70bTxzVQyRbh">Postscript 位于文件最后 20 字节，字段顺序如下。这里按序列化实现解读；magic 常量是 <code>0xA1FA</code>
+，不要把示意性注释中的文字当成真实字节。</p>
+<div class="nimble-table-scroll"><table id="doxcny6UM29uA1fak8kwN1CLvjh"><thead><tr><th><p id="doxcnFmXFf9M2ot5dvLSzwxVXON">字段</p>
+</th>
+<th><p id="doxcnYJ80Rvox1rkhSxtMO548rg">大小</p>
+</th>
+<th><p id="doxcnFfmbPqGRoD5xW0hExlkUkg">作用</p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td><p id="doxcnKURg7qrF6fc0ZqncM8xtEh">footerSize</p>
+</td>
+<td><p id="doxcnA2rEHIXJxVrrPuB6ky66Hc">4 bytes</p>
+</td>
+<td><p id="doxcn8TxGx6iF1bB7z8FRrQL1Ih">文件中 Footer 的字节长度；压缩时为压缩后长度。</p>
+</td>
+</tr>
+<tr><td><p id="doxcnCh3hOUk03wiMHDfpU2ecje">footerCompressionType</p>
+</td>
+<td><p id="doxcnZAM2pookfJ7qyxNawk8zWc">1 byte</p>
+</td>
+<td><p id="doxcn2Zz60mplXPnSo5SoY4oofu">如何解压 Footer。</p>
+</td>
+</tr>
+<tr><td><p id="doxcnAdsU79lOPGQhRyGgZbO2Bg">checksumType</p>
+</td>
+<td><p id="doxcn1n4SJFhitocPjeqQWALvHF">1 byte</p>
+</td>
+<td><p id="doxcnvZXz6CWyze2VnAvuOnqaqb">校验算法标识；当前默认 XXH3_64。</p>
+</td>
+</tr>
+<tr><td><p id="doxcnDPkm3yUgHJndgOkv9De3qh">checksum</p>
+</td>
+<td><p id="doxcnrKxxXShPgQEbJ33Xx0veHL">8 bytes</p>
+</td>
+<td><p id="doxcnIxhljSSMxE3AG8GFY7AgPh">文件级校验值。</p>
+</td>
+</tr>
+<tr><td><p id="doxcn4jiqdRvnTA9khaTxdhBAVe">majorVersion / minorVersion</p>
+</td>
+<td><p id="doxcnIpldcFKBJ3Ivf606VG5T8q">2 + 2 bytes</p>
+</td>
+<td><p id="doxcnCq4j54um8v5vbtSade3Wxb">文件版本；此快照常量为 0.1。</p>
+</td>
+</tr>
+<tr><td><p id="doxcnqpF4wj30n4rDBYMyicJSB5">magic</p>
+</td>
+<td><p id="doxcncFpuSHQbVOV1tgeq16buhc">2 bytes</p>
+</td>
+<td><p id="doxcnhcDBgiK5klfFM8RpacQsZg">0xA1FA。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p id="doxcnwXm7iIwJ9RDlCCFC1zdXIf">Footer 的位置为 <code>fileSize - 20 - footerSize</code>
+。它是 FlatBuffers 目录，必要时先按 Postscript 指定的方式解压。图 4.1 按字段和引用展开它的内部结构。</p>
+<p id="doxcnQsQhGhqKGJkxxbAzwTecFb">图 4.1 中，<b>Footer.stripes 和 Footer.stripe_groups[g] 保存的是 MetadataSection 引用</b>
+，引用内容是 metadata blob 的绝对 offset、存储 size、压缩方式和解压后大小。Stripes / StripeGroup 的字段在各自 blob 内，不能把引用地址与 stripe 数据地址混为一谈。</p>
+<p id="doxcnywmnXyMSOxV3Ekf9IAY9gb">optional sections 用同下标的平行数组描述一条目录项：先由 name 找到下标 i，再取 offsets[i]、sizes[i] 和压缩信息加载对应 blob。Footer.stripe_groups[g] 按数字 group ID 定位，Footer.stripes 则是全文件唯一 stripe 目录的引用。<b>MetadataSection 是地址和解压方法；Stripes / StripeGroup / Schema 才是 blob 解开后的内容类型。</b>
+MetadataInput / MetadataBuffer 负责读取、持有并按需解压，随后由对应解析器解释内容。</p>
+<p id="doxcnZSoezdmExhHQ2Y5ocUZIgc"><b>字段允许缺省与读取时可忽略是两件事。</b>
+有数据 stripes 的文件必须有 Stripes 目录；无 stripe 的空文件可以省略，reader 在目录缺失时检查总行数为 0。因此 stripesMetadata() 返回 optional，但它属于 Footer.stripes，不属于 optional_sections。columnar.schema 虽在命名 optional_sections 中，普通列式 reader 仍要求它存在；properties 也可能决定后续字节的解释方式。</p>
+<p id="doxcnHSMEwzYgq8xhYLwpVho8Sb">把 schema、统计和索引放进命名 sections，使 tablet 容器负责地址和 blob，上层 reader 负责解释列式语义。增加可忽略的统计字段与改变编码字节解释规则有不同的兼容性要求。文件总大小与局部 encoding / stripe 的 uint32 限制属于不同层次，不能据此推导整个文件只能有 4 GiB。</p>
+<p id="doxcnLoXu9dAJRw3Fwhe3uTaLah">当前 writer 将前面的文件字节和 Postscript 的前 5 字节（footerSize、footerCompressionType）计入 checksum，其余 Postscript 字段不计入。普通打开路径解析校验字段不等于已经扫描全文件验证；另有 <code>TabletReader::calculateChecksum</code>
+。文件级 checksum 也不等价于每个 chunk 都有独立 checksum。</p>
+<p id="doxcnB8XGDmRWvkuXn3L83eZPOc">源码：<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/tablet/Footer.fbs#L89">Footer 与命名目录字段</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/tablet/TabletReader.cpp#L665">Stripes 初始化与空文件检查</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/tablet/TabletWriter.cpp#L225">Footer 引用写出</a>
+。</p>
+<h3 id="doxcnrtpS4GGY1OKEfhS8iqTjRb">4.2 Metadata 不只是 Footer，也不全是 FlatBuffers</h3>
+<div class="nimble-table-scroll"><table id="doxcnkUCUaUow0BbOBXgdZKO8ch"><thead><tr><th><p id="doxcnFcE2vVasLzNPR9gbtwBY7f">结构 / section</p>
+</th>
+<th><p id="doxcnyu3UZDTNRUnCJ98NyFtRpd">主要内容</p>
+</th>
+<th><p id="doxcnCc8TRUnkgxH1Gu8m6riAxe">使用与可选性</p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td><p id="doxcn36b34rjkdLMHrpZqBr2iCc">Stripes</p>
+</td>
+<td><p id="doxcn0KYIpqRpV5N753sKEGKWgb">row_counts:uint32[]；offsets:uint64[]；sizes:uint32[]；group_indices:uint32[]。</p>
+</td>
+<td><p id="doxcn4Lia9o8SKVbbsSolWKj8Qb">有数据文件必需；0 stripe 空文件可缺。用行数前缀定位 stripe，offsets 直接给出数据 stripe 的绝对地址。</p>
+</td>
+</tr>
+<tr><td><p id="doxcnZFmc1wYsyUJpeSjLPdljyL">StripeGroup</p>
+</td>
+<td><p id="doxcnTsMsYVv0Y0mJy1IeqyCjEb">组内各 stripe × stream 的 offsets / sizes；默认 raw，另有实验性 stream-major encoded 布局。</p>
+</td>
+<td><p id="doxcnqkyYBzn7tQWwkase39Ow5b">按组加载位置表，避免 footer 内联全部 streams。</p>
+</td>
+</tr>
+<tr><td><p id="doxcnMSGQVpFeKIpprlOyQjVyWf">columnar.schema</p>
+</td>
+<td><p id="doxcnKeSIFhuCjHoTu3YBLGoipg">扁平 schema node 数组：kind、children、name、offset、attributes。</p>
+</td>
+<td><p id="doxcnLOGdOan7dodBt6sNV8SdFA">tablet 把它视为有名字的 optional section；正常列式 reader 需要 schema 才能恢复逻辑类型与 stream 映射。</p>
+</td>
+</tr>
+<tr><td><p id="doxcndOSk0bn8zj1euAbs5wO3mc">columnar.metadata</p>
+</td>
+<td><p id="doxcnzKHC9VXGNE5R9TcNO6Pt2f">key/value entries。</p>
+</td>
+<td><p id="doxcnGm850gUJBCDNptlegpLIGb">用户和 writer 注入的文件属性；不是 stream 位置表，也不是完整列统计。</p>
+</td>
+</tr>
+<tr><td><p id="doxcnRfzrAoFX2UEgndXAgZ9cTe">columnar.stats</p>
+</td>
+<td><p id="doxcnq4sWIztnwL6nZYaQr1Ng1b">旧 Stats FlatBuffer 的 raw_size。</p>
+</td>
+<td><p id="doxcn431oKB0Y9dCUbbhiCY4Ljf">legacy 路径；不要把它描述成包含所有列 min/max 的结构。</p>
+</td>
+</tr>
+<tr><td><p id="doxcnymrFPqyZiQVZ2tX5yCGnVh">columnar.vectorized_stats</p>
+</td>
+<td><p id="doxcnjzwESrG6NINhmv7uCJch0b">按统计种类组织的数值/字符串 streams：value count、null count、logical / physical size、各类型 min/max 等。</p>
+</td>
+<td><p id="doxcnnyf5Fq3p85Ip2ExTqQENMa">默认 enableVectorizedStats=true。ReaderBase 加载后用于 columnStatistics() 和投影行宽估算；统计有效性取决于类型和采集开关。</p>
+</td>
+</tr>
+<tr><td><p id="doxcn4KO66LHpCXJlr5aMS8hwTh">columnar.stripe_stats</p>
+</td>
+<td><p id="doxcn8oHTdpWWIK9pP8AxHPrlsc">每条 stripe 的列统计，带 stripe / column 数量及各 stripe payload 长度。</p>
+</td>
+<td><p id="doxcnzs5sdMYV6o4vpCcR6oMyzb">写出依赖 enableVectorizedStats 和独立的 stripe_stats_write feature gate，后者默认 false。该快照普通 selective reader 尚未使用本 section 做 stripe min/max 谓词裁剪；ClusterIndex 的范围裁剪是另一条路径，见第 2.2.2 节。</p>
+</td>
+</tr>
+<tr><td><p id="doxcnvgzql1Vz9ZNaRnSXfGtLce">columnar.chunk.stats</p>
+</td>
+<td><p id="doxcnlpnWKQ6P3HzX2zFJxNE4Ah">根表指向各 StripeGroup 的 chunk stats；包含每 stream 的 chunk 数量前缀、累计行数、chunk byte offsets，以及可缺失的 null counts。</p>
+</td>
+<td><p id="doxcnaXjZHEv8qhvEvQtdsk1Pde">位置索引为主，不能称为完整 chunk min/max index。enableChunkIndex 默认 false，且标为实验性；组也可能因平均 chunk 数过少而不写。</p>
+</td>
+</tr>
+<tr><td><p id="doxcnFyPuURCbilSLFaxoRjtOid">columnar.indexes</p>
+</td>
+<td><p id="doxcnQ1WXgJ5G0HB2bEJCI4aHle">IndexRoot 内的命名 IndexDescriptor：family、name、implementation-specific root section。</p>
+</td>
+<td><p id="doxcnDGags9gdDv5NxjyGcjNXVf">Cluster / Dense 等索引通过该 manifest 路由；需显式配置，不是普通文件必备结构。</p>
+</td>
+</tr>
+<tr><td><p id="doxcnarP7UZtRLtu4WVPTaFs0te">columnar.properties</p>
+</td>
+<td><p id="doxcndbJ3FvjA7EUWrbpAy1L1fe">reader 需要提前知道的格式属性，如 compact row-count、实验性 cluster key 原始存储省略。</p>
+</td>
+<td><p id="doxcnS0LCCggWaeQqKkGzl03EHg">影响解释后续 payload 的语义；不能简单视为可随意忽略的用户备注。</p>
+</td>
+</tr>
+<tr><td><p id="doxcnnNBeWxi32jeq53aWkdNsQe">columnar.dictionaries / columnar.vector.index</p>
+</td>
+<td><p id="doxcnqMs7eY3Z5YjKXDBCNX0CEg">共享字典目录或向量索引相关 metadata。</p>
+</td>
+<td><p id="doxcnWf21wXpBpTDtV8Eiweanmc">特定实验性配置产生。共享字典可能涉及 stripe / file / external scope。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p id="doxcn9QXFS2zEiJPdwbg2o203wd">“optional”首先是 tablet 容器格式允许按名字扩展 section，并不表示每个上层 reader 都可以在缺少它时保持相同语义。尤其是 schema、file properties 和外部字典依赖，必须按具体 reader 的契约处理。</p>
+<h3 id="doxcnzMAGmd9IbAPZqKnPQoqTwe">4.3 文件与 stripe 统计：内部布局、列映射和读端用途</h3>
+<p id="doxcnrL9kuEeXuPFwpE9mLntOJb">图 4.3｜分别展开文件统计和 stripe 统计：目录项定位 blob，长度数组划分内部 payload，统计向量再按列对应回 schema。这里的 stat streams 位于统计 blob 内。</p>
+<figure class="nimble-figure" id="doxcn4xiWFy9CvjDDTEvilxjLFb"><div class="nimble-diagram-scroll" tabindex="0" role="region" aria-label="可横向滚动的 Nimble SVG 配图"><img src="/images/nimble-design/figure-11.svg" alt="Nimble 设计解读，原文第 11 张配图" loading="lazy"></div></figure><p id="doxcnP1XL1StlqDc7aD2WRhjzIh"><b>统计向量有各自的列索引域。</b>
+VALUE_COUNT、NULL_COUNT、LOGICAL_SIZE、PHYSICAL_SIZE 按 schema 统计节点顺序排列；INTEGRAL_MIN/MAX 只按整数列顺序排列，STRING_MIN/MAX 只按字符串列顺序排列。reader 遍历 schema，并分别推进各类型的计数器，恢复每列统计。不能用同一个 stream ID 直接下标所有统计向量；min/max 缺失表示未知，不能当成 0。</p>
+<p id="doxcnHcZlTtk1XQCSdCLAywedqb">VectorizedFileStats 的 version 为 uint16（2 字节）；随后是统计类型数量、类型位宽及 packed 类型列表，再是 lengthsEncoded 标记、uint64 长度数组和连续 stat payloads。当前 lengthsEncoded 固定为 0。第 i 个 payload 从 payload 区起点加上前 i 个长度之和定位，类型由 type[i] 识别；各 payload 是独立 Nimble encoding，可表达统计值的有效性。</p>
+<p id="doxcngfIC1G90H3qb6hMYWTnmlb">VectorizedStripeStats 的外层保存 version:uint16、numStripes:uint32、numColumns:uint32、每条 stripe 的 uint64 payload 长度，再拼接每条 stripe 的统计。内部 payload 复用 VectorizedFileStats 布局，但作用域是一条 stripe。它们是统计 blob 内的编码序列，并非 stripe 里的列数据 streams，也没有各自的文件 chunk framing。</p>
+<p id="doxcngkoxwjpzpARNXXs6hmrIff"><b>落盘有统计，不代表读端自动用它裁剪。</b>
+当前快照中，文件统计由 ReaderBase 加载，供 columnStatistics() 和投影行宽估算使用；stripe 统计的写 gate 默认关闭，普通 selective reader 尚未读取它做 stripe min/max 裁剪。已配置的 ClusterIndex 则通过 columnar.indexes 定位，先求文件行范围，再结合 Stripes 的累计行数缩小 stripe 范围；它与这两种统计布局是不同路径。</p>
+<p id="doxcn8dfr5gZjm2J834Vzow9Lug">源码：<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/velox/stats/VectorizedStatistics.cpp#L390">文件统计字节布局</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/velox/stats/VectorizedStatistics.cpp#L655">统计向量与 schema 对应</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/velox/stats/VectorizedStatistics.cpp#L880">stripe 统计包装</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/velox/selective/SelectiveNimbleReader.cpp#L368">行宽估算</a>
+。</p>
+<h3 id="doxcnaeNW3C1nxdOFk2Hs0S0wZg">4.4 打开文件与一次投影读的路径</h3>
+<pre id="doxcnXA3WbVZ34P2FWiXq2uZ0cd"><code class="language-plaintext">Postscript → Footer：取得各 metadata blob 的引用
+ → Stripes + columnar.schema / properties / 所需统计与索引（可合并 I/O）
+ → Stripes / split / 已启用 ClusterIndex：确定目标 stripe s
+ → schema + ScanSpec：确定所需 stream IDs
+ → g = Stripes.group_indices[s]
+ → Footer.stripe_groups[g]：加载目标 StripeGroup
+ → Stripes.offsets[s] + Group.stream_offsets[k]：得到数据 stream 字节范围
+ → 可用 chunk index：定位目标 chunk；缺失时顺序推进
+ → chunk framing → encoding decoder → 过滤 / 物化 → 结果 vector</code></pre>
+<p id="doxcndpj2uTOFyccK63SvIwHORd">TabletReader 支持先读较大的尾部窗口，也支持先读 20 字节 Postscript 再按大小读 Footer；还会利用已读窗口提取 metadata，批量加载其余 sections，并复用 metadata cache。上图是依赖顺序，不意味着每个箭头必然对应一次单独的远端 I/O。</p>
+<p id="doxcn9NXw7n1nLzdyXl8ukyV1de">reader 在初始化 Stripes 时建立累计 row counts，用于 O(log S) 的顶层行号到 stripe 查找。投影读仍然可能需要该字段的父 nulls、lengths、in-map 等结构 streams；“只读一个叶子值列”不等于只读一个物理 stream。</p>
+<p id="doxcnU4OqZgOL1DEW4POYrnNHLH">源码：<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/tablet/Postscript.cpp">Postscript.cpp</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/tablet/Constants.h">section 名字与格式常量</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/tablet/TabletReader.cpp#L296">TabletReader 初始化</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/velox/stats/VectorizedStatistics.cpp#L390">VectorizedFileStats::serialize</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/tablet/ChunkStats.fbs">ChunkStats.fbs</a>
+。</p>
+<h3 id="doxcnPwC3pkkAv4IFabn6mlzdde">4.5 Chunk 位置索引：内部数组、查找算法与缺失时的行为</h3>
+<p id="doxcnIM6JEKk5W2ix8K1v18DFcf">chunk index 是 stream 目录之后的下一层定位信息。<code>columnar.chunk.stats</code>
+ 的根表 ChunkStats 持有 stripe_indexes:[MetadataSection]，与 Footer.stripe_groups 按 group ID 对齐；某项 size=0 表示该组没有索引。加载目标组后得到 StripeChunkStats，其结构如下。enableChunkIndex 在此快照默认 false；即使启用，组也可能因平均 chunk 数不足而省略。</p>
+<p id="doxcn60AXj6YQAbPnjJXlB7aKNb">图 4.5｜从 columnar.chunk.stats 根目录，按 group ID 找到 StripeChunkStats，再按 (stripe, stream) 切出 chunk 记录。counts、rows、offsets 分属不同索引域，逐层展开如下。</p>
+<figure class="nimble-figure" id="doxcn676PkKt2WFsNhVqDdskdef"><div class="nimble-diagram-scroll" tabindex="0" role="region" aria-label="可横向滚动的 Nimble SVG 配图"><img src="/images/nimble-design/figure-12.svg" alt="Nimble 设计解读，原文第 12 张配图" loading="lazy"></div></figure><pre id="doxcnzNPkgzw06KONVCqfc3jugf"><code class="language-plaintext">StripeChunkStats &#123;
+  stream_count: uint32
+  stream_chunk_counts: [uint32]
+  stream_chunk_rows: [uint32]
+  stream_chunk_offsets: [uint32]
+  stream_chunk_null_counts: [uint32]  // 可缺失
+&#125;</code></pre>
+<p id="doxcng0sRBZUptH9XT3cM1bZev0">这几组数组有<b>不同的累计范围</b>
+。stream_chunk_counts 是把组内（stripe, stream）按 stripe-major 展平后的累计 chunk 数；它划分每个 stream 的 chunk 记录切片。stream_chunk_rows 在每个 stream 切片内记录累计行终点，到了下一个 stream 重新从它自己的行域计数。stream_chunk_offsets 同样相对各自 stream 的起点，而非文件或 stripe 起点。null counts 若不存在，表示未知，不能当成 0。</p>
+<pre id="doxcnwatbCsenLF1a7OqjFvG80c"><code class="language-plaintext">i = localStripe * stream_count + streamId
+begin = (i == 0 ? 0 : stream_chunk_counts[i-1])
+end   = stream_chunk_counts[i]
+本 stream 的 chunk 记录 = [begin, end)
+
+在 rows[begin:end) 中查找第一个 &gt;= targetRow + 1 的元素
+q = lower_bound(rows[begin:end), targetRow + 1)
+chunkStartRow = (q == begin ? 0 : rows[q-1])
+chunkOffset   = offsets[q]
+chunkSize     = (q+1 &lt; end ? offsets[q+1] : streamByteSize) - offsets[q]
+rowInChunk    = targetRow - chunkStartRow
+absoluteChunkOffset = stripeOffset + relativeStreamOffset + chunkOffset</code></pre>
+<p id="doxcnZ8JqrQt6Sew6rGfzjREdsf">在第 1 章 score 的切片中，rows=[300,800]、offsets=[0,900]。查 row 400 时，lower_bound(401) 命中 800，得到 chunkStartRow=300、chunkOffset=900，随后 seek 到该 chunk，再 skip(100)。实际实现是二分查找，K 个 chunks 的定位为 O(log K)；不要把 schema 注释中的“O(1) seeking”理解为查找本身没有二分。只有零/一个 chunk 时 createStreamIndex 直接不创建查询对象，因为无需选择 chunk。</p>
+<div class="nimble-table-scroll"><table id="doxcn6YnmWiC5bq8QVZcVdMBnEe"><thead><tr><th><p id="doxcnswfyIRUz3f1ltnRgp88Msf">路径</p>
+</th>
+<th><p id="doxcnpwK4Czi9HIG77Pypjb1nfe">先知道什么</p>
+</th>
+<th><p id="doxcnli3QqNvDHYqELoh2PjiaGg">要做什么 / 仍有什么成本</p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td><p id="doxcnTVzKjuff3dHyC5kP64XG9b">有 StreamIndex</p>
+</td>
+<td><p id="doxcnJZGTZCEghDwpogih47u5qb">各 chunk 的行终点与字节起点</p>
+</td>
+<td><p id="doxcnUJOkP0AOWRsxFV5tOq1Pvf">可直接 seek 目标 chunk；仍需加载目标 payload、初始化 encoding 并完成块内 skip</p>
+</td>
+</tr>
+<tr><td><p id="doxcnm15m2c6NvJUEiWZEZsMlfc">无 StreamIndex</p>
+</td>
+<td><p id="doxcnvwaP3WA8PYf529GZY2koOc">stream 范围；逐个 chunk 的 payload 长度</p>
+</td>
+<td><p id="doxcnz8KCeMWKKoDKvY26DkIRKv">依次打开 chunk 获取 encoding.rowCount；整 chunk 可不输出值地越过，目标内再 skip</p>
+</td>
+</tr>
+<tr><td><p id="doxcnmHNjN6l7ZhUIMVW85tUZBb">列/stripe 统计与谓词剪枝</p>
+</td>
+<td><p id="doxcnIyW4WPDLnVejIaEsQ1CcJf">统计是否存在、有效以及 reader 是否消费它</p>
+</td>
+<td><p id="doxcnlwsMDZG0E5F2orqJUvbjfh">属于另一类筛选信息；chunk 行位置索引本身不提供 score min/max 来证明谓词不命中</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p id="doxcnQkhmve3vVmNAoB0JIpdusc">这个索引按物理 stream 行域工作。ARRAY elements 的 rowId 是元素序号，Nullable 内部 values child 的索引又是另一层；顶层 row 400 不能不经映射直接用于所有子 streams。通过 SeekableInputStream seek 也只是指定逻辑读取位置，底层可能已预读较大范围，实际远端 I/O 节省需要结合输入实现判断。</p>
+<p id="doxcnapeb4Y8oE1KT2mWAmw97ue">源码：<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/tablet/ChunkStats.fbs#L30">索引落盘结构</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/index/ChunkStatsGroup.cpp#L59">切片与 lower_bound 查找</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/velox/selective/ChunkedDecoder.cpp#L248">有/无索引的 skip</a>
+。</p>
+<h2 id="doxcnIKOdylu6SnNFKHNHK5qnKh">5. Encode 设计：切块、选择策略、成本模型与写出</h2>
+<h3 id="doxcnOpXFeOxsXGjKjpjTLwFV6f">5.1 Writer 如何从 Velox vectors 走到磁盘</h3>
+<pre id="doxcnaaOrf8iMsQXvAZReBWe4Hf"><code class="language-plaintext">Writer::write(input vectors)
+ → FieldWriter 按 schema 拆分并收集 StreamData
+ → flush policy / memory pressure 决定何时 chunk、何时 flush stripe
+ → StreamChunker 为各 stream 产生 StreamDataView
+ → encodeStreamTyped：有 null → encodeNullable；否则 → encode
+ → EncodingFactory + selection policy 产生 encoding bytes
+ → ChunkedStreamWriter 添加 5 字节 framing，可选整 chunk 压缩
+ → TabletWriter::writeStripe：布局排序、去重、写字节、收集位置表
+ → close：完成剩余 metadata、Footer、Postscript</code></pre>
+<p id="doxcnKif0AAxqULeFexoKc40f3w">切 chunk 与 flush stripe 是不同事件。writer 可以先把部分 raw stream 编成 chunks，释放/整理已经编码的 raw 数据，缓解 raw-memory 压力；编码后的 chunks 仍归当前 stripe 管理，等 stripe 写出。因而“发生 chunking”不代表当时就完成了文件 I/O，也不代表完全释放了该 stripe 的内存。</p>
+<p id="doxcnJaIbfxI3c6BJ0TmFIYgmJf">当前 WriterOptions 默认 stripe raw-size flush policy 的阈值是 256 MiB；普通 stream chunk 的 min raw size 为 512 KiB，max 为 20 MiB，schema nodes 超过 500 时使用 2 MiB 的 wide-schema max。它们是此快照的策略默认值，不是格式规范，也不是严格的 encoded bytes 上限。stripe 最终 flush 会处理未达到最小阈值的尾块；单个超大字符串还可独占一个超过目标 raw 大小的 chunk。</p>
+<p id="doxcnrWY4nPfl27xjemnBD429Hc">字符串 raw-size 估计会考虑字节内容与 string-view 等内存成本，nullable 还涉及非空标记。不同类型、数据分布、null 比例的 streams 因而可能在不同位置切块。代码里没有“整个文件一律每 4096 行切一次 chunk”的约定。</p>
+<h4 id="doxcnjBAgr5KPFovrC7GvK3skPc">5.1.1 写入状态分三层推进：chunk、stripe、StripeGroup</h4>
+<div class="nimble-table-scroll"><table id="doxcnruAj47vHE8ncs65L46XlMc"><thead><tr><th><p id="doxcnxqlnbSLnjdUHFqSxPFQU2c">事件</p>
+</th>
+<th><p id="doxcnC1y0dritsH0YUDxArqkpzh">形成 / 写出的内容</p>
+</th>
+<th><p id="doxcnwRhOUbJyMrxFpleZR7FU9d">随后保留什么</p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td><p id="doxcn8BmF18vS82ZYFuuX0gbtng">某 stream 达到 chunking 条件</p>
+</td>
+<td><p id="doxcnlBX681zwRW8wsbzTw0OHyg">StreamDataView → encoding bytes → 5 字节 framing；形成该 stream 的下一个 chunk</p>
+</td>
+<td><p id="doxcnunP0DcSW02lKsrJAxrbTj1">当前 stripe 仍持有编码后的 chunks；raw 数据可整理/释放</p>
+</td>
+</tr>
+<tr><td><p id="doxcnBnn8KYz68aa8JJJPsFzC2b">flush 当前 stripe</p>
+</td>
+<td><p id="doxcnBUzzFPU2DxhlgJwM4rLZBh">LayoutPlanner 排序/可选去重；writeStripe 写各 stream 字节</p>
+</td>
+<td><p id="doxcnsejOZYJKSbieikJrQNGyPf">全文件 row_counts/offsets/sizes/group_indices 增加一项；当前组累积各 stream 的相对 offsets/sizes</p>
+</td>
+</tr>
+<tr><td><p id="doxcnRLvnOOElDbCwJh6hYNxpXb">达到 metadata flush 条件</p>
+</td>
+<td><p id="doxcnKiFkMmGow9YnOQmsbnkkne">按组内最大 streamCount 补零；写 StripeGroup；按配置写该组 chunk stats/index metadata</p>
+</td>
+<td><p id="doxcnZTgc776GyQz8Pimccriywh">保存新 metadata 的 MetadataSection；清空当前组位置数组，后续 stripe 使用新 group ID</p>
+</td>
+</tr>
+<tr><td><p id="doxcnXaiYJ2O9k1v2JEU8CDgTvb">close 文件</p>
+</td>
+<td><p id="doxcn8f4938HFi1cWo59USNC8pC">刷出剩余组；执行 close callback、写 chunk stats 根目录；写 Stripes、Footer 和固定 Postscript</p>
+</td>
+<td><p id="doxcnrqfJeuKbt3MWbpIVFhT6lf">目录中的绝对 offset/size 能找到此前已写的每一部分</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p id="doxcnmAhxWbKakib3cWVFfuZulf">这个拆分让三个大小目标可以分别调节：chunk 控制编码工作集和局部解码单位；stripe 控制一批顶层 rows 的组织与写出；StripeGroup 控制 stream 位置表的批量持有、压缩和加载。它们不要求同一时刻 flush，也不要求按相同行数切分。第 1 章中两列的 chunk 边界不同，group 0 metadata 又插在两批 stripe 数据之间，正是这三层状态独立推进的结果。</p>
+<p id="doxcncCSHvfjxCcwiCzbDZwGKvc">对每个 chunk，写时固化的是最终 codec 类型、参数、子编码范围和压缩标识；读时使用这些信息恢复 decoder，不再重新计算 Statistics 或运行候选选择。对于位置 metadata，raw StripeGroup 直接序列化数组，实验性 stream-major 才对其数值数组执行 Nimble encoding。这里“写 metadata”和“给列值选 encoding”是不同工作。</p>
+<p id="doxcnPmh0bhsXIx93THMv8F52Ed">源码：<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/tablet/TabletWriter.cpp#L287">stripe 写出与位置收集</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/tablet/TabletWriter.cpp#L689">组 flush</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/tablet/TabletWriter.cpp#L187">close 与 Footer</a>
+。</p>
+<h3 id="doxcn6i1D9Qh4J2h6gbL6TSM9Wg">5.2 EncodingFactory 的输入、输出和选择契约</h3>
+<p id="doxcnRYpnp439zGkbBtmE8OSBjg"><code>EncodingFactory::encode&lt;T&gt;(policy, values, buffer, options)</code>
+ 接受一段值序列，构建 Statistics，调用策略 select，再分派到具体 codec。返回值是指向调用方 Buffer 所有内存的 string_view，不是一个自行拥有字节的 std::string。<code>encodeNullable</code>
+ 分别接收紧凑的非空 values 和逐行 non-null flags。</p>
+<p id="doxcnY7JL0D14XaRZ0ac4JJ6EOd">factory 将逻辑类型映射为 codec 使用的 physical type；浮点类型的一些通用路径操作的是位表示，而 ALP 等转换需要恢复浮点语义。这不是随意把 float 做数值强转成整数，开发嵌套 codec 时尤其要正确处理 logical / physical type。</p>
+<p id="doxcner5h6O73EB2DnmAXy43cRc">Statistics 提供 unique counts、min/max、重复 run 信息、字符串总长度和分布等数据，其中不少信息是按需计算并缓存。它是写时选择的临时统计，不等于文件中持久化的 columnar.vectorized_stats，也不是 decoder 初始化时必须重建的成本模型。</p>
+<h3 id="doxcnpMZd75f6oGzWxognpxU8Xc">5.3 默认策略是“估算大小 × 读成本权重”</h3>
+<pre id="doxcnlDQRxb92U1W46NGyOBbkCb"><code class="language-C++">for each candidate encoding:
+    estimatedSize = estimateSize(candidate, values, statistics, options)
+    if candidate is compatible:
+        cost = estimatedSize × readFactor
+pick the candidate with minimum cost
+encode with that candidate
+recursively select encodings for the child sequences</code></pre>
+<p id="doxcnwXMbW0YZJErEv9KiTznSAh">ManualEncodingSelectionPolicy 不会先把所有候选都真正 encode 再比较字节数。估算器可能用比较精确的公式，也可能使用近似。readFactor 是人为调节偏好的权重，不是在线测得的纳秒数。因此 cost 不能直接理解成实际读耗时。</p>
+<p id="doxcnhvFGwkzVyOLklvuBYdJMKb">此快照默认候选为 Constant、Trivial、FixedBitWidth、MainlyConstant、SparseBool、Dictionary、RLE、Varint。其中 Trivial 的 readFactor 为 0.7，FixedBitWidth 为 0.9，其余为 1.0；数据类型不兼容的候选会被排除。FSST、ALP 等已经有实现的编码不在该默认列表内，可以由显式配置、专用策略或 replay 选择。生产是否启用还应核对部署配置。</p>
+<p id="doxcn9heVpNc3KKkSfVEgCxOw6e">选出父编码后，子序列才真正形成，然后对子序列继续选择。这是 top-down greedy：不会因为后来发现某个子树偏大，就自动回退重新枚举另一个父节点和整棵树。例如字符串 Dictionary 的估算仍以 Trivial alphabet 和 FixedBitWidth indices 为模型，实际 alphabet 却可以继续选择 FSST；估算树与最终树并不必然完全相同。</p>
+<h3 id="doxcnWSREUhLTDdxFDf8J4xWr5f">5.4 Encoding 与 Compression 是两次决策</h3>
+<p id="doxcnnKOa4q0pukZdG00eOGI5Wb">encoding 决定值的结构表示，例如 dictionary indices 或 FOR bit-packed deltas；compression 决定这些表示的某段字节是否再用 Zstd/Lz4 等通用算法压缩。叶子 codec 可调用 CompressionPolicy，结合最小输入大小和 accept ratio 接受/拒绝压缩；组合型 codec 通常把独立的压缩机会交给各子编码。并不是每个 encoding 节点的整个对象都必定再压一次。</p>
+<p id="doxcnNNkJnZb8BpjB9eikWRiGFd">另外还有 ChunkedStreamWriter 的整 chunk 压缩，以及 tablet metadata section 的压缩；三者不能混为一个开关。metadata 当前在超过阈值时尝试 Zstd，默认阈值 64 KiB。具体数据压缩默认值还受 OSS / internal 编译配置影响，不能把某一个构建里的默认算法泛化到所有部署。</p>
+<p id="doxcnDVj52LXyx7r9ksnqEuNUMd">codec 也可以有自己的收益兜底。例如 FSST 真正训练和压缩后，会把包含开销的最终 encoding 大小与原始字符串 bytes 比较；达不到目标时回退为 Trivial。因此“策略选择 FSST”不保证返回字节里的根 EncodingType 最后仍是 FSST，reader 必须以实际序列化 prefix 为准。</p>
+<h3 id="doxcntel2hou9avPxtg84vfxbLO">5.5 Capture / Replay：复用编码形状，而非复用旧数据</h3>
+<p id="doxcn4ST5UkP04ZXcIUkhdGYuGh">EncodingLayoutCapture 从已编码字节的 headers 提取 codec 类型、配置、compression type 及子布局；ReplayedEncodingSelectionPolicy 再把这一形状应用到新数据。它复用的是选择结果，不是旧 dictionary 内容、旧 base 值或旧 bit width 所对应的数据本身。</p>
+<p id="doxcnkNP1WsmJBG7nhwjxFR51gf">writer 的 <code>enableEncodingSelectionCache</code>
+ 默认 false；开启后可捕获每个 stream 首次编码的数据布局，后续 chunks / stripes 尝试 replay，从而减少反复选择的 CPU。当前 writer 的 replay 是 best effort：抛异常后重试一次 fresh selection；每个 chunk 的 nullability 仍按当次数据重新处理。它不是保证整个文件所有 chunks 用完全相同编码的格式约束。</p>
+<p id="doxcnKVFfQepBwJLmErxjCVSCSf">源码：<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/writer/WriterOptions.h">WriterOptions.h</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/writer/StreamChunker.h">StreamChunker.h</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/writer/Writer.cpp#L1043">writer encode / replay</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/encodings/selection/EncodingSelectionPolicy.h">EncodingSelectionPolicy.h</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/compression/CompressionPolicy.h">CompressionPolicy.h</a>
+。</p>
+<h3 id="doxcnxIFLn3kFd4PwDkMh9MYxZ2">5.6 整数编码实例：FBW、BBP 的原理、布局与选择取舍</h3>
+<p id="doxcnij59eXc3l4brmBKKp3KUsb">FBW（Fixed Bit Width，固定比特宽度）和 BBP（Block Bit Packing，分块位打包）都利用整数的有效范围缩小表示。Nimble 在这两种编码中使用 FoR（Frame of Reference）：先减去一个基准值，再打包差值。它们是通用整数压缩思想在此实现中的具体落地；认识它们，有助于理解第 5.3 节的候选选择，也能看懂第 7 章中不同 decoder 为什么采用不同的批量读取方式。</p>
+<p id="doxcnoDTKWBzSAx4rY5T2XSLEQb">图 5.6｜把同一段整数分别放进 FBW 和 BBP：看 baseline / width 在哪里生效，再看参数、差值如何落在字节中。图中只比较 encoding 内部，块不是文件 chunk。</p>
+<figure class="nimble-figure" id="doxcnCXO0rYCTR5DF1URVjogQxe"><div class="nimble-diagram-scroll" tabindex="0" role="region" aria-label="可横向滚动的 Nimble SVG 配图"><img src="/images/nimble-design/figure-13.svg" alt="Nimble 设计解读，原文第 13 张配图" loading="lazy"></div></figure><h4 id="doxcnu7TaVJ56OfaOCMf7ieKdvg">5.6.1 FBW：用一组基准和位宽表示整段整数</h4>
+<pre id="doxcnuMso1tsZi3i4xL06uvL67e"><code class="language-plaintext">base = min(values)
+residual[i] = values[i] - base
+exactWidth = bitsRequired(max(values) - base)
+
+原值：     1000  1001  1003
+差值：        0     1     3
+精确位宽：2 bit / value
+恢复：     value[i] = base + unpack(residual[i])</code></pre>
+<p id="doxcnU6EYDCBqjoNJQzSP2DWWcf">FixedBitWidthEncoding 为整段序列存储一个 baseline 和一个 bit width。差值按逻辑顺序打包为连续 bit stream，读取第 i 个值时可由 i × bitWidth 计算起始 bit 位置，再提取差值并加回 baseline。对于未再压缩、已初始化的 payload，这种定位不需要从第 0 个值开始逐个解码；第 8 章会区分这种编码内定位与文件 I/O 定位。</p>
+<p id="doxcnyal00oyD3Lr1A72uTw3juh"><b>精确位宽与默认位宽要分开。</b>
+此快照的 <code>fixedBitWidthUseExactBits</code>
+ 默认为 false，FBW 会把所需位宽向上取整到 8 的倍数。上例在 exact 模式下是 2 bit/值，默认模式是 8 bit/值；需要 20 bit 的差值默认使用 24 bit。这个选择是在空间与解码实现成本之间做取舍，比较 benchmark 时应明确使用哪种模式。</p>
+<p id="doxcn9bulYMrKQ3xGF0qamy10hh">FBW 的好处是头部少、定位简单、整段使用相同解码参数，适合范围稳定的整数或 dictionary indices 等小整数序列。短流不需要为每个局部块增加元数据。代价是整段共享位宽：少数大差值会撑大所有值的表示；如果数据局部很窄但基准随位置漂移，全局范围就不能充分反映局部可压缩性。此实现已有批量解码接口，不能把 FBW 简化为“只能逐值标量解码”。</p>
+<h4 id="doxcnZ7Sercs4KPBJXiU3sv56Pg">5.6.2 BBP：每块重新选择基准和位宽</h4>
+<p id="doxcnzWBSLOPEYuW4B905DzCzub">BlockBitPackingEncoding 把一次 encoding 的输入按块划分，默认每块 1024 行，每块分别计算 baseline 和 bit width。块大小写入编码头，reader 从字节中恢复。这里的 block 是 encoding 内部结构，与文件的 stripe、stream chunk 不同；一个 chunk 的编码 payload 中可以包含多个 BBP blocks。</p>
+<p id="doxcn9E7mEYit4XYzaS26PmANad">BBP 为各块保存 baselines、bit widths 和 payload offsets；这些元数据序列本身也可通过 nested encoding 表示。块内差值紧凑打包。常量块可以使用位宽 0、仅保留基准；无法节省空间的块可以保存原始 physical values。初始化 decoder 时需要恢复这些元数据，因此更好的局部压缩并非免费。</p>
+<p id="doxcnts7GeCxB2n9idCLFOlVCSc">BBP 适合局部范围窄、但不同位置的基准或范围变化明显的数据，例如部分有序键或窗口内整数。块更小通常适应得更细，但元数据、参数切换和初始化成本更高；块更大减少这些开销，却更容易被异常值拉宽。当前 BBP 的机制是按块 FoR，并没有把所有异常值自动移入独立 patches：异常值仍可能撑大其所在块。</p>
+<p id="doxcntRxBz7GgWOiDLxm4OWTscg">BBP 解码时先定位块，再使用该块参数进行批量解包或直接复制原始值。它同样有批量内核和 visitor 路径。因此，“分块”和“SIMD”并不互斥，不能把 BBP 与 FastLanes 理解为普通循环和向量化之间的二选一。</p>
+<h4 id="doxcnr4R2NulLnOFejyFf9Ejkug">5.6.3 把压缩粒度、位布局和执行方式分开比较</h4>
+<div class="nimble-table-scroll"><table id="doxcn8CzoWjBnBRbSSq3B4HYFDf"><thead><tr><th><p id="doxcnYl7IVjzc8xjiB304uc0aBA">设计问题</p>
+</th>
+<th><p id="doxcnq2XAAKHRBKj1TicSTwtHVg">FBW</p>
+</th>
+<th><p id="doxcnZ6UnrOGunWg51GRRNBhLMe">BBP</p>
+</th>
+<th><p id="doxcn8pEgrLbxCdRXQ5aDAguXoh">FastLanes 布局的关系</p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td><p id="doxcnoZdjfJylvJg7uZNkyfiV2b">在哪个范围选择 base / width？</p>
+</td>
+<td><p id="doxcn2D9YwtMPZF9NqojHdvJBjf">一次 encoding 共用一组</p>
+</td>
+<td><p id="doxcnAMk7HRT8kmqibXBDH4jdyb">每块各选一组</p>
+</td>
+<td><p id="doxcn2m1SvsKAqg98uKGQel3qmc">布局本身不规定必须使用全段或分块参数</p>
+</td>
+</tr>
+<tr><td><p id="doxcnVYiLziNF0IeyX6eRFLcsnf">差值的 bit 如何排列？</p>
+</td>
+<td><p id="doxcnILGmwj6H6owVMpFkXtzDEc">按值顺序紧凑打包</p>
+</td>
+<td><p id="doxcnIiTtRvrPwgq8rWHzbIADYI">各块内紧凑打包</p>
+</td>
+<td><p id="doxcnMJiAJj38cLbLwNmxaXvqVc">采用便于多个 lane 并行操作的交错布局</p>
+</td>
+</tr>
+<tr><td><p id="doxcnLfjZq3tPegq8nXjcvWyrZe">主要空间收益来自哪里？</p>
+</td>
+<td><p id="doxcneHx6RhYObYmL1yzGLcu8lc">整段差值的位宽较小</p>
+</td>
+<td><p id="doxcnoBLWCUcwXzqV94ZKGhccnd">每块差值的位宽较小</p>
+</td>
+<td><p id="doxcnOMOmXQPwmf9V0fmCJiK2yf">同一基准、位宽下，主体所需 bit 数基本相同</p>
+</td>
+</tr>
+<tr><td><p id="doxcnkjefwzxkbxKf0bfaVXqIRf">读取时做什么？</p>
+</td>
+<td><p id="doxcn9xzlTTwF3ofJDutYg5Tkah">直接定位或批量解包，加回基准</p>
+</td>
+<td><p id="doxcn9ROfyPtuhUdylgUxaUSmkc">定位块，批量解包或处理常量/raw 块</p>
+</td>
+<td><p id="doxcn2O3O2RS3YCaSMfmciCMTmh">优化块内 pack/unpack；是否融合过滤是另一项实现选择</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p id="doxcnL3txZh3BlTvvbuAVVZ1QBd">这里的 FastLanes 指 compression layout / 内核思想，与另一个完整的 FastLanes 文件格式区分开。它的 1024 值计算分组，不自动意味着像 BBP 那样每组重选 baseline 和 bit width。另行验证的实验分支 <code>poc/nimble-fastlanes</code>
+ 中，FastLanesFor 采用整段参数，更接近 FBW 加 FastLanes 位布局；这只是该 PoC 的取舍，不能据此认定 FastLanes 天然无法适应局部范围。此处是设计对照，不把该实验编码计入本文源码快照的默认能力。</p>
+<p id="doxcnWnxd4blZThs5pPrb5dOJyf">设计上可以组合“BBP 的按块参数选择”和“FastLanes 的块内位布局”，但还要实测参数切换、尾块、稀疏读取、元数据和完整 reader 成本。改变已落盘的块内布局后，旧 decoder 也必须有办法识别新表示；不能在原有编码标识下直接把新字节解释规则当成兼容优化。</p>
+<p id="doxcnIU4SVGePSO2mevFOycae8f">Dictionary、RLE 则分别利用低基数和连续重复，产生的 indices、run lengths 等整数子序列还可以继续选择 FBW 等编码。这样的组合能力来自 Nimble 的 cascading 框架，见第 6 章。FBW 在第 5.3 节列出的默认候选中，BBP 在此快照已有实现但不在该默认列表内；“有实现”“被策略选择”“某类 workload 更快”是三个需要分别验证的事实。</p>
+<p id="doxcnlEN3lCLzPmP1s6zTw1bUUh">源码：<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/encodings/FixedBitWidthEncoding.h#L350">FBW 的布局、位宽选择与 encode</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/encodings/BlockBitPackingEncoding.h">BBP 的块信息与编码实现</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/encodings/common/Encoding.h#L130">exact bits / block size 选项</a>
+。</p>
+<h2 id="doxcnqAgbOWMKg10dXqWOWo94yb">6. Cascading Encoding：递归组合的代码与数据布局</h2>
+<h3 id="doxcnod5TratoWzUks9yBtRoVPc">6.1 Cascade 的对象是“子序列”，不是重复压缩同一串 bytes</h3>
+<p id="doxcnhFw1NdNCwT31pgTXsH2bxd">一个父 codec 先利用某种数据规律，把输入转化为若干更简单的序列；每个序列再由自己的 codec 表示。它们可以有不同的数据类型、不同的行数和不同的压缩决策。这才是 Nimble 的 cascading / recursive encoding。</p>
+<div class="nimble-table-scroll"><table id="doxcnyIiRpYEGDNHhWFlx53bJhS"><thead><tr><th><p id="doxcnU2tm4d4Oc7GaHrp4nrG1Te">父编码</p>
+</th>
+<th><p id="doxcn4oAMDYwnS0HQriv2pvhQLg">分解结果</p>
+</th>
+<th><p id="doxcnxjQcgAHUKxI4JjFYU8JXkg">再编码的机会</p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td><p id="doxcnUyt9qVM3HHHySap7hUxiLg">Nullable&lt;T&gt;</p>
+</td>
+<td><p id="doxcniHUVNQ0YqQC6BfBpbo0Itg">紧凑 non-null values；逐逻辑行的 bool flags。</p>
+</td>
+<td><p id="doxcnXRshbd44OZ3nWrF7hrmNAg">values 按 T 选择；flags 可用 Trivial、RLE、SparseBool 等。</p>
+</td>
+</tr>
+<tr><td><p id="doxcnvD2WJCpO7Ws8KAisMnq4Lc">Dictionary&lt;T&gt;</p>
+</td>
+<td><p id="doxcnP9NUxrdxgI3dDCghTVTQfr">alphabet：去重后的 T；indices：每行一个 uint32 索引。</p>
+</td>
+<td><p id="doxcnFLMFAV9ndjal3udVtyW0Eg">alphabet 和 indices 独立选择，例如字符串 alphabet 用 FSST，indices 用 FixedBitWidth。</p>
+</td>
+</tr>
+<tr><td><p id="doxcnES536mv44aoihjLTdWPxJe">RLE&lt;T&gt;</p>
+</td>
+<td><p id="doxcnXRVOCr9Ib1Pg0HD2ampMth">run lengths；run values。bool 有省略显式交替值的特殊实现。</p>
+</td>
+<td><p id="doxcnZyISeuqnBZGVuUtcIlqjgh">长度小且稳定可 bit-pack；run values 可能继续用 dictionary 等。</p>
+</td>
+</tr>
+<tr><td><p id="doxcn2IRoLIe8kgANFXIdV9tmnf">MainlyConstant&lt;T&gt;</p>
+</td>
+<td><p id="doxcnE2DzgTjPXJkiYixpUwBfeh">常见值、标识常见值的位置结构、其他 values。</p>
+</td>
+<td><p id="doxcnRRunWBnwp4sBGou82PCxnb">位置和异常 values 分别适应其分布，减少重复存储常见值。</p>
+</td>
+</tr>
+<tr><td><p id="doxcnhlBye7WdeHJvKoPlKQqU3N">Trivial&lt;String&gt;</p>
+</td>
+<td><p id="doxcnHVocOV4uf6MKXY7rSIwIzc">lengths 子编码与拼接的字符串 blob。</p>
+</td>
+<td><p id="doxcn3vooFFaAkdiP0K84bty09f">Trivial 也不等于直接序列化 std::string_view 内存；lengths 可递归编码，blob 可压缩。</p>
+</td>
+</tr>
+<tr><td><p id="doxcnZhWuFJ8NcXDmtooBj4jQog">FSST</p>
+</td>
+<td><p id="doxcnBQBHn3YYi0Kirv0hBc2Fec">symbol table；每条字符串的 compressed lengths；压缩字符串 blob。</p>
+</td>
+<td><p id="doxcnclaqiPXqHZRroE6ndojQDg">FSST 利用子串重复，uint32 lengths 再交给 nested policy。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="doxcn9AKctYLSzkdUnGikF1MdEb">6.2 一个完整的编码树</h3>
+<p id="doxcnD0KoHkCrPVqqRVFXJ4zPFc">图 3｜N 是逻辑行数，M 是非空行数，D 是不同字符串数。各层处理不同类型的冗余，但整棵树都属于一个根 encoding 的内部字节；这里的 FSST 组合仅用于说明可组合能力。</p>
+<figure class="nimble-figure" id="doxcnW7BNiIVZIhl5Xz0z7US2Og"><div class="nimble-diagram-scroll" tabindex="0" role="region" aria-label="可横向滚动的 Nimble SVG 配图"><img src="/images/nimble-design/figure-14.svg" alt="Nimble 设计解读，原文第 14 张配图" loading="lazy"></div></figure><p id="doxcnLhzeHea6PgGZEY6EmiZjef">对于有 null、重复完整值且不同字符串之间又共享子串的数据，可以形成下面这棵树。它是合法的说明性组合，不表示默认策略必选，也不表示对很小样本一定值得用 FSST。</p>
+<pre id="doxcnBr8xMDAZ4DnlXUw0X77dUd"><code class="language-plaintext">Nullable&lt;String&gt;                         rowCount = N
+ ├─ Data: Dictionary&lt;String&gt;             rowCount = M（非空行数）
+ │   ├─ Alphabet: FSST                    rowCount = D（不同字符串数）
+ │   │   ├─ symbol table                 codec 自己的 metadata
+ │   │   ├─ Lengths: FixedBitWidth&lt;u32&gt;  rowCount = D
+ │   │   └─ compressed blob              D 个独立字符串的编码串拼接
+ │   └─ Indices: FixedBitWidth&lt;u32&gt;      rowCount = M
+ └─ Nulls: RLE&lt;Bool&gt;                     rowCount = N</code></pre>
+<p id="doxcnziHBh9GZEqNYhnc0XOTbth">这里先由 Nullable 去掉 null，再由 Dictionary 消除完整字符串重复，FSST 再压缩不同字符串之间的重复子串，FixedBitWidth 压缩各类索引/长度。不同层利用的是不同规律，所以可以相互补充。但每层也增加 header、metadata、初始化和临时内存成本，层数更多并不自动更优。</p>
+<p id="doxcnCc5olUdpTaJCSowvlFHRyg">Dictionary 的 alphabet 与 indices 保存在同一个外层 encoding 内，并不是在 tablet 目录中创建两个额外物理 streams。普通 Dictionary 的字典作用域是这一 encoding/chunk；不能假设自动共享到整条 stripe 或整个文件。SharedDictionary 是另一套需要额外 scope / catalog / alphabet 解析的实验性机制。</p>
+<h3 id="doxcnDEvvcE85JOZ4tM96Sa1tId">6.3 encodeNested 如何把递归连接起来</h3>
+<pre id="doxcnCOHtEvz2o5rV3H7q2YRryh"><code class="language-cpp">// 概念化摘录：省略模板转换和错误处理。
+auto alphabetBytes = selection.encodeNested&lt;T&gt;(
+    EncodingIdentifiers::Dictionary::Alphabet,
+    alphabet, scratchBuffer, options);
+
+auto indexBytes = selection.encodeNested&lt;uint32_t&gt;(
+    EncodingIdentifiers::Dictionary::Indices,
+    indices, scratchBuffer, options);
+
+// encodeNested 内部：
+auto childPolicy = parentPolicy.create&lt;ChildT&gt;(
+    parentEncodingType, nestedIdentifier);
+auto statistics = Statistics&lt;ChildT&gt;::create(childValues);
+auto decision = childPolicy.select(childValues, statistics, options);
+return EncodingFactory::encode(decision, childValues, buffer, options);</code></pre>
+<p id="doxcn5ouz4MrAqEw2FagZyhOHfc"><code>NestedEncodingIdentifier</code>
+ 表示子节点的语义角色，例如 Alphabet、Indices、Lengths、Nulls。相同的 uint32 序列类型，可能因为处于不同父节点/角色而需要不同策略；identifier 让配置、capture/replay 和嵌套选择能准确定位它。</p>
+<p id="doxcn0Y6jngVWIxeGvWcdRVJsVc">默认 manual policy 创建子策略时会从继承的候选集合中去掉父编码类型，并按个别 codec 的规则限制候选。沿路径缩小候选空间既抑制无意义的重复嵌套，也帮助递归收敛；它是默认策略的机制，不是文件格式规定所有编码树一律不能出现相同 codec。</p>
+<h3 id="doxcn6d9A78uVdkBRgO84Grmklf">6.4 字节布局如何让 decoder 恢复这棵树</h3>
+<pre id="doxcnkyoU67AORBSrXtFqrNbupe"><code class="language-plaintext">Dictionary encoding
+  common prefix（Dictionary、T、rowCount）
+  uint32 alphabetByteSize
+  alphabet encoding bytes（有自己的 prefix）
+  indices encoding bytes（有自己的 prefix；长度由外层剩余范围决定）
+
+Nullable encoding
+  common prefix（Nullable、T、rowCount）
+  uint32 nonNullValuesByteSize
+  non-null values encoding bytes
+  bool nulls encoding bytes
+
+FSST encoding
+  common prefix（Fsst、String、rowCount）
+  varint symbolTableByteSize + symbol table
+  varint lengthsEncodingByteSize + uint32 lengths encoding
+  compressed string blob</code></pre>
+<p id="doxcnOgQbvf4HC9f9bIsljEtgEC">decoder 不需要知道写时做过哪些统计或试过哪些候选：读当前节点 prefix 和子范围，再调用 EncodingFactory 创建子 decoder 即可。所谓自描述，是在 reader 已知道 schema/格式选项、且支持这些 EncodingType 的前提下，通过序列化信息恢复表示；不是任意未知 codec 或外部字典都能无依赖解读。</p>
+<h3 id="doxcnCWD4sEq6En5uZGbWBG6Ozd">6.5 Encode 的递归结构，不等于 Decode 总是逐行递归</h3>
+<p id="doxcnfCiXkCoCcOujtB1WrVNN3e">当前 Dictionary decoder 构造时先创建 alphabet decoder，并一次性 materialize 全部 alphabet；随后读数据行主要解 indices 并查 alphabet。若 alphabet 使用 FSST，FSST 的字符串解压主要发生在 alphabet 初始化，而不是每条重复行都重新解压。这能摊薄重复值的读成本，但也意味着小范围读取仍可能支付整个 alphabet 的初始化费用。</p>
+<p id="doxcn0jHcVEN3uMD8KZyxa9janc">其他节点也可以批量解子序列、缓存结构信息或实现专门的 visitor 路径，避免每个值跨多层虚函数。cascade 提供组合表达能力；是否有高效执行路径，还取决于每个 codec 和每种组合的实现。</p>
+<p id="doxcnSBgBaG2j3n9vh4cabHhmid">源码：<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/encodings/selection/EncodingSelection.h">EncodingSelection::encodeNested</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/encodings/DictionaryEncoding.h#L193">Dictionary 初始化与 encode</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/encodings/NullableEncoding.h">NullableEncoding.h</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/encodings/FsstEncoding.cpp">FsstEncoding.cpp</a>
+。</p>
+<h3 id="doxcnECtms3r5drsMVesUNJs78e">6.6 从输入到字节再到输出：一个 Nullable + Dictionary + FBW 例子</h3>
+<p id="doxcnhsdF6fV7JdZn7VZQbOqgom">第 5.6 节已经展开 FBW / BBP 的数值表示。这里用一个很小的可空整数序列说明组合编码的完整往返。为了观察结构，固定选择下列组合；这不表示默认策略会为 5 行数据选 Dictionary，也不把小样本的 header 开销当作压缩收益。</p>
+<pre id="doxcniuQOt67snpzi8rZDnUfj4e"><code class="language-plaintext">逻辑输入 N=5：       [1000, null, 1003, 1000, 1003]
+Nullable 拆分：
+  non-null flags：  [true, false, true, true, true]       N=5
+  compact values：  [1000, 1003, 1000, 1003]              M=4
+Dictionary 拆分 compact values（本例指定字典顺序）：
+  alphabet：        [1000, 1003]                          D=2
+  indices：         [0, 1, 0, 1]                         M=4
+FBW 编码 indices：
+  baseline=0，exact width=1 bit（默认按字节取整则为 8 bit）
+  packed residuals 对应 [0,1,0,1]
+
+Nullable prefix(rowCount=5)
+  valuesByteSize + Dictionary prefix(rowCount=4)
+    alphabetByteSize + alphabet encoding(rowCount=2)
+    indices FBW encoding(rowCount=4)
+  flags encoding(rowCount=5)</code></pre>
+<p id="doxcngh7yWSvvNFrhsZwBmPYUGf">encode 的顺序是：父节点先分解数据，再对子序列分别选型/编码，最后写入能够划分子字节范围的长度字段和子 bytes。字典的 alphabet 本身也可以选 FBW、Trivial 等；flags 可以选 Trivial&lt;Bool&gt;、RLE 或 SparseBool。整棵树最后作为<b>同一个物理 stream 的一个 chunk payload</b>
+写出，StripeGroup 只登记外层 stream 的位置。</p>
+<p id="doxcnxaysbSOdzkxrI5ASxDcrJP">decode 构造阶段先读 Nullable prefix 和 valuesByteSize，分出 Dictionary 与 flags；Dictionary 再分出 alphabet 与 indices，初始化 alphabet 值表。运行时解 flags，确定本批需要消费多少个非空值；indices decoder 恢复字典编号，查 alphabet 得到 compact values，Nullable 再按 flags scatter 回 5 个逻辑位置。materializeNullable 给出独立的 null bitmap；null 对应的值槽不能当成合法数据。</p>
+<pre id="doxcnYGHzyyoxKyLXa9SNgX4fEV"><code class="language-plaintext">reset()
+skip(2)                     // 消费前两条 parent 行 [1000,null]
+  flags 前进 2；true 数=1
+  Dictionary / indices 只前进 1
+materializeNullable(3, ...) // 恢复余下 3 条 parent 行
+  flags = [true,true,true]
+  indices = [1,0,1]
+  values = [1003,1000,1003]</code></pre>
+<p id="doxcnP0yuleiKkwBJ2DFexz7ged">这个例子说明 skip 的成本为何取决于编码树：FBW 的固定宽度游标可以直接推进，但 Nullable 必须先知道跳过区间中有多少非空值；父行前进 2，不等于所有子 decoder 都前进 2。Dictionary 初始化可能已把整个 alphabet 物化，后续少量点读仍需承担这项固定成本。</p>
+<h3 id="doxcn9YKJX4wPBfLG9L3EzdTT2f">6.7 其他常用编码分别利用什么规律，如何恢复值</h3>
+<p id="doxcnu7lRt6NoMhJHOCH7ed6omd">下面按“消除的冗余 → 存储结构 → 解码动作”比较主要编码。它们可用于列的根 encoding，也可用于适配的数据子序列；是否参与默认选择仍以第 5.3 节的候选列表为准。FBW / BBP 详见第 5.6 节。</p>
+<div class="nimble-table-scroll"><table id="doxcnxZS9X3W0hbnom2jB6ZozAh"><thead><tr><th><p id="doxcnq7ExHhmWi5hO3cpYvZClTb">编码 / 有效分布</p>
+</th>
+<th><p id="doxcn4VLTkOuxGX5mcWz3adtC7b">encode 与核心结构</p>
+</th>
+<th><p id="doxcn3b2quXr6DNVZDjBf9YTfPc">decode / skip 设计与代价</p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td><p id="doxcn3wOgCWNR6rI8cBwNBSGKgf">Constant：整段相同</p>
+</td>
+<td><p id="doxcnne8pN3QBQftjNQdZeNFmQD">prefix 中保留 rowCount；值只存一份</p>
+</td>
+<td><p id="doxcn96cheW2x8jEsOK2Dte6Wrf">按请求填充常量；不必存 N 份；若输出普通平坦向量仍需写出 N 个值</p>
+</td>
+</tr>
+<tr><td><p id="doxcnAr3UKbZT7q0tyXG776ByJb">Trivial：没有值得利用的结构，或偏重便宜读取</p>
+</td>
+<td><p id="doxcnIlQNhTAaK6GKHnXCATZzKf">固定宽度数值保存 value bytes；bool 使用 bitmap；字符串保存 lengths 子编码与 blob</p>
+</td>
+<td><p id="doxcnWmxlYwujTT9D1E7GuzRtYg">数值可复制；bool 展开或直接输出 bits；字符串先知道长度/位置再形成 views。可选通用压缩需先解除</p>
+</td>
+</tr>
+<tr><td><p id="doxcnmr8jenHAvRAJGZbjfr48hb">Dictionary：完整值重复、基数较低</p>
+</td>
+<td><p id="doxcnsi6vUgzUprZIDxN4oc7YEf">存 alphabet 子编码与逐值 indices 子编码；用 alphabetByteSize 分界</p>
+</td>
+<td><p id="doxcn8kaOIuhk3kyVypLqAv2vOc">初始化 alphabet；后续解 indices 并查表。字典越大，初始化/内存成本越高；支持时可保留字典向量</p>
+</td>
+</tr>
+<tr><td><p id="doxcnzOB8PqiEI10MjYiuEbcLBf">RLE：相等值连续出现</p>
+</td>
+<td><p id="doxcnEmSkJJcFVMQMBkx4jXKVWd">例如 [7,7,7,9,9] → lengths=[3,2]、values=[7,9]；两条子序列分别编码</p>
+</td>
+<td><p id="doxcnBwYdFnNGJUqpWZCkIUDEYb">维护当前 run 值和剩余 copies；批量填充；skip 跨 run 前进。零散重复未形成长 run 时收益小</p>
+</td>
+</tr>
+<tr><td><p id="doxcnlPrlIzO5LH1p657Y6YGoye">MainlyConstant：大部分等于某一个值</p>
+</td>
+<td><p id="doxcncODrYxa36C1BSsZYYzZ1Gh">保存 common value、isCommon bool 子编码和紧凑 otherValues 子编码</p>
+</td>
+<td><p id="doxcnxSXlIK5jaBEV9EDum4kWfh">恢复常见值标记；常见位置填 common，其余消费 child 值。skip 需要知道异常数量；标记可用稀疏位置优化</p>
+</td>
+</tr>
+<tr><td><p id="doxcnAo2zuOzhhGwsF0QYuPcPxd">SparseBool：true 或 false 占少数</p>
+</td>
+<td><p id="doxcnZqDqkNGnrhMbHZIRMnneMf">保存 sparseValue，及少数值的行位置子编码；末尾加 rowCount sentinel</p>
+</td>
+<td><p id="doxcnvob3r5ZfBmEHK2wwdHiHYe">默认填另一种 bool，再覆盖稀疏位置；推进位置游标。适合某些 non-null flags / in-map，不必为每行存一个显式 bool</p>
+</td>
+</tr>
+<tr><td><p id="doxcnwRDRrfDVhUZfrn7R3DAYUP">Varint：多数非负差值小、少数差值大</p>
+</td>
+<td><p id="doxcn9R9lYDtnr27MGsPvPWqIMg">保存 baseline；value-baseline 按 7-bit 分组的变长整数串编码</p>
+</td>
+<td><p id="doxcnFv8JWdTwFkgcLEEm93hSYc">依次读变长边界、恢复差值并加 base；skip 也需扫描边界。不能像固定宽度一样只用 i×width 定位</p>
+</td>
+</tr>
+<tr><td><p id="doxcnYNHD0flkx7wfHvs1aXwMQc">FSST：字符串之间共享子串</p>
+</td>
+<td><p id="doxcnawT4vgA6W1ZJEBwUejCMNg">训练 symbol table；存 compressed lengths 子编码与压缩字符串 blob；收益不足可回退 Trivial</p>
+</td>
+<td><p id="doxcns6g3dsKdVuQWcvqhwITxBg">恢复符号表和长度，再展开所需字符串；需要输出字符缓冲。若位于 Dictionary alphabet，展开主要在字典初始化发生</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p id="doxcncqDLPuUtbzQc0DW8SD4zCd">RLE 的重复必须相邻，Dictionary 的重复可以分散，MainlyConstant 只特别处理一个高频值，FBW/BBP 则利用数值范围。这些条件可以同时成立，因此 cascading 有意义：RLE 的 run lengths、Dictionary 的 indices、FSST 的 compressed lengths 都可能成为很适合 bit-packing 的整数序列。与此同时，每层都有 prefix、参数、子 decoder 和可能的临时缓冲，最终选择需要权衡编码大小与真实读取路径。</p>
+<p id="doxcny5xP4j9Q4JXaoSxsUdfGxh">源码：<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/encodings/ConstantEncoding.h">Constant</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/encodings/TrivialEncoding.h">Trivial</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/encodings/RLEEncoding.h#L38">RLE</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/encodings/MainlyConstantEncoding.h#L41">MainlyConstant</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/encodings/SparseBoolEncoding.h#L47">SparseBool</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/encodings/VarintEncoding.h#L41">Varint</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/encodings/NullableEncoding.h">Nullable</a>
+。</p>
+<h2 id="doxcn9vQepPyN91YnBwejyiyyzd">7. Decode 设计：游标、批量解码、Visitor 与内存生命周期</h2>
+<p id="doxcnAi0ZaXtnmp4Q9i2JwZC0gb"><code>materialize</code>
+ 的含义是把某种编码表示恢复成调用方可使用的内存值。它通常处于读取链路中的 <b>encoding 解码层</b>
+：上层取得 chunk 字节、构造 decoder，再由它恢复物理值，最终由 column reader 组织成 Velox vectors。它的接口输入是行数和输出地址，不是文件名、文件 offset 或 SQL 表。</p>
+<figure class="nimble-figure" id="doxcnBf9xOViq7Z5YbCr6CxhnRh"><div class="nimble-diagram-scroll" tabindex="0" role="region" aria-label="可横向滚动的 Nimble SVG 配图"><img src="/images/nimble-design/figure-15.svg" alt="Nimble 设计解读，原文第 15 张配图" loading="lazy"></div></figure><p id="doxcnw3Dw6z7PjQkSbYAxmGKIze">图中是职责划分，不是强制的全局时间顺序；batch 与 selective 两路对应不同的 chunked decoder 类，见第 7.2 节。I/O 可以提前预取，通用压缩可以在 chunk 层或具体 codec 构造时解除；Dictionary 的 alphabet、BBP 的块元数据也会在初始化中调用子 encoding 的 materialize。遇到这个函数名，首先看<b>哪个对象在调用、产物写到哪个 buffer</b>
+：可能是用户数据，也可能只是内部索引或元数据。</p>
+<h3 id="doxcnaOdh7T6UjWJNi3OBprm1o4">7.1 Encoding 首先是一个有状态的批量游标</h3>
+<div class="nimble-table-scroll"><table id="doxcnROFI0f9H5oX0ZNspqRn1Ae"><thead><tr><th><p id="doxcnNtof0lP898G93Mzwek2Eh1">接口</p>
+</th>
+<th><p id="doxcn3WoP46G9w6evOtO7nvxbFb">语义</p>
+</th>
+<th><p id="doxcnRTEt6YUqP9L3Fv0zFXzljc">注意事项</p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td><p id="doxcnHXzbKlLebLe5sQSf4tHMBe">reset()</p>
+</td>
+<td><p id="doxcnnL0UbSch0zQUoyCXFj1aof">恢复到新构造时的读取位置。</p>
+</td>
+<td><p id="doxcnzjcLUz7BhtbGBQCKZbUykf">不是向后迭代；需要回退时通常 reset 再 skip。</p>
+</td>
+</tr>
+<tr><td><p id="doxcnIhNxldmjuTNu1sfXdyhETW">skip(n)</p>
+</td>
+<td><p id="doxcn0CWgif5k37QNL3f0NrnmGc">游标前进 n 行。</p>
+</td>
+<td><p id="doxcn7PQ8DrMF53gFc42vCrY4Dd">不要求物化结果，但不保证 O(1)，可能读取长度、run 或前缀信息。</p>
+</td>
+</tr>
+<tr><td><p id="doxcncmVHdhtf2tbuHWA5g4bSyb">materialize(n, out)</p>
+</td>
+<td><p id="doxcnhHpr7YXUt6Z2CMGxwiGCwc">解出后续 n 个 physical values，并推进游标。</p>
+</td>
+<td><p id="doxcnBZkKiVgJCy9ZETx3fmCqjc">字符串输出是 string_view；可空编码里的 null 位置以默认 physical value 表示，不能仅凭值区分 null。</p>
+</td>
+</tr>
+<tr><td><p id="doxcn2knwriFvZArOi6sT4JBNn2">materializeNullable(...)</p>
+</td>
+<td><p id="doxcnEPeroCHnTQZl51hISLZhnc">解值并提供 non-null bitmap；可通过 scatter bitmap 写到离散输出位置。</p>
+</td>
+<td><p id="doxcnvxBhQdqrtzkEynOJKAEvYd">bitmap 中 1 为非空、0 为 null；返回非空数量。全非空时可能不分配/填充 null bitmap，调用方要处理该约定。</p>
+</td>
+</tr>
+<tr><td><p id="doxcnlODaKTYBLtszxo8zTzD7eD">materializeBoolsAsBits(...)</p>
+</td>
+<td><p id="doxcn2VlJqYcS4G0eoOFm4QBjof">将 bool 直接输出为 bitset。</p>
+</td>
+<td><p id="doxcnGzNJhyAndRfebBUt9pBSwd">是类型相关能力，不是所有 codec 都可调用。</p>
+</td>
+</tr>
+<tr><td><p id="doxcnX8OFnuSNnktQfIaE5TD8Kf">dictionaryEnabled / dictionaryEntries / materializeIndices</p>
+</td>
+<td><p id="doxcnHZd8EJWsGOakSxi2OMkFLf">让 dictionary-aware reader 直接处理 alphabet 与 indices。</p>
+</td>
+<td><p id="doxcna10YOOPMXhVJUP6JHVxFvf">仅适用于支持这组接口的 encoding；不代表所有 wrapper 组合都已实现字典保留。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p id="doxcnDLelQdj49wyGTEBBMViXLd">Encoding 实例不拥有原始 encoded bytes；两个实例可以引用同一份不可变字节，但各自维护独立游标和 scratch state。共享字节不等于同一个有状态 decoder 可以被多个线程无协调地推进。</p>
+<h4 id="doxcnSUS3glsgGI5fNdEB6mvrj1">7.1.1 调用契约：从当前位置产出 n 行</h4>
+<p id="doxcn6xUavEH36RvFLm6yMRfVcg"><code>materialize(n, out)</code>
+ 是有状态的顺序批量接口。n 是当前 encoding 行域中要消费的行数，调用方准备足够大的输出内存，并保证请求不超过剩余行数；成功后游标前进 n。n 不是 bitpacked blocks 的数量，也不总是顶层表的行数：Nullable parent 的行数包含 null，其非空 values child、数组 elements stream 等有各自的行域。</p>
+<pre id="doxcn8HEASlDMw01HarPKbXsEwb"><code class="language-plaintext">非空整数序列：[1000, 1001, 1003, 1002, 1001]
+reset()                 → 游标回到 0
+materialize(2, out)      → out = [1000, 1001]，游标到 2
+skip(1)                 → 跳过 1003，游标到 3
+materialize(2, out)      → out = [1002, 1001]，游标到 5</code></pre>
+<p id="doxcn3wgKf3pS79sDx0X4jDjwFc">out 在基类上写成 void*，具体实现按 physicalType* 解释，避免让公共接口依赖某一种向量容器。字符串对应 std::string_view 数组，bool 对应 bool 数组；若需要 bool bitmap，应使用专门接口。写出 string_view 也不表示字符串 owner 已交给调用方，生命周期仍遵循第 7.5 节的约定。</p>
+<p id="doxcnuuLKBHbOi0ehGMgX80hc73"><b>解码值与保留 null 是不同契约。</b>
+<code>materialize</code>
+ 对 null 行填默认 physical value，无法仅凭 out 区分 null 和合法的 0。<code>materializeNullable</code>
+ 另提供 1=非空、0=null 的 bitmap，返回非空数量，null 对应的值槽不保证被写入；全非空时 bitmap 可能不分配或不填充。带 scatter 时，n 表示消费的输入行数，输出跨度由 scatter bitmap 决定，调用方必须按输出跨度准备空间。</p>
+<h4 id="doxcnIq2K1FmOk87jZwzLOHYSMg">7.1.2 同一个接口，不同编码恢复值的方式不同</h4>
+<div class="nimble-table-scroll"><table id="doxcnmH4OLlBcSrTDfrIUNanQme"><thead><tr><th><p id="doxcnZWtOrFTxBpWcjzuAMrZXbc">实现</p>
+</th>
+<th><p id="doxcn88TgV3lXbESXD1qNEGq9eg">materialize 的主要工作</p>
+</th>
+<th><p id="doxcnWSiDL8vyUoEsSTIvOuhnLf">典型成本</p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td><p id="doxcnDjJk6OnPYCDQNxGFbz6DKd">Trivial：固定宽度数值</p>
+</td>
+<td><p id="doxcnaDtzb8qqOLn0XlpE7Gq63e">从当前位置复制 n 个已可访问的值</p>
+</td>
+<td><p id="doxcnv1eTxquytb0oFQlrAnUSbe">读写内存；此时没有 bitpacking 解包</p>
+</td>
+</tr>
+<tr><td><p id="doxcnf9JT8ZpWNHzMlY369rm1Kh">FixedBitWidth</p>
+</td>
+<td><p id="doxcnqQS52yCnQcs930Nf2kPKqh">按统一位宽批量取差值，加回 baseline</p>
+</td>
+<td><p id="doxcnVDGxMnxmUzCfo7Qnh3Nnyb">位提取、加法、写出 physical values</p>
+</td>
+</tr>
+<tr><td><p id="doxcn4duL4cAThBmcxZEv3booBf">BlockBitPacking</p>
+</td>
+<td><p id="doxcnpAvLgxCvVf91Si6ZZAAesc">按块拆分请求，切换 baseline / width，再解包、填常量或复制 raw 块</p>
+</td>
+<td><p id="doxcnxU8sDQoqZaLgK9cOd45XRj">块定位、参数切换；非对齐区间可能需要临时缓冲</p>
+</td>
+</tr>
+<tr><td><p id="doxcncIGM3YsIPqzTYdZXw1yYcg">Dictionary</p>
+</td>
+<td><p id="doxcnb5oJRQTEnrT1ZYhgn9Vo9v">子编码先解出 indices，再从已初始化的 alphabet 取值</p>
+</td>
+<td><p id="doxcnWMFGGKmOXrOFYPefGabpce">子编码解码、字典查找、写输出</p>
+</td>
+</tr>
+<tr><td><p id="doxcnv4kqeduFYarllHIJouCFOe">RLE</p>
+</td>
+<td><p id="doxcnxxgBnhCusY8IBE0UTZn8Qc">推进 run 状态，按当前 run 剩余长度展开重复值</p>
+</td>
+<td><p id="doxcnJGKObu5JBPdNAy6zUnNOBd">run 边界处理和输出填充</p>
+</td>
+</tr>
+<tr><td><p id="doxcnVOh3PZs3KBi6umqNCALL3O">Nullable</p>
+</td>
+<td><p id="doxcnp3e7tFt9wFMDfF2wKW6i7d">解 non-null flags，消费非空子值，再恢复 parent 行位置</p>
+</td>
+<td><p id="doxcnvrnOi7LYnVHzqKmPVnwgrb">flags 扫描、子编码解码、scatter / bitmap</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p id="doxcnVkDr2tFVqAtBYNr2L620re">FBW 的实现可以直接说明接口与内核的分工。公共接口负责输出类型解释与游标推进，真正的位提取交给 FixedBitArray 的批量方法；函数名 materialize 本身不意味着逐行调用，也不决定是否使用 SIMD。</p>
+<pre id="doxcnK58J2NSx5Swpwt8W5oEDIc"><code class="language-cpp">template &lt;typename T&gt;
+void FixedBitWidthEncoding&lt;T&gt;::materialize(
+    uint32_t rowCount, void* buffer) &#123;
+  fixedBitArray_.bulkGetWithBaseline(
+      row_, rowCount, static_cast&lt;physicalType*&gt;(buffer), baseline_);
+  row_ += rowCount;
+&#125;</code></pre>
+<p id="doxcncvVhZyhby6Gle6DishJzFe">BBP 的 materialize 则循环计算 blockIndex、blockOffset 和本块可读行数，再调用 materializeBlockRange。例如默认 1024 行一块，从位置 1016 读取 32 行，会拆成前块 8 行和后块 24 行。此快照从块中部读取 packed 数据时，会先解出该块到请求终点的前缀，再复制目标区间；因此<b>产出 n 行不保证内核只处理 n 行</b>
+。raw 块、常量块及其他读取入口有各自的实现，性能需要按实际路径判断。</p>
+<p id="doxcnMoG5TaZMBJGlPkxkcIwdSg">还有一种常见调用发生在构造阶段：BBP 通过 readMetadataStream 为 baselines、bitWidths、blockOffsets 创建子 decoder，再 materialize 到内部数组；Dictionary 也会先 materialize alphabet。这些调用恢复的是 decoder 工作所需的辅助数据，不是向查询输出整列。</p>
+<h4 id="doxcnvpaawBNglFfo2QBsxyCmng">7.1.3 从上层调用链辨认实际执行路径</h4>
+<pre id="doxcnptSwBdWNBAYUznlk89LzWc"><code class="language-plaintext">顺序批量路径：
+ChunkedStreamDecoder::next
+  → ensureLoaded：加载 chunk / 构造 Encoding
+  → encoding_-&gt;materializeNullable
+      → 普通 TypedEncoding：materialize，再按需 scatter
+      → NullableEncoding：恢复 non-null flags 与非空子值
+  → 合并输出偏移和 null 信息，必要时进入下一 chunk
+
+选择性路径：
+ColumnReader → selective::ChunkedDecoder::readWithVisitor
+  → 按 codec / 类型分派 readWithVisitor
+  → bulkScan、稀疏取值或通用回退
+  → 维护命中行、取值和跨 chunk 状态</code></pre>
+<p id="doxcndOlhW2dpYuZHkOnuHCbWOe">readWithVisitor 与 materialize 是两类读取入口，不能假定前者总是先调用后者。materialize 描述“从当前位置恢复后续 n 行”；visitor 额外携带候选行、filter 和 extract/hook，让 codec 决定如何跳过、解码、过滤与输出。某些实现内部复用 materialize，另一些直接调用更底层的解码内核。</p>
+<p id="doxcnzx4aRGGUaCKqg5oxAjVRLf">因此 benchmark 必须区分测量范围：直接调用 materialize，通常测的是已初始化 encoding 上的值恢复；构造加 materialize 会纳入 payload 解压、字典和元数据初始化；完整 reader 还包含 chunk 管理、过滤、null、向量组织及 buffer 生命周期。内存文件 reader 的结果又不等于包含磁盘 I/O 的查询性能。</p>
+<p id="doxcnEd6IZfCG73MFyRlKyNuBse">实现对照：<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/encodings/FixedBitWidthEncoding.h#L187">FBW::materialize</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/encodings/BlockBitPackingEncoding.h#L604">BBP 的初始化与元数据物化</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/encodings/BlockBitPackingEncoding.h#L819">BBP::materialize</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/encodings/common/Encoding.h#L408">TypedEncoding::materializeNullable</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/encodings/NullableEncoding.h#L217">Nullable 的两种物化接口</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/encodings/DictionaryEncoding.h#L193">Dictionary 的初始化与取值</a>
+。</p>
+<h3 id="doxcn0MoIfSROyjP7rIQ5Vtlyce">7.2 Chunked decoder 屏蔽 chunk 边界</h3>
+<p id="doxcnxncQKvQ7JMGMJPVLh80nzc">一次 reader 请求可能跨多个 chunks，且相邻 chunks 可以采用不同编码。<code>ChunkedStreamDecoder</code>
+ 为 batch 路径管理 chunk 加载、Encoding 构造、剩余行数和输出；<code>selective::ChunkedDecoder</code>
+ 则面向选择性读取，接入 SeekableInputStream、可选 StreamIndex、visitor 与字符串缓冲区管理。二者不是同一个类的不同名字。</p>
+<p id="doxcnFo1lVGABa0liqU8zMbbpZg">进入新 chunk 时先读取 5 字节 framing，按需解压外层 payload，再为根 encoding 构造 decoder。对于会在构造时解压叶子 payload、物化字典或建立辅助结构的 codec，只读少量结果也可能支付这部分固定成本。数据在内存里、I/O 已跳过和 values 尚未物化，是三个不同状态。</p>
+<p id="doxcnesxJCBP8I001UaxrgCEyRe">跨 chunk 的 null 合并、visitor 已扫描行数、输出偏移、字典变化和 string buffer 生命周期都必须连续维护，不能每个 chunk 都把一次上层 read 当成从输出位置 0 重新开始。</p>
+<h3 id="doxcnZP3HryNFALdwMtqFpcIuUg">7.3 readWithVisitor：让过滤和解码在同一遍推进</h3>
+<p id="doxcnCHsmvtAYInS0JWbmwvbz1c">选择性 reader 使用 ColumnVisitor 携带有序 row set、过滤器与取值动作。ChunkedDecoder 根据 codec 和类型分派到模板化的 <code>readWithVisitor</code>
+ 实现；codec 可利用稠密读取、SIMD/bulk scan、稀疏跳过或通用回退。它不是 Encoding 基类中一个“任何 codec 自动得到同等优化”的万能虚函数。</p>
+<pre id="doxcnbTiaHr3mi8IszUkiQREpMf"><code class="language-plaintext">例如请求候选 rows = [1, 4, 7, 8]
+  codec 推进到 row 1 → decode/filter
+  推进或跳过中间范围 → row 4 → decode/filter
+  ...
+  通过过滤的 rows / values 进入输出
+
+若有父 nulls / FlatMap in-map：
+  先把逻辑候选位置映射到实际存在的 child positions
+  再交给 child decoder
+  输出时 scatter 回正确的逻辑位置</code></pre>
+<p id="doxcn76XvEUVDeq1h6byRFgZhzf">这样可以避免总是先把整个 chunk 转成完整 Velox vector 再过滤。例如字符串 Dictionary 可以按字典值缓存过滤结果、读取 indices，并在适用路径保留 DictionaryVector；FSST 可避免对未选字符串生成完整输出。但 lengths/nulls 的扫描、整段通用解压、字典初始化等仍可能发生，不能把 selective decode 描述成“未选行完全零成本”。</p>
+<p id="doxcnVEGVZ2PCuVCn9lcAVE9hdc"><b>“解码与过滤一起推进”也有实现层次。</b>
+此快照的 FBW 和 BBP fast path 可以先把本批候选值批量解码到值缓冲，再由 <code>processFixedWidthRun</code>
+ 处理过滤、scatter 和 hook。它们避免强制物化整个 chunk，但不等于比较谓词已经融合进每次位提取指令。把 unpack 与 compare 融合、直接产生命中位图，是另一项内核优化；这种优化思想也不专属于某一种编码布局。</p>
+<p id="doxcnlKWH59oPoixFvBAposkiT6">还应区分过滤列与投影列：过滤列必须对当前候选行判断谓词；如果只需要过滤结果，合适的路径可以省去最终值输出。投影列则根据前序过滤得到的 row set 取值，候选很稀疏时，直接定位可能比解完整块划算。晚物化（late materialization）描述何时按需要恢复列值的执行策略，<code>materialize</code>
+ 是产出值的具体 API，两者不是同一个概念。</p>
+<h3 id="doxcnTUca6lMP4gWpJgerUiq0Cg">7.4 Nullability 是解码契约，不只是一个额外 bitmap</h3>
+<p id="doxcnMgvf1iVz2LGFflSjkgbzDe">Nullable 的 parent rowCount 是包含 null 的逻辑数量，values child 只有非空数量。skip(n) 因而需要知道 n 行内有多少非空值，才能推进 child；materializeNullable 要在恢复 null 状态后把紧凑 child values 放回对应输出位置。复杂类型还可能叠加父 ROW nulls 或 FlatMap in-map，这也是 visitor 参数里需要跨 chunk 保存扫描状态和惰性分配回调的原因。</p>
+<h3 id="doxcn3MBAe1ULfdzksSAoxBGyWh">7.5 Ownership 与 pool：不要把 zero-copy 当成统一保证</h3>
+<p id="doxcn4cFnGEydXqxexMFRnmmzBc">Encoding 的通用契约只保证 materialize 返回的非 POD 内容在下一次非 const 调用前有效；具体 codec 可以提供更强保证，例如 dictionaryEntry 的生命周期。切换 chunk 或释放临时解压 buffer 前，上层必须保留相应 owner，或者把字符串复制到结果 vector 持有的 buffer。返回 string_view 并不自动消除生命周期成本。</p>
+<p id="doxcnBe5wCTwrKIVBEa0Wj49HJd">大块数据通常通过 Velox MemoryPool 支持的 Buffer / Vector 分配。Encoding::Options 另有可选 <code>velox::BufferPool</code>
+ 和 <code>EncodingBufferPool</code>
+，用于复用 scratch buffers / nested encoding arenas；它们是缓存复用机制，不是 MemoryPool 的替代品。未传复用池不意味着大块 buffer 就绕过 MemoryPool，但 STL 容器和外部 codec 的分配也不能一概宣称全部被同一个池追踪。</p>
+<p id="doxcn9QrLRjbG2RvsW5osFJyhJa">源码：<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/encodings/common/Encoding.h">Encoding 接口与生命周期契约</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/velox/ChunkedStreamDecoder.cpp">batch ChunkedStreamDecoder</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/velox/selective/ChunkedDecoder.h">selective ChunkedDecoder</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/velox/selective/StringColumnReader.cpp">StringColumnReader.cpp</a>
+。</p>
+<h3 id="doxcnS7eHBlzUEwCssvIpqBW21c">7.6 回到端到端例子：分别看 I/O、decoder 初始化和结果物化</h3>
+<p id="doxcnfSEDL4D9zVnXfxQp5QILhb">第 1 章的读取可以拆成三个阶段，它们消耗不同资源、由不同结构控制。评估某个 encoding 的收益，或判断“只读 3 行”究竟节省了什么，应分别看这三层：</p>
+<div class="nimble-table-scroll"><table id="doxcnKP4rJ1AxyVX9DinLg6PPse"><thead><tr><th><p id="doxcnTC6khdSMeEuYMEwbXynRGc">阶段</p>
+</th>
+<th><p id="doxcn1V2U8rTDffjWwogdK21lLf">本例发生的工作</p>
+</th>
+<th><p id="doxcn2ru1r5ksUcKoLgVKpC4C77">主要控制因素</p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td><p id="doxcnsVWtngcc1RAitiibOt5gIh">字节获取</p>
+</td>
+<td><p id="doxcnVqegdQCyKnH70Le86x8oHg">读取必要的 metadata；申请 id/score streams；note 不投影；有 index 时能指定目标 chunk 起点</p>
+</td>
+<td><p id="doxcnUhN1EiYlZbfKUYTiy53mhc">Schema/ScanSpec、Stripes/StripeGroup、StreamIndex、BufferedInput、cache、预取与 lazyColumnIo</p>
+</td>
+</tr>
+<tr><td><p id="doxcnyrbjkuecpHkkOY4eTDuVCb">decoder 初始化</p>
+</td>
+<td><p id="doxcnHHLdJGG7GGpzQA8kCX9CPh">读取 framing/prefix；解压 chunk 或叶子 payload；构造组合 codec；恢复 alphabet / BBP 块元数据</p>
+</td>
+<td><p id="doxcn9cjrEv19J61PjTWwn2Jbgp">chunk 大小、通用压缩粒度、编码树结构、字典大小、辅助元数据</p>
+</td>
+</tr>
+<tr><td><p id="doxcnUBxTHg0ueu0ihWdib815ud">值恢复与过滤输出</p>
+</td>
+<td><p id="doxcnM5mMa3ixgovRAO58RHW5Ed">score 判断 20 个候选行；假设 3 行命中，再取对应 id；组织结果 vectors</p>
+</td>
+<td><p id="doxcnkgTCGtN2AaAjr4RjU0itHc">visitor、稠密/稀疏读取内核、null/行域转换、scatter、向量组织与 buffer owner</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p id="doxcnh3396OOqOVzha2Y0jGukFh">在普通 selective 路径中，loadCurrentStripe 先 buildColumnReader，再 streams_.load()；构造各列时通过 StripeStreams::enqueue 申请该列的 stream range。因此“id 晚物化”并不必然意味着“id 的字节晚读取”。本快照另有 lazyColumnIo：顶层列没有 pushdown filter、未被 remaining filter 引用且需要输出时，可进入 lazy input；真正取值时触发这批 lazy streams 的加载。这个设置延后的是 I/O，不能与 LazyVector 或 Encoding::materialize 的概念混为一谈。</p>
+<p id="doxcnyuF5p6bM8tKuS0s5WOhdvb">chunk index 使 skip 能跨过不需要的 chunks，避免逐个构造它们的 encoding；但若整个 stream 已预取到 cache/buffer，少掉的是后续解压/初始化工作，不一定是此前的存储读取。反过来，即便目标 chunk 已经在内存中，只取 3 行也可能需要解压整个 chunk、初始化整份 alphabet，或者解一个 packed block 的前缀。设计比较要说明节省发生在哪一层。</p>
+<p id="doxcnyt8Joz8ooXCqLftF0aldBg">物化也有三种常见对象：构造阶段 materialize alphabet/块元数据，是恢复内部辅助数组；Encoding::materialize / materializeNullable 是按本 encoding 行域恢复值；ColumnReader 最后组织 Velox vectors，是满足执行引擎输出契约。函数名相同或相近，不代表它们都处于“整列读出来”的阶段。第 7.1 节的游标例子和第 6.6 节的 Nullable 例子可以分别用于检查单层与多层游标推进是否正确。</p>
+<p id="doxcnMnQtTSjUKV6vKBON227bve">源码：<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/velox/selective/SelectiveNimbleReader.cpp#L458">建 reader 后加载 streams</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/velox/selective/SelectiveNimbleReader.cpp#L432">lazy I/O 列资格</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/velox/selective/ReaderBase.cpp#L226">stream range 与 enqueue</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/velox/selective/NimbleData.cpp#L27">lazy input 触发</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/velox/selective/ChunkedDecoder.cpp#L248">有索引 skip</a>
+。</p>
+<h2 id="doxcnDCbj3Gjkx0bw3exHDtXzoe">8. 随机访问：定位能力、点读接口与真实复杂度</h2>
+<h3 id="doxcns1uQaafv3K7760YnwXzGqf">8.1 “支持随机”至少有四种不同含义</h3>
+<div class="nimble-table-scroll"><table id="doxcnO9DimLoyhHdesQxa5mijfg"><thead><tr><th><p id="doxcnCcpZRrM4OwVHeT7zAAoFAf">能力</p>
+</th>
+<th><p id="doxcn4slEPk1tBznJHL14aWCQhc">当前机制</p>
+</th>
+<th><p id="doxcn4LSqzwAuAUnJUC9eONeIIc">成本边界</p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td><p id="doxcnceJ8340IX923Py1srVGGOb">随机定位一个 stripe / stream</p>
+</td>
+<td><p id="doxcnBOjIoIDyiETktmtDuWS9gc">Stripes 累计行数查 stripe；StripeGroup 取 stream offset / size。</p>
+</td>
+<td><p id="doxcnucB48w5lADhxKmNP9O2JAb">顶层 row → stripe 为 O(log S)；raw stream 位置表查项为 O(1)。仍可能需要 metadata I/O。</p>
+</td>
+</tr>
+<tr><td><p id="doxcnp5efMhZng1Tp6zXm9pWr9g">按行定位 stream 内 chunk</p>
+</td>
+<td><p id="doxcnK5IMfhHc673pGLAAYhKAIg">可选 StreamIndex，记录累计 row counts 和 byte offsets。</p>
+</td>
+<td><p id="doxcnpFHhnsOr1eFLSGNhDIWMrh">lookupChunk 实现用 lower_bound，为 O(log K)；定位后可直接 seek，无需加载此前每个 chunk。</p>
+</td>
+</tr>
+<tr><td><p id="doxcn1xpnzut1VRn0hTE3IeYgzr">chunk 内任意位置取值</p>
+</td>
+<td><p id="doxcncVTg9rIaOTxGOJiGf5dYlh">适用 codec 的 EncodingView；或者 Encoding::reset + skip + materialize。</p>
+</td>
+<td><p id="doxcnwdy6PZnJ3Wx0jZ2jyfG3Se">前者不是所有 codec 都支持，后者复杂度随 codec 变化。</p>
+</td>
+</tr>
+<tr><td><p id="doxcn1eBwKszhCiYc7poXpKFHMb">稀疏候选行读取</p>
+</td>
+<td><p id="doxcnWulGxgN2nxuYYO77xDlEvh">readWithVisitor 结合有序 row set、null 映射与过滤。</p>
+</td>
+<td><p id="doxcnjP7SHDxJYZldSQftT7tHGf">适合单调推进的选择性扫描，不等同于任意顺序 O(1) 点查。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p id="doxcnjJjis7FdKI0FEhNdT1lnMd">这里刻意不沿用某些注释中“chunk index 使按行查找 O(1)”的笼统措辞：<code>StreamIndex::lookupChunk</code>
+ 实际二分累计行数。它的重要收益是避免线性加载前面的 chunks，而不是取消所有查找成本。启用索引后仍需解码目标 chunk 内的前缀/结构数据。</p>
+<h3 id="doxcner8WMRe2r1ri5nCXrv4Z1g">8.2 EncodingView 是独立能力，不是 Encoding 的默认模式</h3>
+<p id="doxcnVAhzpOUVAZAUrxd1YoQkjb">EncodingView 提供 const 的 <code>readAt(index)</code>
+、<code>readAt(indices)</code>
+ 和 <code>read(offset, length)</code>
+，不暴露顺序解码游标。它适合点查或需要直接访问编码数组的场景，例如实验性 StripeGroup metadata 编码。</p>
+<p id="doxcnAKAWwqZk0enO6Q7AuzE20f">但 view 的初始化与访问成本由具体实现决定：</p>
+<div class="nimble-table-scroll"><table id="doxcnNHJ2gnFbQ8UwNEZGwFn6Ld"><thead><tr><th><p id="doxcnV1Es2a0PMjTCXYpwZDdeqb">示例</p>
+</th>
+<th><p id="doxcnDwXrirJda6BdS0XRJWc6fb">初始化/限制</p>
+</th>
+<th><p id="doxcnWdv61oT1VSLCPl0JfUusxd">单点访问</p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td><p id="doxcnmvJLn2mkz1sXCOqCBwDVvg">Constant view</p>
+</td>
+<td><p id="doxcnLtBKgQQE4cXwPivF9hSpth">解析单值与行数。</p>
+</td>
+<td><p id="doxcnORwShPkPf61F6XTGvGQ66b">常数成本返回同一值。</p>
+</td>
+</tr>
+<tr><td><p id="doxcntkNQp291UBlpyC4zueY4ke">Trivial numeric / FixedBitWidth view</p>
+</td>
+<td><p id="doxcnaaSGhKJdTyiBxuDghqVuue">对应支持的未压缩表示；不能把任意通用压缩 bytes 直接当随机数组。</p>
+</td>
+<td><p id="doxcnuxAYfYp0wxTKVCfu0s4QXd">直接索引或按位提取。</p>
+</td>
+</tr>
+<tr><td><p id="doxcnG8YKIPLpFU5N7gjHef2O4c">Trivial string view</p>
+</td>
+<td><p id="doxcn1B4nPA8dHTUKbyvqahnwxh">先物化全部 lengths 并构建 rowCount + 1 的 offsets 数组。</p>
+</td>
+<td><p id="doxcnHtBo6nLXr9eprimkNcRblf">初始化后 O(1) 找到字符串范围，但付出了 O(N) 初始化和额外 offsets 内存。</p>
+</td>
+</tr>
+<tr><td><p id="doxcnUjkqwe3vKPGW6GuXnaN1qE">RLE view</p>
+</td>
+<td><p id="doxcnfdbvx5LbTw5I8HqkNSvAkb">先物化 run lengths 并建立累计 run ends；values 还需要相应 child view。</p>
+</td>
+<td><p id="doxcnuvFfFIz8mrgVWBv7srW5Mg">upper_bound 查 run，约 O(log R)，再访问 run value。</p>
+</td>
+</tr>
+<tr><td><p id="doxcnhSR0Oxc5NOFJ0v1aUiT3Ng">Dictionary / 其他组合 view</p>
+</td>
+<td><p id="doxcn2iGdV166bNlBstN32LW7te">还受 child encoding、类型与压缩形式是否受支持的限制。</p>
+</td>
+<td><p id="doxcnUwuVXgIWFaD4EqKsbvXYFe">取决于子结构，不能只看根 EncodingType。</p>
+</td>
+</tr>
+<tr><td><p id="doxcnCUor80FEpWYp8uuztQnhCS">FSST / Nullable 等</p>
+</td>
+<td><p id="doxcnYh9XEM7uHezllSMSxPkY49">此快照的 EncodingViewFactory 没有对应分派。</p>
+</td>
+<td><p id="doxcnwI7FHKWZWD73nXwY2oJT8f">不能因为它们有普通 decoder 或 slice 就声称已支持 view 点读。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p id="doxcn4eGyBbfPob7Nk5RdfCysTg"><code>supportsEncodingView(encodingType)</code>
+ 只是一层类型级筛选，不足以证明任意该类型的实际编码树、压缩方式都能成功创建 view，更不足以证明 O(1)。同样，不应只根据方法的 const 修饰就推导所有实现及其外部 pool 都可随意并发共享。</p>
+<h3 id="doxcnlJpPxtITLjMB22Omekj3gh">8.3 普通 skip 的差异</h3>
+<p id="doxcnF537WuaCotzB6tGWk3CMmd">FixedBitWidth::skip 只推进行号；Varint::skip 要找变长整数边界；Nullable::skip 会读取 null flags 并计算 child 应跳过多少非空值；FSST::skip 要解 lengths 并累计 blob byte offset。它们都满足“跳过 n 行”的语义，但 CPU、scratch memory 和读取前缀的量不同。</p>
+<p id="doxcnU3CTCD1fIxZsj9zihXAa0b">FSST 可以对单条字符串独立解压，说明它不依赖前一条字符串的解压状态；这不代表输入第 N 条的 compressed byte offset 已经存在。当前 FSST 在构造时还会分批验证 lengths 与 blob 的一致性，这部分初始化成本也应计入小范围读取的评估。</p>
+<h3 id="doxcn3hmzWgp1QGc7gDLBDugrKc">8.4 设计结论</h3>
+<p id="doxcntL2XzOaDlUjUBAeiyXJoEr">Nimble 的基础读取契约偏向批量、可跳过、可投影的序列访问；针对更强的点读需求，再通过 chunk index、EncodingView、特定 codec 的辅助索引补充。它允许不同 encoding 在压缩率、初始化成本、顺序吞吐与随机访问之间作不同权衡，并没有要求每个 codec 都为 O(1) 点读维护一份完整 offsets。</p>
+<p id="doxcnKEgLex7xWuwm1Qh4F6LmZb">源码：<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/index/ChunkStatsGroup.cpp#L117">StreamIndex::lookupChunk</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/velox/selective/ChunkedDecoder.cpp#L233">skipWithIndex / skipWithoutIndex</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/encodings/views/EncodingViewFactory.cpp">EncodingViewFactory.cpp</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/encodings/views/RLEEncodingView.h">RLE view</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/encodings/views/TrivialEncodingView.h">Trivial view</a>
+。</p>
+<h2 id="doxcnZ9ZYLmZRp5eIkO7fA80Lug">9. Slice 设计：编码态切片、行域转换与成本边界</h2>
+<h3 id="doxcnMU7deAjmT7ng9E4LTKcdKg">9.1 EncodingFactory::slice 的产物仍然是编码后的数据</h3>
+<p id="doxcnvdX5NVJRRSHcSpls8v4cYg">图 4｜先取得 encoding bytes，再区分“解码成值”与“生成切片后的编码字节”。文件读取与 serialized/raw-stream 入口不能混同；FSST slice 避免字符串解压，但仍有长度处理和字节复制成本。</p>
+<figure class="nimble-figure" id="doxcnczUo6nqSHq9dFXeI2mIlst"><div class="nimble-diagram-scroll" tabindex="0" role="region" aria-label="可横向滚动的 Nimble SVG 配图"><img src="/images/nimble-design/figure-16.svg" alt="Nimble 设计解读，原文第 16 张配图" loading="lazy"></div></figure><p id="doxcnfQjOjyYqkAg8jemaROKMag"><code>EncodingFactory::slice(encoded, offset, length, buffer, options)</code>
+ 返回一个表示原序列半开区间 <code>[offset, offset + length)</code>
+ 的新 encoding。它与“解出这段值”不同，也与“在原 buffer 上返回一个零拷贝 view”不同。返回的 bytes 归输出 Buffer 所有，调用方必须维护其生命周期。</p>
+<p id="doxcnrKtbEUp2lWJozPHJxMUpSh">EncodingSliceFactory 校验行范围；此快照不接受 length == 0。整段切片通常直接把原 encoding bytes 复制到目标 buffer；SharedDictionary 有特殊处理。部分区间优先使用 codec 的原生 slice，没有专用分派时尝试 materialize + 按捕获布局重新 encode。新 codec 或特殊布局仍需核对 fallback 能否支持，不能假设所有组合自动成立。</p>
+<h3 id="doxcnKudYUzvL6mj6oaRs9RXAln">9.2 不同 codec 的 slice 做的事情不同</h3>
+<div class="nimble-table-scroll"><table id="doxcnn2mBrvUbujKGNYOVQHHjNc"><thead><tr><th><p id="doxcnZtutk8cBFLH1RRIlng1aqf">编码</p>
+</th>
+<th><p id="doxcnYvGGrJKk2M0E6o0ONepiph">主要处理</p>
+</th>
+<th><p id="doxcnIntzq9BMkUGvfXjkVRPVBg">没有被消除的成本</p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td><p id="doxcnPDHUMdTVwD66a57U7SJEXe">Constant</p>
+</td>
+<td><p id="doxcnkglzbeWdI92NWQF5babQbe">保留常量，改为新的 rowCount。</p>
+</td>
+<td><p id="doxcnycY4gvw4vGiYCO030b0G9c">输出 header/常量字节。</p>
+</td>
+</tr>
+<tr><td><p id="doxcn7pIFStd0CpCq2cR1WP0Mhb">FixedBitWidth</p>
+</td>
+<td><p id="doxcnjtwRdYxPI12DYmXp00ueGY">保留 baseline 与 bit width，复制目标 bit 范围并处理对齐。</p>
+</td>
+<td><p id="doxcnZmKCnDh1iakliJ5DJiLmrg">源 packed payload 若经过通用压缩，先解压；当前输出为未压缩的 sliced packed 数据。</p>
+</td>
+</tr>
+<tr><td><p id="doxcnt3r6WcNDTIia6Py8UafZLe">Dictionary</p>
+</td>
+<td><p id="doxcnxVmmwGd6umICjrd6bCtOxe">递归 slice indices，完整保留并复制 alphabet。</p>
+</td>
+<td><p id="doxcnAp0Ui4L7AbyvHDeRG6VO8g">不自动删除未使用字典项；很短的 slice 仍可能携带整个 alphabet。</p>
+</td>
+</tr>
+<tr><td><p id="doxcn1tB9IlwaRJOUu07HE2Z25d">Nullable</p>
+</td>
+<td><p id="doxcnL0ozX4PZc1YXfyNLMKUOpb">统计范围前和范围内非空数，映射 values child 范围；分别 slice values 与 nulls。</p>
+</td>
+<td><p id="doxcnbk42xJeoBLSkqMV31Imucg">计数可能需要读取 flags；全 null 范围构建空 values child。</p>
+</td>
+</tr>
+<tr><td><p id="doxcnTyrdug7lVoLySkBRfuF4Vg">RLE</p>
+</td>
+<td><p id="doxcnDd9SoK8iecVCA7s6cAr9ie">找到相交 runs，修正首尾 run lengths，再处理 run values 子范围。</p>
+</td>
+<td><p id="doxcnD9SNGACi0O3HLXPsGlrob0">寻找 run 边界与重写相关子编码。</p>
+</td>
+</tr>
+<tr><td><p id="doxcnftcRWpko7XtY4bc0sqbAjh">FSST</p>
+</td>
+<td><p id="doxcn4kd7U4ZRvAM6FFNWwe4GOE">读取 compressed lengths 算 blob 范围；保留 symbol table；递归 slice lengths；复制目标压缩 blob。</p>
+</td>
+<td><p id="doxcnohTsL1zlolMXNNFQnHQBTb">长度扫描、header/table/bytes 复制；不是 O(1)，也不是零拷贝。</p>
+</td>
+</tr>
+<tr><td><p id="doxcnOlF98qCFXg3wQfOG9ts7nb">通用 fallback</p>
+</td>
+<td><p id="doxcnRcR8MFW9L5VAvv9zCk2lJh">构造 decoder → skip(offset) → materialize(length) → encode。</p>
+</td>
+<td><p id="doxcn5UPi3PU5Wh3UBgqEJ02GBh">可能真正解压/解码值，再重新编码；不是“全程仅修改 metadata”。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="doxcnIrkppTvpp0sUI2Z5AK3eAh">9.3 FSST slice 是很直观的例子</h3>
+<pre id="doxcncLJWjiXLTxXVuj5o2xP6Fe"><code class="language-plaintext">输入 lengths = [5, 3, 7, 2]
+blob = C0(5 bytes) || C1(3) || C2(7) || C3(2)
+
+slice(offset=1, length=2)
+  blobBegin = sum(lengths[0:1]) = 5
+  blobBytes = sum(lengths[1:3]) = 10
+
+输出：
+  同一张 symbol table
+  新的 lengths encoding，表示 [3, 7]
+  原 blob 的 [5, 15) 这 10 个压缩字节
+  新 rowCount = 2</code></pre>
+<p id="doxcnThRzR6C402SlBbwyQGA00c">无需将 C1/C2 解压成字符串再训练 FSST，是它相对 decode/re-encode 的价值所在。不过当前实现会一次物化直到 <code>offset + length</code>
+ 的 lengths，分别求前缀与范围内总和，并重新生成输出字节。因此仍有 O(offset + length) 级别的长度处理与相应临时 buffer；还要加上子 encoding 的初始化/解码和输出字节复制成本。</p>
+<h3 id="doxcnN5Vmn6WSs0dmsh82lpSM8b">9.4 StreamSlicer：对复杂 schema 做一致的行范围投影</h3>
+<p id="doxcnJm3pCjvHpNayHEgbfJXzCh"><code>serde::StreamSlicer</code>
+ 处理的是符合其输入版本/布局契约的 serialized Nimble payload 或已抽取的 raw stream set。它用 schema 递归决定各 stream 应切哪一段，目标是得到便于传输的紧凑编码态结果，尽量不先还原为完整 Velox vectors。它不是一个“给任意 .nimble 文件路径，就直接生成新文件”的通用文件改写器。</p>
+<p id="doxcnSXZaut3K8yefWT6z889TBf">沿用第 3 章数组例子，切顶层 <code>[1, 4)</code>
+：</p>
+<pre id="doxcnI79iQW4yvMQMJgJyL4Wzff"><code class="language-plaintext">原 lengths = [2, null, 0, 1]
+原 elements = [&quot;aa&quot;, &quot;bb&quot;, &quot;cc&quot;]
+
+顶层 slice [1, 4)
+  lengths slice = [null, 0, 1]
+  child offset  = sum(切片前的有效 lengths) = 2
+  child length  = sum(切片内的有效 lengths) = 1
+  elements slice [2, 3) = [&quot;cc&quot;]
+
+输出三条顶层行：null、[]、[&quot;cc&quot;]</code></pre>
+<p id="doxcnXdKwUGqi1A4NYd9kQ3QFVD">对于 ROW，要计算前缀和范围内非空父行数；对于 FlatMap，先映射 map non-null range，再按各 key 的 in-map true counts 映射到 value range。因此，父结构的 rank/count/sum 与子 encoding 的 slice 是相互配合的，而不是把所有 stream 的 byte arrays 按同一个比例裁剪。</p>
+<p id="doxcnImDd21JR4FluQeuwyj4VHg">当前还有明确的范围限制：完整 payload 重载接受 kSerialization / kProjection，明确拒绝 kTablet，以免 chunk framing 和 fixed/varint row-count 格式被错误标记；raw-stream 重载有额外格式选项。schema 递归分派支持 Scalar、TimestampMicroNano、ROW、ARRAY、MAP、FlatMap，而 ArrayWithOffsets / SlidingWindowMap 尚未进入这一 sliceType 支持路径。不能把“schema 能表达”直接等同于“slicer 已覆盖”。</p>
+<h3 id="doxcncmFpoTfv0ft1rsSTrTxBJc">9.5 SliceEncoding 是另一种取舍：延后工作，不一定缩小输入</h3>
+<p id="doxcn5tNxHojZYu8S8d17Wz1IrS">代码中还存在 <code>SliceEncoding</code>
+ 这个 codec/helper，不能与 <code>EncodingFactory::slice</code>
+ 混为一谈。它可以携带原编码、切片起点与结果长度，把定位工作推迟到构造 child decoder 并 skip 时；还支持特定整数情形的 value delta 处理。其动机是避免立即为某些结构做昂贵切片。</p>
+<p id="doxcnxvmA4ldcVdlsx8S695vbKe">代价是可能携带完整原 encoding，而非只有结果需要的紧凑 bytes。它是“现在少做工作，稍后再做，并可能多占传输/存储容量”的权衡，不是免费 zero-copy 或统一最优的 slice 实现。</p>
+<p id="doxcn8AAxY6WxOp49IB49ABOCHf">源码：<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/encodings/EncodingSliceFactory.cpp#L356">EncodingSliceFactory::slice</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/encodings/FsstEncoding.cpp#L630">FSST slice</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/encodings/DictionaryEncoding.h#L493">Dictionary slice</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/serializer/StreamSlicer.cpp">StreamSlicer.cpp</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/encodings/SliceEncoding.h">SliceEncoding.h</a>
+。</p>
+<h2 id="doxcnsrxMWzvo1CAnN1VAoo6MbV">10. 与 Parquet 的布局、Metadata 和编码设计对比</h2>
+<h3 id="doxcnzvWFzfecKLVVDeLGdOHF5d">10.1 最接近的层次映射</h3>
+<p id="doxcnC1gzdZYn44gFHB76feSK4e">下面按职责对照 Nimble 与普通未加密 Parquet。相近职责不代表相同的数据组织方式，尤其不能把 StripeGroup 对应成 RowGroup。</p>
+<div class="nimble-table-scroll"><table id="doxcnj3AI38JBGp4QgpI43HVQRc"><thead><tr><th><p id="doxcnxrAgAJycuO5blpnUJeoyPf">Nimble</p>
+</th>
+<th><p id="doxcn7QM8aMnNiPSJkUzEje9pjc">Parquet 中最接近的对象</p>
+</th>
+<th><p id="doxcnZ2EfClL5anMQftNo83qjMf">对应关系与关键区别</p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td><p id="doxcns7JhTVw0CufUdgs62KtAPf">File / Tablet</p>
+</td>
+<td><p id="doxcni8gqfi5rUaa5OA4m0OxlDN">File</p>
+</td>
+<td><p id="doxcnGlBp111ZdFLqQUkCDyBZOd">文件级容器。两者都通过文件尾元数据定位数据；Nimble 的 tablet 层不直接理解上层列式 schema。</p>
+</td>
+</tr>
+<tr><td><p id="doxcnZyXGxS0mpXgg5tOngrdOWf">Stripe</p>
+</td>
+<td><p id="doxcnpi4ieE411KOahwIpmhORuh">RowGroup</p>
+</td>
+<td><p id="doxcn3WzVqTQfGFyGGNaODjmsQp">都覆盖一段连续的顶层行。这里才是主要的行分组对应关系。</p>
+</td>
+</tr>
+<tr><td><p id="doxcnvat46Yz45rDojFWUiB8AWc">Stream</p>
+</td>
+<td><p id="doxcnLsUVcUkkzRCFj0kjBnIqXc">leaf ColumnChunk</p>
+</td>
+<td><p id="doxcnjCIzNHhTaToracsCvhRZ2f">近似对应。Nimble 会为 lengths、nulls、in-map 等结构信息建立独立 streams；Parquet 把嵌套结构编码为 leaf column 配套的 definition / repetition levels。</p>
+</td>
+</tr>
+<tr><td><p id="doxcnmAPfz8P5H36T6OQTUuKwrJ">Chunk</p>
+</td>
+<td><p id="doxcnxrIYKsBzCoC7tWQ8lFAQrg">DataPage</p>
+</td>
+<td><p id="doxcnBczELiOf5pCPTnfX5dyWQb">都属于更细粒度的数据处理单元。Nimble stream 拼接多个 chunks；Parquet column chunk 可以包含可选 DictionaryPage 和多个 DataPages。跨 stream / column 的边界不必对齐。</p>
+</td>
+</tr>
+<tr><td><p id="doxcnTgIKOlX88EIcdmihzR3pmh">根 Encoding tree</p>
+</td>
+<td><p id="doxcnhpaKAz0P8rC8mciFzaKO2d">Page 内由格式规定的编码组合</p>
+</td>
+<td><p id="doxcnC0c6niYGLSmAll9cxBmUPf">Nimble 的 alphabet、indices、lengths 等 children 可以继续选择编码。Parquet 也有组合编码，例如 RLE_DICTIONARY、DELTA_BYTE_ARRAY，但不是相同的通用递归子编码机制。</p>
+</td>
+</tr>
+<tr><td><p id="doxcn9DYwOWKxMgbRpbg64fHoJh">StripeGroup metadata</p>
+</td>
+<td><p id="doxcnj0OR5wDZBqc9gyaZImcIAf">无直接对应结构</p>
+</td>
+<td><p id="doxcnfBnCWRVGOZakBM0omM1bab">为连续多个 stripes 分组保存 stream offsets / sizes，便于按组写出、压缩、加载和缓存。它不是数据压缩父容器，也不是 Parquet RowGroup。</p>
+</td>
+</tr>
+<tr><td><p id="doxcnHLq5V1Mmw5XA1Xv3AREwNf">Stripes metadata</p>
+</td>
+<td><p id="doxcnoCgGnzmw6trnRKjC5OsTSf">FileMetaData 中的 row_groups 及相关位置描述</p>
+</td>
+<td><p id="doxcnVWlnSqj0NEsFNTXicIWDRb">Nimble 用独立 section 保存 row_counts、offsets、sizes、group_indices。Parquet 的行组和列块目录主要在 FileMetaData 内组织，字段并非逐一相同。</p>
+</td>
+</tr>
+<tr><td><p id="doxcnaJLJCUJ4tu4ZdF1jmlwlJg">Footer</p>
+</td>
+<td><p id="doxcnUf00uEgYVaJl91IKRQW4og">FileMetaData</p>
+</td>
+<td><p id="doxcnToCrXs0HY5qA1pVI7cnMWc">Nimble Footer 主要是总行数与 Stripes、StripeGroups、optional sections 的引用目录；Parquet FileMetaData 内联 schema、row_groups 等描述。</p>
+</td>
+</tr>
+<tr><td><p id="doxcn1M98e2J4ytbELDTEm9R0Wd">Postscript：固定 20 B</p>
+</td>
+<td><p id="doxcnaHsD4oWi2HJmcYEA26jpxc">尾部 4 B footer length + 4 B PAR1</p>
+</td>
+<td><p id="doxcnSk3XPva9Ah4vA28c4fCgOc">都用于从文件尾定位根元数据。Nimble Postscript 还包含 Footer 压缩类型、checksum 信息、版本和 magic。Parquet 文件头另有 PAR1。</p>
+</td>
+</tr>
+<tr><td><p id="doxcn5BUquVsYwC6BFCF6OcQolg">columnar.schema / properties 等 sections</p>
+</td>
+<td><p id="doxcn6GyzGSp6Wec32PdKPybecf">FileMetaData.schema / key_value_metadata 等</p>
+</td>
+<td><p id="doxcnVFB7WuMBVK026b7UtoOynk">Nimble 通过命名 sections 扩展容器；schema 还负责逻辑类型到 stream IDs 的映射。“optional section”不代表对上层 reader 可随意省略。</p>
+</td>
+</tr>
+<tr><td><p id="doxcn4YL7IwpDV7nUROfjmGeGkc">chunk stats / StreamIndex（可选、实验性）</p>
+</td>
+<td><p id="doxcnKf3Oo9RaejQ8ctJEQhSyRb">OffsetIndex / ColumnIndex 等可选索引</p>
+</td>
+<td><p id="doxcnWeK17j29mD2wY5eFGXafGh">Nimble 当前 chunk stats 以位置、累计行数和 null count 为主，不能直接等同于 Parquet ColumnIndex 的 page min/max。两者有索引都不意味着 codec 内 O(1) 点查。</p>
+</td>
+</tr>
+<tr><td><p id="doxcnUHDEE9Yo1CHnLwEcH66UQd">普通 Dictionary：encoding / chunk 作用域</p>
+</td>
+<td><p id="doxcnLKXwDI196ZRRsFflr4QV8q">DictionaryPage：column chunk 作用域</p>
+</td>
+<td><p id="doxcnETeahSXXlGVWL8kYWvJhth">Nimble alphabet 可继续用其他 codec 编码；Parquet 常规字典项用 PLAIN。Nimble 的 SharedDictionary 是另一套实验性机制，不能混入普通字典比较。</p>
+</td>
+</tr>
+<tr><td><p id="doxcnwBxGNUVPzAQSJTl0s3mxwc">EncodingSliceFactory / StreamSlicer</p>
+</td>
+<td><p id="doxcnp3uUym99cRyLMUcynirPPf">没有格式规范层面的一对一 API</p>
+</td>
+<td><p id="doxcnENAHiG0zpsqKMYo9ogtLeO">这是 Nimble 实现提供的编码态切片能力，部分 codec 可复用压缩字节；Parquet reader 的 range scan、Arrow vector slice 或文件重写不是同一层概念。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p id="doxcnf8rqkAAeeZTEIjfXwtPd1e">最重要的区别是：Stripe ↔ RowGroup；StripeGroup 则是 Nimble 的分组位置元数据，没有标准 Parquet 中的直接对应物。Parquet 的 page headers、page indexes、BloomFilter 等也可位于 footer 之外，不能概括成“所有 metadata 都在 footer”。</p>
+<pre id="doxcn9SULiJaXtMaL8I39ej3Sdf"><code class="language-plaintext">Nimble                                    Parquet
+File / Tablet                             File
+ ├─ Stripe                                ├─ RowGroup
+ │   ├─ Stream                            │   ├─ ColumnChunk（leaf column）
+ │   │   ├─ Chunk                         │   │   ├─ DictionaryPage（可选）
+ │   │   │   └─ Encoding tree              │   │   ├─ DataPage
+ │   │   └─ Chunk                         │   │   └─ DataPage
+ │   └─ ...                               │   └─ ...
+ ├─ 分组的 StripeGroup metadata           ├─ 可选 PageIndex / BloomFilter 等
+ ├─ Stripes / optional metadata           ├─ FileMetaData（含 RowGroups）
+ ├─ Footer                               └─ footer length + PAR1
+ └─ 20-byte Postscript
+
+注意：右边不是左边结构的逐一同义改名。</code></pre>
+<p id="doxcnJTn35oxbKHE3o33evBG9zh">粗粒度上，Nimble stripe 最接近 Parquet row group，物理 stream 最接近某条 leaf column 的 column chunk，Nimble chunk 最接近 data page。但复杂类型会让这种映射变得不完整：一个 Nimble 逻辑列可能有多个结构 streams；一个 Parquet leaf column 的 data page 内则同时携带 levels 和 values。Nimble StripeGroup 没有一个可直接对应的标准 Parquet row-group 上层对象。</p>
+<p id="doxcnLoxSJGsuOIsp5gqXnDeQMb">图 5｜Nimble / Parquet 布局对照。上半部表示数据的包含关系，中部表示目录定位，底部表示文件字节顺序。StripeGroup 与 Footer 属于 metadata 组织，不应画成包住所有数据的压缩容器。</p>
+<figure class="nimble-figure" id="doxcnNYl1QQjcxIQYiNEzjaRbie"><div class="nimble-diagram-scroll" tabindex="0" role="region" aria-label="可横向滚动的 Nimble SVG 配图"><img src="/images/nimble-design/figure-17.svg" alt="Nimble 设计解读，原文第 17 张配图" loading="lazy"></div></figure><h3 id="doxcn7Atg0ogREUrOXxOAKIL6dd">10.2 文件布局与 metadata</h3>
+<div class="nimble-table-scroll"><table id="doxcncPucEdvYWgExFDvollyndf"><thead><tr><th><p id="doxcnBTMvIWg8GQ5RuuV9EwBswb">维度</p>
+</th>
+<th><p id="doxcnGiexLnVYKU8Io7ktLE617c">Nimble</p>
+</th>
+<th><p id="doxcn3PrAvdosEE4iETGPb2ZiDe">Parquet（普通未加密文件）</p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td><p id="doxcnBTqSDhy2TPMGEHkKbRnNkg">文件首尾</p>
+</td>
+<td><p id="doxcn0QgtdGemMX3FmjUUeeeHAe">当前 writer 从数据/sections 写起；尾部 Footer + 固定 20-byte Postscript。</p>
+</td>
+<td><p id="doxcnOixoET7g6QZgfycM36o45g">开头 PAR1；尾部 FileMetaData + 4-byte footer length + PAR1。</p>
+</td>
+</tr>
+<tr><td><p id="doxcnsLHqksSsSieKlxKbvlmXcd">顶层 metadata</p>
+</td>
+<td><p id="doxcn9YwlHWYVH2sZ9i6X5Fufvc">Footer 较像 section directory；schema、位置表、统计、索引可在独立 sections。</p>
+</td>
+<td><p id="doxcnuaBRNgBSjzmd89i81m7wTc">Thrift FileMetaData 包含 schema、num_rows、row_groups、key/value、created_by 等。</p>
+</td>
+</tr>
+<tr><td><p id="doxcnV8jFyUtyIi5RgLFCwxMKPI">列位置 metadata</p>
+</td>
+<td><p id="doxcnLLmX7eyCIwmSJPq23ti05g">Stripes 定位 stripe，StripeGroup 的 arrays 定位 stream。</p>
+</td>
+<td><p id="doxcnb54vhzfSA0oT5PIkHqCRgN">RowGroup 包含 ColumnChunk 列表；ColumnMetaData 记录 data/dictionary page offset、大小、codec、encodings 等。</p>
+</td>
+</tr>
+<tr><td><p id="doxcnYC36U21ceHtBA4FEUOKuTd">细粒度位置索引</p>
+</td>
+<td><p id="doxcnGZiJ1QWx1aCDN2gkFPrSRd">可选 chunk stats / StreamIndex，累计行数与 chunk offsets；当前配置为实验性。</p>
+</td>
+<td><p id="doxcnca52yPSMDx0jHPeEbBf4NT">可选 OffsetIndex：page offset、compressed page size、first_row_index。</p>
+</td>
+</tr>
+<tr><td><p id="doxcn3yHBEzWsVETFP1AOleWDEb">统计/过滤索引</p>
+</td>
+<td><p id="doxcnNl0qSvWp13Qkc3dWSuqlEh">vectorized file stats；受 gate 控制的 stripe stats；chunk stats 当前以位置及 null count 为主；可配其他索引。</p>
+</td>
+<td><p id="doxcnVxKBTUaH4FkhzRaHmJVYPb">ColumnMetaData 的 column-chunk statistics；可选 page statistics、ColumnIndex 的 page min/max/null counts、BloomFilter。</p>
+</td>
+</tr>
+<tr><td><p id="doxcn7wREYzkP2G9PuXyFYX0wPg">Metadata 表示</p>
+</td>
+<td><p id="doxcn5nKZF5S9w9UH6mwALslzBe">目录/schema 等主要是 FlatBuffers；vectorized stats 等自定义 payload 还能复用 Nimble encoding。</p>
+</td>
+<td><p id="doxcnk2U78Y7REccpFlvDNCkkAD">主要用 Thrift Compact 编码 metadata；page indexes 等是另外的对象，有各自位置引用。</p>
+</td>
+</tr>
+<tr><td><p id="doxcnHJJjrC1tFZcfIbVMIIoXOb">宽 schema 代价</p>
+</td>
+<td><p id="doxcnQIZ7QrfAQx56jFDCI3ogCh">分组目录可按需加载；stream 数仍然会影响 metadata 大小和 I/O。</p>
+</td>
+<td><p id="doxcnrxl2Jwl8hPPEaYyptXpQWg">FileMetaData 内 RowGroup × ColumnChunk 描述可能很大；实际内存代价还取决于 reader 解析、投影及缓存实现。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p id="doxcn27XaOrHr1bJpqNEgE9Jv9r">所以不能说“Nimble 有分层 metadata，而 Parquet 的所有 metadata 都在 footer”。Parquet 的 page headers、page indexes、BloomFilter 等也可位于 footer 之外。真正的区别在于顶层目录组织方式、叶子/结构信息的映射、以及默认把哪些 per-column/per-stripe 信息集中在根 metadata。</p>
+<h3 id="doxcnaqMxnS1SnAyf9sGDxaFSTd">10.3 嵌套数据：结构 streams 与 Dremel levels</h3>
+<p id="doxcnNlgvqDze6RdcxYZXGJWf6g">Parquet 为嵌套数据的 leaf values 配套 definition / repetition levels。definition level 表示该叶子路径上定义到了哪一层，repetition level 表示重复结构如何衔接。reader 据此重建父子边界、null 与空容器。它不等于“每个值带一个 null bit”，也不是另设一个通用 ARRAY lengths column chunk。</p>
+<p id="doxcnZYpkLqbbrskppAhmyh5oXe">Nimble 则更直接地把 ROW nulls、ARRAY/MAP lengths、FlatMap in-map 等拆成类型化 streams，再让结构 reader 协调它们。这里的收益是结构信息能单独编码、投影和复用通用 codec；代价是需要协调多个行域和 stream 的推进。两者都必须保留 null container、empty container 和 null element 的不同语义。</p>
+<p id="doxcn90ffai0hPaYd69ZATh9PKf">普通 Parquet MAP 不会自动给每个运行时 key 生成一个可单独投影的物理 leaf column；要达到类似 FlatMap 的效果，通常需要改变 schema/数据表示或使用其他机制。这并不表示 Parquet 无法存稀疏特征，而是原生结构表达不同。</p>
+<h3 id="doxcnRCIlPbaKg3bQg4NzzjQMJb">10.4 编码组合：自由递归树与规范化的固定组合</h3>
+<p id="doxcnJZmhKNK6fM6zKg6Bxm59Xf">Parquet 不是完全没有组合编码。RLE_DICTIONARY 使用 dictionary IDs 配合 RLE/bit-packing；DELTA_LENGTH_BYTE_ARRAY 把 lengths 与 bytes 分离，并规定 lengths 的编码；DELTA_BYTE_ARRAY 组合 prefix lengths 与 suffix 表示。这些都是标准化的组合，但不是每个子序列都通过同一个通用策略任意递归选 codec。</p>
+<p id="doxcniW3PAE0qORpRdsUWPFlVmc">Nimble 的不同点是把子序列本身也当成带 prefix 的 encoding：Dictionary alphabet 不必固定为某一种字符串表示，indices、run lengths、FSST lengths 也能递归选择。Parquet 的常规 dictionary entries 使用 PLAIN，字典页服务于相应 column chunk；Nimble 普通 Dictionary 的 alphabet 则位于对应 encoding/chunk 内，跨 chunk 的共享是另外的机制。</p>
+<p id="doxcn5kY8tgrqIBHkFMCayvFOrZ">这种灵活性给 Nimble 更多选择空间，也带来更多需要验证的 codec 组合、fallback、成本估算、reader 兼容和切片路径。不能从“可组合方式更多”直接推导“每次写出的结果都更优”。</p>
+<h3 id="doxcnjJ1cDYB2VEBhCjYEQHRxad">10.5 Compression、选择性解码与随机读取</h3>
+<p id="doxcnXriOebs86giXshk774YLrf">Parquet 的 ColumnMetaData 声明 compression codec，按 page 处理。DataPage V1 通常把 levels 与 values 一起压缩；DataPage V2 把 repetition/definition levels 保持为编码后未压缩 bytes，并可压缩 values 区域。Nimble 则可以在 encoding 的叶子 payload、外层 chunk 和 metadata section 分别有压缩决策。</p>
+<p id="doxcnRD9DbGNWjz6uSD34UiqNfc">两者都支持投影和数据跳过，都可能需要为很少的结果解压某个较大的单元；两者不同列的 page/chunk 边界也都不应假设完全对齐。Parquet 有 OffsetIndex 并不意味着任意 page codec O(1) 点查；Nimble 有 EncodingView 也不意味着任意 encoding 无成本随机访问。</p>
+<p id="doxcnIrtbFaZ96ZinzmJlwfwq4g">slice 更适合比较 API 契约而不是简单比较格式强弱：Nimble 当前提供 EncodingSliceFactory / StreamSlicer，能为一部分编码复用压缩态数据；Parquet reader 的 range scan、Arrow vector slice 或某个实现的文件重写接口，不能直接当成同一层能力。具体是否需要解码/重编码，仍取决于编码、字典作用域、page 边界和实现。</p>
+<p id="doxcnQnQaNnElN0MqZp7E8eWcDh">Parquet 对照依据：<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/parquet/thrift/parquet.thrift#L724">ColumnMetaData / ColumnChunk / RowGroup</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/parquet/thrift/parquet.thrift#L1007">FileMetaData</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/parquet/thrift/parquet.thrift#L527">DataPageHeader / V2</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/parquet/thrift/parquet.thrift#L912">OffsetIndex / ColumnIndex</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/parquet/reader/ParquetReader.cpp#L438">Parquet footer 读取</a>
+。</p>
+<h2 id="doxcnXR9TJNOEyQw9lp62RV8ttg">11. 设计理念与取舍：从工作负载回看 Nimble</h2>
+<p id="doxcn58958QxgbrjrFiUYF3qGmc">前面的章节解释了文件如何组织、字节如何定位和值如何恢复。本章把这些机制串成设计上的因果关系：面对什么访问模式，为什么采用这种结构，收益来自哪里，又把成本转移到了哪里。以下是基于本文固定源码快照的设计归纳；具体默认开关和能力边界见第 12 章。</p>
+<h3 id="doxcnlGiCY7U8jX7UVZ221XSu2Z">11.1 从访问模式出发，同时考虑空间、CPU 与内存</h3>
+<p id="doxcnQMWfAUfVVyi9jFi8Jionmf">Nimble 的这些机制适合放在宽 schema、嵌套或稀疏字段、按需选列和批量处理的背景下理解。一个文件可能有很多字段，每次查询却只使用其中一部分；不同字段的值宽、null 比例和局部分布也不同。设计需要同时考虑文件大小、打开文件的 metadata 成本、写入内存，以及查询实际消费的 CPU。</p>
+<div class="nimble-table-scroll"><table id="doxcnuTcyQj4S7B7FPxVvntLtlg"><thead><tr><th><p id="doxcncL0OXucu2oCz4miugmRuAe">访问模式 / 成本压力</p>
+</th>
+<th><p id="doxcnlFDK4wzUQQftkdAjS5oc1f">对应设计与预期收益</p>
+</th>
+<th><p id="doxcnBseCHPWag6R3EE6ezysTi1">需要付出的代价</p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td><p id="doxcnv5G2Cer0doJGysgoLcwsAc">宽 schema，只访问部分 stripes</p>
+</td>
+<td><p id="doxcnLjqrkodCMHeDWKBWTIWTWc">分组保存 stream 位置表，按需加载相关 StripeGroup</p>
+</td>
+<td><p id="doxcnatSYn9LqkjJhWwAE6N8ZNb">增加目录间接访问；冷缓存可能增加 metadata I/O</p>
+</td>
+</tr>
+<tr><td><p id="doxcnsbAFF0yGKHWOq0nukZQ6cA">只取少量嵌套字段或稀疏特征</p>
+</td>
+<td><p id="doxcnGTKM3kTgrBbslgCHmNpOqg">类型化结构 streams 与 FlatMap，使相关部分可独立申请</p>
+</td>
+<td><p id="doxcnIP9X4r2Yp5vZYkqOMEA8vf">stream / schema 数量增加，reader 要协调父子行域</p>
+</td>
+</tr>
+<tr><td><p id="doxcnsegDaKLZb7roMlPoJ9XRBc">列间大小、分布差异大</p>
+</td>
+<td><p id="doxcnRiwnisddE3eDZScFe9munc">各 stream 独立切 chunk，并按子序列选择 encoding</p>
+</td>
+<td><p id="doxcnk2vGD2vTMoA0cMNV5GDtgh">小块重复头部、字典和初始化工作；选码也消耗 CPU</p>
+</td>
+</tr>
+<tr><td><p id="doxcnw11Pq0t4fgAMIRwPJQys8e">大批量扫描或过滤后取值</p>
+</td>
+<td><p id="doxcnlIZbBmfBVnRlIMBz8g6KFf">批量解码、visitor 和延后输出，减少逐值调用及中间结果</p>
+</td>
+<td><p id="doxcnqbckPkk6KZVmXbSB1fGkUX">稀疏选择、短 batch、null 和跨块游标需要专门处理</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p id="doxcnMkIGbWcUaWESqfZpPKCoBe">这些收益有各自的适用条件。例如，宽表小投影可以少读列数据，但 schema 与必要目录仍要读取；窄表全列扫描更应关注解码和内存带宽。格式提供优化的空间，具体 reader、策略和数据分布决定能获得多少收益。</p>
+<h3 id="doxcnnpeoYI79KrNc8GJzI6pj5e">11.2 分层目录：控制打开成本和 metadata 工作集</h3>
+<p id="doxcnFqRMdkLQJcWy8PJrJtWJvb"><b>Stripes 与 StripeGroup 分开，解决的是全文件概览和局部细节的粒度差异。</b>
+Stripes 给出每条 stripe 的行数、绝对地址和 group ID，先让 reader 确定要访问哪些 stripes；StripeGroup 再提供一组 stripes 内的 stream 位置。Footer 保存这些 metadata 的引用，使 stream 位置明细可以独立写出、压缩、加载和缓存。</p>
+<p id="doxcnCwFFFuk2e4Gi6644bmAIOd">可以用一个简单模型理解收益：假设文件有 S 条 stripes，每条有 C 个 streams，只计算 raw offsets / sizes 两张 uint32 数组，总量就是 8 × S × C 字节。一组包含 B 条 stripes 时，该组两张数组约为 8 × B × C 字节。分组改变的是一次必须处理的明细量；全文件 Stripes 目录、schema、Footer 的各组引用以及所有明细的总成本仍然存在。</p>
+<p id="doxcnxgeNa2VzfBy0H5k8JIAIQd">因此，组大一些可以摊薄目录开销并增加压缩机会，组小一些则减少局部访问加载的明细。默认 raw 布局按组加载，不能把它理解成“只选一列就只读这一列的 metadata”。额外跳转也需要靠尾部预读、合并 I/O 和缓存来摊薄，详见第 2.4、4.4 节。</p>
+<p id="doxcnBaoDfgS1PFWIVyqJWKGUDb">源码依据：<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/tablet/Footer.fbs">目录的分层结构</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/tablet/TabletReader.h#L170">metadata 缓存选项</a>
+。</p>
+<h3 id="doxcnvzZGiuPmCpa631ra8csgTe">11.3 类型化 streams 与独立 chunk：让各部分按自身特点组织</h3>
+<p id="doxcnfyLoCrXGnf9TezI20ANrpb">把 ROW nulls、ARRAY/MAP lengths、FlatMap in-map 和 values 显式拆开，既暴露了可投影的结构，也把它们变成通用编码能处理的布尔、整数或字符串序列。例如，读取 FlatMap 中一个已展开的 key，可以只申请它的 in-map、value 子树和必要的父结构流；其他 key 的 values 可以不读。代价是 key 越多，schema 和位置表越大，而且父行与子行之间必须通过 nulls、lengths 或 in-map 换算。</p>
+<p id="doxcnoaa1d91PbYxm6nG0SGcVpe"><b>Stripe、chunk、codec 内部 block 分别服务于不同的成本。</b>
+Stripe 组织一段顶层行；每个 stream 的 chunk 决定局部编码与处理的范围；BBP 等 codec 的 block 再细化整数表示。短整数列和长字符串列可以形成不同的 chunk 边界，writer 也可以按内存压力处理已经积累较多数据的 streams。</p>
+<p id="doxcndcTSZ0Y5So0ntyvvzjk8jh">切得更细，可能更好地适应局部分布，并缩小一次初始化或解压的单元；同时会重复头部、字典与 decoder 初始化，增加索引项。粒度需要随访问模式和内存预算调整，不能从“块更小”直接推导读写更快。WriterOptions 对大 schema 使用不同的 chunk 大小上限，正体现了对这类成本差异的处理。</p>
+<p id="doxcnkDmHbMHGjUE7FER4ObGjCb">源码依据：<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/velox/Schema.fbs">类型与结构流描述</a>
+、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/writer/WriterOptions.h#L290">chunk 大小与宽 schema 策略</a>
+。</p>
+<h3 id="doxcnBPPIgmUYP74W5mdSfdeBah">11.4 编码与执行共同设计：压得小，也要取值方便</h3>
+<p id="doxcnlggeIE6gOX5ijA4ZB1nRe4">Cascading encoding 让不同子序列利用各自的规律：Dictionary 的 alphabet 关注唯一值的表示，indices 则可能变成适合 FBW 的小整数；Nullable 的标记和非空值也可以分别编码。选择空间增大后，写端需要采集统计、估算候选和控制递归，读端需要承担对应编码树的初始化与状态管理。</p>
+<p id="doxcnCFQ2BLTd2ogIkM4DRwTPJb">默认 manual policy 用 <code>estimatedSize × readFactor</code>
+ 比较候选，说明读取成本已经进入选码目标。不过 readFactor 是配置的权重，估算也是局部的；这个分数不等于某次查询的真实耗时，也不是对所有编码组合的全局搜索。</p>
+<p id="doxcnNhnbsk9OAWN3D0ZiGXR5Af">FBW 用整段统一的基准和位宽换取简单的位置计算与批量处理；BBP 用块内基准和位宽适应局部分布，同时增加块参数和块间状态。FastLanes 布局关注数据怎样排列，才能便于并行 pack / unpack；它与“按多大范围选基准和位宽”是不同维度。因而评估 FastLanes 时，需要对照已有 FBW / BBP 的实际批量路径，检查它改善的是位布局、内核执行还是压缩粒度，收益不能只由名称判断。</p>
+<p id="doxcntWhfgljZwNaMX2K5cpgQ7f">读端同样分几处节省工作：投影决定申请哪些 streams；可用索引帮助定位数据范围；visitor 可以在解码推进中判断条件，减少中间结果；materialize 从当前游标产出一批值，供上层组装向量。过滤后只输出少量值，仍可能需要读取、解压或解码一个较大的单元。位置索引负责“在哪里”，统计能否用于排除数据还取决于 reader 是否消费它，详见第 4、7 章。</p>
+<p id="doxcn3VFLvaA7WL8yS79SYymjLg">源码依据：<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/21c2e7ec590e83d53897d88ebdaeeff071b608e5/velox/dwio/nimble/encodings/selection/EncodingSelectionPolicy.h#L161">候选成本比较</a>
+；FBW / BBP 的布局与接口见第 5.6 节，visitor 与 materialize 契约见第 7 章。</p>
+<h3 id="doxcnunn8n6WOU1jTvduKOLu0Fg">11.5 保留已有表示，减少重复工作</h3>
+<p id="doxcnhWd3l6LGmQKNQiukrI4w1f">Capture / replay、编码态 slice 和批量读取都体现了复用已有工作的思路，但复用对象不同：replay 尝试复用选码形状；slice 尽可能复用已有编码表示；读取路径则可以复用 buffer、字典或已经初始化的状态。它们分别针对选码、重编码、复制和初始化成本，不能互相替代。</p>
+<p id="doxcnu2200F6wOmSPIBJXArXvBc">复用也可能保留更多数据或延后工作。例如 Dictionary slice 可以保留整份 alphabet；SliceEncoding 可以先记录范围，等访问时再处理；依赖输入 buffer 的结果则要延长 owner 生命周期。这些设计把部分 CPU 开销换成空间、状态或生命周期管理。判断收益时，要把结果真正被消费时的成本一起计算，具体边界见第 5.5、7.5、9 章。</p>
+<h3 id="doxcn64gwchnegfBfaFpLRul20b">11.6 演进、兼容与验证：灵活性需要明确边界</h3>
+<p id="doxcniaTJOcl4q5TuNMxI8rL1re">把文件容器、schema、encoding 和 reader 接口分层，使不同部分可以独立改进。例如，优化已有合法字节布局的 SIMD 解码内核，可以保持落盘契约；增加纯辅助、允许忽略的 metadata section，也可以通过命名目录扩展。两者都需要维持既有数据语义。</p>
+<p id="doxcnMyoQBVHlVCU5IX2RBgNSZb"><b>新增 encoding ID 或改变已有 ID 的字节解释，会产生 reader 能力要求。</b>
+即使 Footer、Stripe 和 Chunk 的外壳没有变化，旧 reader 仍可能无法读到其中的值。推广这类编码需要明确读写版本支持范围，先部署可读取它的 reader，再按能力或配置启用写出；仅保留原有文件外层结构并不足以保证兼容。Schema、properties 或字典依赖若影响解释数据，也不能当成可随意忽略的附件。</p>
+<p id="doxcndAt5iyd5zR3p1yhkH1UTW8">因此，一个新优化至少应回答三个问题：它改善哪种访问模式；新增了哪些 metadata、初始化、内存或状态成本；哪些 reader 能正确读取。评估时同时看文件大小、encode CPU、顺序与选择性 decode、冷暖 metadata cache、实际 I/O 和端到端耗时，并覆盖短流、null、尾块和跨 chunk 调用。对新增 FastLanes 等布局尤其应先证明目标场景的净收益，再决定是否承担新的落盘与维护成本。</p>
+<h2 id="doxcnecWFS7F6rsMrGffcL4J00c">12. 当前能力边界与源码阅读路线</h2>
+<h3 id="doxcnewhiNsAJnILRsNUsG0Uqec">12.1 读这套设计时应保留的几个边界</h3>
+<p id="doxcnBTwCKUu4tblUbyCfKzTH2J">第一，支持的 codec 集合大于默认策略候选集合，支持的 schema 集合也大于某个具体 slicer / reader 快路径的覆盖集合。存在源码或测试，不等于默认启用，更不等于已标为生产可用。</p>
+<p id="doxcn3ShRFBhydLSlNiPBaS8WFq">第二，基础 Encoding 是顺序/批量游标，EncodingView 是另一层能力。seek、skip、slice、visitor selection 各解决不同问题，不能互相代替。尤其要把目标数据的定位成本、初始化/解压成本、真正产出值的成本分开讨论。</p>
+<p id="doxcnSBN5rJOleSxj9K3S6OWSve">第三，cascading 是组合框架，默认 greedy estimator 不是全局最优求解器。字符串 Dictionary 的估算与实际 alphabet 子编码可能不同，FSST 有自己的收益回退，replay 也可能回到 fresh selection。当前 LearnedEncodingSelectionPolicy 的 select 分支最终都返回 Trivial，多分类模型仍有 TODO；不能把它描述成已经成熟替代 manual policy 的智能选码系统。</p>
+<p id="doxcn7PcLxOXp4HM1KeecLQ8wqc">第四，压缩态 slice 的价值是尽可能保留表示，而非保证零解码、零复制、输出严格最小。例如 Dictionary 保留整个 alphabet，FSST 扫描 lengths，FixedBitWidth 源压缩 payload 可能要先解压，通用 fallback 可能物化值。SliceEncoding 则可能把工作延后，以容量换 CPU。</p>
+<p id="doxcnPUv3ljPfksKjRyWlqZRqSc">第五，性能取决于 workload：宽表小投影、大 batch 顺序扫描、极稀疏点查、短字符串与长字符串、低/高基数、null 比例、冷热 metadata cache，会改变主要瓶颈。本文给出结构和成本推导，不提供未经 benchmark 验证的格式性能排名。</p>
+<h3 id="doxcncN7WqjMHGqPiW3qiFEKYef">12.2 当前可选/实验性能力速查</h3>
+<div class="nimble-table-scroll"><table id="doxcnNCmp1ca8iBDPclOk4remQd"><thead><tr><th><p id="doxcnB6nWORZj9BNYu0ArpDHeQh">能力</p>
+</th>
+<th><p id="doxcn4PYAEUDBagpSSYANb9RPYd">此快照中的状态</p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td><p id="doxcnZDOtuWPryRarK4FuxxHR8b">Chunking</p>
+</td>
+<td><p id="doxcnbad0vb2K64fmo4ZPYFNNCh">WriterOptions::enableChunking 默认 true。</p>
+</td>
+</tr>
+<tr><td><p id="doxcnaq3nDVKPBkwiOLLXEa9qch">File vectorized stats</p>
+</td>
+<td><p id="doxcnzz3J7W6IGZfx8HLGD7ciVe">enableStatsCollection 与 enableVectorizedStats 默认 true；统计有效性仍与类型和数据相关。</p>
+</td>
+</tr>
+<tr><td><p id="doxcnqUg9l5Hm0zX6dVlgmzeF2f">Stripe stats</p>
+</td>
+<td><p id="doxcnXSovfuqGebTZUcg5X1feie">stripe_stats_write feature gate 默认 false，写出还依赖 enableVectorizedStats；有统计序列化/反序列化实现，但该快照普通 selective reader 尚未接入 stripe min/max 谓词裁剪。</p>
+</td>
+</tr>
+<tr><td><p id="doxcnyGLOM5JvWNNKKrMxclK5dc">Chunk position index</p>
+</td>
+<td><p id="doxcnCXjqPgQGRycLOFFTGUMmub">enableChunkIndex 默认 false，标为实验性；cluster index 配置可联动开启。</p>
+</td>
+</tr>
+<tr><td><p id="doxcnoHmGAFg05BQc0y7yY3R2if">Stream-major StripeGroup metadata</p>
+</td>
+<td><p id="doxcn8o9mG9nyECa8Wt9cidufBh">实验性；默认 kRaw，非 kStreamMajor。</p>
+</td>
+</tr>
+<tr><td><p id="doxcnplAWvHIF9f2eV7fduVYifh">Compact row-count prefix</p>
+</td>
+<td><p id="doxcnWsNqCKQeAoSSHTgfa6w18e">实验性；文件路径默认 fixed uint32，需 properties 协调 reader。</p>
+</td>
+</tr>
+<tr><td><p id="doxcnzrMGfgenJSxIScSW3c0oky">Shared dictionary / cluster、dense、vector indexes</p>
+</td>
+<td><p id="doxcn769tHye1rwjTGev8tRN1Vd">WriterOptions 明确标注实验性，需要相应配置与读取能力。</p>
+</td>
+</tr>
+<tr><td><p id="doxcnLLKZbBe17voFMjHPOxl7yf">Encoding selection cache</p>
+</td>
+<td><p id="doxcnQNv9gHXhriDuD3FQRLC8gT">默认 false；开启后使用 best-effort replay。</p>
+</td>
+</tr>
+<tr><td><p id="doxcnb4FelnToB0BRkQAnV4N9ue">FSST / ALP</p>
+</td>
+<td><p id="doxcnOWpVfkTLoUUL2UNPyexZTg">有 codec 实现，不在 manual default candidates 中；nested ALP 另有默认 false 的实验性开关。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="doxcndl6IZtf2iu8WldyoDZXKWI">12.3 建议的源码阅读顺序</h3>
+<p id="doxcnbkGW0MlEVGug5EOaJrPaWe">先看 <code>tablet/Footer.fbs → Postscript.cpp → TabletWriter::writeStripe/close → TabletReader::init</code>
+，建立文件字节和目录的整体图。再看 <code>SchemaBuilder/SchemaReader → FieldWriter</code>
+，理解每个物理 stream 究竟表示什么以及行数为什么不同。</p>
+<p id="doxcncuzGUY93gflH7czpnd7lUc">编码从 <code>EncodingPrefix → EncodingFactory → EncodingSelection → ManualEncodingSelectionPolicy</code>
+ 读起，再挑 <code>Nullable、Dictionary、Fsst</code>
+ 三个 codec，顺着构造、encode、skip、materialize、slice 五条路径对照。这样既能看到递归结构，也能看到同一结构在写、读、切片时的不同成本。</p>
+<p id="doxcnrmLhHfmWtGFL8fSY7azEnc">最后看 <code>selective/ChunkedDecoder → StringColumnReader / StructColumnReader / VariableLengthColumnReader</code>
+，以及 <code>EncodingViewFactory、EncodingSliceFactory、serializer/StreamSlicer</code>
+，把点读、批读、过滤读、编码态切片这几种能力分开。Parquet 对照则从 <code>parquet.thrift</code>
+ 的 FileMetaData、RowGroup、ColumnChunk、DataPageHeader、OffsetIndex/ColumnIndex 反向定位。</p>
+<p id="doxcndtDyIhgWcKrUFyI4S0Czkg">归纳为一句话：Nimble 不是“一个更复杂的压缩算法”，而是一套将列结构、物理位置、递归编码和查询执行接口解耦的列式存储实现；判断一个改动是否符合其设计，需要同时看它对表示大小、metadata、初始化、访问方式和生命周期的影响。</p>
+</div>
+
+  </div>
+</article>
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/categories/technology">Technology</a></li>
+         
+          <li><a href="/categories/life">Life</a></li>
+         
+          <li><a href="/archives/">Archives</a></li>
+         
+          <li><a href="/tags/">Tags</a></li>
+         
+          <li><a href="/about">About</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#doxcnzPimk7VfNoxzrifzvzp9de"><span class="toc-number">1.</span> <span class="toc-text">1. 用五张布局图逐层展开 Nimble</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnmbqHu0qNzWcCRtyx6nDxBb"><span class="toc-number">1.1.</span> <span class="toc-text">1.1 全局布局：一个 Nimble 文件里有什么</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcn1g8i0XnTjquudAXkpQlSCg"><span class="toc-number">1.2.</span> <span class="toc-text">1.2 展开定位目录：stripe 目录与 stream 目录</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnTzv1uOUDc0zEGOEEmvcbab"><span class="toc-number">1.3.</span> <span class="toc-text">1.3 展开 Stripe：选择需要的 streams</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnren6fdmoBEp2eKFePaScWc"><span class="toc-number">1.4.</span> <span class="toc-text">1.4 展开 Stream：各自独立的 chunk 边界</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnmbeHJwlxp6xTc2QFK2QFEf"><span class="toc-number">1.5.</span> <span class="toc-text">1.5 展开 Chunk：封装头与 encoding 内部布局</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnEr33pnySAlhmbsjjDBpnuc"><span class="toc-number">1.6.</span> <span class="toc-text">1.6 把各层连起来：一次读取的执行顺序</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnWFgIrVGcB4Hj9AcfUc4Xmc"><span class="toc-number">1.7.</span> <span class="toc-text">1.7 各层实现的分工</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#doxcn4Rk5XFWMoU2DVsxqrhtZ5c"><span class="toc-number">2.</span> <span class="toc-text">2. 物理文件布局：Stripe、Stream、Chunk、StripeGroup 与文件尾</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnEQEwyvIM9S6bHPbV1BySfh"><span class="toc-number">2.1.</span> <span class="toc-text">2.1 文件布局详图：对照各层位置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnlkibdWsKJqMpdsHZJ8QwJh"><span class="toc-number">2.2.</span> <span class="toc-text">2.2 各结构分别承担什么职责</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#doxcnDWlUFIdxdPeQQo6R0cCiVf"><span class="toc-number">2.2.1.</span> <span class="toc-text">2.2.1 Footer、Stripes 与 StripeGroup 的分工</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#doxcn8j2PAPo7D6EFspK74vhTng"><span class="toc-number">2.2.2.</span> <span class="toc-text">2.2.2 位置目录如何参与 stripe 裁剪</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnSoQuvi5y3QBoVIKNdJ7LUh"><span class="toc-number">2.3.</span> <span class="toc-text">2.3 Chunk 的 framing 与 Encoding prefix 是两层头</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnCNax5GjXyMjLsevy5vmCVd"><span class="toc-number">2.4.</span> <span class="toc-text">2.4 Stripes 与 StripeGroup：内部结构、关系与分组设计</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#doxcnEMzNiVM0zi5VgNb9FZWikG"><span class="toc-number">2.4.1.</span> <span class="toc-text">2.4.1 先把四个名字分开</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#doxcn2zHXSKZE6eUOW5qOf21V3f"><span class="toc-number">2.4.2.</span> <span class="toc-text">2.4.2 raw 布局如何访问一个 stream</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#doxcn4gEMYoKuZPB3BkSI1kzhFg"><span class="toc-number">2.4.3.</span> <span class="toc-text">2.4.3 为什么把位置表分组，而不全部放进 Footer</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#doxcnc05JYkkURtCnvomFk7LHkc"><span class="toc-number">2.4.4.</span> <span class="toc-text">2.4.4 实验性 stream-major：对位置表自身做 encoding</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#doxcnF6k0w1jDhXyBIj1da1N5nh"><span class="toc-number">3.</span> <span class="toc-text">3. Schema 如何拆成 Streams：Null、Lengths 与行域</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnlKwzLCOKaV9UtzsFYDpiIX"><span class="toc-number">3.1.</span> <span class="toc-text">3.1 一个逻辑列不一定只有一个 stream</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnNsOYM8ZUvrd9GjUZqoRbx3"><span class="toc-number">3.2.</span> <span class="toc-text">3.2 用一个数组例子解释行域</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnFXyGINIGQrt9WPURG3QaWd"><span class="toc-number">3.3.</span> <span class="toc-text">3.3 FlatMap 的意义：把 key 变成可投影的列</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnfy5xrIM0bunh7MrCsArBZg"><span class="toc-number">3.4.</span> <span class="toc-text">3.4 Schema 的落盘结构，以及投影为何要展开成依赖集合</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#doxcnvgpiHf371NZi1HkLNajLSh"><span class="toc-number">4.</span> <span class="toc-text">4. Metadata 的组成与打开文件的过程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnNAclbXeRaZoN2Cs5Jngn2e"><span class="toc-number">4.1.</span> <span class="toc-text">4.1 Postscript 与 Footer：读取链条的根</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnrtpS4GGY1OKEfhS8iqTjRb"><span class="toc-number">4.2.</span> <span class="toc-text">4.2 Metadata 不只是 Footer，也不全是 FlatBuffers</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnzMAGmd9IbAPZqKnPQoqTwe"><span class="toc-number">4.3.</span> <span class="toc-text">4.3 文件与 stripe 统计：内部布局、列映射和读端用途</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnaeNW3C1nxdOFk2Hs0S0wZg"><span class="toc-number">4.4.</span> <span class="toc-text">4.4 打开文件与一次投影读的路径</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnPwC3pkkAv4IFabn6mlzdde"><span class="toc-number">4.5.</span> <span class="toc-text">4.5 Chunk 位置索引：内部数组、查找算法与缺失时的行为</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#doxcnIKOdylu6SnNFKHNHK5qnKh"><span class="toc-number">5.</span> <span class="toc-text">5. Encode 设计：切块、选择策略、成本模型与写出</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnOpXFeOxsXGjKjpjTLwFV6f"><span class="toc-number">5.1.</span> <span class="toc-text">5.1 Writer 如何从 Velox vectors 走到磁盘</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#doxcnjBAgr5KPFovrC7GvK3skPc"><span class="toc-number">5.1.1.</span> <span class="toc-text">5.1.1 写入状态分三层推进：chunk、stripe、StripeGroup</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcn6i1D9Qh4J2h6gbL6TSM9Wg"><span class="toc-number">5.2.</span> <span class="toc-text">5.2 EncodingFactory 的输入、输出和选择契约</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnpMZd75f6oGzWxognpxU8Xc"><span class="toc-number">5.3.</span> <span class="toc-text">5.3 默认策略是“估算大小 × 读成本权重”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnWSREUhLTDdxFDf8J4xWr5f"><span class="toc-number">5.4.</span> <span class="toc-text">5.4 Encoding 与 Compression 是两次决策</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcntel2hou9avPxtg84vfxbLO"><span class="toc-number">5.5.</span> <span class="toc-text">5.5 Capture &#x2F; Replay：复用编码形状，而非复用旧数据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnxIFLn3kFd4PwDkMh9MYxZ2"><span class="toc-number">5.6.</span> <span class="toc-text">5.6 整数编码实例：FBW、BBP 的原理、布局与选择取舍</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#doxcnu7TaVJ56OfaOCMf7ieKdvg"><span class="toc-number">5.6.1.</span> <span class="toc-text">5.6.1 FBW：用一组基准和位宽表示整段整数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#doxcnZ7Sercs4KPBJXiU3sv56Pg"><span class="toc-number">5.6.2.</span> <span class="toc-text">5.6.2 BBP：每块重新选择基准和位宽</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#doxcnr4R2NulLnOFejyFf9Ejkug"><span class="toc-number">5.6.3.</span> <span class="toc-text">5.6.3 把压缩粒度、位布局和执行方式分开比较</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#doxcnqAgbOWMKg10dXqWOWo94yb"><span class="toc-number">6.</span> <span class="toc-text">6. Cascading Encoding：递归组合的代码与数据布局</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnod5TratoWzUks9yBtRoVPc"><span class="toc-number">6.1.</span> <span class="toc-text">6.1 Cascade 的对象是“子序列”，不是重复压缩同一串 bytes</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcn9AKctYLSzkdUnGikF1MdEb"><span class="toc-number">6.2.</span> <span class="toc-text">6.2 一个完整的编码树</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnDEvvcE85JOZ4tM96Sa1tId"><span class="toc-number">6.3.</span> <span class="toc-text">6.3 encodeNested 如何把递归连接起来</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcn6d9A78uVdkBRgO84Grmklf"><span class="toc-number">6.4.</span> <span class="toc-text">6.4 字节布局如何让 decoder 恢复这棵树</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnCWD4sEq6En5uZGbWBG6Ozd"><span class="toc-number">6.5.</span> <span class="toc-text">6.5 Encode 的递归结构，不等于 Decode 总是逐行递归</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnECtms3r5drsMVesUNJs78e"><span class="toc-number">6.6.</span> <span class="toc-text">6.6 从输入到字节再到输出：一个 Nullable + Dictionary + FBW 例子</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcn9YKJX4wPBfLG9L3EzdTT2f"><span class="toc-number">6.7.</span> <span class="toc-text">6.7 其他常用编码分别利用什么规律，如何恢复值</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#doxcn9vQepPyN91YnBwejyiyyzd"><span class="toc-number">7.</span> <span class="toc-text">7. Decode 设计：游标、批量解码、Visitor 与内存生命周期</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnaOdh7T6UjWJNi3OBprm1o4"><span class="toc-number">7.1.</span> <span class="toc-text">7.1 Encoding 首先是一个有状态的批量游标</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#doxcnSUS3glsgGI5fNdEB6mvrj1"><span class="toc-number">7.1.1.</span> <span class="toc-text">7.1.1 调用契约：从当前位置产出 n 行</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#doxcnIq2K1FmOk87jZwzLOHYSMg"><span class="toc-number">7.1.2.</span> <span class="toc-text">7.1.2 同一个接口，不同编码恢复值的方式不同</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#doxcnvpaawBNglFfo2QBsxyCmng"><span class="toc-number">7.1.3.</span> <span class="toc-text">7.1.3 从上层调用链辨认实际执行路径</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcn0MoIfSROyjP7rIQ5Vtlyce"><span class="toc-number">7.2.</span> <span class="toc-text">7.2 Chunked decoder 屏蔽 chunk 边界</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnZP3HryNFALdwMtqFpcIuUg"><span class="toc-number">7.3.</span> <span class="toc-text">7.3 readWithVisitor：让过滤和解码在同一遍推进</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnTUca6lMP4gWpJgerUiq0Cg"><span class="toc-number">7.4.</span> <span class="toc-text">7.4 Nullability 是解码契约，不只是一个额外 bitmap</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcn3MBAe1ULfdzksSAoxBGyWh"><span class="toc-number">7.5.</span> <span class="toc-text">7.5 Ownership 与 pool：不要把 zero-copy 当成统一保证</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnS7eHBlzUEwCssvIpqBW21c"><span class="toc-number">7.6.</span> <span class="toc-text">7.6 回到端到端例子：分别看 I&#x2F;O、decoder 初始化和结果物化</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#doxcnDCbj3Gjkx0bw3exHDtXzoe"><span class="toc-number">8.</span> <span class="toc-text">8. 随机访问：定位能力、点读接口与真实复杂度</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcns1uQaafv3K7760YnwXzGqf"><span class="toc-number">8.1.</span> <span class="toc-text">8.1 “支持随机”至少有四种不同含义</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcner8WMRe2r1ri5nCXrv4Z1g"><span class="toc-number">8.2.</span> <span class="toc-text">8.2 EncodingView 是独立能力，不是 Encoding 的默认模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnlJpPxtITLjMB22Omekj3gh"><span class="toc-number">8.3.</span> <span class="toc-text">8.3 普通 skip 的差异</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcn3hmzWgp1QGc7gDLBDugrKc"><span class="toc-number">8.4.</span> <span class="toc-text">8.4 设计结论</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#doxcnZ9ZYLmZRp5eIkO7fA80Lug"><span class="toc-number">9.</span> <span class="toc-text">9. Slice 设计：编码态切片、行域转换与成本边界</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnMU7deAjmT7ng9E4LTKcdKg"><span class="toc-number">9.1.</span> <span class="toc-text">9.1 EncodingFactory::slice 的产物仍然是编码后的数据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnKudYUzvL6mj6oaRs9RXAln"><span class="toc-number">9.2.</span> <span class="toc-text">9.2 不同 codec 的 slice 做的事情不同</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnIrkppTvpp0sUI2Z5AK3eAh"><span class="toc-number">9.3.</span> <span class="toc-text">9.3 FSST slice 是很直观的例子</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnN5Vmn6WSs0dmsh82lpSM8b"><span class="toc-number">9.4.</span> <span class="toc-text">9.4 StreamSlicer：对复杂 schema 做一致的行范围投影</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcncmFpoTfv0ft1rsSTrTxBJc"><span class="toc-number">9.5.</span> <span class="toc-text">9.5 SliceEncoding 是另一种取舍：延后工作，不一定缩小输入</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#doxcnsrxMWzvo1CAnN1VAoo6MbV"><span class="toc-number">10.</span> <span class="toc-text">10. 与 Parquet 的布局、Metadata 和编码设计对比</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnzvWFzfecKLVVDeLGdOHF5d"><span class="toc-number">10.1.</span> <span class="toc-text">10.1 最接近的层次映射</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcn7Atg0ogREUrOXxOAKIL6dd"><span class="toc-number">10.2.</span> <span class="toc-text">10.2 文件布局与 metadata</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnaqMxnS1SnAyf9sGDxaFSTd"><span class="toc-number">10.3.</span> <span class="toc-text">10.3 嵌套数据：结构 streams 与 Dremel levels</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnRCIlPbaKg3bQg4NzzjQMJb"><span class="toc-number">10.4.</span> <span class="toc-text">10.4 编码组合：自由递归树与规范化的固定组合</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnjJ1cDYB2VEBhCjYEQHRxad"><span class="toc-number">10.5.</span> <span class="toc-text">10.5 Compression、选择性解码与随机读取</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#doxcnXR9TJNOEyQw9lp62RV8ttg"><span class="toc-number">11.</span> <span class="toc-text">11. 设计理念与取舍：从工作负载回看 Nimble</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnlGiCY7U8jX7UVZ221XSu2Z"><span class="toc-number">11.1.</span> <span class="toc-text">11.1 从访问模式出发，同时考虑空间、CPU 与内存</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnnpeoYI79KrNc8GJzI6pj5e"><span class="toc-number">11.2.</span> <span class="toc-text">11.2 分层目录：控制打开成本和 metadata 工作集</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnvzZGiuPmCpa631ra8csgTe"><span class="toc-number">11.3.</span> <span class="toc-text">11.3 类型化 streams 与独立 chunk：让各部分按自身特点组织</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnBPPIgmUYP74W5mdSfdeBah"><span class="toc-number">11.4.</span> <span class="toc-text">11.4 编码与执行共同设计：压得小，也要取值方便</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnunn8n6WOU1jTvduKOLu0Fg"><span class="toc-number">11.5.</span> <span class="toc-text">11.5 保留已有表示，减少重复工作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcn64gwchnegfBfaFpLRul20b"><span class="toc-number">11.6.</span> <span class="toc-text">11.6 演进、兼容与验证：灵活性需要明确边界</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#doxcnecWFS7F6rsMrGffcL4J00c"><span class="toc-number">12.</span> <span class="toc-text">12. 当前能力边界与源码阅读路线</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcnewhiNsAJnILRsNUsG0Uqec"><span class="toc-number">12.1.</span> <span class="toc-text">12.1 读这套设计时应保留的几个边界</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcncN7WqjMHGqPiW3qiFEKYef"><span class="toc-number">12.2.</span> <span class="toc-text">12.2 当前可选&#x2F;实验性能力速查</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doxcndl6IZtf2iu8WldyoDZXKWI"><span class="toc-number">12.3.</span> <span class="toc-text">12.3 建议的源码阅读顺序</span></a></li></ol></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://duanmeng.github.io/2026/09/19/nimble-design/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://duanmeng.github.io/2026/09/19/nimble-design/&text=Nimble 设计解读：文件布局、Metadata、级联编码与选择性解码"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://duanmeng.github.io/2026/09/19/nimble-design/&title=Nimble 设计解读：文件布局、Metadata、级联编码与选择性解码"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://duanmeng.github.io/2026/09/19/nimble-design/&is_video=false&description=Nimble 设计解读：文件布局、Metadata、级联编码与选择性解码"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Nimble 设计解读：文件布局、Metadata、级联编码与选择性解码&body=Check out this article: https://duanmeng.github.io/2026/09/19/nimble-design/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://duanmeng.github.io/2026/09/19/nimble-design/&title=Nimble 设计解读：文件布局、Metadata、级联编码与选择性解码"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://duanmeng.github.io/2026/09/19/nimble-design/&title=Nimble 设计解读：文件布局、Metadata、级联编码与选择性解码"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://duanmeng.github.io/2026/09/19/nimble-design/&title=Nimble 设计解读：文件布局、Metadata、级联编码与选择性解码"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://duanmeng.github.io/2026/09/19/nimble-design/&title=Nimble 设计解读：文件布局、Metadata、级联编码与选择性解码"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://duanmeng.github.io/2026/09/19/nimble-design/&name=Nimble 设计解读：文件布局、Metadata、级联编码与选择性解码&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://duanmeng.github.io/2026/09/19/nimble-design/&t=Nimble 设计解读：文件布局、Metadata、级联编码与选择性解码"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2026
+    duanmeng
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/categories/technology">Technology</a></li><!--
+     --><!--
+       --><li><a href="/categories/life">Life</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Archives</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tags</a></li><!--
+     --><!--
+       --><li><a href="/about">About</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+ 
+  <link
+    rel="preload"
+    href="/lib/font-awesome/css/all.min.css"
+    as="style"
+    onload="this.onload=null;this.rel='stylesheet'"
+  />
+  <noscript
+    ><link
+      rel="stylesheet"
+      href="/lib/font-awesome/css/all.min.css"
+  /></noscript>
+
+
+
+  
+    <script defer src="/lib/mermaid/mermaid.min.js"></script>
+  
+  <script type="application/json" id="mermaid-config">{"theme":"base","securityLevel":"strict","fontFamily":"-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, Microsoft YaHei, sans-serif","themeVariables":{"background":"#FAF9F6","primaryColor":"#FAF9F6","primaryBorderColor":"#B6A088","primaryTextColor":"#302E2B","secondaryColor":"#EEE7ED","secondaryBorderColor":"#9A8097","secondaryTextColor":"#302E2B","tertiaryColor":"#E8EFE3","tertiaryBorderColor":"#74896B","tertiaryTextColor":"#302E2B","lineColor":"#B8B1A7","textColor":"#302E2B","mainBkg":"#FAF9F6","nodeBorder":"#B6A088","clusterBkg":"#F2F1ED","clusterBorder":"#B6A088","titleColor":"#302E2B","edgeLabelBackground":"#FAF9F6","actorBkg":"#F2F1ED","actorBorder":"#B6A088","actorTextColor":"#302E2B","actorLineColor":"#B8B1A7","signalColor":"#706B63","signalTextColor":"#302E2B","noteBkgColor":"#F8EED8","noteBorderColor":"#BEA16D","noteTextColor":"#302E2B","labelBoxBkgColor":"#EEE7ED","labelBoxBorderColor":"#9A8097","labelTextColor":"#302E2B","activationBkgColor":"#E8EFE3","activationBorderColor":"#74896B","fontSize":"15px"},"flowchart":{"curve":"linear","padding":16,"nodeSpacing":40,"rankSpacing":48,"useMaxWidth":true},"sequence":{"useMaxWidth":true,"actorMargin":48,"messageMargin":36}}</script>
+  <script defer src="/js/mermaid-init.js"></script>
+
+
+    <!-- jquery -->
+ 
+  
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+
+
+
+<!-- clipboard -->
+
+   
+    
+<script src="/lib/clipboard/clipboard.min.js"></script>
+
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

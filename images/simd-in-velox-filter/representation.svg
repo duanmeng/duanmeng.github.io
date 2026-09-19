@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="760" viewBox="0 0 1280 760" role="img" aria-labelledby="title desc">
+<title id="title">先选择集合表示，再优化查询</title><desc id="desc">工厂依据值域与密度选择结构；图中为正向 IN-list。</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
+<rect x="0" y="0" width="1280" height="760" rx="0" fill="white" stroke="none" stroke-width="1"/>
+<rect x="8" y="8" width="1264" height="744" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<rect x="9" y="9" width="1262" height="94" rx="0" fill="#edf5ff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="103" x2="1271" y2="103" stroke="#d6d3cc" stroke-width="1"/>
+<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">先选择集合表示，再优化查询</text>
+<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">工厂依据值域与密度选择结构；图中为正向 IN-list。</text>
+<rect x="50" y="165" width="350" height="128" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="50" y="169" width="4" height="120" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="72" y="200" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Range</text>
+<text x="72" y="233" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">单点或连续区间</text>
+<text x="72" y="265" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="16" font-weight="400" text-anchor="start">用上下界表达集合</text>
+<polyline points="414,225 450,225" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="50" y="370" width="350" height="155" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="50" y="374" width="4" height="147" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="72" y="405" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">比较</text>
+<text x="72" y="438" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">上下界判断</text>
+<text x="72" y="477" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="16" font-weight="400" text-anchor="start">不必逐项存 key</text>
+<polyline points="225,306 225,353" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="465" y="165" width="350" height="128" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<rect x="465" y="169" width="4" height="120" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
+<text x="487" y="200" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Bitmask</text>
+<text x="487" y="233" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">较小或较密的值域</text>
+<text x="487" y="265" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="16" font-weight="400" text-anchor="start">bit(value - min) 表示成员</text>
+<polyline points="829,225 865,225" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="465" y="370" width="350" height="155" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<rect x="465" y="374" width="4" height="147" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
+<text x="487" y="405" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">定位 bit</text>
+<text x="487" y="438" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">计算相对偏移</text>
+<text x="487" y="477" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="16" font-weight="400" text-anchor="start">值域大小决定空间</text>
+<polyline points="640,306 640,353" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="880" y="165" width="350" height="128" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<rect x="880" y="169" width="4" height="120" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
+<text x="902" y="200" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">HashTable</text>
+<text x="902" y="233" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">大值域中的稀疏集合</text>
+<text x="902" y="265" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="16" font-weight="400" text-anchor="start">直接存储 int64 值</text>
+<rect x="880" y="370" width="350" height="155" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<rect x="880" y="374" width="4" height="147" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
+<text x="902" y="405" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">探测</text>
+<text x="902" y="438" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">首槽 + 冲突扫描</text>
+<text x="902" y="477" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="16" font-weight="400" text-anchor="start">低装载率有利于 miss</text>
+<polyline points="1055,306 1055,353" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="40" y="658" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
+<text x="60" y="687" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">表示选择会改变访存模式，不能只比较某条 SIMD 指令。</text>
+<text x="60" y="712" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">nullAllowed 独立于整数值；SQL NULL 不是哈希表的空槽哨兵。</text>
+</svg>

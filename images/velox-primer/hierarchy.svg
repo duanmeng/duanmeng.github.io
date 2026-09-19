@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="760" viewBox="0 0 1280 760" role="img" aria-labelledby="title desc">
+<title id="title">从分布式 Query 到一个 Driver</title><desc id="desc">Stage/task 的分发属于宿主，Task 内执行由 Velox 推进。</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
+<rect x="0" y="0" width="1280" height="760" rx="0" fill="white" stroke="none" stroke-width="1"/>
+<rect x="8" y="8" width="1264" height="744" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<rect x="9" y="9" width="1262" height="94" rx="0" fill="#edf5ff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="103" x2="1271" y2="103" stroke="#d6d3cc" stroke-width="1"/>
+<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">从分布式 Query 到一个 Driver</text>
+<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">Stage/task 的分发属于宿主，Task 内执行由 Velox 推进。</text>
+<rect x="50" y="165" width="350" height="128" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="50" y="169" width="4" height="120" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="72" y="200" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Query / Stage</text>
+<text x="72" y="233" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">宿主拆分 plan fragment</text>
+<text x="72" y="265" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="16" font-weight="400" text-anchor="start">同一 stage 可分发多个 task</text>
+<polyline points="414,225 450,225" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="50" y="370" width="350" height="155" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="50" y="374" width="4" height="147" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="72" y="405" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Split</text>
+<text x="72" y="438" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">一个输入工作单元</text>
+<text x="72" y="477" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="16" font-weight="400" text-anchor="start">文件范围或远程来源</text>
+<polyline points="225,306 225,353" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="465" y="165" width="350" height="128" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<rect x="465" y="169" width="4" height="120" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
+<text x="487" y="200" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Task</text>
+<text x="487" y="233" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">一个 fragment 执行实例</text>
+<text x="487" y="265" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="16" font-weight="400" text-anchor="start">消费多个 source splits</text>
+<polyline points="829,225 865,225" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="465" y="370" width="350" height="155" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<rect x="465" y="374" width="4" height="147" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
+<text x="487" y="405" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">RowVector</text>
+<text x="487" y="438" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">一批列式数据</text>
+<text x="487" y="477" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="16" font-weight="400" text-anchor="start">一个 split 可产生许多 batch</text>
+<polyline points="640,306 640,353" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="880" y="165" width="350" height="128" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<rect x="880" y="169" width="4" height="120" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
+<text x="902" y="200" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Pipeline / Driver</text>
+<text x="902" y="233" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">拓扑与运行实例</text>
+<text x="902" y="265" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="16" font-weight="400" text-anchor="start">多个 Driver 可执行同一 pipeline</text>
+<rect x="880" y="370" width="350" height="155" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<rect x="880" y="374" width="4" height="147" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
+<text x="902" y="405" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Operator</text>
+<text x="902" y="438" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">当前 Driver 的执行状态</text>
+<text x="902" y="477" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="16" font-weight="400" text-anchor="start">通过 future 等待与继续</text>
+<polyline points="1055,306 1055,353" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="40" y="658" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
+<text x="60" y="687" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">Split 数、Driver 数和 executor 线程数是不同尺度。</text>
+<text x="60" y="712" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">相同 Driver 的 Operator 链串行推进，阻塞后可以换线程继续。</text>
+</svg>

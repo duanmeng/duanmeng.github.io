@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="672" viewBox="0 0 1280 672" role="img" aria-labelledby="title desc">
+<title id="title">内存压力会进入执行流程</title><desc id="desc">以可回收算子状态的 spill 路径为例。</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
+<rect x="0" y="0" width="1280" height="672" rx="0" fill="white" stroke="none" stroke-width="1"/>
+<rect x="8" y="8" width="1264" height="656" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<rect x="9" y="9" width="1262" height="94" rx="0" fill="#edf5ff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="103" x2="1271" y2="103" stroke="#d6d3cc" stroke-width="1"/>
+<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">内存压力会进入执行流程</text>
+<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">以可回收算子状态的 spill 路径为例。</text>
+<rect x="20" y="130" width="360" height="80" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="20" y="134" width="4" height="72" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="200" y="177" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="600" text-anchor="middle">Pool / Arbitrator</text>
+<line x1="200" y1="228" x2="200" y2="540" stroke="#8b8b8b" stroke-width="1" stroke-dasharray="6 5"/>
+<rect x="460" y="130" width="360" height="80" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="460" y="134" width="4" height="72" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="640" y="177" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="600" text-anchor="middle">Task / Reclaimer</text>
+<line x1="640" y1="228" x2="640" y2="540" stroke="#8b8b8b" stroke-width="1" stroke-dasharray="6 5"/>
+<rect x="900" y="130" width="360" height="80" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="900" y="134" width="4" height="72" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="1080" y="177" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="600" text-anchor="middle">Operator / Spiller</text>
+<line x1="1080" y1="228" x2="1080" y2="540" stroke="#8b8b8b" stroke-width="1" stroke-dasharray="6 5"/>
+<text x="420.0" y="249" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="middle">请求回收可用状态</text>
+<polyline points="200,265 640,265" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="860.0" y="332" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="middle">暂停与检查可回收区间</text>
+<polyline points="640,348 1080,348" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="860.0" y="415" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="middle">写出成功，释放执行状态</text>
+<polyline points="1080,431 640,431" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="420.0" y="498" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="middle">归还预留 / 调整容量</text>
+<polyline points="640,514 200,514" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="40" y="570" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
+<text x="60" y="599" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">释放对象、释放 reservation、缩小 root capacity 是不同动作。</text>
+<text x="60" y="624" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">回收失败、spill 限制或恢复内存不足仍可能终止查询。</text>
+</svg>

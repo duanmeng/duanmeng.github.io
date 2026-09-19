@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800" role="img" aria-labelledby="title desc">
+<title id="title">Build / Probe 状态与等待事件</title><desc id="desc">箭头表示主要状态路径；重入时先回 Running 再判断下一步。</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
+<rect x="0" y="0" width="1280" height="800" rx="0" fill="white" stroke="none" stroke-width="1"/>
+<rect x="8" y="8" width="1264" height="784" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<rect x="9" y="9" width="1262" height="94" rx="0" fill="#edf5ff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="103" x2="1271" y2="103" stroke="#d6d3cc" stroke-width="1"/>
+<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">Build / Probe 状态与等待事件</text>
+<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">箭头表示主要状态路径；重入时先回 Running 再判断下一步。</text>
+<text x="55" y="160" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="600" text-anchor="start">BUILD</text>
+<text x="55" y="390" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="600" text-anchor="start">PROBE</text>
+<rect x="50" y="180" width="350" height="100" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="50" y="184" width="4" height="92" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="72" y="215" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Running</text>
+<text x="72" y="248" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">接收 / 恢复输入</text>
+<rect x="465" y="180" width="350" height="100" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="465" y="184" width="4" height="92" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="487" y="215" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">WaitForBuild</text>
+<text x="487" y="248" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">peer 合并或 cache</text>
+<rect x="880" y="180" width="350" height="100" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="880" y="184" width="4" height="92" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="902" y="215" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">WaitForProbe</text>
+<text x="902" y="248" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">等下一恢复轮次</text>
+<polyline points="410,230 450,230" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<polyline points="225,292 225,320 1055,320 1055,292" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="50" y="410" width="350" height="100" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<rect x="50" y="414" width="4" height="92" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
+<text x="72" y="445" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">WaitForBuild</text>
+<text x="72" y="478" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">等待共享表</text>
+<rect x="465" y="410" width="350" height="100" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<rect x="465" y="414" width="4" height="92" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
+<text x="487" y="445" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Running</text>
+<text x="487" y="478" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">查表与输出</text>
+<rect x="880" y="410" width="350" height="100" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<rect x="880" y="414" width="4" height="92" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
+<text x="902" y="445" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">WaitForPeers</text>
+<text x="902" y="478" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">spill / 并行补行屏障</text>
+<polyline points="410,460 450,460" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<polyline points="825,460 865,460" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<polyline points="640,165 640,145 225,145 225,165" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="640" y="351" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="middle">等待完成后回 Running，再领取恢复输入或 Finish</text>
+<polyline points="1055,525 1055,555 640,555 640,525" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<polyline points="640,395 640,378 225,378 225,395" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="640" y="613" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="400" text-anchor="middle">Build 另有恢复输入的 Yield；两侧都以 Finish 结束。</text>
+<rect x="40" y="698" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
+<text x="60" y="727" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">等待不占用固定 executor 线程，future 就绪后由 Driver 继续。</text>
+<text x="60" y="752" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">同一状态名可能有不同来源；WaitForBuild 还可用于缓存等待。</text>
+</svg>

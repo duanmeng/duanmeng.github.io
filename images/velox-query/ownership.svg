@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="760" viewBox="0 0 1280 760" role="img" aria-labelledby="title desc">
+<title id="title">Presto Worker 与 Velox 的职责归属</title><desc id="desc">分别核对 Presto d621a736e77c 与 Velox 1d1b76567870。</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
+<rect x="0" y="0" width="1280" height="760" rx="0" fill="white" stroke="none" stroke-width="1"/>
+<rect x="8" y="8" width="1264" height="744" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<rect x="9" y="9" width="1262" height="94" rx="0" fill="#edf5ff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="103" x2="1271" y2="103" stroke="#d6d3cc" stroke-width="1"/>
+<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">Presto Worker 与 Velox 的职责归属</text>
+<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">分别核对 Presto d621a736e77c 与 Velox 1d1b76567870。</text>
+<rect x="50" y="165" width="350" height="128" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="50" y="169" width="4" height="120" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="72" y="200" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Coordinator</text>
+<text x="72" y="233" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">Query / Stage / Task 调度</text>
+<text x="72" y="265" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="16" font-weight="400" text-anchor="start">发送 fragment 与 split 更新</text>
+<polyline points="414,225 450,225" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="50" y="370" width="350" height="155" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="50" y="374" width="4" height="147" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="72" y="405" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Query 级</text>
+<text x="72" y="438" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">分布式依赖与生命周期</text>
+<text x="72" y="477" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="16" font-weight="400" text-anchor="start">多个 worker 各有本地资源</text>
+<polyline points="225,306 225,353" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="465" y="165" width="350" height="128" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<rect x="465" y="169" width="4" height="120" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
+<text x="487" y="200" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Native Worker</text>
+<text x="487" y="233" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">TaskResource / TaskManager</text>
+<text x="487" y="265" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="16" font-weight="400" text-anchor="start">计划转换、HTTP 与 QueryCtx 缓存</text>
+<polyline points="829,225 865,225" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="465" y="370" width="350" height="155" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<rect x="465" y="374" width="4" height="147" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
+<text x="487" y="405" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Worker 级</text>
+<text x="487" y="438" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">创建有限 query root pool</text>
+<text x="487" y="477" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="16" font-weight="400" text-anchor="start">将 pool 注入 Velox QueryCtx</text>
+<polyline points="640,306 640,353" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="880" y="165" width="350" height="128" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<rect x="880" y="169" width="4" height="120" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
+<text x="902" y="200" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Velox Task</text>
+<text x="902" y="233" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">Pipeline / Driver / Operator</text>
+<text x="902" y="265" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="16" font-weight="400" text-anchor="start">执行 fragment 并管理等待状态</text>
+<rect x="880" y="370" width="350" height="155" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<rect x="880" y="374" width="4" height="147" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
+<text x="902" y="405" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Task 级</text>
+<text x="902" y="438" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">算子与交换缓冲</text>
+<text x="902" y="477" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="16" font-weight="400" text-anchor="start">使用 query root 下的子 pool</text>
+<polyline points="1055,306 1055,353" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="40" y="658" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
+<text x="60" y="687" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">QueryCtx 在一个 Worker 进程内共享，不是跨机器的 Query 对象。</text>
+<text x="60" y="712" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">两个仓库使用独立固定提交；不宣称该组合经过发行构建验证。</text>
+</svg>

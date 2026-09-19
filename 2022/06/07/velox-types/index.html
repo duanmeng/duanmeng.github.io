@@ -6,15 +6,18 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
-    <meta name="description" content=":root{     --paper:#f5f0e8; --paper-2:#ede8df; --ink:#0c0e1a; --border:#d4cdc0;     --muted:#7a7060; --code-bg:#f0ece0; --accent:#c1440e; --link:#1c4fa0;     --serif:&#39;Newsreader&#39;,&#39;Noto Ser">
+    <meta name="description" content="body:has(.velox-review) #header-post #toc .toc-level-2::before,body:has(.velox-review) #toc-footer .toc-level-2::before{display:none}.velox-review .review-figure{margin:2rem 0}.velox-review .diagram-s">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Velox Type System">
 <meta property="og:url" content="https://duanmeng.github.io/2022/06/07/velox-types/index.html">
 <meta property="og:site_name" content="Macduan Notes">
-<meta property="og:description" content=":root{     --paper:#f5f0e8; --paper-2:#ede8df; --ink:#0c0e1a; --border:#d4cdc0;     --muted:#7a7060; --code-bg:#f0ece0; --accent:#c1440e; --link:#1c4fa0;     --serif:&#39;Newsreader&#39;,&#39;Noto Ser">
+<meta property="og:description" content="body:has(.velox-review) #header-post #toc .toc-level-2::before,body:has(.velox-review) #toc-footer .toc-level-2::before{display:none}.velox-review .review-figure{margin:2rem 0}.velox-review .diagram-s">
 <meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://duanmeng.github.io/images/velox-types/layers.svg">
+<meta property="og:image" content="https://duanmeng.github.io/images/velox-types/tree.svg">
+<meta property="og:image" content="https://duanmeng.github.io/images/velox-types/comparison.svg">
 <meta property="article:published_time" content="2022-06-07T13:56:33.000Z">
-<meta property="article:modified_time" content="2026-09-18T06:32:14.371Z">
+<meta property="article:modified_time" content="2026-09-18T16:00:00.000Z">
 <meta property="article:author" content="duanmeng">
 <meta property="article:tag" content="QueryExecution">
 <meta property="article:tag" content="velox">
@@ -23,6 +26,7 @@
 <meta property="article:tag" content="paper">
 <meta property="article:tag" content="SIMD">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://duanmeng.github.io/images/velox-types/layers.svg">
     
     
       
@@ -98,7 +102,7 @@
 
     </div>
     <div id="toc">
-      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">Velox Type System</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#what-is-velox-type-system"><span class="toc-number">1.1.</span> <span class="toc-text">What Is Velox Type System</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#velox-type%E7%B1%BB"><span class="toc-number">1.2.</span> <span class="toc-text">Velox Type类</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E5%88%9B%E5%BB%BAvelox-type"><span class="toc-number">1.3.</span> <span class="toc-text">如何创建Velox Type</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E4%BB%8Ec-type%E6%8E%A8%E5%AF%BC%E5%92%8C%E5%88%9B%E5%BB%BA%E5%87%BAvelox-type"><span class="toc-number">1.4.</span> <span class="toc-text">如何从C++ Type推导和创建出Velox Type</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#rferences"><span class="toc-number">1.5.</span> <span class="toc-text">Rferences</span></a></li></ol></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#layers"><span class="toc-number">1.</span> <span class="toc-text">1. Type、TypeKind、NativeType、Vector</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#scalar"><span class="toc-number">2.</span> <span class="toc-text">2. 基本类型与逻辑覆盖类型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#complex"><span class="toc-number">3.</span> <span class="toc-text">3. 复杂类型是一棵有参数的树</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#null-%E4%B8%8D%E5%86%99%E5%9C%A8-typekind-%E9%87%8C"><span class="toc-number">3.1.</span> <span class="toc-text">null 不写在 TypeKind 里</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#comparison"><span class="toc-number">4.</span> <span class="toc-text">4. 类型相同到底是什么意思</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#construction"><span class="toc-number">5.</span> <span class="toc-text">5. 如何创建类型，如何从 C++ 推导</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#dispatch"><span class="toc-number">6.</span> <span class="toc-text">6. 类型分派与 Vector 访问</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#extension"><span class="toc-number">7.</span> <span class="toc-text">7. 自定义类型、序列化和兼容性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reading"><span class="toc-number">8.</span> <span class="toc-text">8. 阅读与验证入口</span></a></li></ol>
     </div>
   </span>
 </div>
@@ -169,248 +173,209 @@
   
 
   <div class="content" itemprop="articleBody">
-    
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=Noto+Serif+SC:wght@400;500;600&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --paper:#f5f0e8; --paper-2:#ede8df; --ink:#0c0e1a; --border:#d4cdc0;
-    --muted:#7a7060; --code-bg:#f0ece0; --accent:#c1440e; --link:#1c4fa0;
-    --serif:'Newsreader','Noto Serif SC',serif;
-    --mono:'DM Mono','Noto Sans Mono CJK SC','Sarasa Mono SC',monospace;
-  }
-  *{box-sizing:border-box;}
-  html{-webkit-text-size-adjust:100%;}
-  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--serif);font-size:17px;line-height:1.78;font-weight:400;}
-  .wrap{max-width:960px;margin:0 auto;padding:0 28px;}
+    <style>body:has(.velox-review) #header-post #toc .toc-level-2::before,body:has(.velox-review) #toc-footer .toc-level-2::before{display:none}.velox-review .review-figure{margin:2rem 0}.velox-review .diagram-scroll{max-width:100%;overflow-x:auto}.velox-review .diagram-scroll img{display:block;width:100%;min-width:960px;max-width:none;height:auto}.velox-review figcaption{margin-top:.65rem;color:#706b63;font-size:13px;line-height:1.7}.velox-review .tbl-wrap{max-width:100%;overflow-x:auto;margin:1.5rem 0}article.post .velox-review .tbl-wrap > table{display:table;width:100%;min-width:640px;max-width:none;border-collapse:collapse}.velox-review .legacy-anchor{display:block;height:0;scroll-margin-top:2rem}@media print{.velox-review .diagram-scroll img{min-width:0}}</style>
+<div class="post-body velox-review">
+<p>Velox 的类型系统要同时回答三件事：<strong>值的逻辑含义是什么、执行代码用哪种 C++ 表示、一个 batch 实际如何存储</strong>。这三个问题分别落在 Type、TypeTraits / NativeType 和 Vector 上，不能只看一个 TypeKind 就结束判断。</p>
+<p>本文于 2026-09-19 对照 Velox <strong>1d1b76567870</strong> 重写，重点补齐逻辑类型、类型比较、复杂类型、null 和编码之间的关系。</p>
+<span class="legacy-anchor" id="what-is-velox-type-system" aria-hidden="true"></span>
+<h2 id="layers">1. Type、TypeKind、NativeType、Vector</h2>
 
-  .masthead{padding:34px 0 22px;border-bottom:3px double var(--ink);}
-  .top-bar{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding-bottom:14px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:8px;}
-  .masthead-title{font-family:var(--serif);font-weight:600;font-size:52px;line-height:1.06;letter-spacing:-.01em;margin:20px 0 0;}
-  .masthead-title em{font-style:italic;color:var(--link);}
-  .deck-rule{margin-top:20px;padding-top:12px;border-top:1px solid var(--border);font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);display:flex;gap:22px;flex-wrap:wrap;}
+<div class="tbl-wrap"><table>
+<thead>
+<tr>
+<th>层次</th>
+<th>回答的问题</th>
+<th>例子</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>TypeKind</td>
+<td>执行分派所需的基本类别</td>
+<td>INTEGER、BIGINT、ROW</td>
+</tr>
+<tr>
+<td>Type / TypePtr</td>
+<td>完整逻辑结构与参数</td>
+<td>DATE、DECIMAL(12,2)、ROW(a BIGINT)</td>
+</tr>
+<tr>
+<td>TypeTraits / NativeType</td>
+<td>对应 C++ 表示与编译期属性</td>
+<td>BIGINT → int64_t</td>
+</tr>
+<tr>
+<td>Vector</td>
+<td>一批值的编码、buffer、null 与长度</td>
+<td>FlatVector、DictionaryVector、LazyVector</td>
+</tr>
+</tbody></table>
+</div><p><code>TypePtr</code> 是 <code>std::shared_ptr&lt;const Type&gt;</code>。Type 是共享的只读类型描述，不保存某个 vector 的实际数据，也不代表某个 SQL 值。原始定义见 <a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/type/Type.h#L81">TypePtr</a>、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/type/TypeKind.h#L40">TypeKind</a>。</p>
+<figure class="review-figure"><div class="diagram-scroll" tabindex="0" role="region" aria-label="图 1：逻辑类型、C++ 表示和 batch 编码是三个相互关联但不能互相替代的层次。"><img src="/images/velox-types/layers.svg" alt="图 1：逻辑类型、C++ 表示和 batch 编码是三个相互关联但不能互相替代的层次。" loading="lazy"></div><figcaption>图 1：逻辑类型、C++ 表示和 batch 编码是三个相互关联但不能互相替代的层次。</figcaption></figure>
 
-  .post-body{padding-top:8px;}
-  .post-body h1{font-family:var(--serif);font-weight:600;font-size:38px;line-height:1.12;letter-spacing:-.01em;margin:54px 0 10px;padding-top:24px;border-top:3px double var(--ink);}
-  .post-body h2{font-family:var(--serif);font-weight:600;font-size:30px;line-height:1.18;letter-spacing:-.01em;margin:44px 0 10px;padding-top:22px;border-top:1px solid var(--border);}
-  .post-body h3{font-family:var(--serif);font-weight:600;font-size:22px;margin:32px 0 6px;line-height:1.3;}
-  .post-body h4{font-family:var(--mono);font-weight:500;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:26px 0 8px;}
-  .post-body h5,.post-body h6{font-family:var(--serif);font-weight:600;font-size:17px;margin:22px 0 4px;}
-  .post-body p{margin:14px 0;}
-  .post-body strong{font-weight:600;}
-  .post-body em{font-style:italic;}
-  .post-body a{color:var(--link);text-decoration:underline;text-underline-offset:2px;}
-  .post-body a:hover{color:var(--accent);}
-  .post-body img{max-width:100%;height:auto;}
-  .post-body hr{border:none;border-top:1px solid var(--border);margin:34px 0;}
-  .post-body ul,.post-body ol{margin:14px 0;padding-left:1.5em;}
-  .post-body li{margin:5px 0;}
-  .post-body li>ul,.post-body li>ol{margin:5px 0;}
-  .post-body blockquote{margin:20px 0;padding:12px 20px;border-left:3px solid var(--accent);background:var(--paper-2);color:#333;}
-  .post-body blockquote p{margin:6px 0;}
+<p>把一列 BIGINT 包成 dictionary，类型仍是 BIGINT；把 INTEGER 改成 DATE，即使底层同为 int32，逻辑类型已经改变。类型判断和编码判断必须分开。</p>
+<h2 id="scalar">2. 基本类型与逻辑覆盖类型</h2>
 
-  .post-body code{font-family:var(--mono);font-size:14.5px;background:var(--code-bg);border:1px solid var(--border);border-radius:2px;padding:1px 6px;}
-  .post-body pre{font-family:var(--mono);font-size:14px;font-weight:400;line-height:1.6;background:var(--code-bg);border:1px solid var(--border);border-left:3px solid var(--muted);border-radius:2px;padding:16px 18px;margin:20px 0;overflow-x:auto;}
-  .post-body pre code{background:none;border:none;border-radius:0;padding:0;font-size:14px;}
+<p><code>TypeKind</code> 包括 BOOLEAN、整数、浮点、VARCHAR、VARBINARY、TIMESTAMP，以及 ARRAY/MAP/ROW/UNKNOWN/FUNCTION/OPAQUE 等。枚举里<strong>没有单独的 DATE 或 DECIMAL 项</strong>。</p>
+<div class="tbl-wrap"><table>
+<thead>
+<tr>
+<th>逻辑类型</th>
+<th>kind</th>
+<th>常用 NativeType</th>
+<th>不能丢失的信息</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>BIGINT</td>
+<td>BIGINT</td>
+<td>int64_t</td>
+<td>整数语义</td>
+</tr>
+<tr>
+<td>DATE</td>
+<td>INTEGER</td>
+<td>int32_t</td>
+<td>以天为单位的日期语义</td>
+</tr>
+<tr>
+<td>DECIMAL(1..18,s)</td>
+<td>BIGINT</td>
+<td>int64_t</td>
+<td>precision、scale</td>
+</tr>
+<tr>
+<td>DECIMAL(19..38,s)</td>
+<td>HUGEINT</td>
+<td>int128_t</td>
+<td>precision、scale</td>
+</tr>
+<tr>
+<td>VARCHAR / VARBINARY</td>
+<td>各自独立的 kind</td>
+<td>StringView</td>
+<td>文本与字节串语义不同</td>
+</tr>
+<tr>
+<td>TIMESTAMP</td>
+<td>TIMESTAMP</td>
+<td>Timestamp</td>
+<td>秒与纳秒的时间表示</td>
+</tr>
+</tbody></table>
+</div><p>DATE 继承 IntegerType，却通过具体类型身份区别于 INTEGER。DECIMAL 的 precision 和 scale 也会参与等价判断。参见 <a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/type/Type.h#L530">DecimalType</a>、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/type/Type.h#L1297">DateType</a>。</p>
+<p><code>DECIMAL(12,2)</code> 的数值可理解为“存储整数 × 10^-2”；precision 限制十进制总位数，scale 限制小数位数。短/长 decimal 的分界是 precision 18/19，最大 38。只拿到 <code>int64_t</code> 不能推回它是 BIGINT、DECIMAL 还是其他基于 BIGINT 的逻辑类型。</p>
+<p>字符串的 <code>StringView</code> 是值的轻量表示，不应等同于一段总是自行拥有的 std::string；长字符串需要相应的 buffer 生命周期。Vector 与 RowContainer 的存储所有权是另一层问题。</p>
+<h2 id="complex">3. 复杂类型是一棵有参数的树</h2>
 
-  .tbl-wrap{overflow-x:auto;margin:22px 0;border:1px solid var(--border);border-radius:2px;}
-  .post-body table{width:100%;border-collapse:collapse;font-family:var(--mono);font-weight:400;}
-  .post-body thead th{background:var(--paper-2);font-weight:400;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:left;padding:11px 14px;border-bottom:1px solid var(--border);white-space:nowrap;}
-  .post-body tbody td{font-size:14px;padding:11px 14px;border-bottom:1px solid var(--border);vertical-align:top;line-height:1.55;}
-  .post-body tbody tr:nth-child(even){background:var(--paper-2);}
-  .post-body tbody tr:last-child td{border-bottom:none;}
+<p><code>Type</code> 继承 <code>Tree&lt;const TypePtr&gt;</code>。ARRAY 有一个元素子类型；MAP 有 key/value 两个子类型；ROW 包含按顺序排列的字段类型与字段名。参见 <a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/type/Type.h#L743">ArrayType</a>、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/type/Type.h#L803">MapType</a>、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/type/Type.h#L862">RowType</a>。</p>
+<p>例如：</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">auto</span> schema = <span class="built_in">ROW</span>(</span><br><span class="line">    {<span class="string">&quot;user_id&quot;</span>, <span class="string">&quot;events&quot;</span>, <span class="string">&quot;attrs&quot;</span>},</span><br><span class="line">    {<span class="built_in">BIGINT</span>(), <span class="built_in">ARRAY</span>(<span class="built_in">ROW</span>({<span class="string">&quot;ts&quot;</span>, <span class="string">&quot;cost&quot;</span>}, {<span class="built_in">TIMESTAMP</span>(), <span class="built_in">DECIMAL</span>(<span class="number">12</span>, <span class="number">2</span>)})),</span><br><span class="line">     <span class="built_in">MAP</span>(<span class="built_in">VARCHAR</span>(), <span class="built_in">VARCHAR</span>())});</span><br></pre></td></tr></table></figure><p>这段代码演示 schema 构造，未在本文单独编译。它只描述类型；没有分配 1000 行 events，也没有创建 map 的 offsets/sizes 或字符串 buffer。</p>
+<figure class="review-figure"><div class="diagram-scroll" tabindex="0" role="region" aria-label="图 2：ROW 的字段名属于 schema；ARRAY&#x2F;MAP 通过 child type 递归描述元素。"><img src="/images/velox-types/tree.svg" alt="图 2：ROW 的字段名属于 schema；ARRAY&#x2F;MAP 通过 child type 递归描述元素。" loading="lazy"></div><figcaption>图 2：ROW 的字段名属于 schema；ARRAY&#x2F;MAP 通过 child type 递归描述元素。</figcaption></figure>
 
-  .colophon{border-top:3px double var(--ink);margin-top:50px;padding:26px 0 56px;font-family:var(--mono);font-size:12px;letter-spacing:.04em;color:var(--muted);line-height:1.7;}
-  .colophon b{color:var(--ink);font-weight:500;}
+<p><code>Type::size()</code> 对复杂类型表示子类型数量，不能当成列的行数。行数由 <code>BaseVector::size()</code> 表示。<code>cppSizeInBytes()</code> 也不能用于估算整个 ARRAY、MAP 或 VARCHAR 列的内存占用。</p>
+<h3 id="null-不写在-typekind-里">null 不写在 TypeKind 里</h3>
+<p>同一个 BIGINT Type 可以对应有 null 或无 null 的 Vector。null 是数据状态，通常由 vector 的 null bitmap 表示；Array/Map/Row 自身为 null，与某个元素/子字段为 null，也是不同层次。</p>
+<p>UNKNOWN 是独立的类型类别，常见于未定型 null 等场景。它不是所有 Type 的“可空包装”。读取复杂值时，要同时处理外层 null、offset/size 和子向量中的 null。</p>
+<span class="legacy-anchor" id="velox-type类" aria-hidden="true"></span>
+<h2 id="comparison">4. 类型相同到底是什么意思</h2>
 
-  @media (max-width:760px){
-    body{font-size:16px;}
-    .wrap{padding:0 18px;}
-    .masthead-title{font-size:38px;}
-    .post-body h1{font-size:30px;}
-    .post-body h2{font-size:25px;}
-  }
+<p>这是实际编码时最容易出错的部分。当前实现提供三种不同强度的比较：</p>
+<div class="tbl-wrap"><table>
+<thead>
+<tr>
+<th>接口</th>
+<th>比较内容</th>
+<th>适用判断</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>kindEquals</code></td>
+<td>递归比较 TypeKind</td>
+<td>表示类别是否一致</td>
+</tr>
+<tr>
+<td><code>equivalent</code></td>
+<td>逻辑类型及参数；ROW 忽略字段名</td>
+<td>忽略字段名后是否等价</td>
+</tr>
+<tr>
+<td><code>operator==</code> / <code>equals</code></td>
+<td>强匹配；包含 ROW 字段名和 OPAQUE 身份</td>
+<td>完整类型是否相同</td>
+</tr>
+</tbody></table>
+</div><p>不要用 TypePtr 地址相等替代上述接口。部分简单类型使用单例，部分带参数类型会独立创建；共享地址是实现细节。</p>
+<p>当前代码与 <a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/type/tests/TypeTest.cpp#L981">类型比较测试</a> 可以得到：</p>
+<div class="tbl-wrap"><table>
+<thead>
+<tr>
+<th>A 与 B</th>
+<th>kindEquals</th>
+<th>equivalent</th>
+<th>*A == *B</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>DATE 与 INTEGER</td>
+<td>true</td>
+<td>false</td>
+<td>false</td>
+</tr>
+<tr>
+<td>DECIMAL(10,2) 与 DECIMAL(12,2)</td>
+<td>true</td>
+<td>false</td>
+<td>false</td>
+</tr>
+<tr>
+<td>ROW(a BIGINT) 与 ROW(b BIGINT)</td>
+<td>true</td>
+<td>true</td>
+<td>false</td>
+</tr>
+<tr>
+<td>ARRAY(BIGINT) 与 ARRAY(INTEGER)</td>
+<td>false</td>
+<td>false</td>
+<td>false</td>
+</tr>
+</tbody></table>
+</div><figure class="review-figure"><div class="diagram-scroll" tabindex="0" role="region" aria-label="图 3：选择比较接口前，先确定是否允许丢掉参数、字段名或 opaque 身份。"><img src="/images/velox-types/comparison.svg" alt="图 3：选择比较接口前，先确定是否允许丢掉参数、字段名或 opaque 身份。" loading="lazy"></div><figcaption>图 3：选择比较接口前，先确定是否允许丢掉参数、字段名或 opaque 身份。</figcaption></figure>
 
-  .post-body pre code.hljs{background:none;padding:0;color:#0c0e1a;}
-  .post-body .hljs-comment,.post-body .hljs-quote{color:#9b917b;font-style:italic;}
-  .post-body .hljs-keyword,.post-body .hljs-selector-tag,.post-body .hljs-doctag,.post-body .hljs-name{color:#a3402a;font-weight:500;}
-  .post-body .hljs-string,.post-body .hljs-meta .hljs-string{color:#4e7a36;}
-  .post-body .hljs-number,.post-body .hljs-literal,.post-body .hljs-symbol,.post-body .hljs-bullet{color:#2f6f9f;}
-  .post-body .hljs-type,.post-body .hljs-class .hljs-title,.post-body .hljs-title.class_,.post-body .hljs-built_in{color:#1c4fa0;}
-  .post-body .hljs-function .hljs-title,.post-body .hljs-title.function_,.post-body .hljs-title{color:#6b3fa0;}
-  .post-body .hljs-attr,.post-body .hljs-attribute,.post-body .hljs-property,.post-body .hljs-meta{color:#9a6a1a;}
-  .post-body .hljs-params,.post-body .hljs-variable,.post-body .hljs-template-variable{color:#0c0e1a;}
-  .post-body .hljs-deletion{background:#f5e0db;}
-  .post-body .hljs-addition{background:#e6f0db;}
-  .post-body .hljs-emphasis{font-style:italic;}
-  .post-body .hljs-strong{font-weight:600;}
-</style>
-</head>
-<body>
-<div class="wrap">
-  <header class="masthead">
-    <div class="top-bar"><span>QUERYEXECUTION · SIMD · VELOX · VECTORIZED · DATA · PAPER</span><span>2022-06-07</span></div>
-    <h1 class="masthead-title">Velox Type System</h1>
-    <div class="deck-rule"><span>2022-06-07</span><span>#QueryExecution　#SIMD　#velox　#vectorized　#data　#paper</span></div>
-  </header>
-  <article class="post-body">
-<h2 id="what-is-velox-type-system">What Is Velox Type System</h2>
-<p>Velox类型系统支持一部分与SQL兼容的可组合类型，scalar types（BOOLEAN, BIGINT等）, complex types（ARRAY，MAP等），在开发者文档中也给出了<a target="_blank" rel="noopener" href="https://facebookincubator.github.io/velox/develop/types.html">Velox Scalar Type与C++ Type的对应关系</a>，比如BOOLEAN -&gt; bool、BIGINT -&gt; int64_t。</p>
-<h2 id="velox-type类">Velox Type类</h2>
-<p>首先来看几个关键数据结构，Velox使用TypeKind做类型分类，ScalarType是一个template class来表达不同的scalar types，Complex types只能一个一个去定义，ARRAY类型就是ArrayType，MAP类型就是MapType。</p>
-<pre><code class="language-cpp">enum class TypeKind : int8_t &#123;
-  BOOLEAN = 0,
-  ...
-  BIGINT = 4,
-  ...
-  ARRAY = 30,
-  MAP = 31,
-  ...
-  OPAQUE = 35,
-  INVALID = 36
-&#125;;
+<p><code>RowType::equivalent</code> 递归比较 child 的等价关系；<code>RowType::equals</code> 还比较同位置字段名，当前实现区分大小写。参见 <a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/type/Type.cpp#L616">ROW 两种比较</a>。</p>
+<p>标准 <code>OpaqueType::create&lt;T&gt;()</code> 之间的 <code>equivalent</code> 不比较 T 的 type_index，而 <code>equals</code> 会比较。因此 opaque 的 weak match 不能作为安全转换任意 C++ 对象的依据。参见 <a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/type/Type.cpp#L931">OPAQUE 比较</a>。</p>
+<p><code>hashKind()</code> 与 <code>hash()</code> 也需要区分。前者按 kind 递归计算，允许不同逻辑类型碰撞；后者与强匹配一致，考虑 ROW 名字、DECIMAL 参数、OPAQUE 身份等。自定义类型若改变相等关系，必须维持“相等对象 hash 相同”的约束。</p>
+<span class="legacy-anchor" id="如何创建velox-type" aria-hidden="true"></span>
+<span class="legacy-anchor" id="如何从c-type推导和创建出velox-type" aria-hidden="true"></span>
+<h2 id="construction">5. 如何创建类型，如何从 C++ 推导</h2>
 
-template &lt;TypeKind KIND&gt;
-class ScalarType : public TypeBase&lt;KIND&gt;
-class ArrayType : public TypeBase&lt;TypeKind::ARRAY&gt;
-class MapType : public TypeBase&lt;TypeKind::MAP&gt;
-
-template &lt;TypeKind KIND&gt;
-class TypeBase : public Type &#123;
- public:
-  using NativeType = TypeTraits&lt;KIND&gt;;
-  bool isPrimitiveType() const override &#123; return TypeTraits&lt;KIND&gt;::isPrimitiveType; &#125;
-  bool isFixedWidth() const override &#123; return TypeTraits&lt;KIND&gt;::isFixedWidth; &#125;
-  const char* kindName() const override &#123; return TypeTraits&lt;KIND&gt;::name; &#125;
-&#125;;
-</code></pre>
-<p>从上面代码可以看出，ScalarType，ArrayType都是TypeBase的子类，TypeBase提供了一些关键的类型信息，其native type，是不是primitive类型，是不是fix width，类型的name等，这些都是通过TypeTraits的模板特化“萃取”的，如下面代码所示，每个类型的信息都是有一个特化的类，BIGINT的native type是int64_t，ImplType也就是其velox type是ScalarType<a href="TypeKind::BIGINT">TypeKind::BIGINT</a>，这里注意到ARRAY类型native type是void。</p>
-<pre><code class="language-cpp">template &lt;TypeKind KIND&gt;
-struct TypeTraits &#123;&#125;;
-
-template &lt;&gt;
-struct TypeTraits&lt;TypeKind::BIGINT&gt; &#123;
-  using ImplType = ScalarType&lt;TypeKind::BIGINT&gt;;
-  using NativeType = int64_t;
-  using DeepCopiedType = NativeType;
-  static constexpr uint32_t minSubTypes = 0;
-  static constexpr uint32_t maxSubTypes = 0;
-  static constexpr TypeKind typeKind = TypeKind::BIGINT;
-  static constexpr bool isPrimitiveType = true;
-  static constexpr bool isFixedWidth = true;
-  static constexpr const char* name = &quot;BIGINT&quot;;
-&#125;;
-
-template &lt;&gt;
-struct TypeTraits&lt;TypeKind::ARRAY&gt; &#123;
-  using ImplType = ArrayType;
-  using NativeType = void;
-  using DeepCopiedType = void;
-  static constexpr uint32_t minSubTypes = 1;
-  static constexpr uint32_t maxSubTypes = 1;
-  static constexpr TypeKind typeKind = TypeKind::ARRAY;
-  static constexpr bool isPrimitiveType = false;
-  static constexpr bool isFixedWidth = false;
-  static constexpr const char* name = &quot;ARRAY&quot;;
-&#125;;
-</code></pre>
-<h2 id="如何创建velox-type">如何创建Velox Type</h2>
-<p>先来看一个例子，使用TypeFactory创建了一个BIGINT和一个ARRAY的velox，然后打印其velox类型名。BIGINT类型（包括所有scalar类型）实例是通过TypeTraits萃取到实际ScalarType的模板类型后调用create方法创建的，ARRAY类型实例是通过TypeFactory的特化实现的create方法创建的。</p>
-<pre><code class="language-cpp">auto bigIntVT = TypeFactory&lt;TypeKind::BIGINT&gt;::create();
-std::cout &lt;&lt; &quot;bigIntVT velox type name is &quot; &lt;&lt; bigIntVT-&gt;toString() &lt;&lt; &quot;\n&quot;;
-auto arrayVT = TypeFactory&lt;TypeKind::ARRAY&gt;::create(bigIntVT);
-std::cout &lt;&lt; &quot;arrayVT velox type name is &quot; &lt;&lt; arrayVT-&gt;toString() &lt;&lt; &quot;\n&quot;;
-// Output:
-// bigIntVT velox type name is BIGINT
-// arrayVT velox type name is ARRAY&lt;BIGINT&gt;
-
-template &lt;TypeKind KIND&gt;
-struct TypeFactory &#123;
-  static std::shared_ptr&lt;const typename TypeTraits&lt;KIND&gt;::ImplType&gt; create() &#123;
-    return TypeTraits&lt;KIND&gt;::ImplType::create();
-  &#125;
-&#125;;
-
-template &lt;TypeKind KIND&gt;
-const std::shared_ptr&lt;const ScalarType&lt;KIND&gt;&gt; ScalarType&lt;KIND&gt;::create() &#123;
-  static const auto instance = std::make_shared&lt;const ScalarType&lt;KIND&gt;&gt;();
-  return instance;
-&#125;
-
-template &lt;&gt;
-struct TypeFactory&lt;TypeKind::ARRAY&gt; &#123;
-  static std::shared_ptr&lt;const ArrayType&gt; create(
-      std::shared_ptr&lt;const Type&gt; elementType) &#123;
-    return std::make_shared&lt;ArrayType&gt;(std::move(elementType));
-  &#125;
-&#125;;
-</code></pre>
-<h2 id="如何从c-type推导和创建出velox-type">如何从C++ Type推导和创建出Velox Type</h2>
-<p>有时候我们需要从C++类型推导并创建出Velox Type，比如下面这个SimpleVector的构造函数中的CppToType<T>::create()需要从C++类型T推导出velox type和创建其实例。</p>
-<pre><code class="language-cpp">
-// Constructs SimpleVector inferring the type from T.
-  SimpleVector(
-      velox::memory::MemoryPool* pool,
-      std::shared_ptr&lt;const Type&gt; type,
-      ...
-      std::optional&lt;ByteCount&gt; storageByteCount = std::nullopt)
-      : SimpleVector(
-            pool,
-            CppToType&lt;T&gt;::create(),
-            ...
-</code></pre>
-<p>CppToType通过模板特化（这里是C++类型int64_t）推导出其父类CppToTypeBase的模板类型即velox type，CppToTypeBase是TypeTraits的子类，它调用其特化（这里是TypeKind::BIGINT）的create方法调用前面提到的TypeFactory的create方法，创建velox type的实例，<code>CppToType&lt;T&gt;::isPrimitiveType</code>，<code>CppToType&lt;T&gt;::typeKind</code>亦是如此。</p>
-<pre><code class="language-cpp">template &lt;typename T&gt;
-struct CppToType &#123;&#125;;
-
-template &lt;TypeKind KIND&gt;
-struct CppToTypeBase : public TypeTraits&lt;KIND&gt; &#123;
-  static auto create() &#123;
-    return TypeFactory&lt;KIND&gt;::create();
-  &#125;
-&#125;;
-
-template &lt;&gt;
-struct CppToType&lt;int64_t&gt; : public CppToTypeBase&lt;TypeKind::BIGINT&gt; &#123;&#125;;
-
-template &lt;typename ELEMENT&gt;
-struct CppToType&lt;Array&lt;ELEMENT&gt;&gt; : public TypeTraits&lt;TypeKind::ARRAY&gt; &#123;
-  static auto create() &#123;
-    return ARRAY(CppToType&lt;ELEMENT&gt;::create());
-  &#125;
-&#125;;
-
-std::shared_ptr&lt;const ArrayType&gt; ARRAY(
-    std::shared_ptr&lt;const Type&gt; elementType) &#123;
-  return std::make_shared&lt;const ArrayType&gt;(std::move(elementType));
-&#125;
-</code></pre>
-<h2 id="rferences">Rferences</h2>
+<p>最易读的方式是使用命名工厂：</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">auto</span> id = <span class="built_in">BIGINT</span>();</span><br><span class="line"><span class="keyword">auto</span> amount = <span class="built_in">DECIMAL</span>(<span class="number">18</span>, <span class="number">4</span>);</span><br><span class="line"><span class="keyword">auto</span> dates = <span class="built_in">ARRAY</span>(<span class="built_in">DATE</span>());</span><br><span class="line"><span class="keyword">auto</span> attributes = <span class="built_in">MAP</span>(<span class="built_in">VARCHAR</span>(), <span class="built_in">VARBINARY</span>());</span><br><span class="line"><span class="keyword">auto</span> row = <span class="built_in">ROW</span>({<span class="string">&quot;id&quot;</span>, <span class="string">&quot;amount&quot;</span>}, {id, amount});</span><br></pre></td></tr></table></figure><p>泛型代码可以使用 <code>TypeFactory&lt;KIND&gt;</code>、<code>Type::create&lt;KIND&gt;</code> 或 <code>createType(kind, children)</code>。但仅提供 kind 和 children 无法恢复 decimal 的 precision/scale、原始 ROW 字段名或自定义逻辑类型；遇到这些类型要使用完整参数或完整序列化描述。参见 <a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/type/Type.h#L2051">createType 接口</a>。</p>
+<p>反方向的 <code>CppToType&lt;T&gt;</code> 是<strong>模板特化表</strong>，不是能推导所有 C++ 容器和业务对象的反射系统。当前 <a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/type/CppToType.h#L25">CppToType</a> 中：</p>
 <ul>
-<li><a target="_blank" rel="noopener" href="https://facebookincubator.github.io/velox/develop/types.html">https://facebookincubator.github.io/velox/develop/types.html</a></li>
-<li><a target="_blank" rel="noopener" href="https://taylorconor.com/blog/enum-reflection/">https://taylorconor.com/blog/enum-reflection/</a></li>
-<li><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/9116267/using-an-enumeration-as-a-template-parameter">https://stackoverflow.com/questions/9116267/using-an-enumeration-as-a-template-parameter</a></li>
-<li><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/43693697/c-concepts-placeholder-type-deduction">https://stackoverflow.com/questions/43693697/c-concepts-placeholder-type-deduction</a></li>
-<li><a target="_blank" rel="noopener" href="https://en.cppreference.com/w/cpp/language/template_parameters">https://en.cppreference.com/w/cpp/language/template_parameters</a></li>
+<li>int64_t / uint64_t 都映射到 BIGINT；不意味着 Velox 增加了一个 SQL unsigned BIGINT。</li>
+<li>StringView、std::string、std::string_view 都映射到 VARCHAR。</li>
+<li>VARBINARY 也使用 StringView，但没有另一个相同 T 的特化；要显式选择 VARBINARY。</li>
+<li>shared_ptr&lt;T&gt; 通过 OpaqueType::create&lt;T&gt; 构造 opaque。</li>
+<li>普通 int32_t 无法推导 DATE，int64_t 无法推导 DECIMAL(p,s)。</li>
 </ul>
+<p>这是一种有损映射：多个逻辑类型共享一个 NativeType，因此“从 C++ T 推导”不可能自动恢复全部 schema。</p>
+<h2 id="dispatch">6. 类型分派与 Vector 访问</h2>
 
-  </article>
-  <footer class="colophon">
-    <b>Velox Type System</b><br>
-    #QueryExecution　#SIMD　#velox　#vectorized　#data　#paper　·　2022-06-07
-  </footer>
+<p>TypeKind 可以把运行时分派转成模板实例化，例如在 INTEGER/BIGINT/DOUBLE 等分支中选定 <code>TypeTraits&lt;KIND&gt;::NativeType</code>。这是执行内核获得静态 C++ 类型的入口，但它仍需处理 logical overlay 的语义约束。</p>
+<p>同样，确定类型为 BIGINT 后，不能直接把任意输入当作 <code>FlatVector&lt;int64_t&gt;</code> 取裸值数组。输入可能是 constant、dictionary 或 lazy。应选择支持这些编码的接口，或通过 <code>DecodedVector</code> 取得底层向量、索引映射和 null 信息。参见 <a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/vector/DecodedVector.h#L35">DecodedVector</a>。</p>
+<p>例如 dictionary 的逻辑行 i 指向 base 的 <code>indices[i]</code>；两层 dictionary 还会组合索引。DecodedVector 通常帮助解开这种映射，不代表无条件复制并展平整列。编码转换成本、lazy 加载和 null 传播，是 Vector 层的职责。</p>
+<h2 id="extension">7. 自定义类型、序列化和兼容性</h2>
+
+<p>Velox 允许定义基于已有表示的逻辑类型，以及 OPAQUE 等扩展。但“注册了类型名”并不自动获得所有 cast、比较、hash、函数签名与序列化支持。</p>
+<p>实际扩展时应分别确定：基础 kind / native storage、类型参数、equivalent / equals / hash、类型描述的 serde、值的 serde，以及参与哪些函数和算子。尤其是 opaque，进程内 shared_ptr 的地址不能成为跨进程的值协议；其类型序列化也依赖注册的稳定名称。参见 <a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/type/Type.cpp#L955">OpaqueType::serialize</a>。</p>
+<p>类型相等也不等于“允许隐式转换”。INTEGER 与 BIGINT 可以在某些语义下 coercion，但仍不是相等类型。转换与公共类型推导应查看 <a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/type/TypeCoercer.h#L1">TypeCoercer</a> 及具体函数/宿主使用的规则，不能用 <code>equivalent</code> 代替 SQL coercion。</p>
+<span class="legacy-anchor" id="rferences" aria-hidden="true"></span>
+<h2 id="reading">8. 阅读与验证入口</h2>
+
+<p>最有效的顺序是：<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/type/TypeKind.h#L40">TypeKind / TypeTraits</a> → <a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/type/Type.h#L218">Type 接口与具体类</a> → <a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/type/Type.cpp#L616">复杂类型比较实现</a> → <a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/type/CppToType.h#L25">CppToType</a> → <a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/type/tests/TypeTest.cpp#L187">DATE、DECIMAL 与比较测试</a>。</p>
+<p>本文的类型关系已对照实现和现有测试核对；未执行整个 TypeTest，也未把文中的 schema 示例标为实测程序。继续理解编码与执行，请读 <a href="/2022/12/03/velox-depp-intro/">Velox 架构</a> 和 <a href="/2025/12/30/velox-primer/">Primer</a>。</p>
 </div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-<script>document.querySelectorAll('.post-body pre code[class*="language-"]').forEach(function(el){try{hljs.highlightElement(el);}catch(e){}});</script>
-</body>
-</html>
 
   </div>
 </article>
@@ -438,7 +403,7 @@ std::shared_ptr&lt;const ArrayType&gt; ARRAY(
     </div>
 
     <div id="toc-footer" style="display: none">
-      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">Velox Type System</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#what-is-velox-type-system"><span class="toc-number">1.1.</span> <span class="toc-text">What Is Velox Type System</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#velox-type%E7%B1%BB"><span class="toc-number">1.2.</span> <span class="toc-text">Velox Type类</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E5%88%9B%E5%BB%BAvelox-type"><span class="toc-number">1.3.</span> <span class="toc-text">如何创建Velox Type</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E4%BB%8Ec-type%E6%8E%A8%E5%AF%BC%E5%92%8C%E5%88%9B%E5%BB%BA%E5%87%BAvelox-type"><span class="toc-number">1.4.</span> <span class="toc-text">如何从C++ Type推导和创建出Velox Type</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#rferences"><span class="toc-number">1.5.</span> <span class="toc-text">Rferences</span></a></li></ol></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#layers"><span class="toc-number">1.</span> <span class="toc-text">1. Type、TypeKind、NativeType、Vector</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#scalar"><span class="toc-number">2.</span> <span class="toc-text">2. 基本类型与逻辑覆盖类型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#complex"><span class="toc-number">3.</span> <span class="toc-text">3. 复杂类型是一棵有参数的树</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#null-%E4%B8%8D%E5%86%99%E5%9C%A8-typekind-%E9%87%8C"><span class="toc-number">3.1.</span> <span class="toc-text">null 不写在 TypeKind 里</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#comparison"><span class="toc-number">4.</span> <span class="toc-text">4. 类型相同到底是什么意思</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#construction"><span class="toc-number">5.</span> <span class="toc-text">5. 如何创建类型，如何从 C++ 推导</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#dispatch"><span class="toc-number">6.</span> <span class="toc-text">6. 类型分派与 Vector 访问</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#extension"><span class="toc-number">7.</span> <span class="toc-text">7. 自定义类型、序列化和兼容性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reading"><span class="toc-number">8.</span> <span class="toc-text">8. 阅读与验证入口</span></a></li></ol>
     </div>
 
     <div id="share-footer" style="display: none">
