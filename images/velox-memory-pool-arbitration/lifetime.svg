@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="892" viewBox="0 0 1280 892" role="img" aria-labelledby="title desc">
+<title id="title">Pool 生命周期：谁持有引用，谁归还额度</title><desc id="desc">父子结构与强引用方向不同。Task 清理、buffer 释放、capacity 归还和 pool 析构要分开。</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
+<rect x="0" y="0" width="1280" height="892" rx="0" fill="white" stroke="none" stroke-width="1"/>
+<rect x="8" y="8" width="1264" height="876" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<rect x="9" y="9" width="1262" height="94" rx="0" fill="#edf5ff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="103" x2="1271" y2="103" stroke="#d6d3cc" stroke-width="1"/>
+<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">Pool 生命周期：谁持有引用，谁归还额度</text>
+<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">父子结构与强引用方向不同。Task 清理、buffer 释放、capacity 归还和 pool 析构要分开。</text>
+<rect x="50" y="156" width="320" height="95" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="50" y="160" width="4" height="87" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="72" y="191" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Query / Task 持有者</text>
+<text x="72" y="224" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">shared_ptr 保活相关 pool</text>
+<rect x="480" y="156" width="330" height="95" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<rect x="480" y="160" width="4" height="87" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
+<text x="502" y="191" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Query root</text>
+<text x="502" y="224" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">Manager 只用 weak_ptr 跟踪</text>
+<rect x="920" y="156" width="310" height="95" rx="4" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
+<rect x="920" y="160" width="4" height="87" rx="0" fill="#c2410c" stroke="none" stroke-width="1"/>
+<text x="942" y="191" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Scoped participant</text>
+<text x="942" y="224" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">仲裁期间强持有 root</text>
+<polyline points="382,201 468,201" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<polyline points="908,201 822,201" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="480" y="389" width="330" height="95" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<rect x="480" y="393" width="4" height="87" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
+<text x="502" y="424" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Child pool</text>
+<text x="502" y="457" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">Task / Node / Operator</text>
+<polyline points="530,263 530,377" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="503" y="327" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="end">children_：weak_ptr</text>
+<polyline points="760,377 760,263" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="791" y="327" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">parent_：shared_ptr</text>
+<rect x="50" y="392" width="320" height="134" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
+<text x="72" y="428" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Task::childPools_</text>
+<text x="72" y="463" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">保活 node / operator pools</text>
+<text x="72" y="498" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">customChildPools_ 同理</text>
+<polyline points="382,437 468,437" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="50" y="637" width="320" height="100" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<rect x="50" y="641" width="4" height="92" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
+<text x="72" y="672" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">释放执行资源</text>
+<text x="72" y="705" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">free buffer / release reservation</text>
+<polyline points="382,685 468,685" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="480" y="637" width="320" height="100" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<rect x="480" y="641" width="4" height="92" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
+<text x="502" y="672" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">最后的引用释放</text>
+<text x="502" y="705" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">child 注销；root 析构回调</text>
+<polyline points="812,685 898,685" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="910" y="637" width="320" height="100" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="910" y="641" width="4" height="92" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="932" y="672" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">removePool</text>
+<text x="932" y="705" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">收回余量、移除 participant</text>
+<text x="646" y="567" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="20" font-weight="400" text-anchor="middle">Child 和仲裁活动都可能让 root 活得比 QueryCtx 更久。</text>
+<rect x="40" y="790" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
+<text x="60" y="819" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">Pool 析构做泄漏检查，不是扫描并释放任意指针的垃圾回收。</text>
+<text x="60" y="844" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">Task 会保留执行子池；allocator / arbitrator 的提供方还必须满足它们被借用期间的生命周期。</text>
+</svg>

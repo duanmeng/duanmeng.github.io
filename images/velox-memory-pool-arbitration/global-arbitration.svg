@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="1090" viewBox="0 0 1280 1090" role="img" aria-labelledby="title desc">
+<title id="title">全局仲裁线程时序：控制线程也参与回收</title><desc id="desc">展示一次存在多个 victim 的成功路径。请求线程同步等待；容量归还方可直接唤醒它。</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
+<rect x="0" y="0" width="1280" height="1090" rx="0" fill="white" stroke="none" stroke-width="1"/>
+<rect x="8" y="8" width="1264" height="1074" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<rect x="9" y="9" width="1262" height="94" rx="0" fill="#edf5ff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="103" x2="1271" y2="103" stroke="#d6d3cc" stroke-width="1"/>
+<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">全局仲裁线程时序：控制线程也参与回收</text>
+<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">展示一次存在多个 victim 的成功路径。请求线程同步等待；容量归还方可直接唤醒它。</text>
+<rect x="35" y="140" width="220" height="82" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="35" y="144" width="4" height="74" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="57" y="175" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">请求线程</text>
+<text x="145" y="205" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="15" font-weight="400" text-anchor="middle">allocate 调用栈</text>
+<line x1="145" y1="233" x2="145" y2="957" stroke="#d6d3cc" stroke-width="1" stroke-dasharray="6 5"/>
+<rect x="365" y="140" width="220" height="82" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<rect x="365" y="144" width="4" height="74" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
+<text x="387" y="175" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">控制线程</text>
+<text x="475" y="205" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="15" font-weight="400" text-anchor="middle">ArbitrationMain</text>
+<line x1="475" y1="233" x2="475" y2="957" stroke="#d6d3cc" stroke-width="1" stroke-dasharray="6 5"/>
+<rect x="695" y="140" width="220" height="82" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<rect x="695" y="144" width="4" height="74" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
+<text x="717" y="175" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">回收线程</text>
+<text x="805" y="205" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="15" font-weight="400" text-anchor="middle">MemoryReclaim</text>
+<line x1="805" y1="233" x2="805" y2="957" stroke="#d6d3cc" stroke-width="1" stroke-dasharray="6 5"/>
+<rect x="1025" y="140" width="220" height="82" rx="4" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
+<rect x="1025" y="144" width="4" height="74" rx="0" fill="#c2410c" stroke="none" stroke-width="1"/>
+<text x="1047" y="175" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">共享额度</text>
+<text x="1135" y="205" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="15" font-weight="400" text-anchor="middle">stateMutex + waiters</text>
+<line x1="1135" y1="233" x2="1135" y2="957" stroke="#d6d3cc" stroke-width="1" stroke-dasharray="6 5"/>
+<polyline points="145,266 1135,266" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="488.5" y="237" width="303" height="24" rx="0" fill="white" stroke="none" stroke-width="1"/>
+<text x="640.0" y="256" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">登记 waiter，记录 pending growth</text>
+<polyline points="145,320 475,320" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="197.5" y="291" width="225" height="24" rx="0" fill="white" stroke="none" stroke-width="1"/>
+<text x="310.0" y="310" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">通知 condition variable</text>
+<rect x="49" y="346" width="447" height="29" rx="0" fill="white" stroke="none" stroke-width="1"/>
+<text x="55" y="368" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">Driver 请求方已 suspended；future.wait 保留原线程</text>
+<polyline points="475,426 805,426" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="488.0" y="397" width="304" height="24" rx="0" fill="white" stroke="none" stroke-width="1"/>
+<text x="640.0" y="416" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">第 2 个起：executor.add(prepare)</text>
+<rect x="350" y="458" width="250" height="121" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<text x="369" y="490" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="600" text-anchor="start">第 1 个回收任务</text>
+<text x="369" y="525" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="16" font-weight="400" text-anchor="start">move() 在控制线程执行</text>
+<text x="369" y="552" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="16" font-weight="400" text-anchor="start">pause → reclaim → shrink</text>
+<rect x="680" y="458" width="250" height="121" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="699" y="490" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="600" text-anchor="start">其他回收任务</text>
+<text x="699" y="525" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="16" font-weight="400" text-anchor="start">worker 或调用方执行</text>
+<text x="699" y="552" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="16" font-weight="400" text-anchor="start">pause → reclaim → shrink</text>
+<polyline points="805,623 1135,623" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="863.5" y="594" width="213" height="24" rx="0" fill="white" stroke="none" stroke-width="1"/>
+<text x="970.0" y="613" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">freeCapacity：归还额度</text>
+<rect x="813" y="643" width="164" height="29" rx="0" fill="white" stroke="none" stroke-width="1"/>
+<text x="819" y="665" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">锁内分配给 waiter</text>
+<polyline points="1135,711 145,711" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="449.5" y="682" width="381" height="24" rx="0" fill="white" stroke="none" stroke-width="1"/>
+<text x="640.0" y="701" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">出锁兑现 promise；也可能由控制线程归还触发</text>
+<polyline points="145,760 191,760 191,790 145,790" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="224" y="759" width="360" height="29" rx="0" fill="white" stroke="none" stroke-width="1"/>
+<text x="230" y="781" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">请求方：在 root 提交 grow + reservation</text>
+<polyline points="805,830 475,830" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="513.5" y="801" width="253" height="24" rx="0" fill="white" stroke="none" stroke-width="1"/>
+<text x="640.0" y="820" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">move() 收集结果；必要时等待</text>
+<rect x="326" y="855" width="339" height="29" rx="0" fill="white" stroke="none" stroke-width="1"/>
+<text x="332" y="877" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">这一批结束后，控制线程重新计算回收目标</text>
+<rect x="49" y="913" width="417" height="29" rx="0" fill="white" stroke="none" stroke-width="1"/>
+<text x="55" y="935" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">请求方检查结果、退出 suspension，继续 allocate</text>
+<rect x="40" y="988" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
+<text x="60" y="1017" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">控制线程不是派发后即返回；第一个任务在本线程执行，其他结果通过 move() 收集。</text>
+<text x="60" y="1042" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">请求方可在某个 victim 归还足够额度时被唤醒，无需等待整批回收完成。</text>
+</svg>

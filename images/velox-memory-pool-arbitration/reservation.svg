@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="872" viewBox="0 0 1280 872" role="img" aria-labelledby="title desc">
+<title id="title">三层账本：used、reserved、capacity</title><desc id="desc">示意以有限查询 root、普通稳定状态为前提。示例单位为 MiB；不表示真实物理页布局。</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
+<rect x="0" y="0" width="1280" height="872" rx="0" fill="white" stroke="none" stroke-width="1"/>
+<rect x="8" y="8" width="1264" height="856" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<rect x="9" y="9" width="1262" height="94" rx="0" fill="#edf5ff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="103" x2="1271" y2="103" stroke="#d6d3cc" stroke-width="1"/>
+<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">三层账本：used、reserved、capacity</text>
+<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">示意以有限查询 root、普通稳定状态为前提。示例单位为 MiB；不表示真实物理页布局。</text>
+<text x="60" y="159" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="23" font-weight="600" text-anchor="start">一棵 root 的容量视图</text>
+<rect x="60" y="191" width="432" height="110" rx="0" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="276.0" y="254" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="600" text-anchor="middle">used 24</text>
+<rect x="492" y="191" width="144" height="110" rx="0" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<text x="564.0" y="254" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="600" text-anchor="middle">余量 8</text>
+<rect x="636" y="191" width="288" height="110" rx="0" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<text x="780.0" y="254" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="600" text-anchor="middle">空闲 capacity 16</text>
+<rect x="924" y="191" width="288" height="110" rx="0" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
+<text x="1068.0" y="254" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="600" text-anchor="middle">未获额度 16</text>
+<line x1="60" y1="336" x2="636" y2="336" stroke="#7e22ce" stroke-width="1"/>
+<line x1="60" y1="330" x2="60" y2="342" stroke="#7e22ce" stroke-width="1"/>
+<line x1="636" y1="330" x2="636" y2="342" stroke="#7e22ce" stroke-width="1"/>
+<text x="348.0" y="324" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#7e22ce" font-size="18" font-weight="400" text-anchor="middle">reserved = 32</text>
+<line x1="60" y1="381" x2="924" y2="381" stroke="#1d4ed8" stroke-width="1"/>
+<line x1="60" y1="375" x2="60" y2="387" stroke="#1d4ed8" stroke-width="1"/>
+<line x1="924" y1="375" x2="924" y2="387" stroke="#1d4ed8" stroke-width="1"/>
+<text x="492.0" y="369" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#1d4ed8" font-size="18" font-weight="400" text-anchor="middle">capacity = 48</text>
+<line x1="60" y1="426" x2="1212" y2="426" stroke="#4b5563" stroke-width="1"/>
+<line x1="60" y1="420" x2="60" y2="432" stroke="#4b5563" stroke-width="1"/>
+<line x1="1212" y1="420" x2="1212" y2="432" stroke="#4b5563" stroke-width="1"/>
+<text x="636.0" y="414" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="18" font-weight="400" text-anchor="middle">maxCapacity = 64</text>
+<rect x="40" y="477" width="570" height="160" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<rect x="40" y="481" width="4" height="152" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
+<text x="62" y="512" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Leaf reservation</text>
+<text x="62" y="545" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">先消费已有余量，不足才向父链上传增量</text>
+<text x="62" y="581" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="400" text-anchor="start">100 KiB 首次申请 → 可取得 1 MiB reservation</text>
+<text x="62" y="612" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">Allocator 收到的仍是对齐后的申请大小。</text>
+<rect x="650" y="477" width="590" height="160" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="650" y="481" width="4" height="152" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="672" y="512" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">两个独立的归还动作</text>
+<text x="672" y="545" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">free 使 used / reservation 下降</text>
+<text x="672" y="581" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="400" text-anchor="start">shrink 才把 root 的空闲 capacity 交回仲裁器</text>
+<text x="672" y="612" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">仅改 capacity 不会替算子释放 buffer。</text>
+<text x="60" y="710" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="400" text-anchor="start">量化粒度：需求 &lt; 16 MiB 用 1 MiB；&lt; 64 MiB 用 4 MiB；其余用 8 MiB。</text>
+<rect x="40" y="770" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
+<text x="60" y="799" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">Reservation 是记账预留，capacity 是获准额度；两者都不是 RSS。</text>
+<text x="60" y="824" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">仲裁上下文允许 reservation 暂时超过 root capacity；external allocation 也可仅报告用量。</text>
+</svg>
