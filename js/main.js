@@ -32,7 +32,8 @@ $(document).ready(function() {
     /**
      * Display the menu on hi-res laptops and desktops.
      */
-    if ($(document).width() >= 1440) {
+    var menuBreakpoint = document.body.classList.contains("theme-whiteboard") ? 1600 : 1440;
+    if ($(document).width() >= menuBreakpoint) {
       menu.show();
       menuIcon.addClass("active");
     }

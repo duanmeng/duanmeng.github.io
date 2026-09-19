@@ -9,7 +9,7 @@
     <meta name="description" content="What Is SIMDSIMD代表单指令多数据（Single Instruction, Multiple Data）。它是一种计算机指令集架构，旨在同时处理多个数据元素。SIMD指令允许在单个指令中对多个数据元素执行相同的操作，从而实现并行处理和向量化计算。 在SIMD架构中，数据被组织为向量（也称为寄存器），其中每个向量元素都可以是整数、浮点数或其他数据类型。SIMD指令可以同时对向量中的多个">
 <meta property="og:type" content="article">
 <meta property="og:title" content="SIMD Basic Using AVX and AVX2">
-<meta property="og:url" content="http://example.com/2021/08/22/simd-basic/index.html">
+<meta property="og:url" content="https://duanmeng.github.io/2021/08/22/simd-basic/index.html">
 <meta property="og:site_name" content="Macduan Notes">
 <meta property="og:description" content="What Is SIMDSIMD代表单指令多数据（Single Instruction, Multiple Data）。它是一种计算机指令集架构，旨在同时处理多个数据元素。SIMD指令允许在单个指令中对多个数据元素执行相同的操作，从而实现并行处理和向量化计算。 在SIMD架构中，数据被组织为向量（也称为寄存器），其中每个向量元素都可以是整数、浮点数或其他数据类型。SIMD指令可以同时对向量中的多个">
 <meta property="og:locale" content="en_US">
@@ -55,7 +55,7 @@
 	
 <meta name="generator" content="Hexo 6.3.0"></head>
 
-<body class="max-width mx-auto px3 ltr">
+<body class="max-width mx-auto px3 ltr theme-whiteboard">
     
       <div id="header-post">
   <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
@@ -99,17 +99,17 @@
     <br/>
     <div id="share" style="display: none">
       <ul>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2021/08/22/simd-basic/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2021/08/22/simd-basic/&text=SIMD Basic Using AVX and AVX2"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2021/08/22/simd-basic/&title=SIMD Basic Using AVX and AVX2"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2021/08/22/simd-basic/&is_video=false&description=SIMD Basic Using AVX and AVX2"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="mailto:?subject=SIMD Basic Using AVX and AVX2&body=Check out this article: http://example.com/2021/08/22/simd-basic/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2021/08/22/simd-basic/&title=SIMD Basic Using AVX and AVX2"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2021/08/22/simd-basic/&title=SIMD Basic Using AVX and AVX2"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2021/08/22/simd-basic/&title=SIMD Basic Using AVX and AVX2"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2021/08/22/simd-basic/&title=SIMD Basic Using AVX and AVX2"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2021/08/22/simd-basic/&name=SIMD Basic Using AVX and AVX2&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2021/08/22/simd-basic/&t=SIMD Basic Using AVX and AVX2"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://duanmeng.github.io/2021/08/22/simd-basic/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://duanmeng.github.io/2021/08/22/simd-basic/&text=SIMD Basic Using AVX and AVX2"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://duanmeng.github.io/2021/08/22/simd-basic/&title=SIMD Basic Using AVX and AVX2"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://duanmeng.github.io/2021/08/22/simd-basic/&is_video=false&description=SIMD Basic Using AVX and AVX2"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=SIMD Basic Using AVX and AVX2&body=Check out this article: https://duanmeng.github.io/2021/08/22/simd-basic/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://duanmeng.github.io/2021/08/22/simd-basic/&title=SIMD Basic Using AVX and AVX2"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://duanmeng.github.io/2021/08/22/simd-basic/&title=SIMD Basic Using AVX and AVX2"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://duanmeng.github.io/2021/08/22/simd-basic/&title=SIMD Basic Using AVX and AVX2"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://duanmeng.github.io/2021/08/22/simd-basic/&title=SIMD Basic Using AVX and AVX2"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://duanmeng.github.io/2021/08/22/simd-basic/&name=SIMD Basic Using AVX and AVX2&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://duanmeng.github.io/2021/08/22/simd-basic/&t=SIMD Basic Using AVX and AVX2"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
 </ul>
 
     </div>
@@ -557,17 +557,17 @@
 
     <div id="share-footer" style="display: none">
       <ul>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2021/08/22/simd-basic/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2021/08/22/simd-basic/&text=SIMD Basic Using AVX and AVX2"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2021/08/22/simd-basic/&title=SIMD Basic Using AVX and AVX2"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2021/08/22/simd-basic/&is_video=false&description=SIMD Basic Using AVX and AVX2"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="mailto:?subject=SIMD Basic Using AVX and AVX2&body=Check out this article: http://example.com/2021/08/22/simd-basic/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2021/08/22/simd-basic/&title=SIMD Basic Using AVX and AVX2"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2021/08/22/simd-basic/&title=SIMD Basic Using AVX and AVX2"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2021/08/22/simd-basic/&title=SIMD Basic Using AVX and AVX2"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2021/08/22/simd-basic/&title=SIMD Basic Using AVX and AVX2"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2021/08/22/simd-basic/&name=SIMD Basic Using AVX and AVX2&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2021/08/22/simd-basic/&t=SIMD Basic Using AVX and AVX2"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://duanmeng.github.io/2021/08/22/simd-basic/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://duanmeng.github.io/2021/08/22/simd-basic/&text=SIMD Basic Using AVX and AVX2"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://duanmeng.github.io/2021/08/22/simd-basic/&title=SIMD Basic Using AVX and AVX2"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://duanmeng.github.io/2021/08/22/simd-basic/&is_video=false&description=SIMD Basic Using AVX and AVX2"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=SIMD Basic Using AVX and AVX2&body=Check out this article: https://duanmeng.github.io/2021/08/22/simd-basic/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://duanmeng.github.io/2021/08/22/simd-basic/&title=SIMD Basic Using AVX and AVX2"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://duanmeng.github.io/2021/08/22/simd-basic/&title=SIMD Basic Using AVX and AVX2"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://duanmeng.github.io/2021/08/22/simd-basic/&title=SIMD Basic Using AVX and AVX2"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://duanmeng.github.io/2021/08/22/simd-basic/&title=SIMD Basic Using AVX and AVX2"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://duanmeng.github.io/2021/08/22/simd-basic/&name=SIMD Basic Using AVX and AVX2&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://duanmeng.github.io/2021/08/22/simd-basic/&t=SIMD Basic Using AVX and AVX2"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
 </ul>
 
     </div>
@@ -616,30 +616,43 @@
     <!-- styles -->
 
 
+ 
+  <link
+    rel="preload"
+    href="/lib/font-awesome/css/all.min.css"
+    as="style"
+    onload="this.onload=null;this.rel='stylesheet'"
+  />
+  <noscript
+    ><link
+      rel="stylesheet"
+      href="/lib/font-awesome/css/all.min.css"
+  /></noscript>
 
-  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
 
 
-
-  <script src='https://unpkg.com/mermaid@10.3.0/dist/mermaid.min.js'></script>
-  <script>
-    if (window.mermaid) {
-      mermaid.initialize({theme: 'forest'});
-    }
-  </script>
+  
+    <script defer src="/lib/mermaid/mermaid.min.js"></script>
+  
+  <script type="application/json" id="mermaid-config">{"theme":"base","securityLevel":"strict","fontFamily":"-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, Microsoft YaHei, sans-serif","themeVariables":{"background":"#FFFFFF","primaryColor":"#FFFFFF","primaryBorderColor":"#5178C6","primaryTextColor":"#1F2329","secondaryColor":"#EAE2FE","secondaryBorderColor":"#8569CB","secondaryTextColor":"#1F2329","tertiaryColor":"#DFF5E5","tertiaryBorderColor":"#509863","tertiaryTextColor":"#1F2329","lineColor":"#BBBFC4","textColor":"#1F2329","mainBkg":"#FFFFFF","nodeBorder":"#5178C6","clusterBkg":"#F0F4FC","clusterBorder":"#5178C6","titleColor":"#1F2329","edgeLabelBackground":"#FFFFFF","actorBkg":"#F0F4FC","actorBorder":"#5178C6","actorTextColor":"#1F2329","actorLineColor":"#BBBFC4","signalColor":"#646A73","signalTextColor":"#1F2329","noteBkgColor":"#FEF1CE","noteBorderColor":"#D4B45B","noteTextColor":"#1F2329","labelBoxBkgColor":"#EAE2FE","labelBoxBorderColor":"#8569CB","labelTextColor":"#1F2329","activationBkgColor":"#DFF5E5","activationBorderColor":"#509863","fontSize":"15px"},"flowchart":{"curve":"linear","padding":16,"nodeSpacing":40,"rankSpacing":48,"useMaxWidth":true},"sequence":{"useMaxWidth":true,"actorMargin":48,"messageMargin":36}}</script>
+  <script defer src="/js/mermaid-init.js"></script>
 
 
     <!-- jquery -->
  
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+  
+<script src="/lib/jquery/jquery.min.js"></script>
+
 
 
 
 
 <!-- clipboard -->
 
-  
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+   
+    
+<script src="/lib/clipboard/clipboard.min.js"></script>
+
   
   <script type="text/javascript">
   $(function() {
