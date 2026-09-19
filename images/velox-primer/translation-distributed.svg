@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="760" viewBox="0 0 1280 760" role="img" aria-labelledby="title desc">
+<title id="title">Part 1 · Shuffle 连接查询片段</title><desc id="desc">数据方向：下方扫描生产者 → 上方分组消费者；同一个 key 总是进入同一个目标分区。</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
+<rect x="0" y="0" width="1280" height="760" rx="0" fill="white" stroke="none" stroke-width="1"/>
+<rect x="8" y="8" width="1264" height="744" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<rect x="9" y="9" width="1262" height="94" rx="0" fill="#edf5ff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="103" x2="1271" y2="103" stroke="#d6d3cc" stroke-width="1"/>
+<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">Part 1 · Shuffle 连接查询片段</text>
+<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">数据方向：下方扫描生产者 → 上方分组消费者；同一个 key 总是进入同一个目标分区。</text>
+<text x="50" y="160" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="22" font-weight="600" text-anchor="start">Stage 2 · m 个消费者片段</text>
+<circle cx="190" cy="226" r="38" fill="#fff6cc" stroke="#b48526" stroke-width="1"/>
+<text x="190" y="232" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">0</text>
+<text x="190" y="292" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="400" text-anchor="middle">key 分区 0</text>
+<text x="190" y="322" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="middle">各自维护 key → count 的哈希表</text>
+<circle cx="640" cy="226" r="38" fill="#fff6cc" stroke="#b48526" stroke-width="1"/>
+<text x="640" y="232" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">1</text>
+<text x="640" y="292" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="400" text-anchor="middle">key 分区 1</text>
+<text x="640" y="322" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="middle">各自维护 key → count 的哈希表</text>
+<circle cx="1090" cy="226" r="38" fill="#fff6cc" stroke="#b48526" stroke-width="1"/>
+<text x="1090" y="232" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">m−1</text>
+<text x="1090" y="292" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="400" text-anchor="middle">key 分区 m−1</text>
+<text x="1090" y="322" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="middle">各自维护 key → count 的哈希表</text>
+<rect x="50" y="371" width="1180" height="68" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<text x="640" y="412" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#7e22ce" font-size="23" font-weight="600" text-anchor="middle">按 key 分区的 shuffle：多个输入流 → 互不重叠的数据子集</text>
+<polyline points="190,360 190,338" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<polyline points="190,500 190,450" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<polyline points="640,360 640,338" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<polyline points="640,500 640,450" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<polyline points="1090,360 1090,338" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<polyline points="1090,500 1090,450" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<circle cx="190" cy="548" r="38" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="190" y="554" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">0</text>
+<text x="190" y="612" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="400" text-anchor="middle">扫描 0 · 读取 T 的不同部分</text>
+<circle cx="640" cy="548" r="38" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="640" y="554" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">1</text>
+<text x="640" y="612" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="400" text-anchor="middle">扫描 1 · 读取 T 的不同部分</text>
+<circle cx="1090" cy="548" r="38" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="1090" y="554" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">n−1</text>
+<text x="1090" y="612" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="400" text-anchor="middle">扫描 n−1 · 读取 T 的不同部分</text>
+<text x="415" y="552" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="32" font-weight="400" text-anchor="middle">…</text>
+<text x="865" y="552" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="32" font-weight="400" text-anchor="middle">…</text>
+<rect x="40" y="658" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
+<text x="60" y="687" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">Stage 1 有 n 个叶子片段；Stage 2 有 m 个消费者片段。</text>
+<text x="60" y="712" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">示意只画部分实例；shuffle 的目的，是把大规模数据分成各消费者独立处理的部分。</text>
+</svg>
