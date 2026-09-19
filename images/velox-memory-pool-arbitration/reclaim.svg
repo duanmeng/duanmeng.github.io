@@ -1,58 +1,77 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="962" viewBox="0 0 1280 962" role="img" aria-labelledby="title desc">
-<title id="title">从回收到额度归还：两个阶段的闭环</title><desc id="desc">Reclaimer 沿执行树操作资源；Arbitrator 在 shrink 之后才能把 capacity 分配给其他 root。</desc>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="1280" viewBox="0 0 1280 1280" role="img" aria-labelledby="title desc">
+<title id="title">回收分两步：先释放资源，再归还额度</title><desc id="desc">pool_-&gt;reclaim(...) 与 shrink(false) 改变不同的账本；freeCapacity 才把额度交回全局。</desc>
 <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
-<rect x="0" y="0" width="1280" height="962" rx="0" fill="white" stroke="none" stroke-width="1"/>
-<rect x="8" y="8" width="1264" height="946" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<rect x="0" y="0" width="1280" height="1280" rx="0" fill="white" stroke="none" stroke-width="1"/>
+<rect x="8" y="8" width="1264" height="1264" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
 <rect x="9" y="9" width="1262" height="94" rx="0" fill="#edf5ff" stroke="none" stroke-width="1"/>
 <line x1="9" y1="103" x2="1271" y2="103" stroke="#d6d3cc" stroke-width="1"/>
-<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">从回收到额度归还：两个阶段的闭环</text>
-<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">Reclaimer 沿执行树操作资源；Arbitrator 在 shrink 之后才能把 capacity 分配给其他 root。</text>
-<rect x="50" y="148" width="670" height="102" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<rect x="50" y="152" width="4" height="94" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
-<text x="72" y="183" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">QueryCtx reclaimer</text>
-<text x="72" y="216" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">标记查询处于回收阶段</text>
-<polyline points="385,259 385,275" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="50" y="286" width="670" height="102" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
-<rect x="50" y="290" width="4" height="94" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
-<text x="72" y="321" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Task reclaimer</text>
-<text x="72" y="354" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">requestPause → 等活跃计数归零</text>
-<polyline points="385,397 385,413" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="50" y="424" width="670" height="102" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
-<rect x="50" y="428" width="4" height="94" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
-<text x="72" y="459" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Node / Operator reclaimer</text>
-<text x="72" y="492" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">检查可回收状态，释放执行资源</text>
-<rect x="830" y="148" width="400" height="132" rx="4" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
-<rect x="830" y="152" width="4" height="124" rx="0" fill="#c2410c" stroke="none" stroke-width="1"/>
-<text x="852" y="183" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">请求方 Driver</text>
-<text x="852" y="216" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">Suspended 保留线程和栈</text>
-<text x="852" y="249" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="16" font-weight="400" text-anchor="start">暂不计入 Task 活跃线程数。</text>
-<rect x="830" y="306" width="400" height="112" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
-<rect x="830" y="310" width="4" height="104" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
-<text x="852" y="341" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">其他活跃 Driver</text>
-<text x="852" y="374" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">协作式响应 pause 请求</text>
-<text x="852" y="398" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="16" font-weight="400" text-anchor="start">不是抢占式强停。</text>
-<rect x="830" y="472" width="400" height="117" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
-<rect x="830" y="476" width="4" height="109" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
-<text x="852" y="507" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">保护算子状态</text>
-<text x="852" y="540" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">canReclaim / 非回收区检查</text>
-<text x="852" y="565" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="16" font-weight="400" text-anchor="start">Hash Join 使用专用 reclaimer。</text>
-<polyline points="732,337 818,362" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<polyline points="732,475 818,526" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="50" y="563" width="670" height="102" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<rect x="50" y="567" width="4" height="94" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
-<text x="72" y="598" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">退出回收作用域</text>
-<text x="72" y="631" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">Task::resume；QueryCtx 结束回收阶段</text>
-<polyline points="385,537 385,551" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="50" y="707" width="670" height="108" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
-<rect x="50" y="711" width="4" height="100" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
-<text x="72" y="742" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Participant::shrink(false)</text>
-<text x="72" y="775" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">降低 root capacity，再 freeCapacity 归还额度</text>
-<polyline points="385,677 385,695" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="830" y="663" width="400" height="150" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
-<text x="852" y="699" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="22" font-weight="600" text-anchor="start">三个不同的数量</text>
-<text x="852" y="735" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">释放的 reservation / 退回的 capacity</text>
-<text x="852" y="772" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">写出的 spill bytes</text>
-<rect x="40" y="860" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
-<text x="60" y="889" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">普通 shrink 保留 min(固定空闲量, capacity × 比例)，并尊重 participant minimum。</text>
-<text x="60" y="914" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">Reclaim 可能部分完成或返回 0；暂停成功仍不代表每个算子都可以回收。</text>
+<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">回收分两步：先释放资源，再归还额度</text>
+<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">pool_-&gt;reclaim(...) 与 shrink(false) 改变不同的账本；freeCapacity 才把额度交回全局。</text>
+<rect x="40" y="130" width="1200" height="490" rx="4" fill="#f8fbff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="40" y="135" width="5" height="480" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="65" y="169" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#1d4ed8" font-size="25" font-weight="600" text-anchor="start">阶段 1 · 执行层释放资源</text>
+<text x="65" y="199" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">进入安全回收区 → 释放算子资源 → 退出回收作用域；root capacity 暂时不变。</text>
+<rect x="65" y="225" width="675" height="84" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="65" y="229" width="4" height="76" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="87" y="260" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">① QueryCtx / Task：建立回收安全点</text>
+<text x="87" y="293" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">标记回收阶段；requestPause，等活跃 Driver 计数归零</text>
+<polyline points="402,316 402,340" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="65" y="350" width="675" height="84" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<rect x="65" y="354" width="4" height="76" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
+<text x="87" y="385" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">② Node / Operator：执行 reclaim</text>
+<text x="87" y="418" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">协调共享状态；检查 canReclaim / 非回收区；释放资源</text>
+<polyline points="402,441 402,465" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="65" y="475" width="675" height="84" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="65" y="479" width="4" height="76" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="87" y="510" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">③ 退出作用域：恢复执行协调</text>
+<text x="87" y="543" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">Task::resume；QueryCtx 结束回收阶段并通知等待者</text>
+<text x="65" y="593" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">发起仲裁的 Driver 若已 suspended，就不计入正在运行的线程数。</text>
+<rect x="785" y="225" width="430" height="334" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="809" y="258" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="600" text-anchor="start">同一个 root 的账本示例（MiB）</text>
+<rect x="809" y="315" width="286.5" height="38" rx="0" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="1095.5" y="315" width="95.5" height="38" rx="0" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
+<text x="952.25" y="340" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="600" text-anchor="middle">768</text>
+<text x="1143.25" y="340" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="16" font-weight="400" text-anchor="middle">256</text>
+<text x="809" y="303" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">回收前：capacity = 1024</text>
+<rect x="809" y="410" width="191.0" height="38" rx="0" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="1000.0" y="410" width="191.0" height="38" rx="0" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
+<text x="904.5" y="435" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="600" text-anchor="middle">512</text>
+<text x="1095.5" y="435" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="16" font-weight="400" text-anchor="middle">512</text>
+<text x="809" y="398" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">资源释放后：capacity 仍为 1024</text>
+<text x="809" y="490" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="16" font-weight="400" text-anchor="start">蓝色：reservation    橙色：root 内空闲</text>
+<text x="809" y="526" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#1d4ed8" font-size="19" font-weight="600" text-anchor="start">reservation −256；全局额度尚未增加</text>
+<polyline points="402,628 402,679" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="442" y="635" width="764" height="34" rx="0" fill="white" stroke="none" stroke-width="1"/>
+<text x="456" y="659" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="600" text-anchor="start">交接点：pool_-&gt;reclaim(...) 已返回，再调用 shrink(false)</text>
+<rect x="40" y="690" width="1200" height="452" rx="4" fill="#fcfaff" stroke="#7e22ce" stroke-width="1"/>
+<rect x="40" y="695" width="5" height="442" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
+<text x="65" y="729" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#7e22ce" font-size="25" font-weight="600" text-anchor="start">阶段 2 · 额度层收缩并归还 capacity</text>
+<text x="65" y="759" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">root 内空闲 ≠ arbitrator 全局空闲；必须经过 shrink 与 freeCapacity。</text>
+<rect x="65" y="790" width="675" height="90" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<rect x="65" y="794" width="4" height="82" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
+<text x="87" y="825" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">④ Participant::shrink(false)</text>
+<text x="87" y="858" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">按空闲余量保护与 minimum 限制，降低 root capacity</text>
+<polyline points="402,888 402,920" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="65" y="930" width="675" height="90" rx="4" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
+<rect x="65" y="934" width="4" height="82" rx="0" fill="#c2410c" stroke="none" stroke-width="1"/>
+<text x="87" y="965" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">⑤ SharedArbitrator::freeCapacity(bytes)</text>
+<text x="87" y="998" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">把实际退回的 capacity 计入全局；分配给 waiter 后出锁唤醒</text>
+<text x="65" y="1072" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="18" font-weight="400" text-anchor="start">本例保留空闲 = min(1024 × 25%, 128) = 128 MiB</text>
+<text x="65" y="1110" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#7e22ce" font-size="20" font-weight="600" text-anchor="start">可退回 capacity = 512 − 128 = 384 MiB</text>
+<rect x="785" y="790" width="430" height="292" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="809" y="824" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="600" text-anchor="start">shrink 后：root capacity = 640</text>
+<rect x="809" y="870" width="191.0" height="38" rx="0" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="1000.0" y="870" width="47.75" height="38" rx="0" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
+<text x="904.5" y="895" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="600" text-anchor="middle">512</text>
+<text x="1023.875" y="895" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="16" font-weight="400" text-anchor="middle">128</text>
+<text x="809" y="858" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">reservation 不因 shrink 再释放一次</text>
+<rect x="1047.75" y="870" width="143.25" height="38" rx="0" fill="white" stroke="#d6d3cc" stroke-width="1" stroke-dasharray="6 5"/>
+<text x="1122" y="895" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="middle">384</text>
+<polyline points="1122,920 1122,954" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="809" y="967" width="382" height="75" rx="4" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
+<text x="829" y="997" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">Arbitrator：全局可分配额度 +384</text>
+<text x="829" y="1024" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="16" font-weight="400" text-anchor="start">可继续满足其他 root 的增长请求</text>
+<rect x="40" y="1178" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
+<text x="60" y="1207" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">资源释放量、退回 capacity、spill 文件字节数是三个不同的量。</text>
+<text x="60" y="1232" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">数值只演示两阶段：假设 reservation 减少 256 MiB，忽略并发和量化，且 minimum 不限制 shrink。</text>
 </svg>

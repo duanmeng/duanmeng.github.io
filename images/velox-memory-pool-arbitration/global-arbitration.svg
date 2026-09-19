@@ -11,22 +11,22 @@
 <rect x="35" y="144" width="4" height="74" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
 <text x="57" y="175" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">请求线程</text>
 <text x="145" y="205" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="15" font-weight="400" text-anchor="middle">allocate 调用栈</text>
-<line x1="145" y1="233" x2="145" y2="957" stroke="#d6d3cc" stroke-width="1" stroke-dasharray="6 5"/>
+<line x1="145" y1="233" x2="145" y2="957" stroke="#706b63" stroke-width="2.4" stroke-dasharray="8 6"/>
 <rect x="365" y="140" width="220" height="82" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
 <rect x="365" y="144" width="4" height="74" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
 <text x="387" y="175" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">控制线程</text>
 <text x="475" y="205" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="15" font-weight="400" text-anchor="middle">ArbitrationMain</text>
-<line x1="475" y1="233" x2="475" y2="957" stroke="#d6d3cc" stroke-width="1" stroke-dasharray="6 5"/>
+<line x1="475" y1="233" x2="475" y2="957" stroke="#706b63" stroke-width="2.4" stroke-dasharray="8 6"/>
 <rect x="695" y="140" width="220" height="82" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
 <rect x="695" y="144" width="4" height="74" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
 <text x="717" y="175" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">回收线程</text>
 <text x="805" y="205" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="15" font-weight="400" text-anchor="middle">MemoryReclaim</text>
-<line x1="805" y1="233" x2="805" y2="957" stroke="#d6d3cc" stroke-width="1" stroke-dasharray="6 5"/>
+<line x1="805" y1="233" x2="805" y2="957" stroke="#706b63" stroke-width="2.4" stroke-dasharray="8 6"/>
 <rect x="1025" y="140" width="220" height="82" rx="4" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
 <rect x="1025" y="144" width="4" height="74" rx="0" fill="#c2410c" stroke="none" stroke-width="1"/>
 <text x="1047" y="175" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">共享额度</text>
 <text x="1135" y="205" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="15" font-weight="400" text-anchor="middle">stateMutex + waiters</text>
-<line x1="1135" y1="233" x2="1135" y2="957" stroke="#d6d3cc" stroke-width="1" stroke-dasharray="6 5"/>
+<line x1="1135" y1="233" x2="1135" y2="957" stroke="#706b63" stroke-width="2.4" stroke-dasharray="8 6"/>
 <polyline points="145,266 1135,266" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
 <rect x="488.5" y="237" width="303" height="24" rx="0" fill="white" stroke="none" stroke-width="1"/>
 <text x="640.0" y="256" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">登记 waiter，记录 pending growth</text>

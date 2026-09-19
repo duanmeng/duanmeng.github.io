@@ -550,9 +550,9 @@ body:has(.memory-article) #toc-footer .toc-level-2::before { display: none; }
 
 <figure class="mm-figure">
  <div class="mm-diagram-scroll" tabindex="0" role="region" aria-label="图 5，可横向滚动">
- <img src="/images/velox-memory-pool-arbitration/reclaim.svg" alt="QueryCtx 标记回收阶段，Task 暂停执行，Node 组织回收，Operator 释放资源；随后恢复 Task、收缩 root capacity，并把额度还给 arbitrator。" loading="lazy">
+ <img src="/images/velox-memory-pool-arbitration/reclaim.svg" alt="阶段 1：QueryCtx / Task 建立安全回收区，Node / Operator 释放资源，used / reservation 下降而 root capacity 不变；阶段 2：shrink 降低 root capacity，再由 freeCapacity 将额度交回 arbitrator。右侧账本示例区分了释放资源与归还额度。" loading="lazy">
  </div>
- <figcaption>图 5 · QueryCtx 标记回收阶段，Task 暂停执行，Node 组织回收，Operator 释放资源；随后恢复 Task、收缩 root capacity，并把额度还给 arbitrator。 <a href="/images/velox-memory-pool-arbitration/reclaim.svg">打开原图</a></figcaption>
+ <figcaption>图 5 · 阶段 1：QueryCtx / Task 建立安全回收区，Node / Operator 释放资源，used / reservation 下降而 root capacity 不变；阶段 2：shrink 降低 root capacity，再由 freeCapacity 将额度交回 arbitrator。右侧账本示例区分了释放资源与归还额度。 <a href="/images/velox-memory-pool-arbitration/reclaim.svg">打开原图</a></figcaption>
  </figure>
 
 <div class="tbl-wrap"><table>
