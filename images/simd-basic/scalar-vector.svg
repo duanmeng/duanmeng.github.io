@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="520" viewBox="0 0 960 520" role="img" aria-labelledby="title desc"><title id="title">同一组数据：标量逐项表达，向量逐批表达</title><desc id="desc">八列表示元素位置；一条 packed 指令描述八个独立的同类运算。</desc><defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
+<rect x="0" y="0" width="960" height="520" rx="3" fill="white" stroke="none" stroke-width="1"/>
+<rect x="8" y="8" width="944" height="504" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<rect x="9" y="9" width="942" height="84" rx="3" fill="#edf5ff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="93" x2="951" y2="93" stroke="#d6d3cc" stroke-width="1.4"/>
+<text x="32" y="44" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="26" font-weight="600" fill="#111827" text-anchor="start">同一组数据：标量逐项表达，向量逐批表达</text>
+<text x="32" y="75" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="14" font-weight="400" fill="#4b5563" text-anchor="start">八列表示元素位置；一条 packed 指令描述八个独立的同类运算。</text>
+<text x="32" y="135" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="18" font-weight="600" fill="#111827" text-anchor="start">标量视角</text>
+<rect x="166" y="111" width="88" height="54" rx="3" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
+<text x="210" y="143" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="18" font-weight="400" fill="#111827" text-anchor="middle">0+10</text>
+<rect x="258" y="111" width="88" height="54" rx="3" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
+<text x="302" y="143" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="18" font-weight="400" fill="#111827" text-anchor="middle">1+11</text>
+<rect x="350" y="111" width="88" height="54" rx="3" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
+<text x="394" y="143" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="18" font-weight="400" fill="#111827" text-anchor="middle">2+12</text>
+<rect x="442" y="111" width="88" height="54" rx="3" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
+<text x="486" y="143" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="18" font-weight="400" fill="#111827" text-anchor="middle">3+13</text>
+<rect x="534" y="111" width="88" height="54" rx="3" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
+<text x="578" y="143" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="18" font-weight="400" fill="#111827" text-anchor="middle">4+14</text>
+<rect x="626" y="111" width="88" height="54" rx="3" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
+<text x="670" y="143" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="18" font-weight="400" fill="#111827" text-anchor="middle">5+15</text>
+<rect x="718" y="111" width="88" height="54" rx="3" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
+<text x="762" y="143" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="18" font-weight="400" fill="#111827" text-anchor="middle">6+16</text>
+<rect x="810" y="111" width="88" height="54" rx="3" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
+<text x="854" y="143" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="18" font-weight="400" fill="#111827" text-anchor="middle">7+17</text>
+<text x="32" y="205" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="18" font-weight="600" fill="#111827" text-anchor="start">向量视角</text>
+<text x="32" y="269" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="16" font-weight="400" fill="#4b5563" text-anchor="start">a</text>
+<rect x="166.0" y="239" width="88.0" height="48" rx="3" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<text x="210.0" y="269" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="21" font-weight="400" fill="#111827" text-anchor="middle">0</text>
+<text x="210.0" y="229" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="13" font-weight="400" fill="#4b5563" text-anchor="middle">0</text>
+<rect x="258.0" y="239" width="88.0" height="48" rx="3" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<text x="302.0" y="269" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="21" font-weight="400" fill="#111827" text-anchor="middle">1</text>
+<text x="302.0" y="229" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="13" font-weight="400" fill="#4b5563" text-anchor="middle">1</text>
+<rect x="350.0" y="239" width="88.0" height="48" rx="3" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<text x="394.0" y="269" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="21" font-weight="400" fill="#111827" text-anchor="middle">2</text>
+<text x="394.0" y="229" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="13" font-weight="400" fill="#4b5563" text-anchor="middle">2</text>
+<rect x="442.0" y="239" width="88.0" height="48" rx="3" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<text x="486.0" y="269" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="21" font-weight="400" fill="#111827" text-anchor="middle">3</text>
+<text x="486.0" y="229" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="13" font-weight="400" fill="#4b5563" text-anchor="middle">3</text>
+<rect x="534.0" y="239" width="88.0" height="48" rx="3" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<text x="578.0" y="269" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="21" font-weight="400" fill="#111827" text-anchor="middle">4</text>
+<text x="578.0" y="229" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="13" font-weight="400" fill="#4b5563" text-anchor="middle">4</text>
+<rect x="626.0" y="239" width="88.0" height="48" rx="3" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<text x="670.0" y="269" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="21" font-weight="400" fill="#111827" text-anchor="middle">5</text>
+<text x="670.0" y="229" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="13" font-weight="400" fill="#4b5563" text-anchor="middle">5</text>
+<rect x="718.0" y="239" width="88.0" height="48" rx="3" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<text x="762.0" y="269" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="21" font-weight="400" fill="#111827" text-anchor="middle">6</text>
+<text x="762.0" y="229" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="13" font-weight="400" fill="#4b5563" text-anchor="middle">6</text>
+<rect x="810.0" y="239" width="88.0" height="48" rx="3" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<text x="854.0" y="269" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="21" font-weight="400" fill="#111827" text-anchor="middle">7</text>
+<text x="854.0" y="229" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="13" font-weight="400" fill="#4b5563" text-anchor="middle">7</text>
+<line x1="532.0" y1="235" x2="532.0" y2="291" stroke="#8b8b8b" stroke-width="2"/>
+<text x="32" y="342" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="16" font-weight="400" fill="#4b5563" text-anchor="start">b</text>
+<rect x="166.0" y="312" width="88.0" height="48" rx="3" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<text x="210.0" y="342" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="21" font-weight="400" fill="#111827" text-anchor="middle">10</text>
+<rect x="258.0" y="312" width="88.0" height="48" rx="3" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<text x="302.0" y="342" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="21" font-weight="400" fill="#111827" text-anchor="middle">11</text>
+<rect x="350.0" y="312" width="88.0" height="48" rx="3" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<text x="394.0" y="342" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="21" font-weight="400" fill="#111827" text-anchor="middle">12</text>
+<rect x="442.0" y="312" width="88.0" height="48" rx="3" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<text x="486.0" y="342" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="21" font-weight="400" fill="#111827" text-anchor="middle">13</text>
+<rect x="534.0" y="312" width="88.0" height="48" rx="3" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<text x="578.0" y="342" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="21" font-weight="400" fill="#111827" text-anchor="middle">14</text>
+<rect x="626.0" y="312" width="88.0" height="48" rx="3" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<text x="670.0" y="342" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="21" font-weight="400" fill="#111827" text-anchor="middle">15</text>
+<rect x="718.0" y="312" width="88.0" height="48" rx="3" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<text x="762.0" y="342" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="21" font-weight="400" fill="#111827" text-anchor="middle">16</text>
+<rect x="810.0" y="312" width="88.0" height="48" rx="3" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<text x="854.0" y="342" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="21" font-weight="400" fill="#111827" text-anchor="middle">17</text>
+<line x1="532.0" y1="308" x2="532.0" y2="364" stroke="#8b8b8b" stroke-width="2"/>
+<text x="32" y="415" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="16" font-weight="400" fill="#4b5563" text-anchor="start">a + b</text>
+<rect x="166.0" y="385" width="88.0" height="48" rx="3" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="210.0" y="415" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="21" font-weight="400" fill="#111827" text-anchor="middle">10</text>
+<rect x="258.0" y="385" width="88.0" height="48" rx="3" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="302.0" y="415" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="21" font-weight="400" fill="#111827" text-anchor="middle">12</text>
+<rect x="350.0" y="385" width="88.0" height="48" rx="3" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="394.0" y="415" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="21" font-weight="400" fill="#111827" text-anchor="middle">14</text>
+<rect x="442.0" y="385" width="88.0" height="48" rx="3" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="486.0" y="415" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="21" font-weight="400" fill="#111827" text-anchor="middle">16</text>
+<rect x="534.0" y="385" width="88.0" height="48" rx="3" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="578.0" y="415" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="21" font-weight="400" fill="#111827" text-anchor="middle">18</text>
+<rect x="626.0" y="385" width="88.0" height="48" rx="3" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="670.0" y="415" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="21" font-weight="400" fill="#111827" text-anchor="middle">20</text>
+<rect x="718.0" y="385" width="88.0" height="48" rx="3" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="762.0" y="415" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="21" font-weight="400" fill="#111827" text-anchor="middle">22</text>
+<rect x="810.0" y="385" width="88.0" height="48" rx="3" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="854.0" y="415" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="21" font-weight="400" fill="#111827" text-anchor="middle">24</text>
+<line x1="532.0" y1="381" x2="532.0" y2="437" stroke="#8b8b8b" stroke-width="2"/>
+<rect x="32" y="453" width="896" height="42" rx="3" fill="#f7f2ea" stroke="none" stroke-width="1"/>
+<text x="48" y="480" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="16" font-weight="400" fill="#4b5563" text-anchor="start">SIMD 是一个线程内的数据并行；指令宽度不是加速倍数。</text>
+</svg>

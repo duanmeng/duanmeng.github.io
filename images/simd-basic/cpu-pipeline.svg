@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="610" viewBox="0 0 960 610" role="img" aria-labelledby="title desc"><title id="title">Intel CPU：指令流与向量数据路径</title><desc id="desc">概念架构；没有规定某款 CPU 的端口数、物理寄存器数量或内部执行宽度。</desc><defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
+<rect x="0" y="0" width="960" height="610" rx="3" fill="white" stroke="none" stroke-width="1"/>
+<rect x="8" y="8" width="944" height="594" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<rect x="9" y="9" width="942" height="84" rx="3" fill="#edf5ff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="93" x2="951" y2="93" stroke="#d6d3cc" stroke-width="1.4"/>
+<text x="32" y="44" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="26" font-weight="600" fill="#111827" text-anchor="start">Intel CPU：指令流与向量数据路径</text>
+<text x="32" y="75" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="14" font-weight="400" fill="#4b5563" text-anchor="start">概念架构；没有规定某款 CPU 的端口数、物理寄存器数量或内部执行宽度。</text>
+<rect x="32" y="125" width="236" height="82" rx="3" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="33" y="126" width="4" height="80" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="50" y="155" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="600" fill="#111827" text-anchor="start">取指 / 解码</text>
+<text x="50" y="183" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="15" font-weight="400" fill="#4b5563" text-anchor="start">机器指令 → 微操作</text>
+<rect x="322" y="125" width="276" height="82" rx="3" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<rect x="323" y="126" width="4" height="80" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
+<text x="340" y="155" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="600" fill="#111827" text-anchor="start">重命名 / 调度</text>
+<text x="340" y="183" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="15" font-weight="400" fill="#4b5563" text-anchor="start">操作数就绪 + 资源可用</text>
+<rect x="652" y="125" width="276" height="82" rx="3" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<rect x="653" y="126" width="4" height="80" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
+<text x="670" y="155" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="600" fill="#111827" text-anchor="start">退休 / 提交</text>
+<text x="670" y="183" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="15" font-weight="400" fill="#4b5563" text-anchor="start">按架构规则完成状态更新</text>
+<line x1="268" y1="166" x2="316" y2="166" stroke="#8b8b8b" stroke-width="1.4" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<line x1="598" y1="166" x2="646" y2="166" stroke="#8b8b8b" stroke-width="1.4" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="322" y="270" width="276" height="82" rx="3" fill="#f0fdfa" stroke="#0f766e" stroke-width="1"/>
+<rect x="323" y="271" width="4" height="80" rx="0" fill="#0f766e" stroke="none" stroke-width="1"/>
+<text x="340" y="300" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="600" fill="#111827" text-anchor="start">向量寄存器操作数</text>
+<text x="340" y="328" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="15" font-weight="400" fill="#4b5563" text-anchor="start">架构 XMM / YMM 映射到物理状态</text>
+<line x1="460" y1="208" x2="460" y2="263" stroke="#8b8b8b" stroke-width="1.4" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="32" y="399" width="280" height="82" rx="3" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<rect x="33" y="400" width="4" height="80" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
+<text x="50" y="429" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="600" fill="#111827" text-anchor="start">向量执行资源</text>
+<text x="50" y="457" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="15" font-weight="400" fill="#4b5563" text-anchor="start">加减乘 / 逻辑 / 重排</text>
+<rect x="376" y="399" width="260" height="82" rx="3" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
+<rect x="377" y="400" width="4" height="80" rx="0" fill="#c2410c" stroke="none" stroke-width="1"/>
+<text x="394" y="429" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="600" fill="#111827" text-anchor="start">Load / Store</text>
+<text x="394" y="457" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="15" font-weight="400" fill="#4b5563" text-anchor="start">地址生成与数据访问</text>
+<rect x="700" y="399" width="228" height="82" rx="3" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="701" y="400" width="4" height="80" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="718" y="429" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="600" fill="#111827" text-anchor="start">缓存 → 内存</text>
+<text x="718" y="457" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="15" font-weight="400" fill="#4b5563" text-anchor="start">L1 / L2 / LLC / DRAM</text>
+<line x1="360" y1="353" x2="222" y2="393" stroke="#8b8b8b" stroke-width="1.4" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<line x1="525" y1="353" x2="508" y2="393" stroke="#8b8b8b" stroke-width="1.4" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<line x1="637" y1="440" x2="693" y2="440" stroke="#8b8b8b" stroke-width="1.4" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="32" y="543" width="896" height="42" rx="3" fill="#f7f2ea" stroke="none" stroke-width="1"/>
+<text x="48" y="570" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="16" font-weight="400" fill="#4b5563" text-anchor="start">寄存器保存当前工作批次；向量化不会自动消除数组的内存流量。</text>
+</svg>

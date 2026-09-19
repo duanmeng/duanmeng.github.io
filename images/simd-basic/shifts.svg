@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="725" viewBox="0 0 960 725" role="img" aria-labelledby="title desc"><title id="title">移位：元素内的位，与半区内的字节</title><desc id="desc">低位在左：向更高位权的 left shift，在图中向右移动。</desc><defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
+<rect x="0" y="0" width="960" height="725" rx="3" fill="white" stroke="none" stroke-width="1"/>
+<rect x="8" y="8" width="944" height="709" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<rect x="9" y="9" width="942" height="84" rx="3" fill="#edf5ff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="93" x2="951" y2="93" stroke="#d6d3cc" stroke-width="1.4"/>
+<text x="32" y="44" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="26" font-weight="600" fill="#111827" text-anchor="start">移位：元素内的位，与半区内的字节</text>
+<text x="32" y="75" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="14" font-weight="400" fill="#4b5563" text-anchor="start">低位在左：向更高位权的 left shift，在图中向右移动。</text>
+<text x="32" y="174" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="16" font-weight="400" fill="#4b5563" text-anchor="start">32-bit 值</text>
+<rect x="166.0" y="144" width="88.0" height="48" rx="3" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<text x="210.0" y="174" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="21" font-weight="400" fill="#111827" text-anchor="middle">1</text>
+<text x="210.0" y="134" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="13" font-weight="400" fill="#4b5563" text-anchor="middle">0</text>
+<rect x="258.0" y="144" width="88.0" height="48" rx="3" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<text x="302.0" y="174" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="21" font-weight="400" fill="#111827" text-anchor="middle">1</text>
+<text x="302.0" y="134" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="13" font-weight="400" fill="#4b5563" text-anchor="middle">1</text>
+<rect x="350.0" y="144" width="88.0" height="48" rx="3" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<text x="394.0" y="174" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="21" font-weight="400" fill="#111827" text-anchor="middle">1</text>
+<text x="394.0" y="134" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="13" font-weight="400" fill="#4b5563" text-anchor="middle">2</text>
+<rect x="442.0" y="144" width="88.0" height="48" rx="3" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<text x="486.0" y="174" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="21" font-weight="400" fill="#111827" text-anchor="middle">1</text>
+<text x="486.0" y="134" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="13" font-weight="400" fill="#4b5563" text-anchor="middle">3</text>
+<rect x="534.0" y="144" width="88.0" height="48" rx="3" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<text x="578.0" y="174" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="21" font-weight="400" fill="#111827" text-anchor="middle">1</text>
+<text x="578.0" y="134" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="13" font-weight="400" fill="#4b5563" text-anchor="middle">4</text>
+<rect x="626.0" y="144" width="88.0" height="48" rx="3" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<text x="670.0" y="174" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="21" font-weight="400" fill="#111827" text-anchor="middle">1</text>
+<text x="670.0" y="134" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="13" font-weight="400" fill="#4b5563" text-anchor="middle">5</text>
+<rect x="718.0" y="144" width="88.0" height="48" rx="3" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<text x="762.0" y="174" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="21" font-weight="400" fill="#111827" text-anchor="middle">1</text>
+<text x="762.0" y="134" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="13" font-weight="400" fill="#4b5563" text-anchor="middle">6</text>
+<rect x="810.0" y="144" width="88.0" height="48" rx="3" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<text x="854.0" y="174" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="21" font-weight="400" fill="#111827" text-anchor="middle">1</text>
+<text x="854.0" y="134" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="13" font-weight="400" fill="#4b5563" text-anchor="middle">7</text>
+<line x1="532.0" y1="140" x2="532.0" y2="196" stroke="#8b8b8b" stroke-width="2"/>
+<text x="32" y="254" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="16" font-weight="400" fill="#4b5563" text-anchor="start">各项左移量</text>
+<rect x="166.0" y="224" width="88.0" height="48" rx="3" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<text x="210.0" y="254" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="21" font-weight="400" fill="#111827" text-anchor="middle">0</text>
+<rect x="258.0" y="224" width="88.0" height="48" rx="3" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<text x="302.0" y="254" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="21" font-weight="400" fill="#111827" text-anchor="middle">1</text>
+<rect x="350.0" y="224" width="88.0" height="48" rx="3" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<text x="394.0" y="254" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="21" font-weight="400" fill="#111827" text-anchor="middle">2</text>
+<rect x="442.0" y="224" width="88.0" height="48" rx="3" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<text x="486.0" y="254" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="21" font-weight="400" fill="#111827" text-anchor="middle">3</text>
+<rect x="534.0" y="224" width="88.0" height="48" rx="3" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<text x="578.0" y="254" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="21" font-weight="400" fill="#111827" text-anchor="middle">4</text>
+<rect x="626.0" y="224" width="88.0" height="48" rx="3" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<text x="670.0" y="254" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="21" font-weight="400" fill="#111827" text-anchor="middle">31</text>
+<rect x="718.0" y="224" width="88.0" height="48" rx="3" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<text x="762.0" y="254" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="21" font-weight="400" fill="#111827" text-anchor="middle">32</text>
+<rect x="810.0" y="224" width="88.0" height="48" rx="3" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<text x="854.0" y="254" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="21" font-weight="400" fill="#111827" text-anchor="middle">33</text>
+<line x1="532.0" y1="220" x2="532.0" y2="276" stroke="#8b8b8b" stroke-width="2"/>
+<text x="32" y="334" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="16" font-weight="400" fill="#4b5563" text-anchor="start">结果 hex</text>
+<rect x="166.0" y="304" width="88.0" height="48" rx="3" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="210.0" y="334" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="17" font-weight="400" fill="#111827" text-anchor="middle">1</text>
+<rect x="258.0" y="304" width="88.0" height="48" rx="3" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="302.0" y="334" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="17" font-weight="400" fill="#111827" text-anchor="middle">2</text>
+<rect x="350.0" y="304" width="88.0" height="48" rx="3" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="394.0" y="334" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="17" font-weight="400" fill="#111827" text-anchor="middle">4</text>
+<rect x="442.0" y="304" width="88.0" height="48" rx="3" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="486.0" y="334" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="17" font-weight="400" fill="#111827" text-anchor="middle">8</text>
+<rect x="534.0" y="304" width="88.0" height="48" rx="3" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="578.0" y="334" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="17" font-weight="400" fill="#111827" text-anchor="middle">10</text>
+<rect x="626.0" y="304" width="88.0" height="48" rx="3" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="670.0" y="334" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="17" font-weight="400" fill="#111827" text-anchor="middle">80000000</text>
+<rect x="718.0" y="304" width="88.0" height="48" rx="3" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="762.0" y="334" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="17" font-weight="400" fill="#111827" text-anchor="middle">0</text>
+<rect x="810.0" y="304" width="88.0" height="48" rx="3" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="854.0" y="334" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="17" font-weight="400" fill="#111827" text-anchor="middle">0</text>
+<line x1="532.0" y1="300" x2="532.0" y2="356" stroke="#8b8b8b" stroke-width="2"/>
+<text x="32" y="410" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="600" fill="#111827" text-anchor="start">slli_si256(v,1)：每个半区独立向高字节位置移动一项</text>
+<text x="32" y="477" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="16" font-weight="400" fill="#4b5563" text-anchor="start">低半输入</text>
+<rect x="166.0" y="447" width="88.0" height="48" rx="3" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<text x="210.0" y="477" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" fill="#111827" text-anchor="middle">b0</text>
+<rect x="258.0" y="447" width="88.0" height="48" rx="3" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<text x="302.0" y="477" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" fill="#111827" text-anchor="middle">b1</text>
+<rect x="350.0" y="447" width="88.0" height="48" rx="3" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<text x="394.0" y="477" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" fill="#111827" text-anchor="middle">b2</text>
+<rect x="442.0" y="447" width="88.0" height="48" rx="3" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<text x="486.0" y="477" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" fill="#111827" text-anchor="middle">…</text>
+<rect x="534.0" y="447" width="88.0" height="48" rx="3" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<text x="578.0" y="477" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" fill="#111827" text-anchor="middle">b12</text>
+<rect x="626.0" y="447" width="88.0" height="48" rx="3" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<text x="670.0" y="477" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" fill="#111827" text-anchor="middle">b13</text>
+<rect x="718.0" y="447" width="88.0" height="48" rx="3" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<text x="762.0" y="477" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" fill="#111827" text-anchor="middle">b14</text>
+<rect x="810.0" y="447" width="88.0" height="48" rx="3" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<text x="854.0" y="477" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" fill="#111827" text-anchor="middle">b15</text>
+<text x="32" y="557" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="16" font-weight="400" fill="#4b5563" text-anchor="start">低半输出</text>
+<rect x="166.0" y="527" width="88.0" height="48" rx="3" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="210.0" y="557" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" fill="#111827" text-anchor="middle">0</text>
+<rect x="258.0" y="527" width="88.0" height="48" rx="3" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="302.0" y="557" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" fill="#111827" text-anchor="middle">b0</text>
+<rect x="350.0" y="527" width="88.0" height="48" rx="3" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="394.0" y="557" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" fill="#111827" text-anchor="middle">b1</text>
+<rect x="442.0" y="527" width="88.0" height="48" rx="3" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="486.0" y="557" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" fill="#111827" text-anchor="middle">…</text>
+<rect x="534.0" y="527" width="88.0" height="48" rx="3" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="578.0" y="557" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" fill="#111827" text-anchor="middle">b11</text>
+<rect x="626.0" y="527" width="88.0" height="48" rx="3" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="670.0" y="557" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" fill="#111827" text-anchor="middle">b12</text>
+<rect x="718.0" y="527" width="88.0" height="48" rx="3" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="762.0" y="557" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" fill="#111827" text-anchor="middle">b13</text>
+<rect x="810.0" y="527" width="88.0" height="48" rx="3" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="854.0" y="557" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" fill="#111827" text-anchor="middle">b14</text>
+<text x="164" y="619" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="18" font-weight="400" fill="#111827" text-anchor="start">高半同理：[b16 … b31] → [0 b16 … b30]；b15 不进入高半</text>
+<rect x="32" y="658" width="896" height="42" rx="3" fill="#f7f2ea" stroke="none" stroke-width="1"/>
+<text x="48" y="685" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="16" font-weight="400" fill="#4b5563" text-anchor="start">字节示意省略中间项；每个半区始终有 16 字节，移出末端的字节被丢弃。</text>
+</svg>

@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="615" viewBox="0 0 960 615" role="img" aria-labelledby="title desc"><title id="title">依赖链与独立累加：相同 latency，不同重叠</title><desc id="desc">仅作示意：假设 latency = 4 个时间单位，每单位可启动 1 条操作。</desc><defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
+<rect x="0" y="0" width="960" height="615" rx="3" fill="white" stroke="none" stroke-width="1"/>
+<rect x="8" y="8" width="944" height="599" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<rect x="9" y="9" width="942" height="84" rx="3" fill="#edf5ff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="93" x2="951" y2="93" stroke="#d6d3cc" stroke-width="1.4"/>
+<text x="32" y="44" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="26" font-weight="600" fill="#111827" text-anchor="start">依赖链与独立累加：相同 latency，不同重叠</text>
+<text x="32" y="75" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="14" font-weight="400" fill="#4b5563" text-anchor="start">仅作示意：假设 latency = 4 个时间单位，每单位可启动 1 条操作。</text>
+<text x="174" y="135" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="15" font-weight="400" fill="#4b5563" text-anchor="middle">0</text>
+<text x="232" y="135" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="15" font-weight="400" fill="#4b5563" text-anchor="middle">1</text>
+<text x="290" y="135" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="15" font-weight="400" fill="#4b5563" text-anchor="middle">2</text>
+<text x="348" y="135" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="15" font-weight="400" fill="#4b5563" text-anchor="middle">3</text>
+<text x="406" y="135" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="15" font-weight="400" fill="#4b5563" text-anchor="middle">4</text>
+<text x="464" y="135" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="15" font-weight="400" fill="#4b5563" text-anchor="middle">5</text>
+<text x="522" y="135" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="15" font-weight="400" fill="#4b5563" text-anchor="middle">6</text>
+<text x="580" y="135" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="15" font-weight="400" fill="#4b5563" text-anchor="middle">7</text>
+<text x="638" y="135" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="15" font-weight="400" fill="#4b5563" text-anchor="middle">8</text>
+<text x="696" y="135" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="15" font-weight="400" fill="#4b5563" text-anchor="middle">9</text>
+<text x="754" y="135" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="15" font-weight="400" fill="#4b5563" text-anchor="middle">10</text>
+<text x="812" y="135" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="15" font-weight="400" fill="#4b5563" text-anchor="middle">11</text>
+<text x="870" y="135" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="15" font-weight="400" fill="#4b5563" text-anchor="middle">12</text>
+<text x="32" y="135" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="16" font-weight="400" fill="#4b5563" text-anchor="start">时间 →</text>
+<text x="32" y="180" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="19" font-weight="600" fill="#111827" text-anchor="start">单条依赖链</text>
+<rect x="174" y="201" width="228" height="42" rx="3" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
+<text x="286" y="228" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="18" font-weight="400" fill="#111827" text-anchor="middle">acc ← add 0</text>
+<rect x="406" y="201" width="228" height="42" rx="3" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
+<text x="518" y="228" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="18" font-weight="400" fill="#111827" text-anchor="middle">acc ← add 1</text>
+<rect x="638" y="201" width="228" height="42" rx="3" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
+<text x="750" y="228" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="18" font-weight="400" fill="#111827" text-anchor="middle">acc ← add 2</text>
+<text x="32" y="299" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="19" font-weight="600" fill="#111827" text-anchor="start">四条独立链</text>
+<rect x="174" y="319" width="228" height="35" rx="3" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="286" y="343" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="17" font-weight="400" fill="#111827" text-anchor="middle">acc0 ← add</text>
+<rect x="232" y="364" width="228" height="35" rx="3" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="344" y="388" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="17" font-weight="400" fill="#111827" text-anchor="middle">acc1 ← add</text>
+<rect x="290" y="409" width="228" height="35" rx="3" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="402" y="433" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="17" font-weight="400" fill="#111827" text-anchor="middle">acc2 ← add</text>
+<rect x="348" y="454" width="228" height="35" rx="3" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="460" y="478" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="17" font-weight="400" fill="#111827" text-anchor="middle">acc3 ← add</text>
+<rect x="32" y="548" width="896" height="42" rx="3" fill="#f7f2ea" stroke="none" stroke-width="1"/>
+<text x="48" y="575" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="16" font-weight="400" fill="#4b5563" text-anchor="start">后一条独立操作可以提前启动；真实收益仍受端口、加载与寄存器资源约束。</text>
+</svg>

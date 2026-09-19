@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="570" viewBox="0 0 960 570" role="img" aria-labelledby="title desc"><title id="title">一个 YMM：256 位，不同的元素划分</title><desc id="desc">图中低位在左；XMM0 与 YMM0 的低半重叠，元素本身没有运行时类型标签。</desc><defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
+<rect x="0" y="0" width="960" height="570" rx="3" fill="white" stroke="none" stroke-width="1"/>
+<rect x="8" y="8" width="944" height="554" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<rect x="9" y="9" width="942" height="84" rx="3" fill="#edf5ff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="93" x2="951" y2="93" stroke="#d6d3cc" stroke-width="1.4"/>
+<text x="32" y="44" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="26" font-weight="600" fill="#111827" text-anchor="start">一个 YMM：256 位，不同的元素划分</text>
+<text x="32" y="75" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="14" font-weight="400" fill="#4b5563" text-anchor="start">图中低位在左；XMM0 与 YMM0 的低半重叠，元素本身没有运行时类型标签。</text>
+<text x="32" y="172" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="16" font-weight="400" fill="#4b5563" text-anchor="start">YMM0 / f32</text>
+<rect x="166.0" y="142" width="88.0" height="48" rx="3" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<text x="210.0" y="172" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="21" font-weight="400" fill="#111827" text-anchor="middle">0</text>
+<text x="210.0" y="132" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="13" font-weight="400" fill="#4b5563" text-anchor="middle">0</text>
+<rect x="258.0" y="142" width="88.0" height="48" rx="3" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<text x="302.0" y="172" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="21" font-weight="400" fill="#111827" text-anchor="middle">1</text>
+<text x="302.0" y="132" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="13" font-weight="400" fill="#4b5563" text-anchor="middle">1</text>
+<rect x="350.0" y="142" width="88.0" height="48" rx="3" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<text x="394.0" y="172" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="21" font-weight="400" fill="#111827" text-anchor="middle">2</text>
+<text x="394.0" y="132" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="13" font-weight="400" fill="#4b5563" text-anchor="middle">2</text>
+<rect x="442.0" y="142" width="88.0" height="48" rx="3" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<text x="486.0" y="172" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="21" font-weight="400" fill="#111827" text-anchor="middle">3</text>
+<text x="486.0" y="132" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="13" font-weight="400" fill="#4b5563" text-anchor="middle">3</text>
+<rect x="534.0" y="142" width="88.0" height="48" rx="3" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<text x="578.0" y="172" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="21" font-weight="400" fill="#111827" text-anchor="middle">4</text>
+<text x="578.0" y="132" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="13" font-weight="400" fill="#4b5563" text-anchor="middle">4</text>
+<rect x="626.0" y="142" width="88.0" height="48" rx="3" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<text x="670.0" y="172" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="21" font-weight="400" fill="#111827" text-anchor="middle">5</text>
+<text x="670.0" y="132" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="13" font-weight="400" fill="#4b5563" text-anchor="middle">5</text>
+<rect x="718.0" y="142" width="88.0" height="48" rx="3" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<text x="762.0" y="172" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="21" font-weight="400" fill="#111827" text-anchor="middle">6</text>
+<text x="762.0" y="132" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="13" font-weight="400" fill="#4b5563" text-anchor="middle">6</text>
+<rect x="810.0" y="142" width="88.0" height="48" rx="3" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<text x="854.0" y="172" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="21" font-weight="400" fill="#111827" text-anchor="middle">7</text>
+<text x="854.0" y="132" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="13" font-weight="400" fill="#4b5563" text-anchor="middle">7</text>
+<line x1="532.0" y1="138" x2="532.0" y2="194" stroke="#8b8b8b" stroke-width="2"/>
+<rect x="166" y="224" width="364" height="48" rx="3" fill="#f0fdfa" stroke="#0f766e" stroke-width="1"/>
+<text x="348" y="254" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" fill="#111827" text-anchor="middle">XMM0 = YMM0[127:0]</text>
+<text x="716" y="254" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" fill="#111827" text-anchor="middle">YMM0[255:128]</text>
+<text x="32" y="340" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="16" font-weight="400" fill="#4b5563" text-anchor="start">4 × f64</text>
+<rect x="166.0" y="310" width="180.0" height="48" rx="3" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<text x="256.0" y="340" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="21" font-weight="400" fill="#111827" text-anchor="middle">0</text>
+<rect x="350.0" y="310" width="180.0" height="48" rx="3" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<text x="440.0" y="340" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="21" font-weight="400" fill="#111827" text-anchor="middle">1</text>
+<rect x="534.0" y="310" width="180.0" height="48" rx="3" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<text x="624.0" y="340" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="21" font-weight="400" fill="#111827" text-anchor="middle">2</text>
+<rect x="718.0" y="310" width="180.0" height="48" rx="3" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<text x="808.0" y="340" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="21" font-weight="400" fill="#111827" text-anchor="middle">3</text>
+<line x1="532.0" y1="306" x2="532.0" y2="362" stroke="#8b8b8b" stroke-width="2"/>
+<text x="32" y="426" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="16" font-weight="400" fill="#4b5563" text-anchor="start">16 × i16</text>
+<rect x="166.0" y="396" width="42.0" height="48" rx="3" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="187.0" y="426" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="18" font-weight="400" fill="#111827" text-anchor="middle">0</text>
+<rect x="212.0" y="396" width="42.0" height="48" rx="3" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="233.0" y="426" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="18" font-weight="400" fill="#111827" text-anchor="middle">1</text>
+<rect x="258.0" y="396" width="42.0" height="48" rx="3" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="279.0" y="426" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="18" font-weight="400" fill="#111827" text-anchor="middle">2</text>
+<rect x="304.0" y="396" width="42.0" height="48" rx="3" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="325.0" y="426" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="18" font-weight="400" fill="#111827" text-anchor="middle">3</text>
+<rect x="350.0" y="396" width="42.0" height="48" rx="3" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="371.0" y="426" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="18" font-weight="400" fill="#111827" text-anchor="middle">4</text>
+<rect x="396.0" y="396" width="42.0" height="48" rx="3" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="417.0" y="426" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="18" font-weight="400" fill="#111827" text-anchor="middle">5</text>
+<rect x="442.0" y="396" width="42.0" height="48" rx="3" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="463.0" y="426" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="18" font-weight="400" fill="#111827" text-anchor="middle">6</text>
+<rect x="488.0" y="396" width="42.0" height="48" rx="3" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="509.0" y="426" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="18" font-weight="400" fill="#111827" text-anchor="middle">7</text>
+<rect x="534.0" y="396" width="42.0" height="48" rx="3" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="555.0" y="426" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="18" font-weight="400" fill="#111827" text-anchor="middle">8</text>
+<rect x="580.0" y="396" width="42.0" height="48" rx="3" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="601.0" y="426" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="18" font-weight="400" fill="#111827" text-anchor="middle">9</text>
+<rect x="626.0" y="396" width="42.0" height="48" rx="3" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="647.0" y="426" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="18" font-weight="400" fill="#111827" text-anchor="middle">10</text>
+<rect x="672.0" y="396" width="42.0" height="48" rx="3" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="693.0" y="426" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="18" font-weight="400" fill="#111827" text-anchor="middle">11</text>
+<rect x="718.0" y="396" width="42.0" height="48" rx="3" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="739.0" y="426" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="18" font-weight="400" fill="#111827" text-anchor="middle">12</text>
+<rect x="764.0" y="396" width="42.0" height="48" rx="3" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="785.0" y="426" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="18" font-weight="400" fill="#111827" text-anchor="middle">13</text>
+<rect x="810.0" y="396" width="42.0" height="48" rx="3" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="831.0" y="426" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="18" font-weight="400" fill="#111827" text-anchor="middle">14</text>
+<rect x="856.0" y="396" width="42.0" height="48" rx="3" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="877.0" y="426" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="18" font-weight="400" fill="#111827" text-anchor="middle">15</text>
+<line x1="532.0" y1="392" x2="532.0" y2="448" stroke="#8b8b8b" stroke-width="2"/>
+<text x="532" y="120" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="14" font-weight="400" fill="#4b5563" text-anchor="middle">128-bit 边界</text>
+<rect x="32" y="503" width="896" height="42" rx="3" fill="#f7f2ea" stroke="none" stroke-width="1"/>
+<text x="48" y="530" font-family="Inter, Noto Sans SC, Arial, sans-serif" font-size="16" font-weight="400" fill="#4b5563" text-anchor="start">也可解释为 32 × i8；__m256i 的实际元素宽度由使用它的指令决定。</text>
+</svg>
