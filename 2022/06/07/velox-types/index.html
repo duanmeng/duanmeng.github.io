@@ -218,7 +218,10 @@ article.post .velox-types-article .tbl-wrap>table{display:table;width:100%;min-w
 @media print{.velox-types-article .diagram-scroll img,.velox-types-article .tbl-wrap>table{min-width:0}}
 </style>
 <div class="post-body velox-review velox-detailed velox-types-article">
-<p>Velox 的类型系统负责描述列、表达式和算子输入输出的逻辑类型，并将这些类型连接到实际的存储和计算实现。例如一列 DATE，在 schema 中是日期，物理表示采用 INTEGER，C++ 值类型是 <code>int32_t</code>。Type 对象保留日期身份与物理 kind，Vector 携带这份类型描述和一批值，函数与算子再据此确定运算语义、选择实现并执行计算。</p>
+<p>Velox 的类型系统把查询数据的逻辑含义与执行时的值表示联系起来。<strong>Operator 的输入输出 schema、Vector 的 <code>type()</code>、函数签名中的参数与返回类型描述逻辑类型；内部按物理表示选择存储和访问实现，再用 C++ 值类型执行具体计算。</strong> 逻辑类型、物理类型和 C++ 值类型分别回答：数据是什么意思、采用哪种基础表示、实现中用什么类型承载和操作值。</p>
+<p>例如一列 DATE：逻辑类型是 <code>DATE()</code>，物理类别是 <code>TypeKind::INTEGER</code>，C++ 值类型是 <code>int32_t</code>。Vector 携带这份逻辑类型描述和一批值，因此 <code>vector-&gt;type()</code> 返回 DATE 类型，<code>vector-&gt;typeKind()</code> 返回 INTEGER；函数体可以用 <code>int32_t</code> 操作日期值，结果 Vector 仍按已确定的逻辑返回类型构造。</p>
+<p><strong>C++ 值类型是物理表示的实现类型，不能与 Velox 的 physical type 直接画等号。</strong> VARCHAR 和 VARBINARY 是不同的 physical kind，但它们的 NativeType 都是 <code>StringView</code>。而内部计算仍会使用逻辑类型信息：DECIMAL 加法需要根据 scale 对齐整数，某些类型的比较与 hash 也必须遵守其逻辑语义。仅知道物理表示，并不足以确定运算规则。</p>
+<p>这些职责通过同一套 <code>Type</code> 类体系连接起来。用于 schema 时，Type 对象描述逻辑类型，同时提供物理 kind；函数元数据也会用基础 Type 对象描述物理签名，例如用 <code>INTEGER()</code> 表示 Date 实现所需的物理类型。<code>DateType</code> 继承 <code>IntegerType</code> 来复用 INTEGER 表示，但 DATE 与 INTEGER 并不逻辑等价。因而不能仅凭 <code>TypePtr</code> 或某个 C++ 基类名，就断定某处讨论的是逻辑类型还是物理类型。</p>
 
 <h2 id="what">一、类型体系与使用边界</h2>
 <h3 id="what-is-velox-type-system">1.1 Velox 类型系统描述什么</h3>
