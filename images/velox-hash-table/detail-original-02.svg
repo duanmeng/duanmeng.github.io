@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="425" viewBox="0 0 1280 425" role="img"><title>Bucket 的 128 字节布局</title><rect width="1280" height="425" fill="white"/><rect x="8" y="8" width="1264" height="409" fill="white" stroke="#d6d3cc"/><rect x="9" y="9" width="1262" height="76" fill="#edf5ff"/><text x="36" y="53" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" font-size="26" fill="#111827">Bucket 的 128 字节布局</text><g transform="translate(24 106) scale(1.4)">
+<text fill="#111827" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" font-size="12.0" x="60" y="34">Offset 0</text>
+<text fill="#111827" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" font-size="12.0" text-anchor="end" x="820" y="34">Offset 127</text>
+<rect fill="#f2f7ff" height="66" rx="4" stroke="#d6d3cc" stroke-width="1" width="95" x="60" y="48"></rect>
+<rect fill="#f2f7ff" height="66" rx="4" stroke="#d6d3cc" stroke-width="1" width="570" x="155" y="48"></rect>
+<rect fill="#f2f7ff" height="66" rx="4" stroke="#d6d3cc" stroke-width="1" width="95" x="725" y="48"></rect>
+<text fill="#111827" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" font-size="13.0" font-weight="500" text-anchor="middle" x="107" y="78">tags[16]</text>
+<text fill="#111827" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" font-size="11" text-anchor="middle" x="107" y="98">16×u8</text>
+<text fill="#111827" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" font-size="15.0" font-weight="500" text-anchor="middle" x="440" y="78">pointers[16]</text>
+<text fill="#111827" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" font-size="12.0" text-anchor="middle" x="440" y="98">16 × 6 bytes</text>
+<text fill="#111827" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" font-size="12.0" font-weight="500" text-anchor="middle" x="772" y="78">padding</text>
+<text fill="#111827" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" font-size="11" text-anchor="middle" x="772" y="98">16 B</text>
+<g stroke="#b8ae9c" stroke-width="1">
+<line x1="60" x2="820" y1="138" y2="138"></line>
+<line x1="60" x2="60" y1="132" y2="144"></line><line x1="155" x2="155" y1="132" y2="144"></line>
+<line x1="725" x2="725" y1="132" y2="144"></line><line x1="820" x2="820" y1="132" y2="144"></line>
+</g>
+<text fill="#111827" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" font-size="12.0" text-anchor="middle" x="107" y="162">16 B</text>
+<text fill="#111827" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" font-size="12.0" text-anchor="middle" x="440" y="162">96 B</text>
+<text fill="#111827" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" font-size="12.0" text-anchor="middle" x="772" y="162">16 B</text>
+<text fill="#111827" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" font-size="12.5" text-anchor="middle" x="440" y="188">Bucket = 128 bytes = 2 × CPU cache line</text>
+</g></svg>

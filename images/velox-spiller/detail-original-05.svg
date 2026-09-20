@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="1110" viewBox="0 0 1280 1110" role="img" aria-labelledby="title desc">
+<title id="title">HashBuild：输入、发布与 spill 恢复循环</title><desc id="desc">保留写出与恢复的全部阶段；常规 build 先保存行，再由 prepareJoinTable 建立最终索引。</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
+<rect x="0" y="0" width="1280" height="1110" rx="0" fill="white" stroke="none" stroke-width="1"/>
+<rect x="8" y="8" width="1264" height="1094" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<rect x="9" y="9" width="1262" height="94" rx="0" fill="#edf5ff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="103" x2="1271" y2="103" stroke="#d6d3cc" stroke-width="1"/>
+<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">HashBuild：输入、发布与 spill 恢复循环</text>
+<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">保留写出与恢复的全部阶段；常规 build 先保存行，再由 prepareJoinTable 建立最终索引。</text>
+<rect x="55" y="145" width="1170" height="105" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="55" y="149" width="4" height="97" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="77" y="180" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">初始化 → addInput → ensureInputFits</text>
+<text x="77" y="213" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">触发回收时：fillSpillRuns → 可选排序 → writeSpill → 磁盘</text>
+<polyline points="640,258 640,278" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="55" y="287" width="1170" height="105" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<rect x="55" y="291" width="4" height="97" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
+<text x="77" y="322" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">写出成功后的状态变化</text>
+<text x="77" y="355" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">清理相应表状态 clear(true)，记录 spillTriggered_；清 run 指针不等于清源行</text>
+<polyline points="640,400 640,420" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="55" y="429" width="1170" height="105" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="55" y="433" width="4" height="97" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="77" y="464" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">后续输入路由</text>
+<text x="77" y="497" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">已 spill 的分区 → spillInput；其余行 → RowContainer（特定去重路径可建索引）</text>
+<polyline points="640,542 640,562" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="55" y="571" width="1170" height="105" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<rect x="55" y="575" width="4" height="97" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
+<text x="77" y="606" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">noMoreInput → finishHashBuild</text>
+<text x="77" y="639" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">peer barrier 后合并文件；prepareJoinTable 处理保留行；bridge 发布 table / partitions</text>
+<polyline points="640,684 640,704" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="55" y="713" width="1170" height="105" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="55" y="717" width="4" height="97" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="77" y="748" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Probe 本轮探测与收尾</text>
+<text x="77" y="781" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">探测内存表，保存对应分区的 probe 输入；必要时还需保存尚未排出的输出</text>
+<polyline points="640,826 640,846" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="55" y="855" width="1170" height="105" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<rect x="55" y="859" width="4" height="97" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
+<text x="77" y="890" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">下一轮恢复或结束</text>
+<text x="77" y="923" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">setupSpillInput → processSpillInput → addInput；不足时换后续 hash bits 继续分区</text>
+<rect x="40" y="1008" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
+<text x="60" y="1037" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">没有待恢复分区时 Finish；递归仍受分区层数、hash 位和磁盘等限制。</text>
+<text x="60" y="1062" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">Build / Probe 的分区身份必须一致；不能丢弃已经匹配的标记或重新输出已交付的前缀。</text>
+</svg>

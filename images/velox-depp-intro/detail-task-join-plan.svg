@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="1100" viewBox="0 0 1280 1100" role="img" aria-labelledby="title desc">
+<title id="title">一个 HashJoinNode 拆成两条执行 pipeline</title><desc id="desc">沿用官方原图 A/B/C 与 X/Y 的示例；Operator 映射不必与 PlanNode 一一对应。</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
+<rect x="0" y="0" width="1280" height="1100" rx="0" fill="white" stroke="none" stroke-width="1"/>
+<rect x="8" y="8" width="1264" height="1084" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<rect x="9" y="9" width="1262" height="94" rx="0" fill="#edf5ff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="103" x2="1271" y2="103" stroke="#d6d3cc" stroke-width="1"/>
+<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">一个 HashJoinNode 拆成两条执行 pipeline</text>
+<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">沿用官方原图 A/B/C 与 X/Y 的示例；Operator 映射不必与 PlanNode 一一对应。</text>
+<text x="80" y="151" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="23" font-weight="600" text-anchor="start">Query plan</text>
+<text x="720" y="151" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="23" font-weight="600" text-anchor="start">Executable pipelines</text>
+<rect x="70" y="215" width="230" height="78" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="70" y="219" width="4" height="70" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="92" y="250" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">…</text>
+<rect x="70" y="380" width="230" height="78" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="70" y="384" width="4" height="70" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="92" y="415" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">HashJoinNode</text>
+<rect x="70" y="545" width="230" height="78" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="70" y="549" width="4" height="70" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="92" y="580" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">CNode</text>
+<rect x="70" y="710" width="230" height="78" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="70" y="714" width="4" height="70" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="92" y="745" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">BNode</text>
+<rect x="70" y="875" width="230" height="78" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="70" y="879" width="4" height="70" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="92" y="910" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">ANode</text>
+<rect x="350" y="545" width="230" height="78" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="350" y="549" width="4" height="70" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="372" y="580" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">XNode</text>
+<rect x="350" y="710" width="230" height="78" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="350" y="714" width="4" height="70" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="372" y="745" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">YNode</text>
+<polyline points="185,865 185,796" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<polyline points="185,700 185,631" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<polyline points="185,535 185,466" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<polyline points="185,370 185,301" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<polyline points="465,700 465,631" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<polyline points="465,534 465,419 311,419" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<polyline points="543,473 660,473" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="595" y="443" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">LocalPlanner</text>
+<rect x="690" y="192" width="260" height="775" rx="6" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="708" y="181" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">Pipeline 1 × N</text>
+<rect x="980" y="192" width="260" height="485" rx="6" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="998" y="181" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">Pipeline 2 × M</text>
+<rect x="705" y="215" width="230" height="78" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<rect x="705" y="219" width="4" height="70" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
+<text x="727" y="250" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">…</text>
+<rect x="705" y="380" width="230" height="78" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<rect x="705" y="384" width="4" height="70" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
+<text x="727" y="415" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">HashProbe</text>
+<rect x="705" y="545" width="230" height="78" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<rect x="705" y="549" width="4" height="70" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
+<text x="727" y="580" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">COperator</text>
+<rect x="705" y="710" width="230" height="78" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<rect x="705" y="714" width="4" height="70" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
+<text x="727" y="745" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">BOperator</text>
+<rect x="705" y="875" width="230" height="78" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<rect x="705" y="879" width="4" height="70" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
+<text x="727" y="910" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">AOperator</text>
+<rect x="995" y="380" width="230" height="78" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<rect x="995" y="384" width="4" height="70" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
+<text x="1017" y="415" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">HashBuild</text>
+<rect x="995" y="545" width="230" height="78" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<rect x="995" y="549" width="4" height="70" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
+<text x="1017" y="580" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">YOperator</text>
+<polyline points="820,865 820,796" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<polyline points="820,700 820,631" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<polyline points="820,535 820,466" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<polyline points="820,370 820,301" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<polyline points="1110,535 1110,466" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="1110" y="645" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">X/Y 的转换可融合</text>
+<rect x="40" y="998" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
+<text x="60" y="1027" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">Pipeline 是线性拓扑；每个 Driver 各持有一套相应 Operator 状态。</text>
+<text x="60" y="1052" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">同一 HashJoin 的 build/probe 通过 bridge 与 Task 协调；Driver 数不等于 OS 线程数。</text>
+</svg>

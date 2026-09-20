@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="1050" viewBox="0 0 1280 1050" role="img" aria-labelledby="title desc">
+<title id="title">StringView：16 字节元数据与外部字符串</title><desc id="desc">保留原图全部 8 个字符串；短字符串 ≤ 12 字节内联，长字符串带长度、4-byte 前缀和指针。</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
+<rect x="0" y="0" width="1280" height="1050" rx="0" fill="white" stroke="none" stroke-width="1"/>
+<rect x="8" y="8" width="1264" height="1034" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<rect x="9" y="9" width="1262" height="94" rx="0" fill="#edf5ff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="103" x2="1271" y2="103" stroke="#d6d3cc" stroke-width="1"/>
+<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">StringView：16 字节元数据与外部字符串</text>
+<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">保留原图全部 8 个字符串；短字符串 ≤ 12 字节内联，长字符串带长度、4-byte 前缀和指针。</text>
+<rect x="40" y="155" width="70" height="49" rx="0" fill="#f2f7ff" stroke="#d6d3cc" stroke-width="1"/>
+<text x="52" y="185.5" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="600" text-anchor="start">row</text>
+<rect x="110" y="155" width="380" height="49" rx="0" fill="#f2f7ff" stroke="#d6d3cc" stroke-width="1"/>
+<text x="122" y="185.5" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="600" text-anchor="start">logical value</text>
+<rect x="490" y="155" width="570" height="49" rx="0" fill="#f2f7ff" stroke="#d6d3cc" stroke-width="1"/>
+<text x="502" y="185.5" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="600" text-anchor="start">values_：StringView</text>
+<rect x="1060" y="155" width="180" height="49" rx="0" fill="#f2f7ff" stroke="#d6d3cc" stroke-width="1"/>
+<text x="1072" y="185.5" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="600" text-anchor="start">validity</text>
+<rect x="40" y="204" width="70" height="49" rx="0" fill="#f0fdf4" stroke="#d6d3cc" stroke-width="1"/>
+<text x="52" y="234.5" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">0</text>
+<rect x="110" y="204" width="380" height="49" rx="0" fill="#f0fdf4" stroke="#d6d3cc" stroke-width="1"/>
+<text x="122" y="234.5" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">orange peel</text>
+<rect x="490" y="204" width="570" height="49" rx="0" fill="#f0fdf4" stroke="#d6d3cc" stroke-width="1"/>
+<text x="502" y="234.5" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">12 | inline</text>
+<rect x="1060" y="204" width="180" height="49" rx="0" fill="#f0fdf4" stroke="#d6d3cc" stroke-width="1"/>
+<text x="1072" y="234.5" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">1</text>
+<rect x="40" y="253" width="70" height="49" rx="0" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="52" y="283.5" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">1</text>
+<rect x="110" y="253" width="380" height="49" rx="0" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="122" y="283.5" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">tall mountain</text>
+<rect x="490" y="253" width="570" height="49" rx="0" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="502" y="283.5" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">13 | tall | pointer0</text>
+<rect x="1060" y="253" width="180" height="49" rx="0" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="1072" y="283.5" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">1</text>
+<rect x="40" y="302" width="70" height="49" rx="0" fill="#f0fdf4" stroke="#d6d3cc" stroke-width="1"/>
+<text x="52" y="332.5" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">2</text>
+<rect x="110" y="302" width="380" height="49" rx="0" fill="#f0fdf4" stroke="#d6d3cc" stroke-width="1"/>
+<text x="122" y="332.5" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">crazy hair day</text>
+<rect x="490" y="302" width="570" height="49" rx="0" fill="#f0fdf4" stroke="#d6d3cc" stroke-width="1"/>
+<text x="502" y="332.5" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">14 | craz | pointer1</text>
+<rect x="1060" y="302" width="180" height="49" rx="0" fill="#f0fdf4" stroke="#d6d3cc" stroke-width="1"/>
+<text x="1072" y="332.5" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">1</text>
+<rect x="40" y="351" width="70" height="49" rx="0" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="52" y="381.5" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">3</text>
+<rect x="110" y="351" width="380" height="49" rx="0" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="122" y="381.5" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">heavy rain</text>
+<rect x="490" y="351" width="570" height="49" rx="0" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="502" y="381.5" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">10 | inline</text>
+<rect x="1060" y="351" width="180" height="49" rx="0" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="1072" y="381.5" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">1</text>
+<rect x="40" y="400" width="70" height="49" rx="0" fill="#f0fdf4" stroke="#d6d3cc" stroke-width="1"/>
+<text x="52" y="430.5" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">4</text>
+<rect x="110" y="400" width="380" height="49" rx="0" fill="#f0fdf4" stroke="#d6d3cc" stroke-width="1"/>
+<text x="122" y="430.5" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">NULL</text>
+<rect x="490" y="400" width="570" height="49" rx="0" fill="#f0fdf4" stroke="#d6d3cc" stroke-width="1"/>
+<text x="502" y="430.5" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">任意位型（原图 adsjkfajsdf）</text>
+<rect x="1060" y="400" width="180" height="49" rx="0" fill="#f0fdf4" stroke="#d6d3cc" stroke-width="1"/>
+<text x="1072" y="430.5" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">0</text>
+<rect x="40" y="449" width="70" height="49" rx="0" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="52" y="479.5" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">5</text>
+<rect x="110" y="449" width="380" height="49" rx="0" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="122" y="479.5" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">apple pie</text>
+<rect x="490" y="449" width="570" height="49" rx="0" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="502" y="479.5" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">9 | inline</text>
+<rect x="1060" y="449" width="180" height="49" rx="0" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="1072" y="479.5" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">1</text>
+<rect x="40" y="498" width="70" height="49" rx="0" fill="#f0fdf4" stroke="#d6d3cc" stroke-width="1"/>
+<text x="52" y="528.5" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">6</text>
+<rect x="110" y="498" width="380" height="49" rx="0" fill="#f0fdf4" stroke="#d6d3cc" stroke-width="1"/>
+<text x="122" y="528.5" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">Yellowstone national park</text>
+<rect x="490" y="498" width="570" height="49" rx="0" fill="#f0fdf4" stroke="#d6d3cc" stroke-width="1"/>
+<text x="502" y="528.5" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">25 | Yell | pointer2</text>
+<rect x="1060" y="498" width="180" height="49" rx="0" fill="#f0fdf4" stroke="#d6d3cc" stroke-width="1"/>
+<text x="1072" y="528.5" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">1</text>
+<rect x="40" y="547" width="70" height="49" rx="0" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="52" y="577.5" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">7</text>
+<rect x="110" y="547" width="380" height="49" rx="0" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="122" y="577.5" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">long weekend</text>
+<rect x="490" y="547" width="570" height="49" rx="0" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="502" y="577.5" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">12 | inline</text>
+<rect x="1060" y="547" width="180" height="49" rx="0" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="1072" y="577.5" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">1</text>
+<rect x="60" y="645" width="1150" height="80" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<rect x="60" y="649" width="4" height="72" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
+<text x="82" y="680" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">pointer0 → tall mountain</text>
+<text x="82" y="713" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">长字符串数据可以由 stringBuffers_ 保活</text>
+<rect x="60" y="745" width="1150" height="80" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<rect x="60" y="749" width="4" height="72" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
+<text x="82" y="780" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">pointer1 → crazy hair day</text>
+<text x="82" y="813" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">StringView 自身不拥有字符串内存</text>
+<rect x="60" y="845" width="1150" height="80" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<rect x="60" y="849" width="4" height="72" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
+<text x="82" y="880" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">pointer2 → Yellowstone national park</text>
+<text x="82" y="913" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">substring 等复用原内存时同样需要保活 buffer</text>
+<rect x="40" y="948" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
+<text x="60" y="977" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">前缀可用于快速排除不相等；短字符串不需要第二次指针访问。</text>
+<text x="60" y="1002" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">实际是 4-byte size + 12-byte union；并不是 8-byte size + 8-byte pointer。</text>
+</svg>

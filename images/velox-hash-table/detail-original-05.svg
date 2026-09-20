@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="850" viewBox="0 0 1280 850" role="img" aria-labelledby="title desc">
+<title id="title">Hash 位段：tag、bucket 与 slot 的不同来源</title><desc id="desc">例：索引总字节数为 2^23，bucket 为 128 B；桶内 slot 由候选 / 空槽 mask 决定。</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
+<rect x="0" y="0" width="1280" height="850" rx="0" fill="white" stroke="none" stroke-width="1"/>
+<rect x="8" y="8" width="1264" height="834" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<rect x="9" y="9" width="1262" height="94" rx="0" fill="#edf5ff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="103" x2="1271" y2="103" stroke="#d6d3cc" stroke-width="1"/>
+<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">Hash 位段：tag、bucket 与 slot 的不同来源</text>
+<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">例：索引总字节数为 2^23，bucket 为 128 B；桶内 slot 由候选 / 空槽 mask 决定。</text>
+<rect x="60" y="165" width="220" height="110" rx="4" fill="#f2f7ff" stroke="#d6d3cc" stroke-width="1"/>
+<text x="170.0" y="205" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="middle">63 … 45</text>
+<text x="170.0" y="248" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="16" font-weight="400" text-anchor="middle">此例不用于桶偏移</text>
+<rect x="280" y="165" width="210" height="110" rx="4" fill="#faf5ff" stroke="#d6d3cc" stroke-width="1"/>
+<text x="385.0" y="205" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="middle">44 … 38</text>
+<text x="385.0" y="248" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="16" font-weight="400" text-anchor="middle">tag 的 7 个可变位</text>
+<rect x="490" y="165" width="230" height="110" rx="4" fill="#f2f7ff" stroke="#d6d3cc" stroke-width="1"/>
+<text x="605.0" y="205" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="middle">37 … 23</text>
+<text x="605.0" y="248" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="16" font-weight="400" text-anchor="middle">此例不用于桶偏移</text>
+<rect x="720" y="165" width="280" height="110" rx="4" fill="#f2f7ff" stroke="#d6d3cc" stroke-width="1"/>
+<text x="860.0" y="205" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="middle">22 … 7</text>
+<text x="860.0" y="248" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="16" font-weight="400" text-anchor="middle">bucket byte offset</text>
+<rect x="1000" y="165" width="220" height="110" rx="4" fill="#f2f7ff" stroke="#d6d3cc" stroke-width="1"/>
+<text x="1110.0" y="205" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="middle">6 … 0</text>
+<text x="1110.0" y="248" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="16" font-weight="400" text-anchor="middle">对齐位清零</text>
+<rect x="60" y="335" width="540" height="150" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<rect x="60" y="339" width="4" height="142" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
+<text x="82" y="370" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Tag：先移位，再截断并置高位</text>
+<text x="82" y="403" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">uint8_t(hash &gt;&gt; 38) | 0x80</text>
+<text x="82" y="447" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="16" font-weight="400" text-anchor="start">结果 0x80..0xff；0x00 / 0x7f 留给 empty / tombstone。</text>
+<rect x="680" y="335" width="540" height="150" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="680" y="339" width="4" height="142" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="702" y="370" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Bucket：按索引大小掩码定位</text>
+<text x="702" y="403" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">hash &amp; (sizeMask_ &amp; ~127)</text>
+<text x="702" y="447" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="16" font-weight="400" text-anchor="start">mask 取决于实际表大小；结果是 128-byte 对齐的偏移。</text>
+<rect x="180" y="555" width="920" height="110" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<rect x="180" y="559" width="4" height="102" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
+<text x="202" y="590" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Slot：扫描 16 个 tag，得到 mask 后选择位</text>
+<text x="202" y="623" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">命中候选需要进一步比 key；插入从可用位选择槽。不是 hash &amp; 15。</text>
+<polyline points="330,500 330,528 510,528 510,541" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<polyline points="950,500 950,528 770,528 770,541" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="40" y="748" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
+<text x="60" y="777" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">bit 图中的桶位范围只是 2^23 字节索引的例子，不能固定成所有表的位宽。</text>
+<text x="60" y="802" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">tag 过滤、bucket 定位、slot 选择是三个动作；原图把 hash 低 4 位标成 slot 是错误的。</text>
+</svg>

@@ -6,18 +6,18 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
-    <meta name="description" content="body:has(.velox-review) #header-post #toc .toc-level-2::before,body:has(.velox-review) #toc-footer .toc-level-2::before{display:none}.velox-review .review-figure{margin:2rem 0}.velox-review .diagram-s">
+    <meta name="description" content="body:has(.velox-review) #header-post #toc .toc-level-2::before,body:has(.velox-review) #toc-footer .toc-level-2::before{display:none}.velox-review .review-figure{margin:2rem 0}.velox-review .diagra">
 <meta property="og:type" content="article">
 <meta property="og:title" content="SIMD in Velox - BigintValuesUsingHashTable">
 <meta property="og:url" content="https://duanmeng.github.io/2023/08/19/simd-in-velox-filter/index.html">
 <meta property="og:site_name" content="Macduan Notes">
-<meta property="og:description" content="body:has(.velox-review) #header-post #toc .toc-level-2::before,body:has(.velox-review) #toc-footer .toc-level-2::before{display:none}.velox-review .review-figure{margin:2rem 0}.velox-review .diagram-s">
+<meta property="og:description" content="body:has(.velox-review) #header-post #toc .toc-level-2::before,body:has(.velox-review) #toc-footer .toc-level-2::before{display:none}.velox-review .review-figure{margin:2rem 0}.velox-review .diagra">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://duanmeng.github.io/images/simd-in-velox-filter/representation.svg">
 <meta property="og:image" content="https://duanmeng.github.io/images/simd-in-velox-filter/probe.svg">
 <meta property="og:image" content="https://duanmeng.github.io/images/simd-in-velox-filter/wrap.svg">
 <meta property="article:published_time" content="2023-08-19T02:18:09.000Z">
-<meta property="article:modified_time" content="2026-09-18T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-09-19T16:00:00.000Z">
 <meta property="article:author" content="duanmeng">
 <meta property="article:tag" content="velox">
 <meta property="article:tag" content="vectorized">
@@ -101,7 +101,7 @@
 
     </div>
     <div id="toc">
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#role"><span class="toc-number">1.</span> <span class="toc-text">1. 它过滤什么，又不负责什么</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#representation"><span class="toc-number">2.</span> <span class="toc-text">2. 工厂先选表示，再谈 SIMD</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#layout"><span class="toc-number">3.</span> <span class="toc-text">3. 哈希表的布局与不变量</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#first-probe"><span class="toc-number">4.</span> <span class="toc-text">4. 第一轮：多个查询各看自己的首槽</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E4%B8%AA%E5%BF%85%E9%A1%BB%E4%BF%9D%E7%95%99%E7%9A%84%E5%93%A8%E5%85%B5%E8%BE%B9%E7%95%8C"><span class="toc-number">4.1.</span> <span class="toc-text">一个必须保留的哨兵边界</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#collision"><span class="toc-number">5.</span> <span class="toc-text">5. 冲突阶段：按 lane 串行，按槽 SIMD</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#isa"><span class="toc-number">6.</span> <span class="toc-text">6. int32、int16 与架构边界</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#validation"><span class="toc-number">7.</span> <span class="toc-text">7. 怎样验证正确性和性能</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reading"><span class="toc-number">8.</span> <span class="toc-text">8. 继续读哪些代码</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.</span> <span class="toc-text">介绍</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#role"><span class="toc-number">1.1.</span> <span class="toc-text">当前实现补充 · 它过滤什么，又不负责什么</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#bigintvaluesusinghashtable%E5%88%86%E6%9E%90"><span class="toc-number">2.</span> <span class="toc-text">BigintValuesUsingHashTable分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#representation"><span class="toc-number">2.1.</span> <span class="toc-text">当前实现补充 · 工厂先选表示，再谈 SIMD</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#bigintvaluesusinghashtable%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0"><span class="toc-number">2.2.</span> <span class="toc-text">BigintValuesUsingHashTable构造函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#layout"><span class="toc-number">2.3.</span> <span class="toc-text">当前实现补充 · 哈希表的布局与不变量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#bigintvaluesusinghashtabletestvalues"><span class="toc-number">2.4.</span> <span class="toc-text">BigintValuesUsingHashTable::testValues</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#first-probe"><span class="toc-number">2.5.</span> <span class="toc-text">当前实现补充 · 第一轮：多个查询各看自己的首槽</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%80%E4%B8%AA%E5%BF%85%E9%A1%BB%E4%BF%9D%E7%95%99%E7%9A%84%E5%93%A8%E5%85%B5%E8%BE%B9%E7%95%8C"><span class="toc-number">2.5.1.</span> <span class="toc-text">一个必须保留的哨兵边界</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#collision"><span class="toc-number">2.6.</span> <span class="toc-text">当前实现补充 · 冲突阶段：按 lane 串行，按槽 SIMD</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E4%BA%9Bintrinsics%E7%9A%84%E8%A7%A3%E9%87%8A"><span class="toc-number">3.</span> <span class="toc-text">一些intrinsics的解释</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#isa"><span class="toc-number">3.1.</span> <span class="toc-text">当前实现补充 · int32、int16 与架构边界</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#__m256i-_mm256_set1_epi64x-long-long-a"><span class="toc-number">3.2.</span> <span class="toc-text">__m256i _mm256_set1_epi64x (long long a)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#__m256i-_mm256_cmpgt_epi64-__m256i-a-__m256i-b"><span class="toc-number">3.3.</span> <span class="toc-text">__m256i _mm256_cmpgt_epi64 (__m256i a, __m256i b)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#__m256i-_mm256_mask_i64gather_epi64-__m256i-src-__int64-const-base_addr-__m256i-vindex-__m256i-mask-const-int-scale"><span class="toc-number">3.4.</span> <span class="toc-text">__m256i _mm256_mask_i64gather_epi64 (__m256i src, __int64 const* base_addr, __m256i vindex, __m256i mask, const int scale)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#__m256i-_mm256_cmpeq_epi64-__m256i-a-__m256i-b"><span class="toc-number">3.5.</span> <span class="toc-text">__m256i _mm256_cmpeq_epi64 (__m256i a, __m256i b)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#int-_mm256_movemask_pd-__m256d-a"><span class="toc-number">3.6.</span> <span class="toc-text">int _mm256_movemask_pd (__m256d a)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#__m256i-_mm256_loadu_si256-__m256i-const--mem_addr"><span class="toc-number">3.7.</span> <span class="toc-text">__m256i _mm256_loadu_si256 (__m256i const * mem_addr)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#__m256i-_mm256_lddqu_si256-__m256i-const--mem_addr"><span class="toc-number">3.8.</span> <span class="toc-text">__m256i _mm256_lddqu_si256 (__m256i const * mem_addr)</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#references"><span class="toc-number">4.</span> <span class="toc-text">References</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#validation"><span class="toc-number">4.1.</span> <span class="toc-text">当前实现补充 · 怎样验证正确性和性能</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#reading"><span class="toc-number">4.2.</span> <span class="toc-text">当前实现补充 · 继续读哪些代码</span></a></li></ol></li></ol>
     </div>
   </span>
 </div>
@@ -192,18 +192,43 @@
   
 
   <div class="content" itemprop="articleBody">
-    <style>body:has(.velox-review) #header-post #toc .toc-level-2::before,body:has(.velox-review) #toc-footer .toc-level-2::before{display:none}.velox-review .review-figure{margin:2rem 0}.velox-review .diagram-scroll{max-width:100%;overflow-x:auto}.velox-review .diagram-scroll img{display:block;width:100%;min-width:960px;max-width:none;height:auto}.velox-review figcaption{margin-top:.65rem;color:#706b63;font-size:13px;line-height:1.7}.velox-review .tbl-wrap{max-width:100%;overflow-x:auto;margin:1.5rem 0}article.post .velox-review .tbl-wrap > table{display:table;width:100%;min-width:640px;max-width:none;border-collapse:collapse}.velox-review .legacy-anchor{display:block;height:0;scroll-margin-top:2rem}@media print{.velox-review .diagram-scroll img{min-width:0}}</style>
-<div class="post-body velox-review">
+    
+
+
+<style>body:has(.velox-review) #header-post #toc .toc-level-2::before,body:has(.velox-review) #toc-footer .toc-level-2::before{display:none}.velox-review .review-figure{margin:2rem 0}.velox-review .diagram-scroll{max-width:100%;overflow-x:auto}.velox-review .diagram-scroll img{display:block;width:100%;min-width:960px;max-width:none;height:auto}.velox-review figcaption{margin-top:.65rem;color:#706b63;font-size:13px;line-height:1.7}.velox-review .tbl-wrap{max-width:100%;overflow-x:auto;margin:1.5rem 0}article.post .velox-review .tbl-wrap > table{display:table;width:100%;min-width:640px;max-width:none;border-collapse:collapse}.velox-review .legacy-anchor{display:block;height:0;scroll-margin-top:2rem}@media print{.velox-review .diagram-scroll img{min-width:0}}</style>
+<style>
+.velox-detailed .current-supplement { margin: 1.6rem 0 2rem; padding: .2rem 0 .2rem 1.1rem; border-left: 2px solid #d6d3cc; }
+.velox-detailed .current-supplement > h3 { font-size: 1.13rem; }
+.velox-detailed .detail-reading-note { padding: 1rem 1.15rem; background: #f7f2ea; line-height: 1.8; }
+.velox-detailed .tbl-wrap { max-width: 100%; overflow-x: auto; }
+.velox-detailed .tbl-wrap > table { width: 100%; min-width: 740px; }
+.velox-detailed .tbl-wrap td,.velox-detailed .tbl-wrap th { min-width: 130px; }
+.velox-detailed pre { max-width: 100%; overflow-x: auto; }
+.velox-detailed .detail-legacy-anchor { display: block; height: 0; }
+.velox-detailed .detail-figure-scroll { overflow-x: auto; max-width: 100%; }
+.velox-detailed .detail-figure-scroll img { min-width: 880px; width: 100%; max-width: none; }
+@media print { .velox-detailed .tbl-wrap > table,.velox-detailed .detail-figure-scroll img { min-width: 0; } }
+</style>
+<div class="post-body velox-review velox-detailed">
 <p><code>BigintValuesUsingHashTable</code> 是一个很好的 SIMD 阅读样本：它把批量随机查表和单个冲突链的连续扫描组合起来。理解这两层并行，比逐条翻译 AVX2 intrinsic 更有用。</p>
 <p>本文于 2026-09-19 对照 Velox <strong>1d1b76567870</strong> 重写。当前代码在 <code>velox/type/Filter.h</code> 与 <code>Filter.cpp</code>；旧文中的直接 AVX2 写法保留为理解指令的背景，正文以 xsimd 和 Velox 的 <code>simd</code> 封装为准。基础指令语义见 <a href="/2021/08/22/simd-basic/">SIMD Basic</a>。</p>
-<span class="legacy-anchor" id="介绍" aria-hidden="true"></span>
-<h2 id="role">1. 它过滤什么，又不负责什么</h2>
-
+<p class="detail-reading-note">本文保留原有的逐层实现、代码推导和工程分析，并在对应章节补充 <strong>2026-09-20 源码核对</strong>。下文标为“当前实现补充”的内容依据固定提交；原有代码含流程化简写，旧的文件行号用于还原阅读上下文，查找当前实现请使用补充中的固定源码链接。接口或语义发生变化的地方会在相邻说明中指出。</p><h2 data-original-block="simd-in-velox-filter-0000" id="介绍">介绍</h2><section class="current-supplement" data-reviewed-section="role"><h3 id="role">当前实现补充 · 它过滤什么，又不负责什么</h3>
 <p>这是整数 <code>IN-list</code> 的<strong>精确集合过滤器</strong>。例如 <code>k IN (1, 10, 100, 10000)</code>，非空输入的输出是一个布尔值，批量接口则返回逐 lane 的布尔 mask。它不保存 join 的 payload、不枚举重复 key 对应的多行，也不是 <a href="/2026/05/30/velox-hash-table/">exec::HashTable</a>。</p>
 <p><code>Filter</code> 提供标量测试、批量测试、范围测试和 null 测试。 <code>testNull()</code> 与 <code>testInt64()</code> 分开；<code>testValues</code> 的输入是数值 batch，里面没有 SQL null bitmap。调用方负责根据 nullAllowed 处理 null，不能把某个特殊整数当作 SQL NULL。参见 <a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/type/Filter.h#L180">Filter 的批量接口</a>、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/type/Filter.h#L994">集合过滤器定义</a>。</p>
 <p>扫描侧可利用 Filter 在数据读取过程中筛选，但不能据此断言每个 SQL <code>IN</code> 表达式都会下推成这个类：表达式转换、connector 能力、读取格式和类型都会决定执行路径。</p>
-<h2 id="representation">2. 工厂先选表示，再谈 SIMD</h2>
-
+</section>
+<p data-original-block="simd-in-velox-filter-0001"><a target="_blank" rel="noopener" href="https://facebookincubator.github.io/velox/develop/simd.html">SIMD使用CPU中的特殊寄存器同时操作多个primitive data。在一些基本情况下，编译器能够为我们将紧密循环转换为SIMD指令，但通常需要显式调用SIMD内在函数。Velox中有几个地方明确使用SIMD来获得更好的性能</a>。 </p>
+<p data-original-block="simd-in-velox-filter-0002">Velox使用SIMD的一个非常典型的例子就是<code>BigintValuesUsingHashTable::testValues</code>方法，<code>BigintValuesUsingHashTable</code>是Velox的<code>common::Filter</code>的一个子类，<code>Filter</code>用于<code>TableScan</code>的数据过滤（oerling出品，我也有所贡献:) ），在这篇<a target="_blank" rel="noopener" href="https://facebookincubator.github.io/velox/develop/simd.html">SIMD Usage in Velox</a>的官方文章中也简单介绍了该方法的实现，<code>BigintValuesUsingHashTable::testValues</code>使用SIMD来同时检查多个values是否在一个哈希表中。在哈希表中使用特殊的<em>empty marker</em>来标识值缺失：</p>
+<ol>
+<li data-original-block="simd-in-velox-filter-0003">如果所有值都超出了范围，直接返回false。</li>
+<li data-original-block="simd-in-velox-filter-0004">如果有<em>empty marker</em>插入哈希表中，则回退到逐个检查值的方式。</li>
+<li data-original-block="simd-in-velox-filter-0005">使用SIMD乘法和取模计算所有有效值的哈希值，然后使用maskGather获取哈希表中对应的状态。</li>
+<li data-original-block="simd-in-velox-filter-0006">如果状态为空标记，则表示值缺失；如果状态等于值，则表示找到了该值。否则，我们遇到了哈希冲突，需要查看哈希表中的下一个位置。如果没有发生冲突，我们可以立即返回结果。</li>
+<li data-original-block="simd-in-velox-filter-0007">对于每个发生冲突的值，使用SIMD一次性推进多个位置，直到找到匹配的值或空标记。</li>
+</ol>
+<p data-original-block="simd-in-velox-filter-0008">我们首先过一下SIMD最基础的概念，然后整体看一下<code>BigintValuesUsingHashTable</code>的构造函数（即hash表build过程）和<code>testValues</code>方法（即probe过程）的实现，最后分析这些过程中底层的SIMD intrinsics。Velox使用<a target="_blank" rel="noopener" href="https://xsimd.readthedocs.io/en/latest/index.html">xsimd</a>作为内在函数的零成本抽象，以解决可移植性问题，这里我们假设是AVX/AVX2架构，寄存器宽度256，实际上oerling大神最初的实现版本就是基于avx2的，后面代码中会看到适配avx2设计上的trick。在文章末尾也给出用到的SIMD intrinsics的说明。</p>
+<p data-original-block="simd-in-velox-filter-0009">SIMD一些基本概念和指令可以看这篇<a href="/2021/08/22/simd-basic/">SIMD Basic</a>文章。</p>
+<h2 data-original-block="simd-in-velox-filter-0010" id="bigintvaluesusinghashtable分析">BigintValuesUsingHashTable分析</h2><section class="current-supplement" data-reviewed-section="representation"><h3 id="representation">当前实现补充 · 工厂先选表示，再谈 SIMD</h3>
 <p><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/type/Filter.cpp#L1052">createBigintValuesFilter</a> 按数据分布选择表示。对于正向集合：</p>
 <div class="tbl-wrap"><table>
 <thead>
@@ -240,22 +265,67 @@
 </tr>
 </tbody></table>
 </div><p>当前 bitmask 条件是范围差 <code>range &lt; 32 * 64</code> <strong>或</strong> <code>range &lt; values.size() * 4 * 64</code>；减法溢出时跳过这一选择。数值是此版本的实现策略，不是 IN-list 的语义要求。负向集合有对应的 negated 类；它的 null 语义也不能从布尔按位取反推断。</p>
-<figure class="review-figure"><div class="diagram-scroll" tabindex="0" role="region" aria-label="图 1：集合分布决定表示方式，SIMD 优化发生在选定表示之后。"><img src="/images/simd-in-velox-filter/representation.svg" alt="图 1：集合分布决定表示方式，SIMD 优化发生在选定表示之后。" loading="lazy"></div><figcaption>图 1：集合分布决定表示方式，SIMD 优化发生在选定表示之后。</figcaption></figure>
-
-<p><span class="legacy-anchor" id="BigintValuesUsingHashTable分析" aria-hidden="true"></span><br><span class="legacy-anchor" id="BigintValuesUsingHashTable构造函数" aria-hidden="true"></span></p>
-<h2 id="layout">3. 哈希表的布局与不变量</h2>
-
+<figure class="review-figure"><div aria-label="图 1：集合分布决定表示方式，SIMD 优化发生在选定表示之后。" class="diagram-scroll" role="region" tabindex="0"><img alt="图 1：集合分布决定表示方式，SIMD 优化发生在选定表示之后。" loading="lazy" src="/images/simd-in-velox-filter/representation.svg"/></div><figcaption>图 1：集合分布决定表示方式，SIMD 优化发生在选定表示之后。</figcaption></figure>
+</section>
+<h3 data-original-block="simd-in-velox-filter-0011" id="bigintvaluesusinghashtable构造函数">BigintValuesUsingHashTable构造函数</h3><section class="current-supplement" data-reviewed-section="layout"><h3 id="layout">当前实现补充 · 哈希表的布局与不变量</h3>
 <p>构造函数要求 <code>min &lt; max</code>、至少两个唯一元素，调用者应满足参数契约。逻辑槽数取：</p>
-<pre><code>size &#x3D; 2 ^ floor(log2(5 * n))
-sizeMask &#x3D; size - 1
-position &#x3D; (uint64(value) * M) &amp; sizeMask
-M &#x3D; 0xc6a4a7935bd1e995</code></pre>
+<pre class="detail-trace"><code>size = 2 ^ floor(log2(5 * n))
+sizeMask = size - 1
+position = (uint64(value) * M) &amp; sizeMask
+M = 0xc6a4a7935bd1e995</code></pre>
 <p>因此容量通常在 <code>2.5n</code> 到 <code>5n</code> 之间；例如 10 个值得到 32 个逻辑槽，不是固定 <code>5n</code>。低装载率是为了让经常失败的查询尽快遇到空槽。乘法按无符号位模式理解，SIMD 路径也显式转成 unsigned 来避免有符号溢出问题。参见 <a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/type/Filter.cpp#L807">构造函数</a>。</p>
 <p>冲突用线性探测解决；槽中直接存 <code>int64_t</code>。空槽使用 <code>0xdeadbeefbadefeed</code>。当集合本身包含这个值时，它不放进普通槽，而是记录 <code>containsEmptyMarker_</code>，标量查询先单独处理，批量查询退回基类的逐元素测试。</p>
 <p>表尾额外分配 <strong>4 个元素</strong>，复制的是最后一个逻辑槽，不是表头四个槽。这样，在 AVX2 四个 int64 lane 的连续 load 越过逻辑表尾时，不会人为插入一个“空槽终止符”。下一步仍要显式回绕到槽 0。不要把这个固定 padding 直接推广成任意寄存器宽度都足够的证明。</p>
-<span class="legacy-anchor" id="BigintValuesUsingHashTable-testValues" aria-hidden="true"></span>
-<h2 id="first-probe">4. 第一轮：多个查询各看自己的首槽</h2>
+</section>
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="simd-in-velox-filter-0012" data-source-kind="original-reading-fragment"><code class="language-cpp">BigintValuesUsingHashTable::BigintValuesUsingHashTable(
+    int64_t min,
+    int64_t max,
+    const std::vector&lt;int64_t&gt;&amp; values,
+    bool nullAllowed)
+    : Filter(true, nullAllowed, FilterKind::kBigintValuesUsingHashTable),
+      min_(min),
+      max_(max),
+      values_(values) &#123;
+  constexpr int32_t kPaddingElements = 4;
+  VELOX_CHECK(min &lt; max, "min must be less than max");
+  VELOX_CHECK(values.size() &gt; 1, "values must contain at least 2 entries");
 
+  // Size the hash table to be 2+x the entry count, e.g. 10 entries
+  // gets 1 &lt;&lt; log2 of 50 == 32. The filter is expected to fail often so we
+  // wish to increase the chance of hitting empty on first probe.
+  auto size = 1u &lt;&lt; (uint32_t)std::log2(values.size() * 5);
+  hashTable_.resize(size + kPaddingElements);
+  sizeMask_ = size - 1;
+  std::fill(hashTable_.begin(), hashTable_.end(), kEmptyMarker);
+  for (auto value : values) &#123;
+    if (value == kEmptyMarker) &#123;
+      containsEmptyMarker_ = true;
+    &#125; else &#123;
+      auto position = ((value * M) &amp; sizeMask_);
+      for (auto i = position; i &lt; position + size; i++) &#123;
+        uint32_t index = i &amp; sizeMask_;
+        if (hashTable_[index] == kEmptyMarker) &#123;
+          hashTable_[index] = value;
+          break;
+        &#125;
+      &#125;
+    &#125;
+  &#125;
+  // Replicate the last element of hashTable kPaddingEntries times at 'size_' so
+  // that one can load a full vector of elements past the last used index.
+  for (auto i = 0; i &lt; kPaddingElements; ++i) &#123;
+    hashTable_[sizeMask_ + 1 + i] = hashTable_[sizeMask_];
+  &#125;
+  std::sort(values_.begin(), values_.end());
+&#125;
+</code></pre>
+<ul>
+<li data-original-block="simd-in-velox-filter-0013">从<code>BigintValuesUsingHashTable</code>这个名字不难看出这个哈希表的数据类型是int64_t，其成员<code>values_</code>就是一个int64_t类型的vector，是构建这个哈希表的数据，<code>min_</code>，<code>max_</code>分别是<code>values_</code>的最小与最大值。</li>
+<li data-original-block="simd-in-velox-filter-0014">Line 17就是一个经验公式用于计算哈希表的size（一般是2的n次方），比如10个entries时size为32，为什么不是16？注释中提到“<em>The filter is expected to fail</em>”，这是因为在计算引擎中的TableScan的场景下，Filter预期的行为是能够过滤掉很多数据，所以希望通过更大的哈希表size来增加第一次probe就立马失败（遇到<em>empty marker</em>）的几率，一定程度的空间换时间（<strong>oerling大神对细节的把控真是极致</strong>，详见<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/pull/587/files">PR-#587</a>）。</li>
+<li data-original-block="simd-in-velox-filter-0015">Line 18是resize哈希表的实际size，注意，这里实际size增加了kPaddingElements（kPaddingElements = 4），这是给了simd batch操作预留空间，因为在设计这个类的时候erling默认使用avx/avx2指令集，寄存器宽度256，而<code>BigintValuesUsingHashTable</code>的数据类型是int64_t，正好批处理step是4，详见后面probe部分。</li>
+<li data-original-block="simd-in-velox-filter-0016">Line19-34，初始化哈希表默认值为<em>empty marker</em>，使用开放寻找+线性探测的方式构建哈希表，如果values中有<em>empty marker</em>则设置*containsEmptyMarker_*为true（与介绍那一节中的步骤2对应），填充部分用哈希表最后一个slot的value填充。</li>
+</ul>
+<h3 data-original-block="simd-in-velox-filter-0017" id="bigintvaluesusinghashtabletestvalues">BigintValuesUsingHashTable::testValues</h3><section class="current-supplement" data-reviewed-section="first-probe"><h3 id="first-probe">当前实现补充 · 第一轮：多个查询各看自己的首槽</h3>
 <p><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/type/Filter.h#L1053">testValues(int64 batch)</a> 的前半部分依次做：</p>
 <ol>
 <li>比较 <code>min_</code> 和 <code>max_</code>，若全部越界则立即返回全 false。</li>
@@ -265,34 +335,129 @@ M &#x3D; 0xc6a4a7935bd1e995</code></pre>
 <li>比较取回值，生成命中 bitset 和空槽 bitset，把剩余 lane 标为 unresolved。</li>
 </ol>
 <p>以 AVX2 为例，一个 batch 有 4 个 int64 查询，但每个查询可能访问不同缓存行。这里的 SIMD 并不把哈希访问变连续；它让多个查询一起完成下标计算、gather 和比较。</p>
-<figure class="review-figure"><div class="diagram-scroll" tabindex="0" role="region" aria-label="图 2：第一轮在不同查询之间并行；冲突处理切换成一个查询同时比较连续槽。"><img src="/images/simd-in-velox-filter/probe.svg" alt="图 2：第一轮在不同查询之间并行；冲突处理切换成一个查询同时比较连续槽。" loading="lazy"></div><figcaption>图 2：第一轮在不同查询之间并行；冲突处理切换成一个查询同时比较连续槽。</figcaption></figure>
-
+<figure class="review-figure"><div aria-label="图 2：第一轮在不同查询之间并行；冲突处理切换成一个查询同时比较连续槽。" class="diagram-scroll" role="region" tabindex="0"><img alt="图 2：第一轮在不同查询之间并行；冲突处理切换成一个查询同时比较连续槽。" loading="lazy" src="/images/simd-in-velox-filter/probe.svg"/></div><figcaption>图 2：第一轮在不同查询之间并行；冲突处理切换成一个查询同时比较连续槽。</figcaption></figure>
 <p><code>simd::maskGather</code> 的默认 scale 是 <code>sizeof(T)</code>，int64 即 8。地址含义是 <code>base + index * 8</code> 个字节。禁用 lane 保留 <code>src</code>，不是自动置零。参见 <a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/common/base/SimdUtil.h#L250">maskGather 契约</a>。</p>
-<h3 id="一个必须保留的哨兵边界">一个必须保留的哨兵边界</h3>
+<h4 id="一个必须保留的哨兵边界">一个必须保留的哨兵边界</h4>
 <p>当前快照直接用 <code>result = x == data</code>，没有再与 <code>~outOfRange</code> 合并。若<strong>集合不含哨兵</strong>，而输入 batch 同时有普通范围内的值和 <code>kEmptyMarker</code>，被禁用的哨兵 lane 会保留 <code>allEmpty</code>，从而比较相等。全越界的提前返回也无法覆盖这个混合 batch。</p>
 <p>例如集合 <code>&#123;1, 10, 100, 10000&#125;</code> 和输入 <code>&#123;kEmptyMarker, 1, 10, 100&#125;</code>，可以从这段代码直接推导出哨兵 lane 的标量/SIMD 不一致。因此，<code>containsEmptyMarker_</code> fallback 不能被描述成“已经处理所有哨兵情况”。本文如实记录这一源码边界；没有修改 Velox 实现，也不把阅读现有测试说成已运行整套 FilterTest。</p>
-<h2 id="collision">5. 冲突阶段：按 lane 串行，按槽 SIMD</h2>
-
+</section><section class="current-supplement" data-reviewed-section="collision"><h3 id="collision">当前实现补充 · 冲突阶段：按 lane 串行，按槽 SIMD</h3>
 <p>如果还有 unresolved lane，代码把初始下标加 1 后存到数组，查询值也存到对齐数组。之后每次从 unresolved bitset 取出一个 lane，处理该 lane 的探测链：</p>
-<pre><code>value &#x3D; 当前查询
-index &#x3D; 初始槽 + 1
+<pre class="detail-trace"><code>value = 当前查询
+index = 初始槽 + 1
 
-<p>循环：<br>    line &#x3D; 连续加载一整个 batch 的槽<br>    若任一槽等于 value：命中<br>    否则若任一槽为空：未命中<br>    否则 index +&#x3D; batch 宽度<br>         超过 sizeMask 时回到 0</code></pre></p>
+循环：
+    line = 连续加载一整个 batch 的槽
+    若任一槽等于 value：命中
+    否则若任一槽为空：未命中
+    否则 index += batch 宽度
+         超过 sizeMask 时回到 0</code></pre>
 <p>这个阶段没有让所有未决 lane 持续做 masked gather。它<strong>逐个处理冲突查询</strong>，用连续 load 把一个查询与多个候选槽比较；<code>line.size</code> 决定每次前进几个槽。</p>
 <p>为什么先判断命中，再判断空槽？这张表由线性插入形成，没有删除制造的中间洞。对同一个初始槽，若某值确实存在，探测路径不会先经过空槽再到达它；边界 padding 又不会额外制造空槽。这个推理依赖表的构造规则，不能照搬到有 tombstone、删除或不同探测策略的哈希表。</p>
-<figure class="review-figure"><div class="diagram-scroll" tabindex="0" role="region" aria-label="图 3：表尾 padding 复制末槽；连续 load 与逻辑回绕是两个独立步骤。"><img src="/images/simd-in-velox-filter/wrap.svg" alt="图 3：表尾 padding 复制末槽；连续 load 与逻辑回绕是两个独立步骤。" loading="lazy"></div><figcaption>图 3：表尾 padding 复制末槽；连续 load 与逻辑回绕是两个独立步骤。</figcaption></figure>
-
+<figure class="review-figure"><div aria-label="图 3：表尾 padding 复制末槽；连续 load 与逻辑回绕是两个独立步骤。" class="diagram-scroll" role="region" tabindex="0"><img alt="图 3：表尾 padding 复制末槽；连续 load 与逻辑回绕是两个独立步骤。" loading="lazy" src="/images/simd-in-velox-filter/wrap.svg"/></div><figcaption>图 3：表尾 padding 复制末槽；连续 load 与逻辑回绕是两个独立步骤。</figcaption></figure>
 <p><code>resultBits</code> 用 bit i 表示输入 lane i，最后通过 <code>fromBitMask</code> 返回 batch_bool。这里压缩的是<strong>比较结果</strong>，不是压缩或搬动原始输入数据。</p>
-<span class="legacy-anchor" id="一些intrinsics的解释" aria-hidden="true"></span>
-<span class="legacy-anchor" id="m256i-mm256-set1-epi64x-long-long-a" aria-hidden="true"></span>
-<span class="legacy-anchor" id="m256i-mm256-cmpgt-epi64-m256i-a-m256i-b" aria-hidden="true"></span>
-<span class="legacy-anchor" id="m256i-mm256-mask-i64gather-epi64-m256i-src-int64-const-base-addr-m256i-vindex-m256i-mask-const-int-scale" aria-hidden="true"></span>
-<span class="legacy-anchor" id="m256i-mm256-cmpeq-epi64-m256i-a-m256i-b" aria-hidden="true"></span>
-<span class="legacy-anchor" id="int-mm256-movemask-pd-m256d-a" aria-hidden="true"></span>
-<span class="legacy-anchor" id="m256i-mm256-loadu-si256-m256i-const-mem-addr" aria-hidden="true"></span>
-<span class="legacy-anchor" id="m256i-mm256-lddqu-si256-m256i-const-mem-addr" aria-hidden="true"></span>
-<h2 id="isa">6. int32、int16 与架构边界</h2>
+</section>
+<pre data-original-block="simd-in-velox-filter-0018"><code class="language-C++">xsimd::batch_bool&lt;int64_t&gt; BigintValuesUsingHashTable::testValues(
+    xsimd::batch&lt;int64_t&gt; x) const &#123; // xsimd::batch&lt;long long, xsimd::fma3&lt;xsimd::avx2&gt;&gt;
+  // outOfRange = &#123;xsimd::batch_bool&lt;long long, xsimd::fma3&lt;xsimd::avx2&gt;&gt;&#125;
+  auto outOfRange = (x &lt; xsimd::broadcast&lt;int64_t&gt;(min_)) |
+      (x &gt; xsimd::broadcast&lt;int64_t&gt;(max_)); //return _mm256_set1_epi64x(val), _mm256_cmpgt_epi64(other, self), _mm256_or_si256
 
+  // _mm256_movemask_pd(reinterpret_cast&lt;__m256d&gt;(mask.data))
+  if (simd::toBitMask(outOfRange) == simd::allSetBitMask&lt;int64_t&gt;()) &#123;
+    return xsimd::batch_bool&lt;int64_t&gt;(false);
+  &#125;
+  if (containsEmptyMarker_) &#123;
+    return Filter::testValues(x);
+  &#125;
+  // broadcast _mm256_set1_epi64x
+  auto allEmpty = xsimd::broadcast&lt;int64_t&gt;(kEmptyMarker);
+  // Temporarily casted to unsigned to suppress overflow error.
+  auto indices = simd::reinterpretBatch&lt;int64_t&gt;(
+      simd::reinterpretBatch&lt;uint64_t&gt;(x) * M &amp; sizeMask_);
+  // ~outOfRangne: _mm256_xor_si256
+  // maskGather : _mm256_mask_i64gather_epi64
+  auto data =
+      simd::maskGather(allEmpty, ~outOfRange, hashTable_.data(), indices);
+  // The lanes with kEmptyMarker missed, the lanes matching x hit and the other
+  // lanes must check next positions.
+  auto result = x == data; // _mm256_cmpeq_epi64
+  auto resultBits = simd::toBitMask(result);
+  auto missed = simd::toBitMask(data == allEmpty);
+  static_assert(decltype(result)::size &lt;= 16);
+  // allSetBitMask : bits::lowMask(xsimd::batch_bool&lt;T, A&gt;::size);
+  uint16_t unresolved = simd::allSetBitMask&lt;int64_t&gt;() ^ (resultBits | missed);
+  if (!unresolved) &#123;
+    return result;
+  &#125;
+  constexpr int kAlign = xsimd::default_arch::alignment();
+  constexpr int kArraySize = xsimd::batch&lt;int64_t&gt;::size;
+  alignas(kAlign) int64_t indicesArray[kArraySize];
+  alignas(kAlign) int64_t valuesArray[kArraySize];
+  (indices + 1).store_aligned(indicesArray);
+  // store_aligned -&gt; broadcast -&gt; _mm256_set1_epi64x
+  x.store_aligned(valuesArray);
+  while (unresolved) &#123;
+    auto lane = bits::getAndClearLastSetBit(unresolved);
+    // Loop for each unresolved (not hit and
+    // not empty) until finding hit or empty.
+    int64_t index = indicesArray[lane];
+    int64_t value = valuesArray[lane];
+    auto allValue = xsimd::broadcast&lt;int64_t&gt;(value);
+    for (;;) &#123;
+      // _mm256_loadu_si256
+      auto line = xsimd::load_unaligned(hashTable_.data() + index);
+
+      if (simd::toBitMask(line == allValue)) &#123;
+        resultBits |= 1 &lt;&lt; lane;
+        break;
+      &#125;
+      if (simd::toBitMask(line == allEmpty)) &#123;
+        resultBits &amp;= ~(1 &lt;&lt; lane);
+        break;
+      &#125;
+      index += line.size;
+      if (index &gt; sizeMask_) &#123;
+        index = 0;
+      &#125;
+    &#125;
+  &#125;
+  return simd::fromBitMask&lt;int64_t&gt;(resultBits);
+&#125;
+</code></pre>
+<ul>
+<li data-original-block="simd-in-velox-filter-0019"><code>xsimd::batch&lt;T, A&gt;</code>是xsimd对SIMD寄存器的封装，其底层data是一个SIMD数据类型，比如<code>xsimd::batch&lt;int64_t&gt;</code>底层数据类型是<code>__m256i</code>，本文默认是avx family指令集，256位寄存器。</li>
+<li data-original-block="simd-in-velox-filter-0020">Line 4-5，计算outRange（<code>xsimd::batch&lt;long long, xsimd::fma3&lt;xsimd::avx2&gt;&gt;</code>），<code>xsimd::broadcast</code>底层是<code>_mm256_set1_epi64x</code>，将min_或max_的值广播到目标simd寄存器所有lane上（本文场景4个）。x与广播后到min，max比较的底层是<code>_mm256_cmpgt_epi64</code>，比较两个packed signed 64-bit整数，保持结果到目标寄存器，大于为<code>0xFFFFFFFFFFFFFFFF</code>，否则为0。<code>|</code>底层是_mm256_or_si256，是bitwise or两个256 bits。</li>
+<li data-original-block="simd-in-velox-filter-0021">Line 8-13，simd::toBitMask底层是_mm256_movemask_pd将一个batch转成bit mask，然后比较，如果都被set了说明x中所有数据都超过了range，直接返回。如果values中有<strong>empty marker</strong>回退到逐个检查值的方式。</li>
+<li data-original-block="simd-in-velox-filter-0022">Line 14-22，这里开始进入了SIMD实现hash probe的首次探测部分<ul>
+<li>生成一个empty marker的batch，<code>allEmpty</code></li>
+<li>计算x的哈希值在哈希表中的index的batch，<code>indices</code></li>
+<li>将<code>~outRange</code>（_mm256_xor_si256操作）中非0的lane（本文场景4个lane）在<code>indices</code>中的index索引的<code>hashTable_.data()</code>load到data对应的lane中，其它lane从<code>allEmpty</code>中load。</li>
+<li>上述就是一个经典的smid gather操作，底层是<code>__m256i _mm256_mask_i64gather_epi64 (__m256i src, __int64 const* base_addr, __m256i vindex, __m256i mask, const int scale)</code>，通过vindex索引oad其lane对应的mask MSB为1的base_addr地址开始的数据，其它lane则load在src中对于lane的数据。</li>
+<li>最后的结果是变量<code>data</code>，它是一个batch，包含x中没有超出range的整数第一次探测到的哈希表数据（可能会有冲突），以及超出range而load的<em>empty marker</em></li>
+</ul>
+</li>
+<li data-original-block="simd-in-velox-filter-0028">Line 23-33，这里开始计算需要进行后续探测的lane，其中<ul>
+<li><code>x == data</code>底层是_mm256_cmpeq_epi64得到实际值对比结果的batch，即<code>result</code>，首次探测成功，也就是实际值相同的lane的所有bit都是1（本文场景为0xFFFFFFFFFFFFFFFF），然后转成bit mask也就是<code>resultBits</code></li>
+<li><code>missed = simd::toBitMask(data == allEmpty)</code>是首次探测即失败（其index对应的hash表的slot中的value位emtpy marker)</li>
+<li><code>unresolved = simd::allSetBitMask&lt;int64_t&gt;() ^ (resultBits | missed)</code>就可以得到首次探测没有失败，但是实际值不同（也就是哈希冲突）的lane转成的bit mask</li>
+<li>如果没有unresolved的lane那么直接返回结果<code>result</code></li>
+</ul>
+</li>
+<li data-original-block="simd-in-velox-filter-0033">Line 34-40，开始后续探测的准备，前面提到该类的哈希实现是开放寻找+线性探测，所以发生冲突之后需要index后移一位后继续探测，<ul>
+<li>(indices + 1).store_aligned(indicesArray)初始化indicesArray，x.store_aligned(valuesArray)初始化valuesArray</li>
+<li data-corrected="2026-09-20">这里的 store_aligned 将寄存器元素写入已经按要求对齐的数组；在 AVX2 的 256-bit 整数路径中通常对应对齐存储。它不是 broadcast：广播把一个标量复制到各 lane，存储则把已有各 lane 的不同值逐项写到内存。转换为数组后，冲突阶段才能按 unresolved bitmask 逐个选择查询 lane。</li>
+<li>这里之所以转成数组是因为后续探测需要一个一个lane的操作</li>
+</ul>
+</li>
+<li data-original-block="simd-in-velox-filter-0037">Line 41-65，获取<code>unresolved</code>当前最后一位为1的bit位并清零，算出其对应的lane（本文场景中x有4个lane），然后用lane获取当前需要继续探测的index和value<ul>
+<li>allValue = xsimd::broadcast<int64_t>(value)把需要继续探测的value加载到一个batch中，即allValues</int64_t></li>
+<li>把需要探测的index索引的哈希表的值load到一个batch中，即line，这里底层是_mm256_loadu_si256</li>
+<li>这里比较line与value，如果结果不是0就设置resultBits对应的bit位，如果line == allEmpty则设置resultBits对应的bit位位0</li>
+<li>这个循环里面有个优化是，_mm256_loadu_si256加载的是index索引的哈希表的数据和它之后的几个数据（本文是3），<strong>实际上是一次进行了多次探测</strong>，所以后面更新index是<code>index += line.size</code>，这里也对应了前面提到的那个<code>kPaddingElements</code>填充</li>
+</ul>
+</li>
+</ul>
+<h2 data-original-block="simd-in-velox-filter-0042" id="一些intrinsics的解释">一些intrinsics的解释</h2><section class="current-supplement" data-reviewed-section="isa"><h3 id="isa">当前实现补充 · int32、int16 与架构边界</h3>
 <div class="tbl-wrap"><table>
 <thead>
 <tr>
@@ -356,8 +521,113 @@ index &#x3D; 初始槽 + 1
 </tr>
 </tbody></table>
 </div><p><code>loadu</code> 取消的是对齐前提，不取消有效内存范围要求。「xsimd」提供架构封装，实际 batch 宽度和代码生成仍受构建目标影响；它不等于这个函数自动实现了面向所有 CPU 的运行时分派。旧文把 <code>_mm256_lddqu_si256</code> 单独解释成普遍更快的 load，也不应保留为优化规则。</p>
-<h2 id="validation">7. 怎样验证正确性和性能</h2>
-
+</section>
+<h3 data-original-block="simd-in-velox-filter-0043" id="__m256i-_mm256_set1_epi64x-long-long-a">__m256i _mm256_set1_epi64x (long long a)</h3>
+<p data-original-block="simd-in-velox-filter-0044"><strong>Synopsis</strong></p>
+<p data-original-block="simd-in-velox-filter-0045">__m256i _mm256_set1_epi64x (long long a)
+#include &lt;immintrin.h&gt;
+Instruction: Sequence
+CPUID Flags: AVX</p>
+<p data-original-block="simd-in-velox-filter-0046"><strong>Description</strong>
+Broadcast 64-bit integer a to all elements of dst. This intrinsic may generate the vpbroadcastq.</p>
+<p data-original-block="simd-in-velox-filter-0047"><strong>Operation</strong></p>
+<pre data-original-block="simd-in-velox-filter-0048"><code class="language-C++">FOR j := 0 to 3
+    i := j*64
+    dst[i+63:i] := a[63:0]
+ENDFOR
+dst[MAX:256] := 0
+</code></pre>
+<h3 data-original-block="simd-in-velox-filter-0049" id="__m256i-_mm256_cmpgt_epi64-__m256i-a-__m256i-b">__m256i _mm256_cmpgt_epi64 (__m256i a, __m256i b)</h3>
+<p data-original-block="simd-in-velox-filter-0050"><strong>Synopsis</strong>
+__m256i _mm256_cmpgt_epi64 (__m256i a, __m256i b)
+#include &lt;immintrin.h&gt;
+Instruction: vpcmpgtq ymm, ymm, ymm
+CPUID Flags: AVX2</p>
+<p data-original-block="simd-in-velox-filter-0051"><strong>Description</strong>
+Compare packed signed 64-bit integers in a and b for greater-than, and store the results in dst.</p>
+<p data-original-block="simd-in-velox-filter-0052"><strong>Operation</strong></p>
+<pre data-original-block="simd-in-velox-filter-0053"><code class="language-C++">FOR j := 0 to 3
+    i := j*64
+    dst[i+63:i] := ( a[i+63:i] &gt; b[i+63:i] ) ? 0xFFFFFFFFFFFFFFFF : 0
+ENDFOR
+dst[MAX:256] := 0
+</code></pre>
+<h3 data-original-block="simd-in-velox-filter-0054" id="__m256i-_mm256_mask_i64gather_epi64-__m256i-src-__int64-const-base_addr-__m256i-vindex-__m256i-mask-const-int-scale">__m256i _mm256_mask_i64gather_epi64 (__m256i src, __int64 const* base_addr, __m256i vindex, __m256i mask, const int scale)</h3>
+<p data-original-block="simd-in-velox-filter-0055"><strong>Synopsis</strong></p>
+<p data-original-block="simd-in-velox-filter-0056">__m256i _mm256_mask_i64gather_epi64 (__m256i src, __int64 const* base_addr, __m256i vindex, __m256i mask, const int scale)
+#include &lt;immintrin.h&gt;
+Instruction: vpgatherqq ymm, vm64x, ymm
+CPUID Flags: AVX2</p>
+<p data-original-block="simd-in-velox-filter-0057"><strong>Description</strong></p>
+<p data-original-block="simd-in-velox-filter-0058">Gather 64-bit integers from memory using 64-bit indices. 64-bit elements are loaded from addresses starting at base_addr and offset by each 64-bit element in vindex (each index is scaled by the factor in scale). Gathered elements are merged into dst using mask (elements are copied from src when the highest bit is not set in the corresponding element). scale should be 1, 2, 4 or 8.</p>
+<p data-original-block="simd-in-velox-filter-0059"><strong>Operation</strong></p>
+<p data-original-block="simd-in-velox-filter-0060">FOR j := 0 to 3
+    i := j<em>64
+    m := j</em>64
+    IF mask[i+63]
+        addr := base_addr + vindex[m+63:m] * ZeroExtend64(scale) * 8
+        dst[i+63:i] := MEM[addr+63:addr]
+    ELSE
+        dst[i+63:i] := src[i+63:i]
+    FI
+ENDFOR
+mask[MAX:256] := 0
+dst[MAX:256] := 0</p>
+<h3 data-original-block="simd-in-velox-filter-0061" id="__m256i-_mm256_cmpeq_epi64-__m256i-a-__m256i-b">__m256i _mm256_cmpeq_epi64 (__m256i a, __m256i b)</h3>
+<p data-original-block="simd-in-velox-filter-0062"><strong>Synopsis</strong></p>
+<p data-original-block="simd-in-velox-filter-0063">__m256i _mm256_cmpeq_epi64 (__m256i a, __m256i b)
+#include &lt;immintrin.h&gt;
+Instruction: vpcmpeqq ymm, ymm, ymm
+CPUID Flags: AVX2</p>
+<p data-original-block="simd-in-velox-filter-0064"><strong>Description</strong></p>
+<p data-original-block="simd-in-velox-filter-0065">Compare packed 64-bit integers in a and b for equality, and store the results in dst.
+Operation
+FOR j := 0 to 3
+    i := j*64
+    dst[i+63:i] := ( a[i+63:i] == b[i+63:i] ) ? 0xFFFFFFFFFFFFFFFF : 0
+ENDFOR
+dst[MAX:256] := 0</p>
+<h3 data-original-block="simd-in-velox-filter-0066" id="int-_mm256_movemask_pd-__m256d-a">int _mm256_movemask_pd (__m256d a)</h3>
+<p data-original-block="simd-in-velox-filter-0067"><strong>Synopsis</strong></p>
+<p data-original-block="simd-in-velox-filter-0068">int _mm256_movemask_pd (__m256d a)
+#include &lt;immintrin.h&gt;
+Instruction: vmovmskpd r32, ymm
+CPUID Flags: AVX</p>
+<p data-original-block="simd-in-velox-filter-0069"><strong>Description</strong>
+Set each bit of mask dst based on the most significant bit of the corresponding packed double-precision (64-bit) floating-point element in a.
+Operation
+FOR j := 0 to 3
+    i := j*64
+    IF a[i+63]
+        dst[j] := 1
+    ELSE
+        dst[j] := 0
+    FI
+ENDFOR
+dst[MAX:4] := 0</p>
+<h3 data-original-block="simd-in-velox-filter-0070" id="__m256i-_mm256_loadu_si256-__m256i-const--mem_addr">__m256i _mm256_loadu_si256 (__m256i const * mem_addr)</h3>
+<p data-original-block="simd-in-velox-filter-0071">Synopsis
+__m256i _mm256_loadu_si256 (__m256i const * mem_addr)
+#include &lt;immintrin.h&gt;
+Instruction: vmovdqu ymm, m256
+CPUID Flags: AVX
+Description
+Load 256-bits of integer data from memory into dst. mem_addr does not need to be aligned on any particular boundary.
+Operation
+dst[255:0] := MEM[mem_addr+255:mem_addr]
+dst[MAX:256] := 0</p>
+<h3 data-original-block="simd-in-velox-filter-0072" id="__m256i-_mm256_lddqu_si256-__m256i-const--mem_addr">__m256i _mm256_lddqu_si256 (__m256i const * mem_addr)</h3>
+<p data-original-block="simd-in-velox-filter-0073"><strong>Synopsis</strong></p>
+<p data-original-block="simd-in-velox-filter-0074">__m256i _mm256_lddqu_si256 (__m256i const * mem_addr)
+#include &lt;immintrin.h&gt;
+Instruction: vlddqu ymm, m256
+CPUID Flags: AVX</p>
+<p data-original-block="simd-in-velox-filter-0075"><strong>Description</strong></p>
+<p data-original-block="simd-in-velox-filter-0076">Load 256-bits of integer data from unaligned memory into dst. This intrinsic may perform better than _mm256_loadu_si256 when the data crosses a cache line boundary.
+Operation
+dst[255:0] := MEM[mem_addr+255:mem_addr]
+dst[MAX:256] := 0</p>
+<h2 data-original-block="simd-in-velox-filter-0077" id="references">References</h2><section class="current-supplement" data-reviewed-section="validation"><h3 id="validation">当前实现补充 · 怎样验证正确性和性能</h3>
 <p>源码中 <a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/type/tests/FilterTest.cpp#L519">bigintValuesUsingHashTableSimd</a> 构造了所有值落到相同槽的长冲突链、相对分散的集合、int32 输入，以及末槽被占用时的 padding 测试。这些用例解释了实现为什么需要 fallback、批量扫描和末尾保护。</p>
 <p>阅读或修改这条路径时，还应覆盖：</p>
 <ul>
@@ -368,9 +638,7 @@ index &#x3D; 初始槽 + 1
 </ul>
 <p><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/type/tests/FilterBenchmark.cpp#L28">FilterBenchmark</a> 比较 scalar 与 SIMD，并使用不同输入分布。分析结果时至少记录命中率、冲突率、集合是否装入 cache、batch 宽度、CPU 与编译选项。长冲突链既可能受益于连续加载，也可能让按 lane 的串行处理成为瓶颈；gather 延迟和缓存未命中不能从指令数量推算。</p>
 <p>本文做了源码与测试用例核对，未运行该 Velox benchmark，也不引用旧版本的加速比作为当前性能结论。</p>
-<span class="legacy-anchor" id="References" aria-hidden="true"></span>
-<h2 id="reading">8. 继续读哪些代码</h2>
-
+</section><section class="current-supplement" data-reviewed-section="reading"><h3 id="reading">当前实现补充 · 继续读哪些代码</h3>
 <p>建议按“表示选择 → 构造布局 → 标量语义 → 批量快路径 → 冲突慢路径 → 测试”的顺序阅读：</p>
 <ul>
 <li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/type/Filter.cpp#L1052">过滤器工厂</a>：为什么本次调用选择哈希表。</li>
@@ -380,7 +648,28 @@ index &#x3D; 初始槽 + 1
 <li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/type/tests/FilterTest.cpp#L519">正确性用例</a> 与 <a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/type/tests/FilterBenchmark.cpp#L28">性能实验入口</a>。</li>
 <li><a target="_blank" rel="noopener" href="https://facebookincubator.github.io/velox/develop/simd.html">Velox 官方 SIMD 文档</a>：背景资料；具体函数行为以本文固定提交为准。</li>
 </ul>
-</div>
+</section>
+<ul>
+<li data-original-block="simd-in-velox-filter-0078"><a target="_blank" rel="noopener" href="https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html">https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html</a></li>
+<li data-original-block="simd-in-velox-filter-0079"><a target="_blank" rel="noopener" href="https://www.codeproject.com/Articles/874396/Crunching-Numbers-with-AVX-and-AVX">https://www.codeproject.com/Articles/874396/Crunching-Numbers-with-AVX-and-AVX</a></li>
+<li data-original-block="simd-in-velox-filter-0080"><a target="_blank" rel="noopener" href="https://blog.triplez.cn/posts/avx-avx2-learning-notes/">https://blog.triplez.cn/posts/avx-avx2-learning-notes/</a></li>
+<li data-original-block="simd-in-velox-filter-0081"><a target="_blank" rel="noopener" href="https://github.com/Triple-Z/AVX-AVX2-Example-Code">https://github.com/Triple-Z/AVX-AVX2-Example-Code</a></li>
+</ul>
+<span aria-hidden="true" class="detail-legacy-anchor" id="BigintValuesUsingHashTable分析"></span><span aria-hidden="true" class="detail-legacy-anchor" id="BigintValuesUsingHashTable构造函数"></span><span aria-hidden="true" class="detail-legacy-anchor" id="BigintValuesUsingHashTable-testValues"></span><span aria-hidden="true" class="detail-legacy-anchor" id="m256i-mm256-set1-epi64x-long-long-a"></span><span aria-hidden="true" class="detail-legacy-anchor" id="m256i-mm256-cmpgt-epi64-m256i-a-m256i-b"></span><span aria-hidden="true" class="detail-legacy-anchor" id="m256i-mm256-mask-i64gather-epi64-m256i-src-int64-const-base-addr-m256i-vindex-m256i-mask-const-int-scale"></span><span aria-hidden="true" class="detail-legacy-anchor" id="m256i-mm256-cmpeq-epi64-m256i-a-m256i-b"></span><span aria-hidden="true" class="detail-legacy-anchor" id="int-mm256-movemask-pd-m256d-a"></span><span aria-hidden="true" class="detail-legacy-anchor" id="m256i-mm256-loadu-si256-m256i-const-mem-addr"></span><span aria-hidden="true" class="detail-legacy-anchor" id="m256i-mm256-lddqu-si256-m256i-const-mem-addr"></span><span aria-hidden="true" class="detail-legacy-anchor" id="References"></span></div>
+
+<style>
+.velox-detailed .detail-source-note { color: #55514b; background: #faf7f1; padding: .85rem 1rem; line-height: 1.8; }
+.velox-detailed .detail-code-label { color: #777169; font-size: .79rem; margin: 1.2rem 0 .4rem; }
+.velox-detailed .detail-figure { margin: 1.8rem 0; }
+.velox-detailed .detail-figure figcaption { color: #777169; font-size: .85rem; margin-top: .65rem; }
+.velox-detailed code { overflow-wrap: anywhere; }
+.velox-detailed pre code { overflow-wrap: normal; }
+.velox-detailed .detail-trace { font-size: .81rem; line-height: 1.65; }
+.velox-detailed .tbl-wrap > table { min-width: 740px; table-layout: auto; }
+.velox-detailed .tbl-wrap td,.velox-detailed .tbl-wrap th { min-width: 130px; white-space: normal; word-break: normal; }
+</style>
+
+
 
   </div>
 </article>
@@ -408,7 +697,7 @@ index &#x3D; 初始槽 + 1
     </div>
 
     <div id="toc-footer" style="display: none">
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#role"><span class="toc-number">1.</span> <span class="toc-text">1. 它过滤什么，又不负责什么</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#representation"><span class="toc-number">2.</span> <span class="toc-text">2. 工厂先选表示，再谈 SIMD</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#layout"><span class="toc-number">3.</span> <span class="toc-text">3. 哈希表的布局与不变量</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#first-probe"><span class="toc-number">4.</span> <span class="toc-text">4. 第一轮：多个查询各看自己的首槽</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E4%B8%AA%E5%BF%85%E9%A1%BB%E4%BF%9D%E7%95%99%E7%9A%84%E5%93%A8%E5%85%B5%E8%BE%B9%E7%95%8C"><span class="toc-number">4.1.</span> <span class="toc-text">一个必须保留的哨兵边界</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#collision"><span class="toc-number">5.</span> <span class="toc-text">5. 冲突阶段：按 lane 串行，按槽 SIMD</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#isa"><span class="toc-number">6.</span> <span class="toc-text">6. int32、int16 与架构边界</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#validation"><span class="toc-number">7.</span> <span class="toc-text">7. 怎样验证正确性和性能</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reading"><span class="toc-number">8.</span> <span class="toc-text">8. 继续读哪些代码</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.</span> <span class="toc-text">介绍</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#role"><span class="toc-number">1.1.</span> <span class="toc-text">当前实现补充 · 它过滤什么，又不负责什么</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#bigintvaluesusinghashtable%E5%88%86%E6%9E%90"><span class="toc-number">2.</span> <span class="toc-text">BigintValuesUsingHashTable分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#representation"><span class="toc-number">2.1.</span> <span class="toc-text">当前实现补充 · 工厂先选表示，再谈 SIMD</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#bigintvaluesusinghashtable%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0"><span class="toc-number">2.2.</span> <span class="toc-text">BigintValuesUsingHashTable构造函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#layout"><span class="toc-number">2.3.</span> <span class="toc-text">当前实现补充 · 哈希表的布局与不变量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#bigintvaluesusinghashtabletestvalues"><span class="toc-number">2.4.</span> <span class="toc-text">BigintValuesUsingHashTable::testValues</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#first-probe"><span class="toc-number">2.5.</span> <span class="toc-text">当前实现补充 · 第一轮：多个查询各看自己的首槽</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%80%E4%B8%AA%E5%BF%85%E9%A1%BB%E4%BF%9D%E7%95%99%E7%9A%84%E5%93%A8%E5%85%B5%E8%BE%B9%E7%95%8C"><span class="toc-number">2.5.1.</span> <span class="toc-text">一个必须保留的哨兵边界</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#collision"><span class="toc-number">2.6.</span> <span class="toc-text">当前实现补充 · 冲突阶段：按 lane 串行，按槽 SIMD</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E4%BA%9Bintrinsics%E7%9A%84%E8%A7%A3%E9%87%8A"><span class="toc-number">3.</span> <span class="toc-text">一些intrinsics的解释</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#isa"><span class="toc-number">3.1.</span> <span class="toc-text">当前实现补充 · int32、int16 与架构边界</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#__m256i-_mm256_set1_epi64x-long-long-a"><span class="toc-number">3.2.</span> <span class="toc-text">__m256i _mm256_set1_epi64x (long long a)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#__m256i-_mm256_cmpgt_epi64-__m256i-a-__m256i-b"><span class="toc-number">3.3.</span> <span class="toc-text">__m256i _mm256_cmpgt_epi64 (__m256i a, __m256i b)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#__m256i-_mm256_mask_i64gather_epi64-__m256i-src-__int64-const-base_addr-__m256i-vindex-__m256i-mask-const-int-scale"><span class="toc-number">3.4.</span> <span class="toc-text">__m256i _mm256_mask_i64gather_epi64 (__m256i src, __int64 const* base_addr, __m256i vindex, __m256i mask, const int scale)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#__m256i-_mm256_cmpeq_epi64-__m256i-a-__m256i-b"><span class="toc-number">3.5.</span> <span class="toc-text">__m256i _mm256_cmpeq_epi64 (__m256i a, __m256i b)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#int-_mm256_movemask_pd-__m256d-a"><span class="toc-number">3.6.</span> <span class="toc-text">int _mm256_movemask_pd (__m256d a)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#__m256i-_mm256_loadu_si256-__m256i-const--mem_addr"><span class="toc-number">3.7.</span> <span class="toc-text">__m256i _mm256_loadu_si256 (__m256i const * mem_addr)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#__m256i-_mm256_lddqu_si256-__m256i-const--mem_addr"><span class="toc-number">3.8.</span> <span class="toc-text">__m256i _mm256_lddqu_si256 (__m256i const * mem_addr)</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#references"><span class="toc-number">4.</span> <span class="toc-text">References</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#validation"><span class="toc-number">4.1.</span> <span class="toc-text">当前实现补充 · 怎样验证正确性和性能</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#reading"><span class="toc-number">4.2.</span> <span class="toc-text">当前实现补充 · 继续读哪些代码</span></a></li></ol></li></ol>
     </div>
 
     <div id="share-footer" style="display: none">

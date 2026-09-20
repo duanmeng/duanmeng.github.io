@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="900" viewBox="0 0 1280 900" role="img" aria-labelledby="title desc">
+<title id="title">Simple Function → Vector Function</title><desc id="desc">模板适配把逐行函数接入 batch 执行接口；不等于每个函数都自动变成 SIMD 指令。</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
+<rect x="0" y="0" width="1280" height="900" rx="0" fill="white" stroke="none" stroke-width="1"/>
+<rect x="8" y="8" width="1264" height="884" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<rect x="9" y="9" width="1262" height="94" rx="0" fill="#edf5ff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="103" x2="1271" y2="103" stroke="#d6d3cc" stroke-width="1"/>
+<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">Simple Function → Vector Function</text>
+<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">模板适配把逐行函数接入 batch 执行接口；不等于每个函数都自动变成 SIMD 指令。</text>
+<rect x="720" y="165" width="495" height="150" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<rect x="720" y="169" width="4" height="142" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
+<text x="742" y="200" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Simple Function</text>
+<text x="742" y="233" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">逐行签名（示意）：</text>
+<text x="742" y="270" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="400" text-anchor="start">call(int32_t&amp; out, int32_t a, int32_t b)</text>
+<text x="742" y="301" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="400" text-anchor="start">out = a + b;</text>
+<polyline points="715,364 495,364" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="545" y="335" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="400" text-anchor="start">模板展开</text>
+<text x="710" y="406" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="400" text-anchor="middle">SimpleFunctionAdapter&lt;...&gt;</text>
+<rect x="50" y="158" width="100" height="44" rx="0" fill="#f2f7ff" stroke="#d6d3cc" stroke-width="1"/>
+<text x="62" y="186.0" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="600" text-anchor="start">row</text>
+<rect x="150" y="158" width="100" height="44" rx="0" fill="#f2f7ff" stroke="#d6d3cc" stroke-width="1"/>
+<text x="162" y="186.0" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="600" text-anchor="start">Arg 0</text>
+<rect x="250" y="158" width="100" height="44" rx="0" fill="#f2f7ff" stroke="#d6d3cc" stroke-width="1"/>
+<text x="262" y="186.0" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="600" text-anchor="start">Arg 1</text>
+<rect x="350" y="158" width="100" height="44" rx="0" fill="#f2f7ff" stroke="#d6d3cc" stroke-width="1"/>
+<text x="362" y="186.0" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="600" text-anchor="start">Arg 2</text>
+<rect x="50" y="202" width="100" height="44" rx="0" fill="#f0fdf4" stroke="#d6d3cc" stroke-width="1"/>
+<text x="62" y="230.0" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">0</text>
+<rect x="150" y="202" width="100" height="44" rx="0" fill="#f0fdf4" stroke="#d6d3cc" stroke-width="1"/>
+<text x="162" y="230.0" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">a0</text>
+<rect x="250" y="202" width="100" height="44" rx="0" fill="#f0fdf4" stroke="#d6d3cc" stroke-width="1"/>
+<text x="262" y="230.0" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">b0</text>
+<rect x="350" y="202" width="100" height="44" rx="0" fill="#f0fdf4" stroke="#d6d3cc" stroke-width="1"/>
+<text x="362" y="230.0" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">…</text>
+<rect x="50" y="246" width="100" height="44" rx="0" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="62" y="274.0" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">1</text>
+<rect x="150" y="246" width="100" height="44" rx="0" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="162" y="274.0" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">a1</text>
+<rect x="250" y="246" width="100" height="44" rx="0" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="262" y="274.0" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">b1</text>
+<rect x="350" y="246" width="100" height="44" rx="0" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="362" y="274.0" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">…</text>
+<rect x="50" y="290" width="100" height="44" rx="0" fill="#f0fdf4" stroke="#d6d3cc" stroke-width="1"/>
+<text x="62" y="318.0" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">2</text>
+<rect x="150" y="290" width="100" height="44" rx="0" fill="#f0fdf4" stroke="#d6d3cc" stroke-width="1"/>
+<text x="162" y="318.0" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">a2</text>
+<rect x="250" y="290" width="100" height="44" rx="0" fill="#f0fdf4" stroke="#d6d3cc" stroke-width="1"/>
+<text x="262" y="318.0" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">b2</text>
+<rect x="350" y="290" width="100" height="44" rx="0" fill="#f0fdf4" stroke="#d6d3cc" stroke-width="1"/>
+<text x="362" y="318.0" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">…</text>
+<rect x="50" y="453" width="1170" height="110" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="50" y="457" width="4" height="102" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="72" y="488" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Vector function：rows + argument vectors + result</text>
+<text x="72" y="521" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">根据编码、null 与适配规则访问选中行，调用逐行逻辑并写回结果。</text>
+<polyline points="250,345 250,435" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="330" y="635" width="630" height="95" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<rect x="330" y="639" width="4" height="87" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
+<text x="352" y="670" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Result vector</text>
+<text x="352" y="703" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">结果槽按逻辑行编号保存，复用或准备可写 buffer。</text>
+<polyline points="640,580 640,618" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="40" y="798" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
+<text x="60" y="827" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">保留 result、rows、argument vectors 和模板适配四个关系。</text>
+<text x="60" y="852" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">示例中的 out 必须通过引用写回；原图按值传 out 不能向调用者返回计算结果。</text>
+</svg>

@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="780" viewBox="0 0 1280 780" role="img" aria-labelledby="title desc">
+<title id="title">Node 与 Driver：并行回收的组织方式</title><desc id="desc">下图表示一种执行拓扑；实际可 spill 能力由算子、阶段、配置及共享所有权决定。</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
+<rect x="0" y="0" width="1280" height="780" rx="0" fill="white" stroke="none" stroke-width="1"/>
+<rect x="8" y="8" width="1264" height="764" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<rect x="9" y="9" width="1262" height="94" rx="0" fill="#edf5ff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="103" x2="1271" y2="103" stroke="#d6d3cc" stroke-width="1"/>
+<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">Node 与 Driver：并行回收的组织方式</text>
+<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">下图表示一种执行拓扑；实际可 spill 能力由算子、阶段、配置及共享所有权决定。</text>
+<rect x="40" y="165" width="235" height="80" rx="0" fill="#f2f7ff" stroke="#d6d3cc" stroke-width="1"/>
+<text x="52" y="211.0" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="600" text-anchor="start">Node / Operator</text>
+<rect x="275" y="165" width="120" height="80" rx="0" fill="#f2f7ff" stroke="#d6d3cc" stroke-width="1"/>
+<text x="287" y="211.0" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="600" text-anchor="start">Driver 0</text>
+<rect x="395" y="165" width="120" height="80" rx="0" fill="#f2f7ff" stroke="#d6d3cc" stroke-width="1"/>
+<text x="407" y="211.0" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="600" text-anchor="start">Driver 1</text>
+<rect x="515" y="165" width="120" height="80" rx="0" fill="#f2f7ff" stroke="#d6d3cc" stroke-width="1"/>
+<text x="527" y="211.0" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="600" text-anchor="start">Driver 2</text>
+<rect x="635" y="165" width="120" height="80" rx="0" fill="#f2f7ff" stroke="#d6d3cc" stroke-width="1"/>
+<text x="647" y="211.0" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="600" text-anchor="start">Driver 3</text>
+<rect x="755" y="165" width="485" height="80" rx="0" fill="#f2f7ff" stroke="#d6d3cc" stroke-width="1"/>
+<text x="767" y="211.0" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="600" text-anchor="start">回收说明</text>
+<rect x="40" y="245" width="235" height="80" rx="0" fill="#f0fdf4" stroke="#d6d3cc" stroke-width="1"/>
+<text x="52" y="291.0" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">TableScan</text>
+<rect x="275" y="245" width="120" height="80" rx="0" fill="#f0fdf4" stroke="#d6d3cc" stroke-width="1"/>
+<text x="287" y="291.0" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">—</text>
+<rect x="395" y="245" width="120" height="80" rx="0" fill="#f0fdf4" stroke="#d6d3cc" stroke-width="1"/>
+<text x="407" y="291.0" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">—</text>
+<rect x="515" y="245" width="120" height="80" rx="0" fill="#f0fdf4" stroke="#d6d3cc" stroke-width="1"/>
+<text x="527" y="291.0" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">—</text>
+<rect x="635" y="245" width="120" height="80" rx="0" fill="#f0fdf4" stroke="#d6d3cc" stroke-width="1"/>
+<text x="647" y="291.0" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">—</text>
+<rect x="755" y="245" width="485" height="80" rx="0" fill="#f0fdf4" stroke="#d6d3cc" stroke-width="1"/>
+<text x="767" y="291.0" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">此例未参与 spill</text>
+<rect x="40" y="325" width="235" height="80" rx="0" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="52" y="371.0" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">HashJoin</text>
+<rect x="275" y="325" width="120" height="80" rx="0" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="287" y="371.0" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">✓</text>
+<rect x="395" y="325" width="120" height="80" rx="0" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="407" y="371.0" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">✓</text>
+<rect x="515" y="325" width="120" height="80" rx="0" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="527" y="371.0" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">✓</text>
+<rect x="635" y="325" width="120" height="80" rx="0" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="647" y="371.0" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">✓</text>
+<rect x="755" y="325" width="485" height="80" rx="0" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="767" y="371.0" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">本轮协调 peers 的共享表状态</text>
+<rect x="40" y="405" width="235" height="80" rx="0" fill="#f0fdf4" stroke="#d6d3cc" stroke-width="1"/>
+<text x="52" y="451.0" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">HashAggregation</text>
+<rect x="275" y="405" width="120" height="80" rx="0" fill="#f0fdf4" stroke="#d6d3cc" stroke-width="1"/>
+<text x="287" y="451.0" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">✓</text>
+<rect x="395" y="405" width="120" height="80" rx="0" fill="#f0fdf4" stroke="#d6d3cc" stroke-width="1"/>
+<text x="407" y="451.0" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">✓</text>
+<rect x="515" y="405" width="120" height="80" rx="0" fill="#f0fdf4" stroke="#d6d3cc" stroke-width="1"/>
+<text x="527" y="451.0" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">✓</text>
+<rect x="635" y="405" width="120" height="80" rx="0" fill="#f0fdf4" stroke="#d6d3cc" stroke-width="1"/>
+<text x="647" y="451.0" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">✓</text>
+<rect x="755" y="405" width="485" height="80" rx="0" fill="#f0fdf4" stroke="#d6d3cc" stroke-width="1"/>
+<text x="767" y="451.0" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">仍需回收时进入其他候选</text>
+<rect x="40" y="485" width="235" height="80" rx="0" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="52" y="531.0" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">PartitionedOutput</text>
+<rect x="275" y="485" width="120" height="80" rx="0" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="287" y="531.0" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">—</text>
+<rect x="395" y="485" width="120" height="80" rx="0" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="407" y="531.0" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">—</text>
+<rect x="515" y="485" width="120" height="80" rx="0" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="527" y="531.0" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">—</text>
+<rect x="635" y="485" width="120" height="80" rx="0" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="647" y="531.0" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">—</text>
+<rect x="755" y="485" width="485" height="80" rx="0" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="767" y="531.0" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="start">此例未参与 spill</text>
+<text x="55" y="612" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="400" text-anchor="start">横向：同 node 的多个算子可由 executor 并行回收，须满足具体算子的共享资源协议。</text>
+<text x="55" y="653" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="400" text-anchor="start">纵向：默认树内有顺序和早停规则；不能仅凭独立 pool 推导所有状态互不共享。</text>
+<rect x="40" y="678" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
+<text x="60" y="707" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">一个 op pool 是记账边界，不自动构成线程安全证明。</text>
+<text x="60" y="732" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">reclaim 的并行度还受调用线程、executor 和 I/O/内存峰值制约。</text>
+</svg>
