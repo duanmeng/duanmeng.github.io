@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="830" viewBox="0 0 1280 830" role="img" aria-labelledby="title desc">
+<title id="title">萃取与创建：方向不同，信息也不同</title><desc id="desc">不是可逆映射：C++ T 和 TypeKind 通常只保留完整逻辑类型的一部分信息</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
+<rect x="0" y="0" width="1280" height="830" rx="0" fill="white" stroke="none" stroke-width="1"/>
+<rect x="8" y="8" width="1264" height="814" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<rect x="9" y="9" width="1262" height="94" rx="0" fill="#edf5ff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="103" x2="1271" y2="103" stroke="#d6d3cc" stroke-width="1"/>
+<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">萃取与创建：方向不同，信息也不同</text>
+<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">不是可逆映射：C++ T 和 TypeKind 通常只保留完整逻辑类型的一部分信息</text>
+<text x="40" y="143" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">从完整 Type 选择值实现</text>
+<rect x="40" y="170" width="350" height="110" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="40" y="174" width="4" height="102" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="62" y="205" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">DATE()</text>
+<text x="62" y="238" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">逻辑身份 + INTEGER kind</text>
+<rect x="465" y="170" width="350" height="110" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<rect x="465" y="174" width="4" height="102" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
+<text x="487" y="205" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">TypeKind::INTEGER</text>
+<text x="487" y="238" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">运行时分派到编译期 K</text>
+<rect x="890" y="170" width="350" height="110" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<rect x="890" y="174" width="4" height="102" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
+<text x="912" y="205" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">int32_t</text>
+<text x="912" y="238" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">TypeTraits&lt;K&gt;::NativeType</text>
+<polyline points="390,224 465,224" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<polyline points="815,224 890,224" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="40" y="337" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">从 C++ T 构造约定的 Type</text>
+<rect x="40" y="367" width="350" height="110" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<rect x="40" y="371" width="4" height="102" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
+<text x="62" y="402" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">int32_t</text>
+<text x="62" y="435" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">只有 C++ 类型</text>
+<rect x="465" y="367" width="350" height="110" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<rect x="465" y="371" width="4" height="102" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
+<text x="487" y="402" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">CppToType&lt;int32_t&gt;</text>
+<text x="487" y="435" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">TypeFactory&lt;INTEGER&gt;</text>
+<rect x="890" y="367" width="350" height="110" rx="4" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
+<rect x="890" y="371" width="4" height="102" rx="0" fill="#c2410c" stroke="none" stroke-width="1"/>
+<text x="912" y="402" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">INTEGER()</text>
+<text x="912" y="435" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">不会自动恢复 DATE</text>
+<polyline points="390,421 465,421" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<polyline points="815,421 890,421" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="40" y="535" width="565" height="112" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="40" y="539" width="4" height="104" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="62" y="570" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">同一个 StringView</text>
+<text x="62" y="603" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">VARCHAR / VARBINARY 共用 C++ 表示</text>
+<rect x="675" y="535" width="565" height="112" rx="4" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
+<rect x="675" y="539" width="4" height="104" rx="0" fill="#c2410c" stroke="none" stroke-width="1"/>
+<text x="697" y="570" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">同一个 int64_t</text>
+<text x="697" y="603" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">BIGINT / short DECIMAL 共用 C++ 表示</text>
+<rect x="40" y="728" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
+<text x="60" y="757" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">Kind → ImplType 是类型对象；Kind → NativeType 是值的表示。</text>
+<text x="60" y="782" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">Decimal 参数、日期语义和 ROW 名字，必须由完整 Type 或专门的签名路径保留。</text>
+</svg>

@@ -1,48 +1,37 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="760" viewBox="0 0 1280 760" role="img" aria-labelledby="title desc">
-<title id="title">Type → NativeType → Vector</title><desc id="desc">三层分别描述逻辑语义、C++ 表示和一批数据的存储。</desc>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800" role="img" aria-labelledby="title desc">
+<title id="title">同一列数据，四种不同的问题</title><desc id="desc">以 DECIMAL(12,2) 为例：语义持续保留，表示与编码按职责选择</desc>
 <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
-<rect x="0" y="0" width="1280" height="760" rx="0" fill="white" stroke="none" stroke-width="1"/>
-<rect x="8" y="8" width="1264" height="744" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<rect x="0" y="0" width="1280" height="800" rx="0" fill="white" stroke="none" stroke-width="1"/>
+<rect x="8" y="8" width="1264" height="784" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
 <rect x="9" y="9" width="1262" height="94" rx="0" fill="#edf5ff" stroke="none" stroke-width="1"/>
 <line x1="9" y1="103" x2="1271" y2="103" stroke="#d6d3cc" stroke-width="1"/>
-<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">Type → NativeType → Vector</text>
-<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">三层分别描述逻辑语义、C++ 表示和一批数据的存储。</text>
-<rect x="50" y="165" width="350" height="128" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<rect x="50" y="169" width="4" height="120" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
-<text x="72" y="200" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Type</text>
-<text x="72" y="233" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">DECIMAL(12,2)</text>
-<text x="72" y="265" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="16" font-weight="400" text-anchor="start">precision / scale 属于逻辑类型</text>
-<polyline points="414,225 450,225" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="50" y="370" width="350" height="155" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<rect x="50" y="374" width="4" height="147" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
-<text x="72" y="405" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">逻辑判断</text>
-<text x="72" y="438" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">equivalent / equals</text>
-<text x="72" y="477" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="16" font-weight="400" text-anchor="start">不能只比较 TypeKind</text>
-<polyline points="225,306 225,353" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="465" y="165" width="350" height="128" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
-<rect x="465" y="169" width="4" height="120" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
-<text x="487" y="200" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">NativeType</text>
-<text x="487" y="233" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">int64_t</text>
-<text x="487" y="265" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="16" font-weight="400" text-anchor="start">与 BIGINT 共用表示</text>
-<polyline points="829,225 865,225" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="465" y="370" width="350" height="155" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
-<rect x="465" y="374" width="4" height="147" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
-<text x="487" y="405" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">编译期分派</text>
-<text x="487" y="438" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">TypeTraits&lt;KIND&gt;</text>
-<text x="487" y="477" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="16" font-weight="400" text-anchor="start">不能反推完整 schema</text>
-<polyline points="640,306 640,353" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="880" y="165" width="350" height="128" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
-<rect x="880" y="169" width="4" height="120" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
-<text x="902" y="200" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Vector</text>
-<text x="902" y="233" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">Flat / Dictionary / Lazy</text>
-<text x="902" y="265" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="16" font-weight="400" text-anchor="start">编码与 null 属于数据层</text>
-<rect x="880" y="370" width="350" height="155" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
-<rect x="880" y="374" width="4" height="147" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
-<text x="902" y="405" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">运行时访问</text>
-<text x="902" y="438" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">解码映射与 buffer 生命周期</text>
-<text x="902" y="477" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="16" font-weight="400" text-anchor="start">不能默认输入一定是 FlatVector</text>
-<polyline points="1055,306 1055,353" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="40" y="658" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
-<text x="60" y="687" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">改变编码不必改变类型；相同 C++ 表示也可能对应不同逻辑类型。</text>
-<text x="60" y="712" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">TypePtr 是只读类型描述，不保存某一列的实际行数或值。</text>
+<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">同一列数据，四种不同的问题</text>
+<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">以 DECIMAL(12,2) 为例：语义持续保留，表示与编码按职责选择</text>
+<rect x="40" y="140" width="300" height="96" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="40" y="144" width="4" height="88" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="62" y="175" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">01  逻辑类型</text>
+<text x="370" y="176" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="23" font-weight="600" text-anchor="start">TypePtr → DECIMAL(12,2)</text>
+<text x="370" y="210" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">precision=12 · scale=2 · 十进制语义</text>
+<line x1="350" y1="236" x2="1215" y2="236" stroke="#d6d3cc" stroke-width="1"/>
+<rect x="40" y="265" width="300" height="96" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<rect x="40" y="269" width="4" height="88" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
+<text x="62" y="300" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">02  Velox backing</text>
+<text x="370" y="301" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="23" font-weight="600" text-anchor="start">TypeKind::BIGINT</text>
+<text x="370" y="335" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">基础类型类别；多个逻辑类型可以共享</text>
+<line x1="350" y1="361" x2="1215" y2="361" stroke="#d6d3cc" stroke-width="1"/>
+<rect x="40" y="390" width="300" height="96" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<rect x="40" y="394" width="4" height="88" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
+<text x="62" y="425" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">03  C++ 值表示</text>
+<text x="370" y="426" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="23" font-weight="600" text-anchor="start">int64_t</text>
+<text x="370" y="460" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">unscaled value = 12345；数学值 = 123.45</text>
+<line x1="350" y1="486" x2="1215" y2="486" stroke="#d6d3cc" stroke-width="1"/>
+<rect x="40" y="515" width="300" height="96" rx="4" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
+<rect x="40" y="519" width="4" height="88" rx="0" fill="#c2410c" stroke="none" stroke-width="1"/>
+<text x="62" y="550" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">04  Batch 布局</text>
+<text x="370" y="551" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="23" font-weight="600" text-anchor="start">Flat / Dictionary / Lazy</text>
+<text x="370" y="585" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">values · indices · nulls · buffers · 行数</text>
+<line x1="350" y1="611" x2="1215" y2="611" stroke="#d6d3cc" stroke-width="1"/>
+<rect x="40" y="698" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
+<text x="60" y="727" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">Type 是类型契约；kind、C++ T 和 encoding 都不能单独替代它。</text>
+<text x="60" y="752" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">Parquet 的 INT64 / BYTE_ARRAY 属于文件协议中的 physical type，另行映射。</text>
 </svg>

@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="900" viewBox="0 0 1280 900" role="img" aria-labelledby="title desc">
+<title id="title">Dictionary 改变索引，完整逻辑类型继续随列传递</title><desc id="desc">DECIMAL(12,2) 的底层仍用 int64_t；decode 统一访问路径，不执行 SQL CAST</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
+<rect x="0" y="0" width="1280" height="900" rx="0" fill="white" stroke="none" stroke-width="1"/>
+<rect x="8" y="8" width="1264" height="884" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<rect x="9" y="9" width="1262" height="94" rx="0" fill="#edf5ff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="103" x2="1271" y2="103" stroke="#d6d3cc" stroke-width="1"/>
+<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">Dictionary 改变索引，完整逻辑类型继续随列传递</text>
+<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">DECIMAL(12,2) 的底层仍用 int64_t；decode 统一访问路径，不执行 SQL CAST</text>
+<rect x="40" y="137" width="1200" height="100" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="40" y="141" width="4" height="92" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="62" y="172" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">DictionaryVector · type() = DECIMAL(12,2)</text>
+<text x="62" y="205" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">typeKind() = BIGINT；包装层也可有自己的 null bitmap</text>
+<text x="60" y="292" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">逻辑行 i</text>
+<text x="235" y="292" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">indices[i]</text>
+<text x="540" y="292" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">底层行</text>
+<text x="695" y="292" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">unscaled value</text>
+<text x="1030" y="292" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">逻辑值</text>
+<rect x="60" y="320" width="140" height="58" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<text x="130" y="356" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="22" font-weight="400" text-anchor="middle">0</text>
+<rect x="235" y="320" width="150" height="58" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="310" y="356" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="22" font-weight="400" text-anchor="middle">1</text>
+<polyline points="200,349 235,349" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="60" y="400" width="140" height="58" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<text x="130" y="436" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="22" font-weight="400" text-anchor="middle">1</text>
+<rect x="235" y="400" width="150" height="58" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="310" y="436" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="22" font-weight="400" text-anchor="middle">0</text>
+<polyline points="200,429 235,429" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="60" y="480" width="140" height="58" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<text x="130" y="516" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="22" font-weight="400" text-anchor="middle">2</text>
+<rect x="235" y="480" width="150" height="58" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="310" y="516" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="22" font-weight="400" text-anchor="middle">2</text>
+<polyline points="200,509 235,509" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="60" y="560" width="140" height="58" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<text x="130" y="596" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="22" font-weight="400" text-anchor="middle">3</text>
+<rect x="235" y="560" width="150" height="58" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="310" y="596" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="22" font-weight="400" text-anchor="middle">1</text>
+<polyline points="200,589 235,589" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="540" y="320" width="110" height="58" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<text x="595" y="356" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="22" font-weight="400" text-anchor="middle">0</text>
+<rect x="695" y="320" width="250" height="58" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<text x="820" y="356" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="22" font-weight="400" text-anchor="middle">12345</text>
+<rect x="1030" y="320" width="190" height="58" rx="4" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
+<text x="1125" y="356" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="22" font-weight="400" text-anchor="middle">123.45</text>
+<polyline points="945,349 1030,349" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="540" y="400" width="110" height="58" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<text x="595" y="436" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="22" font-weight="400" text-anchor="middle">1</text>
+<rect x="695" y="400" width="250" height="58" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<text x="820" y="436" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="22" font-weight="400" text-anchor="middle">67890</text>
+<rect x="1030" y="400" width="190" height="58" rx="4" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
+<text x="1125" y="436" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="22" font-weight="400" text-anchor="middle">678.90</text>
+<polyline points="945,429 1030,429" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="540" y="480" width="110" height="58" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<text x="595" y="516" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="22" font-weight="400" text-anchor="middle">2</text>
+<rect x="695" y="480" width="250" height="58" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<text x="820" y="516" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="22" font-weight="400" text-anchor="middle">null</text>
+<rect x="1030" y="480" width="190" height="58" rx="4" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
+<text x="1125" y="516" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="22" font-weight="400" text-anchor="middle">null</text>
+<polyline points="945,509 1030,509" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<polyline points="385,349 450,349 450,429 540,429" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="412" y="606" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">示例：逻辑行 0 → 底层行 1 → 67890 → 678.90</text>
+<rect x="40" y="670" width="1200" height="100" rx="4" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
+<rect x="40" y="674" width="4" height="92" rx="0" fill="#c2410c" stroke="none" stroke-width="1"/>
+<text x="62" y="705" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">逻辑输出：[678.90, 123.45, null, 678.90]</text>
+<text x="62" y="738" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">先检查有效 null 状态，再读取映射位置；scale=2 来自原始 Type。</text>
+<rect x="40" y="798" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
+<text x="60" y="827" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">DecodedVector 解开 encoding；Type 决定拿到的整数究竟代表什么。</text>
+</svg>

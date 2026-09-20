@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="940" viewBox="0 0 1280 940" role="img" aria-labelledby="title desc">
+<title id="title">DECIMAL 的一次完整旅程</title><desc id="desc">从文件中的 123.45，到查询结果 130.239：保值读取与两输入计算分别展开</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
+<rect x="0" y="0" width="1280" height="940" rx="0" fill="white" stroke="none" stroke-width="1"/>
+<rect x="8" y="8" width="1264" height="924" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<rect x="9" y="9" width="1262" height="94" rx="0" fill="#edf5ff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="103" x2="1271" y2="103" stroke="#d6d3cc" stroke-width="1"/>
+<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">DECIMAL 的一次完整旅程</text>
+<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">从文件中的 123.45，到查询结果 130.239：保值读取与两输入计算分别展开</text>
+<rect x="40" y="142" width="535" height="110" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="40" y="146" width="4" height="102" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="62" y="177" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">文件：DECIMAL(12,2)</text>
+<text x="62" y="210" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">INT64；unscaled = 12345</text>
+<text x="735" y="181" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="22" font-weight="600" text-anchor="start">Reader 请求 DECIMAL(14,3)</text>
+<text x="735" y="220" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">precision +2，scale +1；允许保值扩大</text>
+<polyline points="307,252 307,340" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="335" y="302" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">乘 10：scale 2 → 3</text>
+<rect x="40" y="340" width="535" height="110" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<rect x="40" y="344" width="4" height="102" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
+<text x="62" y="375" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">输入 A：DECIMAL(14,3)</text>
+<text x="62" y="408" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">unscaled = 123450 → 123.450</text>
+<rect x="705" y="340" width="535" height="110" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<rect x="705" y="344" width="4" height="102" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
+<text x="727" y="375" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">输入 B：DECIMAL(8,3)</text>
+<text x="727" y="408" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">unscaled = 6789 → 6.789</text>
+<polyline points="307,450 307,496 505,496 505,540" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<polyline points="972,450 972,496 775,496 775,540" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="300" y="540" width="680" height="110" rx="4" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
+<rect x="300" y="544" width="4" height="102" rx="0" fill="#c2410c" stroke="none" stroke-width="1"/>
+<text x="322" y="575" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">plus：两个 scale 都是 3</text>
+<text x="322" y="608" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">123450 + 6789 = 130239；执行溢出检查</text>
+<polyline points="640,650 640,715" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="730" y="690" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">绑定返回 Type：DECIMAL(15,3)</text>
+<rect x="190" y="715" width="900" height="110" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="190" y="719" width="4" height="102" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="212" y="750" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">结果 Vector：DECIMAL(15,3)</text>
+<text x="212" y="783" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">存储 130239；数学值为 130.239；Project 继续携带完整类型。</text>
+<rect x="40" y="838" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
+<text x="60" y="867" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">int64_t 只承载整数；Type 参数决定缩放、返回契约与数值解释。</text>
+<text x="60" y="892" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">图中整数均为非 null 示例；Reader 转换与 SQL 运算是两个不同阶段。</text>
+</svg>

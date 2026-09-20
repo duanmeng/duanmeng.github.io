@@ -1,42 +1,65 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="820" viewBox="0 0 1280 820" role="img" aria-labelledby="title desc">
-<title id="title">类型是一棵带参数的树</title><desc id="desc">示例：ROW(user_id BIGINT, events ARRAY(ROW(...)), attrs MAP(...))。</desc>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="980" viewBox="0 0 1280 980" role="img" aria-labelledby="title desc">
+<title id="title">复杂类型的树：schema 与数据各司其职</title><desc id="desc">ROW(user_id BIGINT, events ARRAY(ROW(ts TIMESTAMP, cost DECIMAL(12,2))), attrs MAP(VARCHAR,VARCHAR))</desc>
 <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
-<rect x="0" y="0" width="1280" height="820" rx="0" fill="white" stroke="none" stroke-width="1"/>
-<rect x="8" y="8" width="1264" height="804" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<rect x="0" y="0" width="1280" height="980" rx="0" fill="white" stroke="none" stroke-width="1"/>
+<rect x="8" y="8" width="1264" height="964" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
 <rect x="9" y="9" width="1262" height="94" rx="0" fill="#edf5ff" stroke="none" stroke-width="1"/>
 <line x1="9" y1="103" x2="1271" y2="103" stroke="#d6d3cc" stroke-width="1"/>
-<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">类型是一棵带参数的树</text>
-<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">示例：ROW(user_id BIGINT, events ARRAY(ROW(...)), attrs MAP(...))。</text>
-<rect x="430" y="145" width="420" height="86" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<rect x="430" y="149" width="4" height="78" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
-<text x="452" y="180" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">ROW</text>
-<text x="452" y="213" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">3 个有名字的字段</text>
-<rect x="50" y="310" width="350" height="100" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
-<rect x="50" y="314" width="4" height="92" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
-<text x="72" y="345" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">user_id</text>
-<text x="72" y="378" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">BIGINT</text>
-<polyline points="640,246 640,270 225,270 225,292" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="465" y="310" width="350" height="100" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
-<rect x="465" y="314" width="4" height="92" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
-<text x="487" y="345" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">events</text>
-<text x="487" y="378" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">ARRAY</text>
-<polyline points="640,246 640,270 640,270 640,292" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="880" y="310" width="350" height="100" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
-<rect x="880" y="314" width="4" height="92" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
-<text x="902" y="345" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">attrs</text>
-<text x="902" y="378" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">MAP</text>
-<polyline points="640,246 640,270 1055,270 1055,292" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="370" y="475" width="390" height="108" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
-<rect x="370" y="479" width="4" height="100" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
-<text x="392" y="510" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">元素：ROW</text>
-<text x="392" y="543" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">ts TIMESTAMP · cost DECIMAL</text>
-<polyline points="640,425 640,458" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="840" y="475" width="390" height="108" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
-<rect x="840" y="479" width="4" height="100" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
-<text x="862" y="510" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">key / value</text>
-<text x="862" y="543" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">VARCHAR / VARCHAR</text>
-<polyline points="1055,425 1055,458" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="40" y="718" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
-<text x="60" y="747" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">Type::size() 统计子类型；BaseVector::size() 才表示行数。</text>
-<text x="60" y="772" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">ROW、ARRAY、MAP 的外层 null 与子字段 / 元素 null 需要分别处理。</text>
+<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">复杂类型的树：schema 与数据各司其职</text>
+<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">ROW(user_id BIGINT, events ARRAY(ROW(ts TIMESTAMP, cost DECIMAL(12,2))), attrs MAP(VARCHAR,VARCHAR))</text>
+<rect x="485" y="135" width="310" height="86" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="485" y="139" width="4" height="78" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="507" y="170" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">ROW</text>
+<text x="507" y="203" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">3 个字段</text>
+<rect x="40" y="280" width="390" height="86" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="40" y="284" width="4" height="78" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="62" y="315" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">user_id</text>
+<text x="62" y="348" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">BIGINT</text>
+<rect x="445" y="280" width="390" height="86" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<rect x="445" y="284" width="4" height="78" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
+<text x="467" y="315" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">events</text>
+<text x="467" y="348" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">ARRAY</text>
+<rect x="850" y="280" width="390" height="86" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<rect x="850" y="284" width="4" height="78" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
+<text x="872" y="315" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">attrs</text>
+<text x="872" y="348" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">MAP</text>
+<polyline points="555,221 555,249 235,249 235,280" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<polyline points="640,221 640,280" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<polyline points="725,221 725,249 1045,249 1045,280" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="445" y="417" width="390" height="86" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<rect x="445" y="421" width="4" height="78" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
+<text x="467" y="452" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">element: ROW</text>
+<text x="467" y="485" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">2 个字段</text>
+<polyline points="640,366 640,417" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="850" y="417" width="185" height="86" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<rect x="850" y="421" width="4" height="78" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
+<text x="872" y="452" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">key</text>
+<text x="872" y="485" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">VARCHAR</text>
+<rect x="1055" y="417" width="185" height="86" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<rect x="1055" y="421" width="4" height="78" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
+<text x="1077" y="452" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">value</text>
+<text x="1077" y="485" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">VARCHAR</text>
+<polyline points="1000,366 1000,393 942,393 942,417" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<polyline points="1100,366 1100,393 1147,393 1147,417" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="325" y="570" width="285" height="86" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<rect x="325" y="574" width="4" height="78" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
+<text x="347" y="605" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">ts</text>
+<text x="347" y="638" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">TIMESTAMP</text>
+<rect x="640" y="570" width="285" height="86" rx="4" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
+<rect x="640" y="574" width="4" height="78" rx="0" fill="#c2410c" stroke="none" stroke-width="1"/>
+<text x="662" y="605" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">cost</text>
+<text x="662" y="638" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">DECIMAL(12,2)</text>
+<polyline points="575,503 575,536 467,536 467,570" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<polyline points="705,503 705,536 782,536 782,570" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="40" y="721" width="560" height="102" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="40" y="725" width="4" height="94" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="62" y="756" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Type 树</text>
+<text x="62" y="789" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">字段名 · 子类型 · precision / scale</text>
+<rect x="650" y="721" width="590" height="102" rx="4" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
+<rect x="650" y="725" width="4" height="94" rx="0" fill="#c2410c" stroke="none" stroke-width="1"/>
+<text x="672" y="756" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Vector 数据树</text>
+<text x="672" y="789" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">行数 · offsets / sizes · children · nulls</text>
+<rect x="40" y="878" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
+<text x="60" y="907" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">Type::size() 是子类型数量，BaseVector::size() 才是逻辑行数。</text>
+<text x="60" y="932" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">NULL、[]、[NULL] 可以共享 ARRAY(BIGINT())，由不同层的数据状态区分。</text>
 </svg>

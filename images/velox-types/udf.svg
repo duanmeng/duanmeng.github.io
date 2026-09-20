@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="900" viewBox="0 0 1280 900" role="img" aria-labelledby="title desc">
+<title id="title">Simple Function：签名路径与执行路径在 Adapter 汇合</title><desc id="desc">同一个 Date tag：注册语义是 date，call 参数是 int32_t</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
+<rect x="0" y="0" width="1280" height="900" rx="0" fill="white" stroke="none" stroke-width="1"/>
+<rect x="8" y="8" width="1264" height="884" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<rect x="9" y="9" width="1262" height="94" rx="0" fill="#edf5ff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="103" x2="1271" y2="103" stroke="#d6d3cc" stroke-width="1"/>
+<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">Simple Function：签名路径与执行路径在 Adapter 汇合</text>
+<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">同一个 Date tag：注册语义是 date，call 参数是 int32_t</text>
+<rect x="445" y="133" width="390" height="100" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="445" y="137" width="4" height="92" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="467" y="168" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Date tag</text>
+<text x="467" y="201" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">registerFunction&lt;Fn, Date, Date&gt;</text>
+<polyline points="535,233 535,261 320,261 320,295" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<polyline points="745,233 745,261 960,261 960,295" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="40" y="295" width="560" height="113" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="40" y="299" width="4" height="105" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="62" y="330" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">SimpleTypeTrait / TypeAnalysis</text>
+<text x="62" y="363" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">逻辑签名 date；physical Type 为 INTEGER()</text>
+<rect x="680" y="295" width="560" height="113" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<rect x="680" y="299" width="4" height="105" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
+<text x="702" y="330" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">VectorExec::resolver&lt;Date&gt;</text>
+<text x="702" y="363" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">in_type = int32_t；out_type = int32_t</text>
+<polyline points="320,408 320,462" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<polyline points="960,408 960,462" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="40" y="462" width="560" height="113" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<rect x="40" y="466" width="4" height="105" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
+<text x="62" y="497" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">SignatureBinder + Registry</text>
+<text x="62" y="530" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">实际 TypePtr → 绑定语义 → 匹配物理实现</text>
+<rect x="680" y="462" width="560" height="113" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<rect x="680" y="466" width="4" height="105" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
+<text x="702" y="497" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">arg_type&lt;Date&gt; / out_type&lt;Date&gt;</text>
+<text x="702" y="530" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">VectorReader / Writer 连接 call() 参数</text>
+<polyline points="320,575 320,623 540,623 540,665" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<polyline points="960,575 960,623 740,623 740,665" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="245" y="665" width="790" height="100" rx="4" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
+<rect x="245" y="669" width="4" height="92" rx="0" fill="#c2410c" stroke="none" stroke-width="1"/>
+<text x="267" y="700" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">SimpleFunctionAdapter → result Vector</text>
+<text x="267" y="733" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">输入 type() = DATE；输出 outputType = DATE</text>
+<rect x="40" y="798" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
+<text x="60" y="827" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">逻辑签名不是从 call() 的 int32_t 参数反推出来的。</text>
+<text x="60" y="852" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">DECIMAL 同样先绑定 p/s，再选择 int64_t 或 int128_t 实现，并保留返回 Type。</text>
+</svg>
