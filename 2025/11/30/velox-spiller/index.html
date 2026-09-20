@@ -371,7 +371,7 @@ bool exceedSpillLevelLimit(uint8_t startBitOffset) const;
 <hr/>
 <h3 data-original-block="velox-spiller-0016" id="22-spillstats--统计层">3.3 SpillStats — 统计层</h3>
 <p data-original-block="velox-spiller-0017">文件：<code>velox/exec/SpillStats.h</code></p>
-<p data-original-block="velox-spiller-0018">所有字段都是 <code>std::atomic</code>，线程安全，支持跨线程并发更新。</p>
+<p data-original-block="velox-spiller-0018">SpillStats 的主要计数与耗时字段使用 atomic，另有 <code>IoStats ioStats</code> 成员，不能把整个结构说成所有字段都是 std::atomic。单个计数可并发更新，也不意味着多个字段的读取组成同一时刻的一致快照。</p>
 <p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-spiller-0019" data-source-kind="original-reading-fragment"><code class="language-cpp">struct SpillStats &#123;
   // 计数
   std::atomic_uint64_t spillRuns;           // spill 触发次数
@@ -1480,7 +1480,7 @@ void HashBuild::setupSpillInput(HashJoinBridge::SpillInput spillInput) &#123;
   &#125;
 &#125;
 </code></pre>
-<p data-original-block="velox-spiller-0254"><strong>关键设计</strong>：<code>wrap</code> 使用 <code>DictionaryVector</code>，不拷贝行数据，只是 indices 引用，spill 写入时才通过 <code>loadedVector()</code> 强制物化。这样同一个 input batch 里属于不同 partition 的行可以零拷贝地分发到各自的 spill 文件。</p>
+<p data-original-block="velox-spiller-0254"><code>wrap</code> 用 DictionaryVector 与 indices 表示属于某个分区的行，避免在分区步骤复制整行 payload；base vector 仍需保活。Lazy 值的加载时机、提取、序列化和文件缓冲各有路径，最终写文件仍会读取并编码这些值，因此应称“分区视图复用”，而不是从输入到磁盘全程零拷贝。</p>
 <p data-original-block="velox-spiller-0255">**<code>noMoreInputInternal</code>**（探测完成，收尾 input spill）：</p>
 <pre data-original-block="velox-spiller-0256" data-source-kind="original-reading-fragment"><code class="language-cpp">void HashProbe::noMoreInputInternal() &#123;
   noMoreSpillInput_ = true;
@@ -2179,7 +2179,7 @@ for (auto&amp; write : writes) &#123;
 <p data-original-block="velox-spiller-0381"><strong>设计精妙处</strong>：<code>AsyncSource::move()</code> 的语义是"如果还没执行就内联执行，已经执行就等待结果"。第一个任务从未被 <code>prepare()</code>，所以在 <code>move()</code> 调用时内联执行于主线程。</p>
 <p data-original-block="velox-spiller-0382">好处：</p>
 <ul>
-<li data-original-block="velox-spiller-0383">若只有一个 partition（常见情况），完全不产生线程切换开销</li>
+<li data-original-block="velox-spiller-0383">只有一个任务时，不必为了这次分区写出额外提交 executor；文件系统、压缩或其他下层操作仍可能等待或调度，不能推导整次 spill 零线程切换。</li>
 <li data-corrected="2026-09-20" data-original-block="velox-spiller-0384">调用线程参与第一个任务，减少把全部任务提交后立即等待的开销；取得其他任务结果时仍可能等待，因此并不保证它全程都在计算。</li>
 <li data-corrected="2026-09-20" data-original-block="velox-spiller-0385">调用线程与 executor 中的工作可以重叠；实际并行度和收益仍受 executor 大小、分区分布、I/O、压缩以及内存峰值制约。</li>
 </ul>
@@ -2362,7 +2362,7 @@ if (spiller_-&gt;spillTriggered()) &#123;
 </code></pre>
 <p data-original-block="velox-spiller-0428">几个细节值得学习：</p>
 <p data-corrected="2026-09-20" data-original-block="velox-spiller-0429">succinctBytes() 按可读单位表示字节数，减少人工换算；这是日志表达的改进，不对应一个可量化的固定倍数收益。</p>
-<p data-original-block="velox-spiller-0430"><strong>② 固定的信息层次</strong>：<code>pool 名 → root pool 名 → 已用 → 已预留 → root 已预留</code>。这个模板在整个 spill 系统中完全一致，运维人员看一眼就知道去哪里找信息，不需要猜测每条日志的格式。</p>
+<p data-original-block="velox-spiller-0430">多处 spill 日志按 pool 名、root 名、used、reservation 和 root reservation 展示资源上下文，便于沿树定位压力。不同失败点仍有各自字段和格式；这是可参考的写法，不是所有日志完全一致的接口保证。</p>
 <p data-original-block="velox-spiller-0431"><strong>③ WARNING 而非 ERROR</strong>：预留失败不是错误，只是触发 spill 的信号。级别选择准确。</p>
 <hr/>
 <h3 data-original-block="velox-spiller-0432" id="914-testing-前缀：测试可观测性的统一约定">9.15 testing* 前缀：测试可观测性的统一约定</h3>
@@ -2373,10 +2373,10 @@ if (spiller_-&gt;spillTriggered()) &#123;
 // HashProbe::testingHasInputSpiller()
 // HashProbe::testingExceededMaxSpillLevelLimit()
 </code></pre>
-<p data-original-block="velox-spiller-0434">所有为测试暴露的内部状态方法，一律以 <code>testing</code> 前缀命名。这个约定的价值：</p>
+<p data-original-block="velox-spiller-0434">多处测试 accessor 采用 <code>testing*</code> 前缀，便于识别测试可观测性入口。前缀搜索能找到这一类方法，但不能据此穷尽所有测试接口、TestValue 钩子或 friend 访问。</p>
 <ul>
 <li data-original-block="velox-spiller-0435"><strong>接口清晰度</strong>：任何 <code>testing*</code> 方法，调用者立刻知道"这不是业务接口"</li>
-<li data-original-block="velox-spiller-0436"><strong>grep 友好</strong>：<code>grep 'testing[A-Z]'</code> 精确列出所有测试专用接口，代码审查时可以专门审视</li>
+<li data-original-block="velox-spiller-0436"><strong>易于检索</strong>：<code>rg "testing[A-Z]"</code> 可定位遵循此前缀的符号；完整审核还需检查测试类、注入点和其他公开接口。</li>
 <li data-corrected="2026-09-20" data-original-block="velox-spiller-0437">testing* accessor 让测试可观测性具有明确入口，便于评审暴露范围；局部仓库协作文件中的风格偏好不等于整个上游项目永远禁止 friend，不能把它当作接口设计的强制因果。</li>
 </ul>
 <hr/>
@@ -2433,7 +2433,7 @@ std::unique_ptr&lt;SpillerBase::SpillStatus&gt; SpillerBase::writeSpill(...) &#1
 </tr>
 <tr>
 <td data-original-block="velox-spiller-0463"><code>FOLLY_LIKELY/UNLIKELY</code></td>
-<td data-original-block="velox-spiller-0464">可执行的"热度注释"，不会过期</td>
+<td data-original-block="velox-spiller-0464">给编译器的分支概率提示；工作负载变化后可能失效，收益需测量</td>
 <td data-original-block="velox-spiller-0465"><code>createOrGetSpillRun</code>, <code>getOutputWithSpill</code></td>
 </tr>
 <tr>
@@ -2473,7 +2473,7 @@ std::unique_ptr&lt;SpillerBase::SpillStatus&gt; SpillerBase::writeSpill(...) &#1
 </tr>
 <tr>
 <td data-original-block="velox-spiller-0487"><code>testing*</code> 前缀约定</td>
-<td data-original-block="velox-spiller-0488">测试接口一眼可辨，禁用 friend 倒逼最小暴露</td>
+<td data-original-block="velox-spiller-0488">测试入口可辨；是否使用 friend 需按具体封装代价评估</td>
 <td data-original-block="velox-spiller-0489">所有 <code>testing*</code> 方法</td>
 </tr>
 <tr>
@@ -2586,7 +2586,7 @@ SpillConfig→ 决定「用什么参数」
 </code></pre>
 <p data-original-block="velox-spiller-0506">这种分层带来的核心好处不是"解耦"这么虚的东西，而是<strong>每一层可以独立演进</strong>：</p>
 <ul>
-<li data-original-block="velox-spiller-0507">要换序列化格式？只改 SpillFile，上面所有层不感知</li>
+<li data-original-block="velox-spiller-0507">更换序列化格式时，文件层可以集中部分读写改动，但 reader、writer、配置、类型支持和兼容性仍需一起检查。接口隐藏了 I/O 组织细节，不代表上层对任何格式替换都无感。</li>
 <li data-original-block="velox-spiller-0508">要支持新算子 spill？只实现新的 Spiller 子类，底层文件 I/O 不变</li>
 <li data-original-block="velox-spiller-0509">要调整内存触发策略？只改算子层的 <code>ensureInputFits</code>，文件写入逻辑不变</li>
 </ul>
@@ -2602,7 +2602,7 @@ SpillConfig→ 决定「用什么参数」
   一次只加载 partition 0 → 处理完 → 加载 partition 1 → ...
   均匀分布时单分区约 1/8 的行；倾斜、工作缓冲和重建开销会改变内存峰值
 </code></pre>
-<p data-original-block="velox-spiller-0516">这个设计的精妙之处在于：<strong>分区和处理逻辑是解耦的</strong>。HashBuild 恢复 partition 0 时，它完全复用了正常的 <code>addInput</code> → <code>insertHashTable</code> 路径，没有任何特殊处理。"从 spill 文件恢复" 和 "从上游算子输入" 在代码路径上几乎完全一样。</p>
+<p data-original-block="velox-spiller-0516">恢复复用了 <code>processSpillInput → addInput</code> 的行处理能力，但有专门的入口协议：setupSpillInput 清理旧 table/spiller/reader，重置 key 与 dependent channels，重建表并按恢复分区计算下一层 hash 位；processSpillInput 逐批输入，处理 yield / 状态变化，结束后调用 noMoreInputInternal。复用的是批次处理，分区身份、递归深度和轮次状态不能省略。</p>
 <p data-original-block="velox-spiller-0517"><code>SpillPartitionId</code> 的 bit 编码设计支持这种分批恢复天然地扩展到多层递归：</p>
 <pre class="detail-trace" data-original-block="velox-spiller-0518"><code>Level 0：bit[31:29] = 0, 分区号存在 bit[2:0]  → 8 个 partition
 Level 1：bit[31:29] = 1, 分区号存在 bit[5:3]  → 每个 Level 0 partition 又有 8 个子 partition
@@ -2670,7 +2670,7 @@ Output 阶段：数据已全部处理 → 只可能触发一次 spill → 之后
 <p data-original-block="velox-spiller-0553">值得注意的是，这个设计并没有在代码里写四个 <code>// TODO: 原因X</code>，而是通过一个统一的机制自然地满足了所有约束。这种"机制而非策略"的思维是优雅设计的标志。</p>
 <hr/>
 <h3 data-original-block="velox-spiller-0554" id="107-批量行列转换：峰值内存与-io-效率的双重优化">11.7 批量行列转换：峰值内存与 I/O 效率的双重优化</h3>
-<p data-original-block="velox-spiller-0555"><code>extractSpillVector</code> 每次只处理最多 64 行或 256KB，这个"小批量"设计同样服务于两个目标：</p>
+<p data-original-block="velox-spiller-0555">extractSpillVector 使用最多 64 行的行数目标与 256 KiB 的字节目标组织批次；字节限制不是绝对硬上限。实现累计行大小，在达到目标时仍保留最后纳入的一行，单个大值也可能超过目标。它控制常见批次的物化峰值，后续序列化 / 压缩缓冲还要单独记账。</p>
 <p data-original-block="velox-spiller-0556"><strong>峰值内存</strong>：</p>
 <pre class="detail-trace" data-original-block="velox-spiller-0557"><code>不切分时：SpillRun 10 万行 → 物化为一个 10 万行 RowVector → 可能数 GB
 切分后：  每次 64 行 RowVector → 几百 KB → prepareForReuse 复用同一块内存
@@ -2714,12 +2714,12 @@ Output 阶段：数据已全部处理 → 只可能触发一次 spill → 之后
 <li data-original-block="velox-spiller-0575">Probe 完成 → 通知 Build 恢复 spill partition</li>
 <li data-original-block="velox-spiller-0576">Build/Probe 任意一方 spill → 另一方配合</li>
 </ol>
-<p data-original-block="velox-spiller-0577">HashJoinBridge 用三个接口覆盖了全部场景：</p>
+<p data-original-block="velox-spiller-0577">HashJoinBridge 用表发布、probe 等待和 spill 输入领取等接口重复表达每轮交接；取消、peer barrier、共享表缓存和回收还有其他入口。下面三个接口说明常规 spill 轮次，不是类的全部同步能力。</p>
 <p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-spiller-0578" data-source-kind="original-reading-fragment"><code class="language-cpp">setHashTable(table, spillPartitionSet) // Build → Probe：我建好了，这些 partition 被 spill 了
 probeFinished()                        // Probe → Build：我探测完了，请处理下一个 spill partition
 appendSpilledHashTablePartitions(set)  // Probe reclaim → Build：我 spill 了你的 hash 表
 </code></pre>
-<p data-original-block="velox-spiller-0579">最优雅的设计是：<strong>这三个接口覆盖了所有递归层级</strong>，无论是第 0 层还是第 3 层递归，调用的接口完全一样。递归深度的增加不需要任何新的协调原语。</p>
+<p data-original-block="velox-spiller-0579">在表示与配置允许的递归层级中，每轮都可以复用这组事件接口。当前 SpillPartitionId 支持 level 0..3、每层至多 3 个分区位；恢复还受可用 hash 位与配置上限限制。接口复用减少了按层另造同步结构的需要，但不会消除这些边界。</p>
 <p data-corrected="2026-09-20" data-original-block="velox-spiller-0580">统一 bridge 协议使每轮恢复复用相同状态和事件接口，减少按层手工维护同步对象的复杂度；复杂度是否指数增长取决于另一种实现的结构，不能直接给出这样的必然结论。</p>
 <hr/>
 <h3 data-original-block="velox-spiller-0581" id="1011-dictionaryvector-wrap：零拷贝分区">11.11 DictionaryVector wrap：零拷贝分区</h3>
@@ -2790,7 +2790,7 @@ Input Spiller 和 Output Spiller 的分离不是技术必要性，而是对算�
 </tbody></table></div>
 <p>有价值的代码品味是把状态转换和资源责任写进结构中。RAII 清理、捕获跨线程异常、等待已提交任务、明确有序状态、主动归还 reservation，都在维护“失败后仍能安全结束”这一要求。它们不是可以脱离线程与对象生命周期随意复制的语法技巧。</p>
 <p>分层也有边界：文件层可以隐藏部分 I/O 细节，但序列化格式与配置仍可能影响读写两侧；统一写出流程可以复用机制，却不能替算子决定排序、匹配标记和输出进度。抽象的价值在于让共性复用，同时使差异有明确的位置，而不是声称替换一个组件就绝不会影响其他层。</p>
-</div>
+<div class="detail-source-note" id="accuracy-audit-20260920"><p><strong>源码核对（2026-09-20）</strong>：本轮按 Velox <code>1d1b76567870</code> 核对关键接口、控制流、默认值与边界条件。当前源码摘录附固定版本链接；流程伪代码用于说明分支，不是可直接编译的程序。未对全文示例做独立编译或性能复测。涉及宿主集成与历史实验的数据，按各节标注的来源理解。</p><ul><li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/HashBuild.cpp#L1056">velox/exec/HashBuild.cpp:1056</a></li><li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/HashBuild.cpp#L309">velox/exec/HashBuild.cpp:309,1056</a></li><li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/HashJoinBridge.cpp#L61">velox/exec/HashJoinBridge.cpp:61</a></li><li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/JoinBridge.cpp#L26">velox/exec/JoinBridge.cpp:26</a></li><li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/Spill.h#L280">velox/exec/Spill.h:280</a></li><li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/SpillStats.h#L25">velox/exec/SpillStats.h:25</a></li><li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/Spiller.cpp#L203">velox/exec/Spiller.cpp:203,250</a></li></ul></div></div>
 
   </div>
 </article>

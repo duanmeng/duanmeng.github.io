@@ -461,8 +461,11 @@ drivers_[numDriversPerSplitGroup_*concurrentSplitGroups_ ..]       ← ungrouped
 </code></pre>
 <p data-original-block="velox-task-driver-0052">Grouped execution 的槽位在 split group 完成后置 <code>nullptr</code>，新 split group 的 Driver 复用这些槽位。</p>
 <h3 data-original-block="velox-task-driver-0053" id="16-split-分发">2.8 Split 分发</h3>
-<pre class="detail-trace" data-original-block="velox-task-driver-0054"><code>Task::addSplit() → addSplitLocked() → SplitsStore::addSplit()
-→ 唤醒所有等待 split 的 Driver（通过 ContinuePromise）
+<pre class="detail-trace" data-original-block="velox-task-driver-0054" data-source-kind="reviewed-pseudocode"><code class="language-cpp">// 普通 queue-backed SplitsStore 路径。
+Task::addSplit -&gt; addSplitLocked -&gt; SplitsStore::addSplit
+  单个普通 split：放入队列，取出一个等待 promise，在锁外兑现
+  barrier split：有面向同 source 多个 Driver 的广播处理
+  noMoreSplits：通知仍等待的消费者重新检查结束条件
 </code></pre>
 <p data-original-block="velox-task-driver-0055">Driver 通过 <code>Task::getSplitOrFuture()</code>（<code>Task.h:442</code>）从 <code>SplitsStore</code> 取 split。如果没有 split，返回
 <code>kWaitForSplit</code>，Driver 进入 Blocked 状态。</p>
@@ -687,26 +690,21 @@ drivers_[numDriversPerSplitGroup_*concurrentSplitGroups_ ..]       ← ungrouped
 </tbody></table></div>
 <h3 data-original-block="velox-task-driver-0103" id="25-driverruninternal--核心执行循环">3.6 Driver::runInternal —— 核心执行循环</h3>
 <p data-original-block="velox-task-driver-0104"><code>Driver.cpp:519</code> 是 Driver 的心脏（详细的执行模型分析见第5章）：</p>
-<pre class="detail-trace" data-original-block="velox-task-driver-0105"><code>runInternal() &#123;
-  1. 记录 queue 时间，设置 onThreadStartUs_
-  2. Task::enter(state_)        // 向 Task 注册"我上线了"
-     → kTerminate: 设置 task error，返回
-     → kNone: 继续
-  3. 安装 CancelGuard（未解除的异常/终止路径触发相应 leave/close；正常返回按协议解除）
-  4. initializeOperators()      // 第一次执行时初始化所有算子
-  5. 主循环 for(;;):
-       for (i = startingOperator（普通路径为 sink，traceInput_ 路径另见正文）; i &gt;= 0; --i):  // 从 sink 往 source 扫描
-         a. task()-&gt;shouldStop()       // 检查终止/暂停/yield
-         b. shouldYield()              // CPU 时间片耗尽则返回 kYield
-         c. checkUnderArbitration()    // 内存仲裁中则 block
-         d. op-&gt;isBlocked()            // 算子阻塞则 blockDriver()
-         e. 若下游 (i+1) needsInput:
-              op-&gt;getOutput() → 有数据 → nextOp-&gt;addInput() → i+=2（向下游推进）
-              op-&gt;getOutput() → null   → op-&gt;isFinished() → nextOp-&gt;noMoreInput()
-         f. 若 i 为 sink: getOutput() 返回非空 → kBlock（串行模式）
-                          isFinished() → close() → kAtEnd
-  6. catch → task()-&gt;setError()，返回 kAlreadyTerminated
-&#125;
+<pre class="detail-trace" data-original-block="velox-task-driver-0105" data-source-kind="reviewed-pseudocode"><code class="language-cpp">// runInternal 的主干流程伪代码；保留关键分支，不作完整函数使用。
+Task::enter(state) 获取本次执行资格；根据 StopReason 处理暂停 / 终止等
+安装 CancelGuard：析构总会 Task::leave；异常时还触发关闭
+首次 initializeOperators
+循环从 getStartingOperator() 选定的算子开始：
+  检查 Task stop / yield、QueryCtx 仲裁与算子 isBlocked
+  若下游 needsInput，调用上游 getOutput
+    有输出：调用下游 addInput（这里也可计算）并向下游推进
+    无输出：再次检查上游 isBlocked，必要时保存 future 并退出
+    未阻塞且 isFinished：通知下游 noMoreInput
+    未完成：继续依据 needsInput 等状态寻找可推进的上游
+  sink 完成：close，返回 kAtEnd
+  serial 产出一批结果：返回 kBlock，但不对应普通 BlockingState
+catch：向 Task 记录异常；按终止协议退出
+// 普通 async kBlock：离开 Driver 后才安装 BlockingState 恢复回调。
 </code></pre>
 <h3 data-original-block="velox-task-driver-0106" id="26-blockdriver--进入-blocked-状态">3.7 blockDriver —— 进入 Blocked 状态</h3>
 <p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-task-driver-0107" data-source-kind="original-reading-fragment"><code class="language-cpp">// Driver.cpp:669（声明 Driver.h:669）
@@ -726,12 +724,18 @@ blocking 时间、<code>hasBlockingFuture = false</code>，若 task 未 pause �
 <p data-original-block="velox-task-driver-0110"><code>Driver.h:563</code>，RAII 对象。<code>runInternal</code> 正常结束时调用 <code>notThrown()</code>；若发生异常，guard 析构会调用
 <code>Task::leave()</code> 和 <code>Driver::close()</code>，确保 Driver 干净退出。</p>
 <h3 data-original-block="velox-task-driver-0111" id="28-driverclose--正常关闭路径">3.9 Driver::close —— 正常关闭路径</h3>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-task-driver-0112" data-source-kind="original-reading-fragment"><code class="language-cpp">// Driver.cpp:1063
-void Driver::close() &#123;
-  if (!closed_.exchange(true)) &#123;       // 幂等
-    closeOperators();                  // 关闭所有算子，上报统计
-    Task::removeDriver(task(), this);  // 从 Task 中移除自己
+<p class="detail-code-label">当前源码摘录（1d1b76567870）：<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/Driver.cpp#L1094">velox/exec/Driver.cpp:1094</a>。省略外围声明；此片段未作为独立程序编译。</p><pre data-original-block="velox-task-driver-0112" data-source-kind="verified-source-excerpt"><code class="language-cpp">void Driver::close() &#123;
+  if (closed_) &#123;
+    // Already closed.
+    return;
   &#125;
+  if (!isOnThread() &amp;&amp; !isTerminated()) &#123;
+    LOG(FATAL) &lt;&lt; "Driver::close is only allowed from the Driver's thread";
+  &#125;
+  closeOperators();
+  updateStats();
+  closed_ = true;
+  Task::removeDriver(ctx_-&gt;task, this);
 &#125;
 </code></pre>
 <p data-original-block="velox-task-driver-0113"><code>closeOperators()</code>（<code>Driver.cpp:898</code>）：关闭所有算子、将 driver 生命周期统计（queued/on-thread/blocked
@@ -1258,7 +1262,7 @@ virtual BlockingReason isBlocked(ContinueFuture* future) = 0;
 <code>kWaitForProducer</code>、<code>kWaitForJoinBuild</code>、<code>kWaitForArbitration</code>、<code>kWaitForRPC</code> 等；</li>
 <li data-original-block="velox-task-driver-0397">**通过 <code>future</code> 出参交出"唤醒句柄"**：这个 <code>ContinueFuture</code> 是算子与外部世界之间的"门铃"，外部事件就绪时谁兑现它谁就负责唤醒 Driver。</li>
 </ol>
-<p data-original-block="velox-task-driver-0398">没有这个 future，<code>isBlocked</code> 就只是个布尔探测，Driver 让出后将永远不知道何时回来。正是 future 把"让出"和"恢复"两端接上。</p>
+<p data-original-block="velox-task-driver-0398">在普通异步 kBlock 路径上，future 把本次等待源与恢复回调接起来；生产者负责成功或异常完成它。Pause、yield、终止以及串行产出有另外的协议，不能把这个 future 当成所有 Driver 恢复动作的唯一入口。</p>
 <p data-original-block="velox-task-driver-0399">让出 CPU 的动作链（<code>isBlocked</code> 是起点和唤醒源，但"让出"由 Driver 的 <code>return kBlock</code> 完成）：</p>
 <pre class="detail-trace" data-original-block="velox-task-driver-0400"><code>op-&gt;isBlocked(&amp;future) → reason != kNotBlocked
         │
@@ -1412,8 +1416,7 @@ source 在 <code>getOutput</code> 探测上游 queue。等待的事件是"本地
   return BlockingReason::kNotBlocked;
 &#125;
 </code></pre>
-<p data-original-block="velox-task-driver-0444"><strong>模式：扇出 sink 用 <code>collectAll</code> 合并。</strong> 当多个下游 queue 满时，必须等<strong>所有</strong>满的下游都腾出空间才能继续推
-（否则又会立刻在某个满的 queue 上卡住），所以用 <code>collectAll</code>——<strong>全部就绪才唤醒</strong>。</p>
+<p data-original-block="velox-task-driver-0444"><strong>LocalPartition 用 collectAll 收集本次产生的等待 future。</strong> 当前本地 exchange 队列共享内存管理器，producer 在数据入队并计数后获得背压通知。collectAll 表示这批通知都已就绪，不保证恢复瞬间每个队列仍有独占空间；其他 producer 可能已入队，后续操作仍须重新走流控。</p>
 <h4 data-original-block="velox-task-driver-0445" id="6-hashprobe--join-probe（状态机驱动--kwaitforjoinbuild）">7.4.6 (6) HashProbe —— join probe（状态机驱动 + kWaitForJoinBuild）</h4>
 <p data-original-block="velox-task-driver-0446"><code>HashProbe</code>（<code>HashProbe.cpp:651</code>）的 <code>isBlocked</code> 是一个<strong>内部状态机的推进器</strong>：</p>
 <p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-task-driver-0447" data-source-kind="original-reading-fragment"><code class="language-cpp">BlockingReason HashProbe::isBlocked(ContinueFuture* future) &#123;
@@ -1452,8 +1455,8 @@ source 在 <code>getOutput</code> 探测上游 queue。等待的事件是"本地
 <tr>
 <td data-original-block="velox-task-driver-0459"><code>folly::collectAll</code></td>
 <td data-original-block="velox-task-driver-0460"><strong>全部</strong> future 就绪</td>
-<td data-original-block="velox-task-driver-0461">必须所有阻塞条件都解除才能继续</td>
-<td data-original-block="velox-task-driver-0462">LocalPartition：等所有满的下游腾空间</td>
+<td data-original-block="velox-task-driver-0461">本批收集的 future 全部就绪后重试；不保证共享条件永久成立</td>
+<td data-original-block="velox-task-driver-0462">LocalPartition：收齐本次下游等待通知后续调</td>
 </tr>
 </tbody></table></div>
 <p data-original-block="velox-task-driver-0463">选错会有真实后果：扇出 sink 若用 <code>collectAny</code>，会在某个仍满的下游上反复"唤醒→立刻又阻塞"空转；source 若用
@@ -1579,8 +1582,7 @@ source 在 <code>getOutput</code> 探测上游 queue。等待的事件是"本地
 <p><code>stateChangeFuture()</code> 的通知范围更广：除终态和 split group 完成外，当前 scan split 队列从非空变空、且之后还可能收到 split 时，也会通知状态等待者，帮助上层补充输入。它不只代表 TaskState enum 的变化。</p>
 <p>源码：<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/Task.cpp#L2889">finish future</a>、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/Task.cpp#L3187">completion / deletion future</a>、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/Task.cpp#L2173">split 队列进度通知</a>。</p>
 </section>
-<p data-original-block="velox-task-driver-0548">Task 是所有执行期资源的<strong>根持有者</strong>：memory pool 树、Driver、ExchangeClient、JoinBridge、OutputBuffer、spill 目录、
-各类 promise。本章梳理这些资源在 happy path 与异常 path 下如何被有序回收。</p>
+<p data-original-block="velox-task-driver-0548">Task 持有或协调多类执行资源，包括 Driver、task / child pool、exchange client、bridge、spill 目录和等待状态。但 query root 属于 QueryCtx 及其引用链，输出缓冲也有 manager / consumer 的生命周期；这些资源不都由 Task 独占。下面分别看正常完成和终止如何解除关联。</p>
 <h3 data-original-block="velox-task-driver-0549" id="101-memory-pool-树：层级、所有权与刻意保活">8.2 Memory Pool 树：层级、所有权与"刻意保活"</h3>
 <p data-original-block="velox-task-driver-0550">Task 构造时建立内存池树（<code>Task.cpp:710</code> 起）：</p>
 <pre class="detail-trace" data-original-block="velox-task-driver-0551"><code>queryCtx_-&gt;pool()                                    （query 级，aggregate）
@@ -1591,7 +1593,7 @@ source 在 <code>getOutput</code> 探测上游 queue。等待的事件是"本地
 <p data-original-block="velox-task-driver-0552">所有权要点：</p>
 <ul>
 <li data-original-block="velox-task-driver-0553"><code>pool_</code>（<code>Task.h:1205</code>）是 task root，<strong>aggregate 类型</strong>（只聚合不直接分配）；</li>
-<li data-original-block="velox-task-driver-0554"><code>childPools_</code>（<code>Task.h:1209</code>，<code>vector&lt;shared_ptr&lt;MemoryPool&gt;&gt;</code>）<strong>持有所有 node / operator / connector / exchange 池的所有权</strong>；</li>
+<li data-original-block="velox-task-driver-0554"><code>childPools_</code> 持有默认执行树的子池；自定义路径还有 <code>customChildPools_</code> 等状态。裸指针查找表不保活对象，向量 buffer 的引用也不等于独立持有 pool 所有权。</li>
 <li data-original-block="velox-task-driver-0555"><code>nodePools_</code>（<code>Task.h:1215</code>，<code>map&lt;id, MemoryPool*&gt;</code>）只存裸指针，用于按 plan node 复用 node 池；</li>
 <li data-original-block="velox-task-driver-0556">Operator / connector 池都是 leaf 或 aggregate child，由 <code>addOperatorPool</code>（<code>Task.cpp:781</code>）等创建后 <code>push_back</code> 进 <code>childPools_</code>。</li>
 </ul>
@@ -1662,7 +1664,7 @@ setError（Task.cpp:3304）:
 <li data-original-block="velox-task-driver-0583"><code>splitGroupState.clear()</code>——清 JoinBridge、LocalExchange、barriers；</li>
 <li data-original-block="velox-task-driver-0584">兑现 <code>splitPromises</code>（唤醒等 split 的 driver，让它们感知终止）、<code>bridge-&gt;cancel()</code>、关闭 <code>preloadingSplits_</code>、兑现
 <code>barrierPromises</code>；</li>
-<li data-original-block="velox-task-driver-0585">返回 <code>makeFinishFuture</code>——调用方 await 该 future 即"所有线程已退出"。</li>
+<li data-original-block="velox-task-driver-0585">返回基于 <code>numThreads_ == 0</code> 的 finish future，表示 Task 所计入的活跃 Driver 已离开；不表示 executor 的 OS 线程被销毁，也不等于 Task 析构。</li>
 </ol>
 <p data-corrected="2026-09-20" data-original-block="velox-task-driver-0586">on-thread Driver 会在自己的退出路径完成相应清理；off-thread Driver 则由 Task 在取得终止资格后通过 closeByTask 关闭。两种分工都必须保证与 Operator 正在执行的工作互斥，不能概括为 close 永远在最初运行该 Driver 的线程上执行。</p>
 <h3 data-original-block="velox-task-driver-0587" id="105-最终回收：task">8.6 最终回收：~Task()</h3>
@@ -1903,7 +1905,8 @@ Task 就会泄漏。</strong> 文档 <code>TaskDriverOperatorLifecycle.md</code>
 <strong>那些事件可能永远不会自然发生</strong>——split 不会再来、consumer 已死、build 永远完不成。若放任不管，这些 Driver 的
 <code>BlockingState</code> 闭包会永久持有 Driver→Task，泄漏。</p>
 <p data-corrected="2026-09-20" data-original-block="velox-task-driver-0690">Task::terminate 清理其拥有的 promise 集合，并通知 bridge、队列、exchange 等组件取消等待。外部 I/O 或自定义算子产生的 future 仍需要生产方实现成功、异常和取消完成路径；Task 无法兑现任意不归它所有的 future。这里的“总清算”应限定到明确接入 Task 生命周期的资源。</p>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-task-driver-0691" data-source-kind="original-reading-fragment"><code class="language-cpp">// terminate 锁外段，逐一兑现/取消，确保没有 Driver 留在 block 态：
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-task-driver-0691" data-source-kind="original-reading-fragment"><code class="language-cpp">// terminate 锁外清理片段：完成 Task 拥有或接入清理协议的等待源。
+// 不覆盖任意外部 future，外部组件仍须响应 cancel / close。
 for (auto&amp; promise : splitPromises)   promise.setValue();   // 唤醒等 split 的 driver
 for (auto&amp; bridge  : oldBridges)      bridge-&gt;cancel();     // 取消 join，唤醒等 build 的 driver
 for (auto&amp; barrierPromise : barrierPromises) barrierPromise.setValue();
@@ -1999,7 +2002,7 @@ future 都有正常兑现、terminate 兜底、thenError 转错三条出路之�
 <p data-corrected="2026-09-20" data-original-block="velox-task-driver-0507">常规批次交付通过 getOutput 返回 RowVector，再由 Driver 调用下游 addInput。算子可以在 addInput 中完成大量计算或向外部 consumer 写出；HashBuild 等 sink 还通过 bridge 交付状态，所以这里不能把“对 Driver 返回输出批次”扩大为全部计算或副作用。</p>
 <p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-task-driver-0508" data-source-kind="original-reading-fragment"><code class="language-cpp">// 中间算子（Driver.cpp:668 附近）
 getOutput(op, intermediateResult);    // 上游产出
-addInput(nextOp, intermediateResult); // 推给下游（下游只是接收）
+addInput(nextOp, intermediateResult); // 推给下游；addInput 也可能执行计算
 // sink（Driver.cpp:772 附近）
 getOutput(op, result);
 </code></pre>
@@ -2083,7 +2086,7 @@ Driver 调下游 addInput()     （把产出 push 下去）
 </code></pre>
 <p data-original-block="velox-task-driver-0169">收益：</p>
 <ul>
-<li data-original-block="velox-task-driver-0170"><strong>M 个 Driver 复用 N 个线程</strong>（M ≫ N），一台机器可同时承载成千上万个 Pipeline 而不会线程爆炸；</li>
+<li data-original-block="velox-task-driver-0170"><strong>M 个 Driver 可以复用 N 个 executor 线程</strong>：普通异步等待让 Driver 退出线程，future 就绪后再入队；实际并发还受状态内存、队列和资源预算约束。同步 I/O 或 suspended 仲裁等待仍可能占住调用线程，不能由这个模型直接保证任意数量的 Pipeline 都能运行。</li>
 <li data-corrected="2026-09-20" data-original-block="velox-task-driver-0171">等 split、join build 或下游消费的普通 future 路径通常让 Driver 返回 kBlock 并归还 executor 线程；发起内存仲裁的 suspended 路径则保留调用栈，不能与这些异步等待混为一谈。</li>
 <li data-original-block="velox-task-driver-0172">CPU 时间片到期主动 <code>kYield</code>，实现公平性。</li>
 </ul>
@@ -2320,18 +2323,18 @@ std::shared_ptr&lt;Task&gt; task;
 Driver 至少通过 <code>DriverCtx::task</code> 持有一个 Task 引用，直到析构为止。因此，<strong>Driver 的生命周期不可能超过 Task 的生命周期</strong>。
 此外，Driver 独占拥有其所有 Operator，所以 <strong>Operator 的生命周期也不可能超过 Driver</strong>。总结：Task 的寿命 ≥ Driver
 的寿命 ≥ Operator 的寿命。</p>
-<p data-original-block="velox-task-driver-0155"><code>BlockedState</code> 结构体中也持有对 Driver 的引用。该结构体在 Driver 进入 Blocked 状态时创建，被存储在挂载到阻塞
-future 的回调 lambda 中。它仅在 future 兑现且回调执行完毕后才会销毁。详见 <code>BlockingState::setResume</code>。<strong>如果 future
-永远不兑现，Driver 和 Task 将发生泄漏。</strong></p>
+<p data-original-block="velox-task-driver-0155">原生命周期资料称 <code>BlockedState</code>，当前名称为 <code>BlockingState</code>。它持有 Driver，并由 future continuation 捕获；成功或异常完成后释放相应引用，具体析构时机取决于其他持有者。如果关联 promise 与 continuation 持续存活但永不完成，也没有接入取消清理，Driver 与 Task 就可能持续保活。详见当前 <code>BlockingState::setResume</code>。</p>
 <p data-original-block="velox-task-driver-0156">Executor 队列中的 lambda 同样持有对 Driver 的引用：</p>
-<pre data-original-block="velox-task-driver-0157" data-source-kind="original-reading-fragment"><code class="language-cpp">// static
-void Driver::enqueue(std::shared_ptr&lt;Driver&gt; driver) &#123;
-    // 预期在 Driver 所属 Task 的互斥锁保护下调用。
-    driver-&gt;enqueueInternal();
-    if (closed_) &#123;
-        return;
-    &#125;
-    task()-&gt;queryCtx()-&gt;executor()-&gt;add([driver]() &#123; Driver::run(driver); &#125;);
+<p class="detail-code-label">当前源码摘录（1d1b76567870）：<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/Driver.cpp#L313">velox/exec/Driver.cpp:313</a>。省略外围声明；此片段未作为独立程序编译。</p><pre data-original-block="velox-task-driver-0157" data-source-kind="verified-source-excerpt"><code class="language-cpp">void Driver::enqueue(std::shared_ptr&lt;Driver&gt; driver) &#123;
+  process::ScopedThreadDebugInfo scopedInfo(
+      driver-&gt;driverCtx()-&gt;threadDebugInfo);
+  // This is expected to be called inside the Driver's Tasks's mutex.
+  driver-&gt;enqueueInternal();
+  if (driver-&gt;closed_) &#123;
+    return;
+  &#125;
+  driver-&gt;task()-&gt;queryCtx()-&gt;executor()-&gt;add(
+      [driver]() &#123; Driver::run(driver); &#125;);
 &#125;
 </code></pre>
 <p data-original-block="velox-task-driver-0158">Driver 从以下几处被加入 Executor 队列：</p>
@@ -2343,7 +2346,7 @@ void Driver::enqueue(std::shared_ptr&lt;Driver&gt; driver) &#123;
 <li data-original-block="velox-task-driver-0163"><code>Driver::run</code> 被 <code>Task::requestYield</code> 触发：此路径目前未被使用。 <strong>译注（2026-09-20）：这是所引生命周期文档的旧描述；当前 Task::resume 已用于内存回收等暂停恢复路径。</strong></li>
 </ul>
 <hr/>
-</div>
+<div class="detail-source-note" id="accuracy-audit-20260920"><p><strong>源码核对（2026-09-20）</strong>：本轮按 Velox <code>1d1b76567870</code> 核对关键接口、控制流、默认值与边界条件。当前源码摘录附固定版本链接；流程伪代码用于说明分支，不是可直接编译的程序。未对全文示例做独立编译或性能复测。涉及宿主集成与历史实验的数据，按各节标注的来源理解。</p><ul><li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/Driver.cpp#L1094">velox/exec/Driver.cpp:1094</a></li><li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/Driver.cpp#L246">velox/exec/Driver.cpp:246,880,1328</a></li><li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/Driver.cpp#L313">velox/exec/Driver.cpp:313</a></li><li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/LocalPartition.cpp#L32">velox/exec/LocalPartition.cpp:32,125,630</a></li><li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/LocalPartition.cpp#L630">velox/exec/LocalPartition.cpp:630</a></li><li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/Task.cpp#L1353">velox/exec/Task.cpp:1353,3842</a></li><li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/Task.cpp#L1750">velox/exec/Task.cpp:1750</a></li><li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/Task.cpp#L3522">velox/exec/Task.cpp:3522</a></li><li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/Task.h#L999">velox/exec/Task.h:999</a></li><li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/TaskStructs.cpp#L21">velox/exec/TaskStructs.cpp:21</a></li></ul></div></div>
 
   </div>
 </article>

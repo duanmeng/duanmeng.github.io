@@ -279,9 +279,9 @@
 <p data-original-block="velox-query-0181"><strong>关键约束：</strong></p>
 <ul>
 <li data-corrected="2026-09-20" data-original-block="velox-query-0182">worker/stage 到 task 的关系由宿主决定；本文示例为每个参与 worker 放置一个 task，实际应结合 taskId、attempt 和调度模式识别。</li>
-<li data-original-block="velox-query-0183">同一 query 的不同 stage 在同一 worker 上各有一个 task（可同时运行）</li>
+<li data-original-block="velox-query-0183">在本文常规放置示例中，不同 stage 可在同一 worker 各放一个 Task；实际数量和重试 attempt 由宿主调度决定。</li>
 <li data-original-block="velox-query-0184">Task 内的并行度靠 <strong>Driver 数量</strong>，不靠 Task 数量</li>
-<li data-original-block="velox-query-0185">Coordinator 把属于某 worker 的所有 splits 都增量发给同一个 task，Driver 并行消费</li>
+<li data-original-block="velox-query-0185">Coordinator 按目标 Task 与 source PlanNode 增量发送 splits；对应 Task 内的 Driver 消费该来源的 split store。一个 worker 上可有不同 stage / attempt 的多个 Task，不能把整个 worker 的 splits 混进同一个 Task。</li>
 </ul>
 <hr/>
 <h2 data-original-block="velox-query-0000" data-reading-phase="concepts" id="零、query-如何并行执行">3. Query 如何并行执行</h2><section class="current-supplement" data-reviewed-section="parallelism"><h3 id="parallelism">3.1 当前实现补充 · Query 的三个并行尺度</h3>
@@ -551,14 +551,46 @@ createOrUpdateTaskImpl()
 </ol>
 <h3 data-original-block="velox-query-0070" id="第-2-步：addsplitwithsequence--为什么需要-sequence">5.4 第 2 步：addSplitWithSequence —— 为什么需要 sequence</h3>
 <p data-original-block="velox-query-0071">Coordinator 可能<strong>重发</strong>同一批 split(网络重试、task update 重叠),所以用 sequence id 去重:</p>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-query-0072" data-source-kind="original-reading-fragment"><code class="language-cpp">// Velox Task.cpp
-bool Task::addSplitWithSequence(planNodeId, Split&amp;&amp; split, long sequenceId) &#123;
-    // 仅当 sequenceId &gt; splitsState.maxSequenceId 才真正入队
-    if (sequenceId &gt; splitsState.maxSequenceId) &#123;
-        addSplitLocked(splitsState, std::move(split));
-        return true;
+<p class="detail-code-label">当前源码摘录（1d1b76567870）：<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/Task.cpp#L1708">velox/exec/Task.cpp:1708</a>。省略外围声明；此片段未作为独立程序编译。</p><pre data-original-block="velox-query-0072" data-source-kind="verified-source-excerpt"><code class="language-cpp">bool Task::addSplitWithSequence(
+    const core::PlanNodeId&amp; planNodeId,
+    exec::Split&amp;&amp; split,
+    long sequenceId) &#123;
+  RECORD_METRIC_VALUE(kMetricTaskSplitsCount, 1);
+  std::vector&lt;ContinuePromise&gt; promises;
+  bool added = false;
+  bool isTaskRunning;
+  bool shouldLogSplit = false;
+  &#123;
+    std::lock_guard&lt;std::timed_mutex&gt; l(mutex_);
+    isTaskRunning = isRunningLocked();
+    if (isTaskRunning) &#123;
+      // The same split can be added again in some systems. The systems that
+      // want 'one split processed once only' would use this method and
+      // duplicate splits would be ignored.
+      auto&amp; splitsState = getPlanNodeSplitsStateLocked(planNodeId);
+      if (sequenceId &gt; splitsState.maxSequenceId) &#123;
+        shouldLogSplit = true;
+        addSplitLocked(splitsState, split, promises);
+        added = true;
+      &#125;
     &#125;
-    return false;  // 重复 split,丢弃
+  &#125;
+
+  for (auto&amp; promise : promises) &#123;
+    promise.setValue();
+  &#125;
+
+  if (!isTaskRunning) &#123;
+    // Safe because 'split' is moved away above only if 'isTaskRunning'.
+    // @lint-ignore CLANGTIDY bugprone-use-after-move
+    addRemoteSplit(planNodeId, split);
+  &#125;
+
+  if (shouldLogSplit) &#123;
+    onAddSplit(planNodeId, split);
+  &#125;
+
+  return added;
 &#125;
 </code></pre>
 <ul>
@@ -919,7 +951,7 @@ Pipeline 1（下游，M 个 consumer driver，M = numPartitions）
 </code></pre>
 <ul>
 <li data-original-block="velox-query-0255">每个 <code>LocalExchangeQueue</code> 对应一个分区，有且只有一个 consumer driver 消费</li>
-<li data-original-block="velox-query-0256">所有 <code>LocalPartition</code> producer 共享同一个 <code>LocalExchangeMemoryManager</code>，统一控制总缓冲上限</li>
+<li data-original-block="velox-query-0256">同一组 LocalExchange 队列共享 LocalExchangeMemoryManager，按聚合的 bufferedBytes 触发 producer 背压；数据已入队才检查阈值，因此这不是不可瞬时越过的物理内存上限。</li>
 </ul>
 <h3 data-original-block="velox-query-0257" id="localexchangememorymanager">7.3 LocalExchangeMemoryManager</h3>
 <p data-original-block="velox-query-0258"><strong>职责</strong>：跨所有 <code>LocalExchangeQueue</code> 追踪总内存用量，在超限时阻塞 producer。</p>
@@ -1008,7 +1040,7 @@ bool closed_&#123;false&#125;;
           wrapChildren() 用 dictionary 索引包装列，零拷贝创建 RowVector
           立即 enqueue
 </code></pre>
-<p data-original-block="velox-query-0289"><strong><code>wrapChildren()</code><strong>：用 dictionary 向量包装输入列，指向原始数据，</strong>零拷贝</strong>。适合分区数少、批次大的场景。</p>
+<p data-original-block="velox-query-0289"><code>wrapChildren()</code> 通过 dictionary indices 引用输入列，省去这一分区步骤的 payload 复制；索引和包装对象仍有成本，还可能延长整个 base vector 的生命周期。与复制小分区到独立 buffer 的路径相比，选择应结合批次大小、分区数和 retained memory，不能只看逻辑输出字节数。</p>
 <p data-original-block="velox-query-0290">**<code>copy()</code> / <code>populatePartitionBuffer()</code>**：把行物理复制进 <code>partitionBuffers_[p]</code>，适合分区数多（字典开销大）的场景。</p>
 <p data-original-block="velox-query-0291"><strong>阻塞</strong>：若任意队列 <code>enqueue()</code> 返回 <code>kWaitForConsumer</code>，收集对应 future，在 <code>isBlocked()</code> 时返回，driver 退出线程池。</p>
 <p data-original-block="velox-query-0292">**<code>noMoreInput()</code>**：flush 剩余 buffer，对所有队列调用 <code>noMoreData()</code>，通知 consumer 不再有数据。</p>
@@ -1079,7 +1111,7 @@ flush():
     bufferManager_.enqueue(taskId, partition, page)
         → OutputBuffer::enqueue()
         → DestinationBuffer[p].data_.push_back(page)
-        → 若 bufferedBytes_ &gt; maxSize_ → 返回 blocking future（producer 阻塞）
+        → 若 bufferedBytes_ 达到该输出缓冲实现的背压条件 → 返回 blocking future（producer 阻塞）
 </code></pre>
 <p data-original-block="velox-query-0306"><strong>随机 flush 阈值</strong>（<code>targetSizePct_</code> = 70~120%）：各 Driver 的 flush 时机错开，避免同时写入造成突发压力。</p>
 <h3 data-original-block="velox-query-0307" id="上游：outputbuffer--outputbuffermanager">8.4 上游：OutputBuffer / OutputBufferManager</h3>
@@ -1098,10 +1130,10 @@ DestinationBuffer &#123;
     std::function&lt;...&gt; notify_;              // 有数据时唤醒等待的 HTTP 请求
 &#125;
 </code></pre>
-<p data-original-block="velox-query-0309"><strong>背压</strong>：<code>bufferedBytes_ &gt; maxSize_</code> 时，<code>enqueue()</code> 返回 <code>ContinueFuture</code>，producer（<code>PartitionedOutput</code>）阻塞。当下游 ACK 消费数据后，<code>bufferedBytes_</code> 降到 <code>continueSize_</code> 以下时 fulfill promises，解除阻塞。</p>
+<p data-original-block="velox-query-0309"><strong>背压</strong>：<code>bufferedBytes_ 达到该输出缓冲实现的背压条件</code> 时，<code>enqueue()</code> 返回 <code>ContinueFuture</code>，producer（<code>PartitionedOutput</code>）阻塞。当下游 ACK 消费数据后，<code>bufferedBytes_</code> 降到 <code>continueSize_</code> 以下时 fulfill promises，解除阻塞。</p>
 <p data-original-block="velox-query-0310"><strong><code>getData()</code> 回调机制</strong>：下游 HTTP GET 到来时若无数据，注册 <code>notify_</code> 回调；有数据入队时回调触发，立即响应 HTTP 请求。</p>
 <h3 data-original-block="velox-query-0311" id="下游：exchangeclient">8.5 下游：ExchangeClient</h3>
-<p data-original-block="velox-query-0312">同一 pipeline 的所有 Driver 共享一个 <code>ExchangeClient</code>，但各自独立从 <code>ExchangeQueue</code> 消费（多消费者）。</p>
+<p data-original-block="velox-query-0312">在这里的普通内存 Exchange 路径中，同一 pipeline 的消费者共享 Task 创建的 <code>InMemoryExchangeClient</code>，再从其队列消费。materialized / file exchange 有其他实现，不能把这项共享布局当成全部 exchange transport 的规定。</p>
 <p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-query-0313" data-source-kind="original-reading-fragment"><code class="language-cpp">ExchangeClient &#123;
     ExchangeQueue queue_;                    // 多 source 入队，多 driver 消费
     std::vector&lt;ExchangeSource&gt; sources_;   // 每个上游 task 一个
@@ -1215,8 +1247,8 @@ processDataResponse(response)
 </thead>
 <tbody><tr>
 <td data-original-block="velox-query-0344">OutputBuffer（上游）</td>
-<td data-original-block="velox-query-0345"><code>bufferedBytes_ &gt; maxSize_</code> 时阻塞 producer</td>
-<td data-original-block="velox-query-0346"><code>task.maxOutputBufferSize</code>（默认 32MB）</td>
+<td data-original-block="velox-query-0345"><code>bufferedBytes_ 达到该输出缓冲实现的背压条件</code> 时阻塞 producer</td>
+<td data-original-block="velox-query-0346"><code>QueryConfig::maxOutputBufferSize() / max_output_buffer_size</code>（默认 32MB）</td>
 </tr>
 <tr>
 <td data-original-block="velox-query-0347">ExchangeQueue（下游本地缓存）</td>
@@ -1415,7 +1447,7 @@ Coordinator: GET /v1/task/C2/results/0/0
 <td data-original-block="velox-query-0391"><code>velox/exec/OutputBuffer.h/cpp</code>, <code>velox/exec/OutputBufferManager.h/cpp</code></td>
 </tr>
 </tbody></table></div>
-<span aria-hidden="true" class="detail-legacy-anchor" id="ex"></span><span aria-hidden="true" class="detail-legacy-anchor" id="qp"></span></div>
+<span aria-hidden="true" class="detail-legacy-anchor" id="ex"></span><span aria-hidden="true" class="detail-legacy-anchor" id="qp"></span><div class="detail-source-note" id="accuracy-audit-20260920"><p><strong>源码核对（2026-09-20）</strong>：本轮按 Velox <code>1d1b76567870</code> 核对关键接口、控制流、默认值与边界条件。当前源码摘录附固定版本链接；流程伪代码用于说明分支，不是可直接编译的程序。未对全文示例做独立编译或性能复测。涉及宿主集成与历史实验的数据，按各节标注的来源理解。</p><ul><li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/core/QueryConfig.h#L328">velox/core/QueryConfig.h:328,480</a></li><li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/InMemoryExchangeClient.h#L50">velox/exec/InMemoryExchangeClient.h:50</a></li><li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/LocalPartition.cpp#L32">velox/exec/LocalPartition.cpp:32,384,630</a></li><li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/Task.cpp#L1687">velox/exec/Task.cpp:1687,1708</a></li><li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/Task.cpp#L1708">velox/exec/Task.cpp:1708</a></li><li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/Task.cpp#L3757">velox/exec/Task.cpp:3757</a></li><li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/Task.h#L100">velox/exec/Task.h:100</a></li></ul></div></div>
 
   </div>
 </article>
