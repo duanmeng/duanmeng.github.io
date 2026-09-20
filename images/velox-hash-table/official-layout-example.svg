@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="935" viewBox="0 0 1280 935" role="img" aria-labelledby="title desc">
+<title id="title">桶式 HashTable：先定位索引，再访问行</title><desc id="desc">按官方文档的容量与 hash 示例重画；bit 编号在这里统一从 0 开始</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
+<rect x="0" y="0" width="1280" height="935" rx="0" fill="white" stroke="none" stroke-width="1"/>
+<rect x="8" y="8" width="1264" height="919" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<rect x="9" y="9" width="1262" height="94" rx="0" fill="#edf5ff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="103" x2="1271" y2="103" stroke="#d6d3cc" stroke-width="1"/>
+<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">桶式 HashTable：先定位索引，再访问行</text>
+<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">按官方文档的容量与 hash 示例重画；bit 编号在这里统一从 0 开始</text>
+<rect x="40" y="142" width="380" height="118" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="40" y="146" width="4" height="110" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="60" y="176" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="400" text-anchor="start">capacity = 2²⁰ slots</text>
+<text x="60" y="207" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">65,536 个 bucket × 16 slots</text>
+<text x="60" y="234" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">索引字节数：2²⁰ × 8 = 8 MiB</text>
+<rect x="450" y="142" width="380" height="118" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<rect x="450" y="146" width="4" height="110" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
+<text x="470" y="176" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="400" text-anchor="start">hash → bucket offset</text>
+<text x="470" y="207" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">hash &amp; 0x7fff80 = 1,374,336</text>
+<text x="470" y="234" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">bucket number = 10,737</text>
+<rect x="860" y="142" width="380" height="118" rx="4" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
+<rect x="860" y="146" width="4" height="110" rx="0" fill="#c2410c" stroke="none" stroke-width="1"/>
+<text x="880" y="176" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="400" text-anchor="start">hash → tag</text>
+<text x="880" y="207" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">bit 38..44 → 0x71</text>
+<text x="880" y="234" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">最高位置 1 → 0xf1</text>
+<text x="40" y="307" font-family="DejaVu Sans Mono, Liberation Mono, Consolas, monospace" fill="#111827" font-size="20" text-anchor="start">hash = 0x5bca7c69b794f8ce</text>
+<text x="40" y="352" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="400" text-anchor="start">选中 bucket 的 128 字节布局（图中段宽按字节比例）</text>
+<text x="88" y="393" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="middle">0</text>
+<text x="216" y="393" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="middle">16</text>
+<text x="600" y="393" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="middle">64</text>
+<text x="984" y="393" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="middle">112</text>
+<text x="1112" y="393" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="middle">128 B</text>
+<rect x="88" y="408" width="128" height="88" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<text x="152" y="442" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="400" text-anchor="middle">16 tags</text>
+<text x="152" y="471" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="middle">16 × 1 B</text>
+<rect x="216" y="408" width="768" height="88" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="600" y="442" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="400" text-anchor="middle">16 个行指针，每个 6 B</text>
+<text x="600" y="471" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="middle">同一个 slot 的 tag 和 pointer 分开存放</text>
+<rect x="984" y="408" width="128" height="88" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
+<text x="1048" y="442" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="400" text-anchor="middle">padding</text>
+<text x="1048" y="471" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="middle">16 B</text>
+<line x1="88" y1="512" x2="600" y2="512" stroke="#8b8b8b" stroke-width="1"/>
+<line x1="600" y1="512" x2="1112" y2="512" stroke="#8b8b8b" stroke-width="1"/>
+<text x="344" y="540" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="middle">cache line 0：byte 0..63</text>
+<text x="856" y="540" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="middle">cache line 1：byte 64..127</text>
+<polyline points="640,566 640,616" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="260" y="616" width="760" height="136" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<rect x="260" y="620" width="4" height="128" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
+<text x="280" y="650" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="400" text-anchor="start">命中 tag 只是候选，还要追随 pointer</text>
+<text x="280" y="681" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">kHash：到 RowContainer 比较真实 key</text>
+<text x="280" y="708" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">kNormalizedKey：比较 row - 8 处的完整 normalized key</text>
+<text x="280" y="735" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">索引不内嵌完整 key / payload；64 B cache line 是此处平台假设</text>
+<rect x="40" y="833" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
+<text x="60" y="862" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">128 B / 16 slots = 每个容量槽 8 B；这不是每条业务行的全部内存</text>
+<text x="60" y="887" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">70% 无 tombstone 占用时，索引摊销约 11.43 B / distinct key，另加 RowContainer 与其他状态。</text>
+</svg>

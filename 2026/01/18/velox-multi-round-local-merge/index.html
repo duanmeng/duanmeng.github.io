@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="body:has(.merge-post) #header-post #toc .toc-level-2::before, body:has(.merge-post) #toc-footer .toc-level-2::before { display: none; } .merge-post .detail-figure { margin: 2rem 0; } .merge-post .det">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Velox Multi-Round LocalMerge：Lazy Start、异步读回与异常收敛">
+<meta property="og:url" content="https://duanmeng.github.io/2026/01/18/velox-multi-round-local-merge/index.html">
+<meta property="og:site_name" content="Macduan Notes">
+<meta property="og:description" content="body:has(.merge-post) #header-post #toc .toc-level-2::before, body:has(.merge-post) #toc-footer .toc-level-2::before { display: none; } .merge-post .detail-figure { margin: 2rem 0; } .merge-post .det">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://duanmeng.github.io/images/velox-multi-round-local-merge/two-phase.svg">
+<meta property="og:image" content="https://duanmeng.github.io/images/velox-multi-round-local-merge/merge-classes.svg">
+<meta property="og:image" content="https://duanmeng.github.io/images/velox-multi-round-local-merge/lazy-start.svg">
+<meta property="og:image" content="https://duanmeng.github.io/images/velox-multi-round-local-merge/queue-protocol.svg">
+<meta property="og:image" content="https://duanmeng.github.io/images/velox-multi-round-local-merge/cursor-and-output.svg">
+<meta property="og:image" content="https://duanmeng.github.io/images/velox-multi-round-local-merge/round-state.svg">
+<meta property="og:image" content="https://duanmeng.github.io/images/velox-multi-round-local-merge/spill-classes.svg">
+<meta property="og:image" content="https://duanmeng.github.io/images/velox-multi-round-local-merge/async-streams.svg">
+<meta property="og:image" content="https://duanmeng.github.io/images/velox-multi-round-local-merge/error-convergence.svg">
+<meta property="article:published_time" content="2026-01-18T02:00:00.000Z">
+<meta property="article:modified_time" content="2026-09-19T16:00:00.000Z">
+<meta property="article:author" content="duanmeng">
+<meta property="article:tag" content="QueryExecution">
+<meta property="article:tag" content="Velox">
+<meta property="article:tag" content="LocalMerge">
+<meta property="article:tag" content="Spill">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://duanmeng.github.io/images/velox-multi-round-local-merge/two-phase.svg">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Velox Multi-Round LocalMerge：Lazy Start、异步读回与异常收敛</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr theme-whiteboard">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2026/03/02/velox-memory-pool-arbitration/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2025/12/30/velox-primer/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://duanmeng.github.io/2026/01/18/velox-multi-round-local-merge/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://duanmeng.github.io/2026/01/18/velox-multi-round-local-merge/&text=Velox Multi-Round LocalMerge：Lazy Start、异步读回与异常收敛"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://duanmeng.github.io/2026/01/18/velox-multi-round-local-merge/&title=Velox Multi-Round LocalMerge：Lazy Start、异步读回与异常收敛"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://duanmeng.github.io/2026/01/18/velox-multi-round-local-merge/&is_video=false&description=Velox Multi-Round LocalMerge：Lazy Start、异步读回与异常收敛"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Velox Multi-Round LocalMerge：Lazy Start、异步读回与异常收敛&body=Check out this article: https://duanmeng.github.io/2026/01/18/velox-multi-round-local-merge/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://duanmeng.github.io/2026/01/18/velox-multi-round-local-merge/&title=Velox Multi-Round LocalMerge：Lazy Start、异步读回与异常收敛"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://duanmeng.github.io/2026/01/18/velox-multi-round-local-merge/&title=Velox Multi-Round LocalMerge：Lazy Start、异步读回与异常收敛"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://duanmeng.github.io/2026/01/18/velox-multi-round-local-merge/&title=Velox Multi-Round LocalMerge：Lazy Start、异步读回与异常收敛"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://duanmeng.github.io/2026/01/18/velox-multi-round-local-merge/&title=Velox Multi-Round LocalMerge：Lazy Start、异步读回与异常收敛"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://duanmeng.github.io/2026/01/18/velox-multi-round-local-merge/&name=Velox Multi-Round LocalMerge：Lazy Start、异步读回与异常收敛&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://duanmeng.github.io/2026/01/18/velox-multi-round-local-merge/&t=Velox Multi-Round LocalMerge：Lazy Start、异步读回与异常收敛"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#problem-and-contract"><span class="toc-number">1.</span> <span class="toc-text">1. 有序数据合并，为什么仍然会耗尽内存</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#training-data"><span class="toc-number">1.1.</span> <span class="toc-text">从小时分区合并到天分区</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#sorted-source-contract"><span class="toc-number">1.2.</span> <span class="toc-text">source 的有序契约比文件有序更强</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#two-phase-example"><span class="toc-number">1.3.</span> <span class="toc-text">24 路输入、每轮 8 路的完整路径</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#module-map"><span class="toc-number">2.</span> <span class="toc-text">2. 算子、队列、游标与文件流各做什么</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#lazy-start"><span class="toc-number">3.</span> <span class="toc-text">3. Pipeline lazy start：先创建连接，再允许读取</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#gate-placement"><span class="toc-number">3.1.</span> <span class="toc-text">为什么启动门放在 CallbackSink</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#activation-order"><span class="toc-number">3.2.</span> <span class="toc-text">下一组 source 什么时候启动</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#queue-and-backpressure"><span class="toc-number">4.</span> <span class="toc-text">4. 一份队列协议，连接启动、数据和结束</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#queue-fields"><span class="toc-number">4.1.</span> <span class="toc-text">LocalMergeSource 保存哪些状态</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#notification-order"><span class="toc-number">4.2.</span> <span class="toc-text">为什么 promise 在锁外通知</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#source-merger"><span class="toc-number">5.</span> <span class="toc-text">5. 归并内核：比较、游标、批次复制</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#loser-tree"><span class="toc-number">5.1.</span> <span class="toc-text">TreeOfLosers 如何决定下一行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#copy-boundary"><span class="toc-number">5.2.</span> <span class="toc-text">不是每次选中一行就立即复制整行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#batch-sizing"><span class="toc-number">5.3.</span> <span class="toc-text">行宽估计怎样影响输出批次</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#round-controller"><span class="toc-number">6.</span> <span class="toc-text">6. 多轮控制：从当前 source 组切换到最终归并</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#controller-fields"><span class="toc-number">6.1.</span> <span class="toc-text">字段组合表达执行进度</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#spill-group-boundary"><span class="toc-number">6.2.</span> <span class="toc-text">为什么最后一轮也落盘</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#waiting-futures"><span class="toc-number">6.3.</span> <span class="toc-text">阻塞 future 怎样回到 Driver</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#spill-file-stream"><span class="toc-number">7.</span> <span class="toc-text">7. 文件组读回：有序拼接与真正的资源边界</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#reader-eager-init"><span class="toc-number">7.1.</span> <span class="toc-text">一条 stream 不等于只打开一个文件</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#async-stream-management"><span class="toc-number">8.</span> <span class="toc-text">8. Async stream：怎样调度，怎样控制领先量</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#stream-index"><span class="toc-number">8.1.</span> <span class="toc-text">streamIdx 是几组对象之间的对应关系</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#read-continuation"><span class="toc-number">8.2.</span> <span class="toc-text">快路径直接读，满队列后挂 continuation</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#queue-memory"><span class="toc-number">8.3.</span> <span class="toc-text">有界队列约束的是什么</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#async-errors"><span class="toc-number">9.</span> <span class="toc-text">9. 异步线程的异常怎样回到查询执行线程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#separate-eof-error"><span class="toc-number">9.1.</span> <span class="toc-text">错误信息与流结束必须分别表达</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#two-error-paths"><span class="toc-number">9.2.</span> <span class="toc-text">同步读取失败与 continuation 失败</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#cooperative-convergence"><span class="toc-number">9.3.</span> <span class="toc-text">一条流出错以后，其余流如何停止</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#central-rethrow"><span class="toc-number">9.4.</span> <span class="toc-text">为什么在 atEnd 处统一重抛</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#lifetime-and-cancel"><span class="toc-number">10.</span> <span class="toc-text">10. 对象所有权、回调寿命与提前取消</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#ownership"><span class="toc-number">10.1.</span> <span class="toc-text">谁负责让对象继续存在</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#initial-callback"><span class="toc-number">10.2.</span> <span class="toc-text">weak_ptr 不是所有回调都安全的证明</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#cleanup-boundary"><span class="toc-number">10.3.</span> <span class="toc-text">析构和 close 实际做了什么</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#configuration"><span class="toc-number">11.</span> <span class="toc-text">11. 启用条件、配置与运行观测</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#enablement"><span class="toc-number">11.1.</span> <span class="toc-text">配置 F 之前，先满足 spill 的接入条件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#metrics"><span class="toc-number">11.2.</span> <span class="toc-text">怎样读两个阶段的统计</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#test-coverage"><span class="toc-number">12.</span> <span class="toc-text">12. 源码中的测试验证了哪些约束</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#design-tradeoffs"><span class="toc-number">13.</span> <span class="toc-text">13. 设计取舍：用阶段边界管理工作集</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#memory-model"><span class="toc-number">13.1.</span> <span class="toc-text">内存模型需要同时计算两阶段</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ordered-run-as-boundary"><span class="toc-number">13.2.</span> <span class="toc-text">有序 run 是简化系统的关键中间表示</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#latency-and-io"><span class="toc-number">13.3.</span> <span class="toc-text">换来的稳定性，付出的延迟与 I&#x2F;O</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#error-protocol-taste"><span class="toc-number">13.4.</span> <span class="toc-text">错误处理的价值在于可解释的结束协议</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#references"><span class="toc-number">14.</span> <span class="toc-text">14. 参考文章与源码入口</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+      
+        <nav class="post-side-nav" aria-label="Site navigation">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/categories/technology">Technology</a></li>
+    
+      <li><a href="/categories/life">Life</a></li>
+    
+      <li><a href="/archives/">Archives</a></li>
+    
+      <li><a href="/tags/">Tags</a></li>
+    
+      <li><a href="/about">About</a></li>
+    
+  </ul>
+</nav>
+
+      
+    
+    <div class="content index py4">
+        
+          <header class="post-site-header">
+  <a class="site-name" href="/">Macduan Notes</a>
+  <nav aria-label="Menu">
+    <ul>
+      
+        <li><a href="/">Home</a></li>
+      
+        <li><a href="/categories/technology">Technology</a></li>
+      
+        <li><a href="/categories/life">Life</a></li>
+      
+        <li><a href="/archives/">Archives</a></li>
+      
+        <li><a href="/tags/">Tags</a></li>
+      
+        <li><a href="/about">About</a></li>
+      
+    </ul>
+  </nav>
+</header>
+
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Velox Multi-Round LocalMerge：Lazy Start、异步读回与异常收敛
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">duanmeng</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2026-01-18T02:00:00.000Z" itemprop="datePublished">2026-01-18</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/technology/">technology</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/LocalMerge/" rel="tag">LocalMerge</a>, <a class="tag-link-link" href="/tags/QueryExecution/" rel="tag">QueryExecution</a>, <a class="tag-link-link" href="/tags/Spill/" rel="tag">Spill</a>, <a class="tag-link-link" href="/tags/Velox/" rel="tag">Velox</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <style>
+body:has(.merge-post) #header-post #toc .toc-level-2::before,
+body:has(.merge-post) #toc-footer .toc-level-2::before { display: none; }
+.merge-post .detail-figure { margin: 2rem 0; }
+.merge-post .detail-figure-scroll { max-width: 100%; overflow-x: auto; }
+.merge-post .detail-figure-scroll img { display: block; width: 100%; min-width: 960px; max-width: none; height: auto; }
+.merge-post .detail-figure-scroll:focus-visible { outline: 1px solid #857663; outline-offset: 4px; }
+.merge-post figcaption { color: #706b63; font-size: 13px; line-height: 1.7; margin-top: .7rem; }
+.merge-post .tbl-wrap { max-width: 100%; overflow-x: auto; margin: 1.5rem 0; }
+.merge-post .tbl-wrap table { width: 100%; min-width: 740px; }
+.merge-post .tbl-wrap td,.merge-post .tbl-wrap th { min-width: 125px; white-space: normal; }
+.merge-post .source-note { padding: .85rem 1rem; background: #faf7f1; color: #55514b; line-height: 1.8; }
+.merge-post .code-label { margin: 1.25rem 0 .45rem; color: #706b63; font-size: 13px; }
+.merge-post code,.merge-post pre,.merge-post .highlight { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; }
+.merge-post code { overflow-wrap: anywhere; }
+.merge-post pre code { white-space: pre; overflow-wrap: normal; }
+.merge-post .highlight { max-width: 100%; overflow-x: auto; margin: .5rem 0 1.5rem; }
+.merge-post .highlight pre { min-width: max-content; }
+.merge-post .highlight code,.merge-post .highlight span { font-family: inherit; }
+.merge-post .highlight .keyword,.merge-post .highlight .literal { color: #9c3b20; font-weight: 600; background: transparent; }
+.merge-post .highlight .type,.merge-post .highlight .built_in { color: #665094; background: transparent; }
+.merge-post .highlight .string { color: #3f6f4b; background: transparent; }
+.merge-post .highlight .number { color: #805b21; background: transparent; }
+.merge-post .highlight .comment { color: #7c776f; font-weight: 400; }
+.merge-post .highlight .title { color: #355c72; background: transparent; }
+@media print { .merge-post .detail-figure-scroll img,.merge-post .tbl-wrap table { min-width: 0; } }
+</style>
+<div class="post-body velox-detailed merge-post">
+
+<p>LocalMerge 是 Velox 在一个 Task 内合并多条有序输入流的算子。上游可以并行扫描和解码，LocalMerge 用一个 Driver 按排序键选出下一行，向下游提供一条有序的 RowVector 流。输入已经有序，所以这里的核心工作是归并，而不是重新排序全部数据。</p>
+<p>Multi-round LocalMerge 在这个模型上加入了<strong>分组启动、归并落盘、异步读回</strong>：一次只启动一部分上游 source，把这一组的归并结果写成有序 spill 文件组；各组完成后，再归并这些文件组。它要控制的是同时活跃的 reader 和输入工作集，代价是一次完整的中间写入与读回，以及更晚的最终首批输出。</p>
+<p>这个特性里有三套相互配合的协议：lazy start 决定谁现在可以开始生产；有界队列决定已经开始的 producer 可以领先 consumer 多远；异常与 EOF 协议决定异步工作怎样停止，以及失败怎样回到执行查询的 Driver。先理解它们各自的职责，再看具体类和回调，代码中的 future、指针和状态字段才有明确的位置。</p>
+<p class="source-note">本文围绕我参与实现的特性展开，背景来源于 <a target="_blank" rel="noopener" href="https://velox-lib.io/blog/multi-round-local-merge">Multi-Round Lazy Start Merge</a>（官方文章发表于 2025-11-09，作者 Meng Duan、Xiaoxuan Meng、Pedro Pedreira）。本文发布时间设为 2026-01-18；实现细节于 2026-09-20 按 <a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/commit/1d1b765678702e6b5d1b3c582373c618813c3c85">Velox 1d1b76567870</a> 重新核对。下文描述的是这个固定快照，包含后续演进，不代表所有代码在 1 月都已相同。源码节选保留原实现；流程化代码明确标为伪代码。</p>
+<h2 id="problem-and-contract">1. 有序数据合并，为什么仍然会耗尽内存</h2>
+<h3 id="training-data">从小时分区合并到天分区</h3>
+<p>推荐模型训练数据常按主键分桶，并在桶内按键排序。合并 24 个小时分区时，希望同一个主键的所有行在天分区中连续存放。如果每个参与归并的输入都已按相同规则排序，问题就是多路有序归并：维护每路当前的最小行，从中不断选出全局最小行。LocalMerge 保留所有输入行；它不会因为 key 相同就做去重、聚合或覆盖。</p>
+<p>官方文章讨论的是 PB 级训练数据准备场景。Spark 可以利用已有的 bucketing 和 ordering 避免一部分 shuffle，但文中所述的执行路径仍把依次读入的数据交给 sorter，产生中间 spill。原文观察到，那个场景下 row-based spill 相对数据湖中的列式训练数据约有 4 倍空间放大。这是原文特定工作负载的观察，不能当作任意 Spark 作业的固定倍率，也不是本文重新测得的结果。</p>
+<p>换成有序归并后，不需要把所有输入行重新装进 sorter；但需要同时看到每条活跃输入流的头部。宽表的 reader 还可能持有列元数据、字典、页缓冲、解压空间和预取结果。上千列乘上多条输入流，即使队列只缓存少量 RowVector，读取侧的内存也可能很大。不同格式和 reader 的按需加载策略不同，不能把它简化成“任何 reader 永远为每列完整保留一页”的常量公式。</p>
+<h3 id="sorted-source-contract">source 的有序契约比文件有序更强</h3>
+<p>一个 MergeSource 表示一条完整的生产流，通常连接一份上游 Driver 和一个队列。它必须保证<strong>跨批次的整体有序性</strong>，排序键、升降序和 NULL 排序也必须与 LocalMerge 一致。两个文件各自有序，并不意味着把它们随意串在同一条 Driver 上后仍然有序；宿主规划 split、文件和 Driver 时必须保证这个契约。LocalMerge 不会替宿主修复错误的文件拼接顺序。</p>
+<div class="tbl-wrap"><table><thead><tr><th>对象</th><th>这里的含义</th><th>容易混淆的边界</th></tr></thead><tbody><tr><td>source</td><td>一条整体有序的生产流</td><td>不是必然等于一个文件、一个 split 或一个线程</td></tr><tr><td>pipeline / Driver</td><td>算子链的结构 / 一份可调度的执行进度</td><td>Driver 可以换 executor 线程，也可以在 future 上暂停</td></tr><tr><td>round / run</td><td>一次处理一组原始 sources / 这组的有序输出</td><td>一轮可生成多个 spill 文件，仍然只是一条有序 run</td></tr><tr><td>spill file group</td><td>保存同一条 run 的一个或多个文件</td><td>最终归并按组计路数，组内按写出次序拼接</td></tr><tr><td>async stream</td><td>一条 BatchStream、队列和回调组成的逻辑流</td><td>不是一个名为 AsyncStream 的通用 C++ 类，也不是专属线程</td></tr></tbody></table></div>
+<h3 id="two-phase-example">24 路输入、每轮 8 路的完整路径</h3>
+<p>令原始 source 数为 N，每轮上限为 F。N = 24、F = 8 时，先启动 0–7，归并并写出文件组 G0；这一组结束后再启动 8–15，最后启动 16–23。假设三组都非空，最终启动 3 条 spill stream 读回 G0、G1、G2，归并出最终结果。某一组完全没有行就不会生成文件组。</p>
+<figure class="detail-figure"><div class="detail-figure-scroll" role="region" tabindex="0" aria-label="图 1，可横向滚动"><img src="/images/velox-multi-round-local-merge/two-phase.svg" alt="第一阶段的三轮依次执行；第二阶段才并行读回三个有序文件组并向下游输出。" loading="lazy" /></div><figcaption>图 1：第一阶段的三轮依次执行；第二阶段才并行读回三个有序文件组并向下游输出。 <a href="/images/velox-multi-round-local-merge/two-phase.svg">打开 SVG 原图</a></figcaption></figure>
+<p>这是<strong>多个局部归并轮次，加一次最终归并</strong>。当前实现不会反复递归，把第二阶段也一直限制成 F 路。N ≤ F 时走普通流式 LocalMerge，无需为了“多轮模式”强制落盘。N &gt; F 时所有原始输入组的结果都要 spill，最后一组同样如此。</p>
+<h2 id="module-map">2. 算子、队列、游标与文件流各做什么</h2>
+<p>规划层负责建立跨 pipeline 的连接，Merge 负责阶段与轮次，SourceMerger 负责有序归并，MergeSource 负责同步。SpillMerger 把文件读回转成 MergeSource 所提供的相同接口，因此最终归并可以继续使用 SourceMerger。</p>
+<div class="tbl-wrap"><table><thead><tr><th>模块</th><th>主要类或函数</th><th>职责</th></tr></thead><tbody><tr><td>计划与执行连接</td><td>LocalMergeNode / LocalPlanner / Task</td><td>定义排序规则，建立 producer pipeline，登记并共享 MergeSource</td></tr><tr><td>生产入口</td><td>CallbackSink</td><td>启动门检查、批次入队、生产结束通知</td></tr><tr><td>跨线程同步</td><td>MergeSource / LocalMergeSource</td><td>started、队列、EOF、producer / consumer promises</td></tr><tr><td>算子控制</td><td>LocalMerge → Merge → SourceOperator</td><td>选择 source 组、调度 spill、处理 Driver 阻塞和结束</td></tr><tr><td>归并内核</td><td>SourceMerger / SourceStream / TreeOfLosers</td><td>比较排序键、推进游标、组装输出向量</td></tr><tr><td>中间写出</td><td>MergeSpiller</td><td>接收已经有序的 RowVector，写出同一 run 的文件</td></tr><tr><td>最终读回</td><td>SpillMerger / BatchStream / SpillReadFile</td><td>并行读取不同文件组，经队列交给单线程归并</td></tr></tbody></table></div>
+<figure class="detail-figure"><div class="detail-figure-scroll" role="region" tabindex="0" aria-label="图 2，可横向滚动"><img src="/images/velox-multi-round-local-merge/merge-classes.svg" alt="归并侧的主要类关系。TreeOfLosers 拥有 SourceStream；SourceStream 只借用 MergeSource 指针。" loading="lazy" /></div><figcaption>图 2：归并侧的主要类关系。TreeOfLosers 拥有 SourceStream；SourceStream 只借用 MergeSource 指针。 <a href="/images/velox-multi-round-local-merge/merge-classes.svg">打开 SVG 原图</a></figcaption></figure>
+<p>LocalMerge 在下游 pipeline 中是 SourceOperator：它通过跨 pipeline 的共享队列获取输入，而不是由同一条 Driver 中的上一个 Operator 调用它的 addInput。上游 pipeline 尾端的 CallbackSink 才是实际接收扫描输出并入队的位置。Task 按 split group 和 plan node id 保存这些共享 sources。</p>
+<p>原文的 24 路扫描画成“两条 pipeline，扫描 pipeline 创建 24 份 Driver，归并 pipeline 创建 1 份 Driver”，适合解释该工作负载。当前 LocalPlanner 还需要按具体计划结构切分不同 source 的 pipeline，不能把这个示例当作任意 LocalMerge 计划都恰好只有两个 DriverFactory 的规定。归并端要求单线程，则同时在 LocalMergeNode::requiresSingleThread 和 LocalMerge 构造检查中体现。</p>
+<p>源码：<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/core/PlanNode.h#L2465">LocalMergeNode</a>，<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/LocalPlanner.cpp#L167">makeMergeSinkSupplier</a>，<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/Task.cpp#L3326">Task::addLocalMergeSource</a>，<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/Merge.h#L33">Merge 与 SourceMerger 声明</a>。</p>
+<h2 id="lazy-start">3. Pipeline lazy start：先创建连接，再允许读取</h2>
+<h3 id="gate-placement">为什么启动门放在 CallbackSink</h3>
+<p>如果上游已经把所有 reader 打开并开始读取，下游即使每次只归并 8 路，也未必能减少扫描侧的峰值内存。多轮归并需要更早的控制点：未被选中的 producer 暂时不要向源头取数。</p>
+<p>LocalPlanner::makeMergeSinkSupplier 为每份 CallbackSink 创建一个 LocalMergeSource，并安装两个捕获该 source 的回调。consumerCb 调用 enqueue；startCb 调用 started。producer 知道怎样发送数据，但是否允许启动，由下游调用 source-&gt;start() 决定。</p>
+<p>Driver 正常推进时先初始化算子，然后从 sink 向 source 检查可执行状态。于是 CallbackSink::isBlocked 能在上游 getOutput 前拦住这条 pipeline。以当前 TableScan 为例，initialize 并不完成全部文件读取工作，dataSource 的创建和 addSplit 发生在后续取 split 的路径中。这个门控能推迟昂贵的读路径，但不是承诺所有 Operator 的 initialize 都无成本，更不是延迟创建所有 Driver 对象。</p>
+<p class="code-label">源码节选：启动检查只做一次，恢复依靠 future 通知 · <a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/CallbackSink.cpp#L49">BlockingReason CallbackSink::isBlocked</a></p><figure class="highlight cpp"><pre><code class="language-cpp" data-snippet="0"><span class="function">BlockingReason <span class="title">CallbackSink::isBlocked</span><span class="params">(ContinueFuture* future)</span> </span>&#123;
+  <span class="keyword">if</span> (startedCb_ != <span class="literal">nullptr</span>) &#123;
+    blockingReason_ = <span class="built_in">startedCb_</span>(&amp;future_);
+    startedCb_ = <span class="literal">nullptr</span>;
+  &#125;
+  <span class="keyword">if</span> (blockingReason_ != BlockingReason::kNotBlocked) &#123;
+    *future = std::<span class="built_in">move</span>(future_);
+    blockingReason_ = BlockingReason::kNotBlocked;
+    <span class="keyword">return</span> BlockingReason::kWaitForConsumer;
+  &#125;
+  <span class="keyword">return</span> BlockingReason::kNotBlocked;
+&#125;</code></pre></figure>
+<p>startedCb_ 首次调用后被清空。若 source 尚未启动，LocalMergeSource 注册 producer promise，把 future 交给 CallbackSink；Driver 保存阻塞状态并退出当前执行。它不会占着 executor worker 原地等待，也不需要以后每次轮询 startedCb_。下游 start() 把 started_ 置为 true 并兑现 promise，正常的 Driver continuation 让它再次变成可运行状态。</p>
+<figure class="detail-figure"><div class="detail-figure-scroll" role="region" tabindex="0" aria-label="图 3，可横向滚动"><img src="/images/velox-multi-round-local-merge/lazy-start.svg" alt="下游 LocalMerge 打开启动门，上游 Driver 才继续向 TableScan 取数。时序竖线仅表示参与者，不代表专属线程。" loading="lazy" /></div><figcaption>图 3：下游 LocalMerge 打开启动门，上游 Driver 才继续向 TableScan 取数。时序竖线仅表示参与者，不代表专属线程。 <a href="/images/velox-multi-round-local-merge/lazy-start.svg">打开 SVG 原图</a></figcaption></figure>
+<h3 id="activation-order">下一组 source 什么时候启动</h3>
+<p>Merge::maybeStartNextMergeSourceGroup 仅在当前 sourceMerger_ 为空、并且还存在未启动 source 时工作。它取 sources_ 中下一段连续索引，建立 SourceStream 和 SourceMerger，再对这组调用 start()，最后推进 numStartedSources_。启动是显式的一次性操作；LocalMergeSource::start 检查不能重复启动。</p>
+<p>一组到达 EOF 后，Merge 结束该组的 spill 并丢弃本轮 SourceMerger；下一次执行推进时才能打开下一组。上游已经结束的 Driver 随正常执行路径关闭算子，TableScan::close 会取消 dataSource 的工作。但“本组 EOF”并不是操作系统线程 join，也不保证所有分配立即归零；具体 reader、缓冲和回调的最终释放仍遵循各自所有权。</p>
+<p>这里使用的是普通 Driver 阻塞协议，与内存仲裁里 Task 的 pause / suspended 协调不同。把 lazy start 解释成“把整个 Task 暂停”，会看错控制范围：等待的是尚未获准开始的 producer，当前组和下游依然在执行。</p>
+<p>源码：<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/Driver.cpp#L538">Driver::runInternal</a>，<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/TableScan.cpp#L126">TableScan::initialize</a>，<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/TableScan.cpp#L577">TableScan::close</a>，<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/Merge.cpp#L186">组启动控制</a>。</p>
+<h2 id="queue-and-backpressure">4. 一份队列协议，连接启动、数据和结束</h2>
+<h3 id="queue-fields">LocalMergeSource 保存哪些状态</h3>
+<p>LocalMergeSource 的内部队列由 folly::Synchronized 保护，批次存于 boost::circular_buffer&lt;RowVectorPtr&gt;。started_ 表示生产是否获准启动，atEnd_ 表示生产端声明不会再提供数据；producerPromises_ 和 consumerPromises_ 分别承接两个方向的等待。容量以<strong>批次数</strong>计量，默认是 2，而不是按字节计量。</p>
+<div class="tbl-wrap"><table><thead><tr><th>操作与条件</th><th>状态变化</th><th>调用者怎样继续</th></tr></thead><tbody><tr><td>started：尚未启动</td><td>保存 producer promise</td><td>返回 kWaitForConsumer，等待 start</td></tr><tr><td>start</td><td>started_ = true，通知 producer</td><td>已等待的 Driver 可以恢复</td></tr><tr><td>enqueue：普通批次</td><td>先 push，再检查是否变满；通知 consumer</td><td>变满则返回 future，当前批次已被接受</td></tr><tr><td>next：队列非空</td><td>pop 一批并通知 producer</td><td>返回这一批，释放一个队列槽</td></tr><tr><td>next：空且没有 EOF</td><td>保存 consumer promise</td><td>返回 kWaitForProducer</td></tr><tr><td>enqueue(nullptr)</td><td>atEnd_ = true，通知 consumer</td><td>不占槽，不因满队列而阻塞</td></tr><tr><td>next：空且已经 EOF</td><td>返回空数据且不阻塞</td><td>consumer 将这条流视为结束</td></tr></tbody></table></div>
+<p class="code-label">源码节选：批次先入队，满队列只阻止继续生产 · <a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/MergeSource.cpp#L164">    BlockingReason enqueue</a></p><figure class="highlight cpp"><pre><code class="language-cpp" data-snippet="1"><span class="function">BlockingReason <span class="title">enqueue</span><span class="params">(
+        RowVectorPtr input,
+        ContinueFuture* future,
+        ScopedPromiseNotification&amp; notification)</span> </span>&#123;
+      <span class="keyword">if</span> (!input) &#123;
+        atEnd_ = <span class="literal">true</span>;
+        <span class="built_in">notifyConsumers</span>(notification);
+        <span class="keyword">return</span> BlockingReason::kNotBlocked;
+      &#125;
+      <span class="built_in">VELOX_CHECK</span>(started_);
+      <span class="built_in">VELOX_CHECK</span>(!data_.<span class="built_in">full</span>(), <span class="string">&quot;LocalMergeSourceQueue is full&quot;</span>);
+
+      <span class="keyword">for</span> (<span class="keyword">auto</span>&amp; child : input-&gt;<span class="built_in">children</span>()) &#123;
+        child-&gt;<span class="built_in">loadedVector</span>();
+      &#125;
+
+      data_.<span class="built_in">push_back</span>(input);
+      <span class="built_in">notifyConsumers</span>(notification);
+
+      <span class="keyword">if</span> (data_.<span class="built_in">full</span>()) &#123;
+        producerPromises_.<span class="built_in">emplace_back</span>(<span class="string">&quot;LocalMergeSourceQueue::enqueue&quot;</span>);
+        *future = producerPromises_.<span class="built_in">back</span>().<span class="built_in">getSemiFuture</span>();
+        <span class="keyword">return</span> BlockingReason::kWaitForConsumer;
+      &#125;
+      <span class="keyword">return</span> BlockingReason::kNotBlocked;
+    &#125;</code></pre></figure>
+<p>enqueue 返回 kWaitForConsumer 时，调用者<strong>不能重试同一个 batch</strong>。这个 batch 已经 push 进队列；future 表示的是下一次生产需要等待空位。CallbackSink 保存这份 future 交给 Driver；SpillMerger 则在它上面挂 continuation。两条路径使用同一套背压规则。</p>
+<figure class="detail-figure"><div class="detail-figure-scroll" role="region" tabindex="0" aria-label="图 4，可横向滚动"><img src="/images/velox-multi-round-local-merge/queue-protocol.svg" alt="queueSize = 2 的往返。EOF 不消耗容量；消费者先排空已有批次，然后才观察结束。" loading="lazy" /></div><figcaption>图 4：queueSize = 2 的往返。EOF 不消耗容量；消费者先排空已有批次，然后才观察结束。 <a href="/images/velox-multi-round-local-merge/queue-protocol.svg">打开 SVG 原图</a></figcaption></figure>
+<h3 id="notification-order">为什么 promise 在锁外通知</h3>
+<p>每次改变队列状态时，会把应当唤醒的 promises 移入 ScopedPromiseNotification。queue_.withWLock 结束后，notification 析构再兑现 promise。这样避免在持有队列锁时触发后续调度或回调重入，缩小临界区，也降低重新进入同一队列导致锁交互的风险。状态必须先更新，再通知等待者；通知本身不替代受锁保护的状态。</p>
+<p>空队列与 EOF 必须分开：一个 source 暂时没有头部行，下游无法判断它的下一行是否小于其他 source 的当前头部。比如当前可见两路是 10 和 20，第三路上一批最后一行是 1，那么下一批可能从 3 开始；直接跳过这路输出 10 就破坏了排序。只有明确结束，才可以不再考虑这路。</p>
+<p>当前实现还支持 drain 状态供 MixedUnion 等路径使用；LocalMerge 的 consumerCb 明确拒绝 drained 输入。不能把 drain 当成这里正常 EOF 的替代品。另外，LocalMergeSource::close 当前是空实现，不能据接口名称想象出“close 自动通知全部等待者”的路径。</p>
+<p>源码：<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/MergeSource.cpp#L68">LocalMergeSource 及其内部队列</a>。</p>
+<h2 id="source-merger">5. 归并内核：比较、游标、批次复制</h2>
+<h3 id="loser-tree">TreeOfLosers 如何决定下一行</h3>
+<p>SourceStream 包装一条 MergeSource，保存当前 RowVector、当前行位置、排序列指针和待输出位置。SourceMerger 把所有 SourceStream 的 unique_ptr 交给 TreeOfLosers；它自己另存一组裸指针，用于轮询阻塞、估计行宽和复制输出，这些指针不再拥有对象。</p>
+<p>败者树把两路比较中的败者留在内部节点，胜者向上推进。选出全局最小行后，只有获胜 stream 的头部发生变化；下一次选择只需沿这条路径重新比较，不必每次重新扫描所有输入头部。构建代价与路数同阶，稳定推进每行的比较次数通常为 O(log k)，比较本身的代价还取决于键数量、类型和共同前缀长度。当前 SourceMerger 调用的是 TreeOfLosers::next()，不是供聚合等场景使用的 nextWithEquals()。</p>
+<p>SourceStream::operator&lt; 逐个排序键调用 vector 的 compare，并传入 ascending、nullsFirst 等 CompareFlags。第一个非零比较结果决定顺序；所有 key 相等则返回 false。这满足归并的排序需求，但没有承诺 SQL 未声明的相同 key 稳定顺序。需要确定性的 tie-break 顺序，就应当把 tie-break 字段加入排序键。</p>
+<figure class="detail-figure"><div class="detail-figure-scroll" role="region" tabindex="0" aria-label="图 5，可横向滚动"><img src="/images/velox-multi-round-local-merge/cursor-and-output.svg" alt="比较只决定哪一行属于哪个输出位置；payload 复制按列完成，并尊重输入批次的生命周期。" loading="lazy" /></div><figcaption>图 5：比较只决定哪一行属于哪个输出位置；payload 复制按列完成，并尊重输入批次的生命周期。 <a href="/images/velox-multi-round-local-merge/cursor-and-output.svg">打开 SVG 原图</a></figcaption></figure>
+<h3 id="copy-boundary">不是每次选中一行就立即复制整行</h3>
+<p>每次 winner 产生后，setOutputRow 记录它在输出批次中的位置。对同一 source 而言，被消耗的输入行始终按顺序推进，但对应输出位置可能间隔着其他 source 的行。copyToOutput 由这些选择位置生成 source row indices，再逐列调用 child vector 的 copy。这样把排序控制与列向量复制分离。</p>
+<p>有两个不能拖延的复制时机。其一，当前 source 批次即将耗尽，必须在 pop 触发 fetchMoreData 替换 data_ 前复制所有已选行。其二，输出批次达到行数上限，要把所有 source 尚未复制的选择一起写出。SourceStream::pop 中“没有剩余 selection”的检查，正是在保护前一种生命周期边界。</p>
+<p>如果输出只攒了一部分行，而某路取下一批时阻塞，getOutput 可以返回 nullptr，同时保留 output_ 和 outputRows_。空返回只是暂时不能继续形成完整结果，不等于已经丢弃部分输出或算子完成。外层仍需配合 isBlocked 和 isFinished 判断执行状态。</p>
+<p>createOutputVector 优先基于第一个有效输入调用 createEmptyLike&lt;RowVector&gt;，使子列编码能支持 FlatMapVector 等输入；没有模板时才按 RowType 创建。这里仍然会复制所选 payload，不能把“参考输入编码建输出”写成整个归并是零拷贝。</p>
+<h3 id="batch-sizing">行宽估计怎样影响输出批次</h3>
+<p class="code-label">源码节选：每个 SourceMerger 首次决定输出行数 · <a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/Merge.cpp#L360">void SourceMerger::setOutputBatchSize</a></p><figure class="highlight cpp"><pre><code class="language-cpp" data-snippet="2"><span class="function"><span class="type">void</span> <span class="title">SourceMerger::setOutputBatchSize</span><span class="params">()</span> </span>&#123;
+  <span class="keyword">if</span> (outputBatchRows_ != <span class="number">0</span>) &#123;
+    <span class="keyword">return</span>;
+  &#125;
+  <span class="type">size_t</span> numEstimations&#123;<span class="number">0</span>&#125;;
+  <span class="type">int64_t</span> estimateRowSizeSum&#123;<span class="number">0</span>&#125;;
+  <span class="keyword">for</span> (<span class="keyword">auto</span>* stream : streams_) &#123;
+    <span class="type">const</span> <span class="keyword">auto</span> estimateRowSize = stream-&gt;<span class="built_in">estimateRowSize</span>();
+    <span class="keyword">if</span> (estimateRowSize.<span class="built_in">has_value</span>()) &#123;
+      ++numEstimations;
+      estimateRowSizeSum += estimateRowSize.<span class="built_in">value</span>();
+    &#125;
+  &#125;
+
+  <span class="keyword">if</span> (numEstimations == <span class="number">0</span>) &#123;
+    outputBatchRows_ = maxOutputBatchRows_;
+    <span class="keyword">return</span>;
+  &#125;
+
+  <span class="type">const</span> <span class="keyword">auto</span> estimateRowSize =
+      std::<span class="built_in">max</span>&lt;<span class="type">vector_size_t</span>&gt;(<span class="number">1</span>, estimateRowSizeSum / numEstimations);
+  outputBatchRows_ = std::<span class="built_in">min</span>&lt;<span class="type">vector_size_t</span>&gt;(
+      std::<span class="built_in">max</span>&lt;<span class="type">vector_size_t</span>&gt;(<span class="number">1</span>, maxOutputBatchBytes_ / estimateRowSize),
+      maxOutputBatchRows_);
+&#125;</code></pre></figure>
+<p>各有效 stream 用当前批次的 estimateFlatSize()/size 估计每行大小，再对这些估计取<strong>按 stream 等权的算术平均</strong>，不是把全部批次字节与行数加总后的加权平均。最终行数为 min(R, max(1, B / max(1, 平均行宽)))，其中 B 是 preferred_output_batch_bytes，R 是构造时传入的 maxOutputBatchRows。没有有效估计时直接用 R。</p>
+<p>这个决定只在 outputBatchRows_ 为 0 时做一次。因此是每个 SourceMerger 初始批次驱动的估计：新一轮和最终读回会分别创建新的 SourceMerger，但并非每个输出 batch 都重新自适应。变长字段、编码变化和后续行宽偏斜都可能让实际分配超过估计字节目标；B 不是硬内存配额。</p>
+<p>还有一个参数命名容易误导：当前 Merge 构造使用无参数 outputBatchRows() 初始化 maxOutputBatchRows_，这条分支返回 preferred_output_batch_rows，默认 1024。这里没有传 averageRowSize，也就不会走 Operator::outputBatchRows 中依据 max_output_batch_rows 计算上限的另一条分支。换句话说，当前 LocalMerge 的 R 默认是 1024，而不是看到字段名就推测出的全局 10000 行上限。</p>
+<p>源码：<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/common/base/TreeOfLosers.h#L63">TreeOfLosers</a>，<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/Merge.cpp#L458">SourceStream 比较</a>，<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/Merge.cpp#L488">copyToOutput</a>，<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/Merge.cpp#L441">createOutputVector</a>，<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/Operator.cpp#L336">outputBatchRows</a>。</p>
+<h2 id="round-controller">6. 多轮控制：从当前 source 组切换到最终归并</h2>
+<h3 id="controller-fields">字段组合表达执行进度</h3>
+<div class="tbl-wrap"><table><thead><tr><th>字段</th><th>含义</th><th>关键变化</th></tr></thead><tbody><tr><td>sources_ / numStartedSources_</td><td>全部原始输入 / 已启动前缀的长度</td><td>sources_ 保留原始连接；计数按组推进</td></tr><tr><td>sourceMerger_</td><td>当前原始输入组的归并状态</td><td>一组一个实例，组结束后清空</td></tr><tr><td>mergeOutputSpiller_</td><td>当前组的输出 writer</td><td>首次出现输出才创建，finishSpill 后清空</td></tr><tr><td>spillFileGroups_</td><td>已经完成的非空有序 runs</td><td>每结束一个非空组追加一项</td></tr><tr><td>spillMerger_</td><td>第二阶段的整体读回管理器</td><td>所有原始组完成后创建一次</td></tr><tr><td>sourceBlockingFutures_ / finished_</td><td>待处理的阻塞通知 / 算子完成标记</td><td>等待与结束分别表达</td></tr></tbody></table></div>
+<figure class="detail-figure"><div class="detail-figure-scroll" role="region" tabindex="0" aria-label="图 6，可横向滚动"><img src="/images/velox-multi-round-local-merge/round-state.svg" alt="Merge 的解释性状态图。是否需要 spill 由总输入规模决定，而不是每一轮临时决定。" loading="lazy" /></div><figcaption>图 6：Merge 的解释性状态图。是否需要 spill 由总输入规模决定，而不是每一轮临时决定。 <a href="/images/velox-multi-round-local-merge/round-state.svg">打开 SVG 原图</a></figcaption></figure>
+<p class="code-label">流程伪代码：展示阶段切换；省略统计、检查和移动语义</p><figure class="highlight cpp"><pre><code class="language-cpp" data-snippet="3"><span class="comment">// Control-flow pseudocode, not a compilable replacement for Merge.</span>
+<span class="keyword">if</span> (spillMerger_) &#123;
+  <span class="keyword">return</span> <span class="built_in">readFinalMerge</span>();
+&#125;
+
+<span class="keyword">auto</span> batch = sourceMerger_-&gt;<span class="built_in">getOutput</span>(futures, atEnd);
+<span class="keyword">if</span> (maxNumMergeSources_ &lt; sources_.<span class="built_in">size</span>()) &#123;
+  <span class="built_in">spillIfNonEmpty</span>(batch);  <span class="comment">// also applies to the last source group</span>
+  batch = <span class="literal">nullptr</span>;
+&#125;
+
+<span class="keyword">if</span> (atEnd) &#123;
+  <span class="built_in">finishCurrentGroup</span>();
+  <span class="keyword">if</span> (numStartedSources_ == sources_.<span class="built_in">size</span>()) &#123;
+    <span class="keyword">if</span> (numSpilledRows_ &gt; <span class="number">0</span>) &#123;
+      <span class="built_in">setupSpillMerger</span>();
+    &#125; <span class="keyword">else</span> &#123;
+      finished_ = <span class="literal">true</span>;
+    &#125;
+  &#125;
+&#125;
+<span class="keyword">return</span> batch;</code></pre></figure>
+<h3 id="spill-group-boundary">为什么最后一轮也落盘</h3>
+<p>needSpill() 的实现是 maxNumMergeSources_ &lt; sources_.size()。它在整个原始输入阶段保持同一判断。假设前两组已经落盘，最后一组只有几条 source，也不能直接把最后一组的结果作为最终输出：那些已经落盘的组可能还有更小的 key。当前实现选择统一的阶段边界，让最后一组也形成完整 run，然后再对所有 runs 做最终归并。</p>
+<p>MergeSpiller 接收已经排好序的 RowVector。它继承 NoRowContainerSpiller，不需要先进入 RowContainer 再做一次排序。当前路径用 SpillPartitionId{0} 写同一个 partition；一个组结束时调用 finishSpill，取出该 partition 的文件列表，追加到 spillFileGroups_。这里的 partition 是 spill 管理单元，不是在排序键上重新 hash 分桶。</p>
+<p>如果某一组全空，就不会创建 mergeOutputSpiller_，也就不会产生空文件组。正常多轮路径里每个输入行写入一次中间 spill；一个文件组可能因文件大小控制拆成多个文件，所以“行数只 spill 一次”和“每组恰好一个文件”是两件不同的事。</p>
+<h3 id="waiting-futures">阻塞 future 怎样回到 Driver</h3>
+<p>SourceMerger::isBlocked 在当前 future 列表为空时检查各个 stream，收集取数所需的 futures。Merge::isBlocked 每次从列表末尾拿出一个 future，返回 kWaitForProducer；恢复执行后继续处理剩余等待。这不是一个显式 collectAll，也不能理解成“任意一路变可读就一定能输出”。为了选出下一行，归并仍必须知道所有未结束流的有效头部。</p>
+<p>第二阶段的 futures 由 SpillMerger::getOutput 经同一个 sourceBlockingFutures_ 容器交回外层。上层 Driver 并不需要知道这次缺数据是因为上游扫描尚未产出，还是 spill worker 尚未把读回批次放入队列。</p>
+<p>源码：<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/Merge.cpp#L240">getOutputFromSource</a>，<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/Merge.cpp#L135">finishMergeSourceGroup</a>，<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/Merge.cpp#L75">Merge::isBlocked</a>，<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/Spiller.h#L242">MergeSpiller</a>。</p>
+<h2 id="spill-file-stream">7. 文件组读回：有序拼接与真正的资源边界</h2>
+<p>一轮的归并输出本身全局有序。写满一个 spill 文件再写下一个，只是把同一条有序 run 分段，因此文件组内部可以直接按原次序拼接；不同组的 key 范围可能重叠，才需要在组之间做有序归并。</p>
+<figure class="detail-figure"><div class="detail-figure-scroll" role="region" tabindex="0" aria-label="图 7，可横向滚动"><img src="/images/velox-multi-round-local-merge/spill-classes.svg" alt="文件流模块的类关系及数据方向。BatchStream 的同步接口与 SpillMerger 的异步调度分处两层。" loading="lazy" /></div><figcaption>图 7：文件流模块的类关系及数据方向。BatchStream 的同步接口与 SpillMerger 的异步调度分处两层。 <a href="/images/velox-multi-round-local-merge/spill-classes.svg">打开 SVG 原图</a></figcaption></figure>
+<p>SpillMerger 为每组建立一个 ConcatFilesSpillBatchStream，它实现 BatchStream::nextBatch(RowVectorPtr&amp;)。内部 fileIndex_ 指向当前文件；成功读到一个 batch 就返回 true；当前文件结束后 reset 对应 SpillReadFile，再前进到下一个文件；整个组读完后清空文件列表，设置 atEnd_ 并返回 false。调用者必须顺序推进同一条 stream，不能并发调用这个非线程安全对象。</p>
+<p class="code-label">源码节选：顺序拼接一个组内的文件 · <a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/Spill.cpp#L676">bool ConcatFilesSpillBatchStream::nextBatch</a></p><figure class="highlight cpp"><pre><code class="language-cpp" data-snippet="4"><span class="function"><span class="type">bool</span> <span class="title">ConcatFilesSpillBatchStream::nextBatch</span><span class="params">(RowVectorPtr&amp; batch)</span> </span>&#123;
+  TestValue::<span class="built_in">adjust</span>(
+      <span class="string">&quot;facebook::velox::exec::ConcatFilesSpillBatchStream::nextBatch&quot;</span>, <span class="literal">nullptr</span>);
+  <span class="built_in">VELOX_CHECK_NULL</span>(batch);
+  <span class="built_in">VELOX_CHECK</span>(!atEnd_);
+  <span class="keyword">for</span> (; fileIndex_ &lt; spillFiles_.<span class="built_in">size</span>(); ++fileIndex_) &#123;
+    <span class="built_in">VELOX_CHECK_NOT_NULL</span>(spillFiles_[fileIndex_]);
+    <span class="keyword">if</span> (spillFiles_[fileIndex_]-&gt;<span class="built_in">nextBatch</span>(batch)) &#123;
+      <span class="built_in">VELOX_CHECK_NOT_NULL</span>(batch);
+      <span class="keyword">return</span> <span class="literal">true</span>;
+    &#125;
+    spillFiles_[fileIndex_].<span class="built_in">reset</span>();
+  &#125;
+  spillFiles_.<span class="built_in">clear</span>();
+  atEnd_ = <span class="literal">true</span>;
+  <span class="keyword">return</span> <span class="literal">false</span>;
+&#125;</code></pre></figure>
+<p>SpillReadFile 继承 SerializedPageFileReader，当前使用 Presto vector serde，并配置 timestamp、compression 和 nullsFirst 相关读取选项。反序列化重新产生 RowVector，不需要把中间文件重新交给 Parquet / ORC reader。这将复杂的原始列式 reader 工作集换成 spill 文件读取工作集，但仍有 I/O buffer、反序列化和输出向量成本。</p>
+<h3 id="reader-eager-init">一条 stream 不等于只打开一个文件</h3>
+<p>这里有一处不能仅凭 ConcatFiles 的名字推断：Merge::setupSpillMerger 会遍历所有组的所有文件，提前创建 SpillReadFile。其基类构造函数立即打开文件并创建 FileInputStream；当前 FileInputStream 构造会分配缓冲并执行首段读取，支持异步预读时还会分配第二个缓冲。</p>
+<p>因此，“每组按序调用 nextBatch”并不等于“每组只初始化当前一个文件”。最终归并有 G 路，但若共有 K 个 spill 文件，初始化期间的文件句柄、首读和读缓冲成本与 K 也有关；不能只按 G 乘以一个 buffer 估计内存。文件耗尽后 reset reader 会逐渐回收这些资源。把 reader 创建延迟到实际切换文件，是可以讨论的优化方向，当前快照并不是这样实现的。</p>
+<p>另一个边界是初始化错误：打开文件、分配 buffer 或首读就失败时，异常可能在 setupSpillMerger 的 Driver 调用栈上直接抛出，尚未进入异步 worker。后面讨论的异常汇总协议，针对的是已经启动的 spill stream 读回工作，不能声称所有文件错误都必定先经过 setError。</p>
+<p>代码中还存在 ConcatFilesSpillMergeStream，它是另一种 SpillMergeStream 游标；本特性的 async 读回路径使用 ConcatFilesSpillBatchStream，经队列后再使用 SourceStream。也不要把它与通用 AsyncSource&lt;T&gt; 混为一谈，这条路径没有通过那个类实现异步化。</p>
+<p>源码：<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/Merge.cpp#L153">setupSpillMerger</a>，<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/Spill.h#L224">ConcatFilesSpillBatchStream</a>，<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/SpillFile.cpp#L154">SpillReadFile 构造</a>，<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/serializers/SerializedPageFile.cpp#L186">SerializedPageFileReader</a>，<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/common/file/FileInputStream.cpp#L21">FileInputStream</a>。</p>
+<h2 id="async-stream-management">8. Async stream：怎样调度，怎样控制领先量</h2>
+<h3 id="stream-index">streamIdx 是几组对象之间的对应关系</h3>
+<p>SpillMerger 保存长度相同的 batchStreams_ 和 sources_：batchStreams_[i] 负责第 i 个文件组，sources_[i] 是它输出到的 LocalMergeSource。内部 SourceMerger 消费这些 sources，读文件回调通过 streamIdx 找到对应对象。sources 在创建后全部 start，因为第二阶段要看到每个文件组的头部，才能开始最终归并。</p>
+<p>start() 检查 spill executor 非空，然后为每条 stream 提交一份初始工作。executor 的 worker 数量和 stream 数量没有一一对应关系：例如有 12 条 stream、4 个 worker，待运行回调共享这 4 个线程；同一条 stream 恢复后也可以由另一个 worker 执行。</p>
+<figure class="detail-figure"><div class="detail-figure-scroll" role="region" tabindex="0" aria-label="图 8，可横向滚动"><img src="/images/velox-multi-round-local-merge/async-streams.svg" alt="异步调度解耦了多路读取和单线程归并；每路仍然串行调用自己的 BatchStream。" loading="lazy" /></div><figcaption>图 8：异步调度解耦了多路读取和单线程归并；每路仍然串行调用自己的 BatchStream。 <a href="/images/velox-multi-round-local-merge/async-streams.svg">打开 SVG 原图</a></figcaption></figure>
+<h3 id="read-continuation">快路径直接读，满队列后挂 continuation</h3>
+<p class="code-label">源码节选：完整的单 stream 读回回调，包含异常路径 · <a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/Merge.cpp#L650">void SpillMerger::readFromSpillFileStream</a></p><figure class="highlight cpp"><pre><code class="language-cpp" data-snippet="5"><span class="function"><span class="type">void</span> <span class="title">SpillMerger::readFromSpillFileStream</span><span class="params">(
+    <span class="type">const</span> std::weak_ptr&lt;SpillMerger&gt;&amp; mergeHolder,
+    <span class="type">size_t</span> streamIdx)</span> </span>&#123;
+  TestValue::<span class="built_in">adjust</span>(
+      <span class="string">&quot;facebook::velox::exec::SpillMerger::readFromSpillFileStream&quot;</span>, <span class="literal">nullptr</span>);
+  <span class="type">const</span> <span class="keyword">auto</span> merger = mergeHolder.<span class="built_in">lock</span>();
+  <span class="keyword">if</span> (merger == <span class="literal">nullptr</span>) &#123;
+    <span class="built_in">LOG</span>(ERROR) &lt;&lt; <span class="string">&quot;SpillMerger is destroyed, abandon reading from batch stream&quot;</span>;
+    <span class="keyword">return</span>;
+  &#125;
+
+  <span class="keyword">try</span> &#123;
+    <span class="keyword">if</span> (<span class="built_in">hasError</span>()) &#123;
+      <span class="built_in">finishSource</span>(streamIdx);
+      <span class="keyword">return</span>;
+    &#125;
+
+    RowVectorPtr vector;
+    <span class="keyword">if</span> (!batchStreams_[streamIdx]-&gt;<span class="built_in">nextBatch</span>(vector)) &#123;
+      <span class="built_in">VELOX_CHECK_NULL</span>(vector);
+      <span class="built_in">finishSource</span>(streamIdx);
+      <span class="keyword">return</span>;
+    &#125;
+
+    ContinueFuture future&#123;ContinueFuture::<span class="built_in">makeEmpty</span>()&#125;;
+    <span class="type">const</span> <span class="keyword">auto</span> blockingReason =
+        sources_[streamIdx]-&gt;<span class="built_in">enqueue</span>(std::<span class="built_in">move</span>(vector), &amp;future);
+    <span class="keyword">if</span> (blockingReason == BlockingReason::kNotBlocked) &#123;
+      <span class="built_in">VELOX_CHECK</span>(!future.<span class="built_in">valid</span>());
+      <span class="built_in">readFromSpillFileStream</span>(mergeHolder, streamIdx);
+    &#125; <span class="keyword">else</span> &#123;
+      <span class="built_in">VELOX_CHECK</span>(future.<span class="built_in">valid</span>());
+      std::<span class="built_in">move</span>(future)
+          .<span class="built_in">via</span>(executor_)
+          .<span class="built_in">thenValue</span>([<span class="keyword">this</span>, mergeHolder, streamIdx](<span class="keyword">auto</span>&amp;&amp;) &#123;
+            <span class="built_in">readFromSpillFileStream</span>(mergeHolder, streamIdx);
+          &#125;)
+          .<span class="built_in">thenError</span>(
+              folly::<span class="type">tag_t</span>&lt;std::exception&gt;&#123;&#125;,
+              [<span class="keyword">this</span>, mergeHolder, streamIdx](<span class="type">const</span> std::exception&amp; e) &#123;
+                <span class="type">const</span> <span class="keyword">auto</span> merger = mergeHolder.<span class="built_in">lock</span>();
+                <span class="keyword">if</span> (merger != <span class="literal">nullptr</span>) &#123;
+                  <span class="built_in">LOG</span>(ERROR) &lt;&lt; <span class="string">&quot;Stop the &quot;</span> &lt;&lt; streamIdx
+                             &lt;&lt; <span class="string">&quot; th source on error: &quot;</span> &lt;&lt; e.<span class="built_in">what</span>();
+                  <span class="built_in">setError</span>(std::<span class="built_in">make_exception_ptr</span>(e));
+                  <span class="built_in">finishSource</span>(streamIdx);
+                &#125;
+              &#125;);
+    &#125;
+  &#125; <span class="built_in">catch</span> (<span class="type">const</span> std::exception&amp; e) &#123;
+    <span class="built_in">LOG</span>(ERROR) &lt;&lt; <span class="string">&quot;The &quot;</span> &lt;&lt; streamIdx
+               &lt;&lt; <span class="string">&quot; spill stream failed with error: &quot;</span> &lt;&lt; e.<span class="built_in">what</span>();
+    <span class="built_in">setError</span>(std::<span class="built_in">current_exception</span>());
+    <span class="built_in">finishSource</span>(streamIdx);
+  &#125;
+&#125;</code></pre></figure>
+<p>回调成功读出一个 batch 后调用 enqueue。若队列没有满，当前实现直接递归调用 readFromSpillFileStream，继续在当前线程读取；不会每个 batch 都重新 executor-&gt;add。若队列变满，返回的 future 上挂 via(executor_).thenValue(...)，当前回调便可以退出；consumer 取走数据并通知 producer 后，再调度下一次读取。</p>
+<p>所以 async 指的是<strong>不同 stream 可以并行，以及等待队列空位时让出 worker</strong>。BatchStream::nextBatch 本身是同步 API：读文件、等待底层预取完成、反序列化都会占用执行该回调的 worker。底层 FileInputStream 可以另有 read-ahead，这与 SpillMerger 这一层的调度并不冲突，也不是同一件事。</p>
+<p>每条 stream 在“当前读取”与“等待背压 future”之间转换，逻辑上只有一个推进链，所以不需要把非线程安全的 BatchStream 变成共享并发容器。队列锁保护跨线程传递；stream 的顺序性保护 fileIndex_ 和 reader 游标。两个层次各管一段状态，职责比较清楚。</p>
+<h3 id="queue-memory">有界队列约束的是什么</h3>
+<p>q 个队列槽只限制已入队但尚未取走的批次。SourceStream 还持有从队列取走的当前批次，producer 读取时可能另有正在构造的向量，SourceMerger 还持有输出批次。因此内存估算不能只算 q × batchBytes，更不能由 q = 2 推导出每路最多只会存在两份 RowVector。</p>
+<p>增大 q 可以吸收读延迟抖动，让扫描或解码领先一点；但 consumer 是单线程归并，增加缓存不会消除比较与输出复制瓶颈。对宽表来说，单个 batch 可能很大，增加一格队列的成本会乘以所有活跃 stream。</p>
+<p>同步递归快路径减少了调度开销，但递归深度不严格受 q 限制：consumer 足够快时，producer 可以持续看到“队列未满”。若继续演进，可以把快路径改成显式循环，并设置合理的让出策略。这里是对实现取舍的分析，不是已经测得栈溢出，也不是当前已有的 fairness 保证。</p>
+<p>源码：<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/Merge.cpp#L707">初始调度与后续 continuation</a>。</p>
+<h2 id="async-errors">9. 异步线程的异常怎样回到查询执行线程</h2>
+<h3 id="separate-eof-error">错误信息与流结束必须分别表达</h3>
+<p>worker 里直接 throw，不会自动在正在运行 LocalMerge 的 Driver 栈上出现。另一方面，只保存 exception_ptr 而不结束对应 source，也会使 consumer 继续等待一个永远不会再生产数据的流。当前实现把两件事配对：<strong>保存错误，再给这条流发送 EOF</strong>。</p>
+<p>SpillMerger 用 mutex_ 保护共享 exception_。第一个成功写入这个槽的异常被保留，后续错误不覆盖。这里的“第一个”是锁与写入顺序，不是跨线程的绝对发生时间顺序。各 worker 仍可能记录自己的错误日志，但最终重抛的是槽中保留的那一个。</p>
+<p class="code-label">源码节选：保留第一个写入的异常 · <a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/Merge.cpp#L716">void SpillMerger::setError</a></p><figure class="highlight cpp"><pre><code class="language-cpp" data-snippet="6"><span class="function"><span class="type">void</span> <span class="title">SpillMerger::setError</span><span class="params">(<span class="type">const</span> std::exception_ptr&amp; exception)</span> </span>&#123;
+  <span class="function">std::lock_guard <span class="title">l</span><span class="params">(mutex_)</span></span>;
+  <span class="keyword">if</span> (exception_ != <span class="literal">nullptr</span>) &#123;
+    <span class="keyword">return</span>;
+  &#125;
+  exception_ = exception;
+&#125;</code></pre></figure>
+<h3 id="two-error-paths">同步读取失败与 continuation 失败</h3>
+<div class="tbl-wrap"><table><thead><tr><th>位置</th><th>当前捕获方式</th><th>语义边界</th></tr></thead><tbody><tr><td>nextBatch / enqueue 等 try 内同步调用</td><td>catch (const std::exception&amp;)；setError(std::current_exception())</td><td>保留当前被捕获异常的动态类型和载荷，然后 finishSource</td></tr><tr><td>future continuation 链上的匹配错误</td><td>thenError(folly::tag_t&lt;std::exception&gt;{})；make_exception_ptr(e)</td><td>e 的静态类型是 std::exception，复制时可能切片，不能保证派生异常信息完整保留</td></tr><tr><td>其他 stream 再次进入回调</td><td>hasError() 后直接 finishSource</td><td>协作停止后续读取，不覆盖共享错误</td></tr><tr><td>reader 创建、打开文件或初始提交阶段失败</td><td>在启动调用栈上的同步异常</td><td>不必经过 worker 的共享异常槽</td></tr><tr><td>非 std::exception 的 throw</td><td>不是这两条 catch/tag 的覆盖范围</td><td>不能将这里描述成兜住任意 C++ 异常的万能边界</td></tr></tbody></table></div>
+<p>std::current_exception() 和 std::make_exception_ptr(e) 在这里并不等价。前者保存正在处理的异常对象；后者根据表达式静态类型创建异常副本。当前 thenError 参数是 const std::exception&amp;，因此可能丢失派生类型和自定义消息。正文保留这个实现事实，不把两条错误路径统一写成“完整保留原始异常”。若要增强错误信息，可以考虑保持 exception_wrapper 或 exception_ptr 的原始动态异常信息，但那属于后续代码改进。</p>
+<h3 id="cooperative-convergence">一条流出错以后，其余流如何停止</h3>
+<figure class="detail-figure"><div class="detail-figure-scroll" role="region" tabindex="0" aria-label="图 9，可横向滚动"><img src="/images/velox-multi-round-local-merge/error-convergence.svg" alt="错误先记录到共享槽，再通过每个 source 的 EOF 收敛；归并端到达结束时统一重抛。箭头中的 EOF 实际经各自队列传递。" loading="lazy" /></div><figcaption>图 9：错误先记录到共享槽，再通过每个 source 的 EOF 收敛；归并端到达结束时统一重抛。箭头中的 EOF 实际经各自队列传递。 <a href="/images/velox-multi-round-local-merge/error-convergence.svg">打开 SVG 原图</a></figcaption></figure>
+<p>失败的回调先 setError，再 finishSource(streamIdx)。finishSource 调用 enqueue(nullptr)，并检查没有产生有效等待 future。EOF 不占队列容量，因而不需要先为一个结束标记等待空槽。其他 worker 下次进入读回回调时先检查 hasError，发现已有错误就不再读取下一批，同样发送自己那路的 EOF。</p>
+<p>如果另一个 worker 已在 nextBatch 内执行，它不能被这个布尔检查立即打断；如果它因满队列而挂起，需要 consumer 继续取数据，触发 continuation，才会再次看到共享错误。因此当前协议是 cooperative 收敛。慢 I/O、调度停滞或尚未恢复的 continuation 都会影响错误传播延迟，不能理解成某路一失败所有 worker 就立刻消失。</p>
+<p>各队列已有的 RowVector 不会因为 atEnd_ 置位立即丢掉。consumer 先排空它们，SourceMerger 才能看到全部 source 的终态。这也意味着错误发生前后可能已有一个输出前缀交给下游；LocalMerge 不提供回滚，宿主必须把整个查询的最终失败与结果提交语义衔接起来。</p>
+<h3 id="central-rethrow">为什么在 atEnd 处统一重抛</h3>
+<p>SpillMerger::getOutput 先处理 SourceMerger 的阻塞，再取归并输出；只有 atEnd 为 true 时调用 checkError。若存在错误，checkError 先 reset SourceMerger、清空 batchStreams_ 和 sources_，再 std::rethrow_exception。这样把读回错误最终交回运行 Merge 的 Driver，由查询执行层处理失败，而不是让读回 worker 各自独立地决定算子结束。</p>
+<p class="code-label">源码节选：归并结束处清理并重抛 · <a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/Merge.cpp#L729">void SpillMerger::checkError</a></p><figure class="highlight cpp"><pre><code class="language-cpp" data-snippet="7"><span class="function"><span class="type">void</span> <span class="title">SpillMerger::checkError</span><span class="params">()</span> </span>&#123;
+  <span class="keyword">if</span> (<span class="built_in">hasError</span>()) &#123;
+    sourceMerger_.<span class="built_in">reset</span>();
+    batchStreams_.<span class="built_in">clear</span>();
+    sources_.<span class="built_in">clear</span>();
+    std::<span class="built_in">rethrow_exception</span>(exception_);
+  &#125;
+&#125;</code></pre></figure>
+<p>EOF 在这里提供“每路不会继续正常生产”的协议边界，但它不等价于 executor-&gt;join()：一个回调可能已经发完 EOF，仍在退出函数；future 链和局部 shared_ptr 也可能尚未析构。理解这一点，才能把正常错误收敛与下一节的对象生命周期边界区分开。</p>
+<p>源码：<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/Merge.cpp#L580">SpillMerger::getOutput 与 atEnd 检查</a>。</p>
+<h2 id="lifetime-and-cancel">10. 对象所有权、回调寿命与提前取消</h2>
+<h3 id="ownership">谁负责让对象继续存在</h3>
+<div class="tbl-wrap"><table><thead><tr><th>关系</th><th>持有方式</th><th>它解决的事</th></tr></thead><tbody><tr><td>Merge → SpillMerger</td><td>shared_ptr</td><td>让最终归并管理器可以在执行回调期间保活</td></tr><tr><td>SpillMerger → MemoryPool / SpillStats</td><td>shared_ptr</td><td>异步工作仍可依赖池对象和统计对象的生命周期</td></tr><tr><td>SpillMerger → BatchStream</td><td>vector&lt;unique_ptr&lt;…&gt;&gt;</td><td>集中管理每个文件组的读取状态</td></tr><tr><td>SpillMerger → MergeSource</td><td>vector&lt;shared_ptr&lt;…&gt;&gt;</td><td>持有各路队列，让 consumer 与 producer 共享连接</td></tr><tr><td>SpillMerger → SourceMerger</td><td>unique_ptr</td><td>唯一拥有最终归并状态；其 cursor 借用 sources</td></tr><tr><td>SpillMerger → executor</td><td>folly::Executor*</td><td>非拥有引用，executor 必须由外部正确管理寿命</td></tr><tr><td>读回回调 → SpillMerger</td><td>weak holder，成功 lock 后局部 strong holder</td><td>避免后续等待链无限保活，并覆盖成功 lock 之后的这次调用</td></tr></tbody></table></div>
+<p>readFromSpillFileStream 在进入主体前锁定 weak_ptr，得到局部 shared_ptr merger。只要这次调用已经成功获得强引用，函数执行期间 SpillMerger 就不会因外部最后一个引用释放而析构。pool_ 也用 shared_ptr 保存，避免把一个裸池指针交给异步读回后完全失去对象寿命支撑。</p>
+<h3 id="initial-callback">weak_ptr 不是所有回调都安全的证明</h3>
+<p class="code-label">源码节选：初始提交实际捕获 this，并在执行时创建 weak holder · <a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/Merge.cpp#L707">void SpillMerger::scheduleAsyncSpillFileStreamReads</a></p><figure class="highlight cpp"><pre><code class="language-cpp" data-snippet="8"><span class="function"><span class="type">void</span> <span class="title">SpillMerger::scheduleAsyncSpillFileStreamReads</span><span class="params">()</span> </span>&#123;
+  <span class="built_in">VELOX_CHECK_EQ</span>(batchStreams_.<span class="built_in">size</span>(), sources_.<span class="built_in">size</span>());
+  <span class="keyword">for</span> (<span class="keyword">auto</span> i = <span class="number">0</span>; i &lt; batchStreams_.<span class="built_in">size</span>(); ++i) &#123;
+    executor_-&gt;<span class="built_in">add</span>([&amp;, streamIdx = i]() &#123;
+      <span class="built_in">readFromSpillFileStream</span>(std::<span class="built_in">weak_ptr</span>(<span class="built_in">shared_from_this</span>()), streamIdx);
+    &#125;);
+  &#125;
+&#125;</code></pre></figure>
+<p>必须对照代码看完整捕获链。初始 executor 回调使用 [&amp;, streamIdx = i]，调用成员方法意味着它持有的是隐式捕获的原始 this；直到回调开始执行，才通过 shared_from_this() 建立 weak_ptr。不能把它画成“提交前已安全捕获 weak_ptr”。后续 thenValue / thenError 也显式捕获 this；弱引用保护的关键位置，是成功 lock 后形成的局部强引用。</p>
+<p>因此，weak holder 体现了避免长期强持有的设计意图，但单凭它不能证明所有“已提交但尚未执行”的初始回调和提前销毁交错都安全。外部 executor 的寿命、operator 关闭顺序、Task 取消和未执行回调，需要一起审视。这里指出的是当前实现的证明边界，不是宣称已经复现了一个取消崩溃。</p>
+<h3 id="cleanup-boundary">析构和 close 实际做了什么</h3>
+<p>SpillMerger 析构按顺序 reset sourceMerger_、clear batchStreams_、clear sources_，没有 join executor。Merge::close 记录统计、调用原始 sources 的 close，再调用 Operator::close；它也不等于立即清空全部 spill 成员。前面已经看到，当前 LocalMergeSource::close 是空方法，不能靠调用它推断所有 producer promises 都已经被主动兑现。</p>
+<p>底层资源还有自己的收尾：当前 FileInputStream 析构在存在 read-ahead future 时会等待它完成，并处理预取异常。因而“SpillMerger 没有 join”不意味着销毁任何 reader 都完全不可能等待；只是它没有一个统一的、显式收拢所有 stream 回调的 executor join 屏障。</p>
+<p>如果把这部分继续设计得更明确，可考虑提交时就创建合适的 weak / strong handle、使用显式活动回调计数或完成 future、把关闭队列与唤醒等待者作为可证明的协议，并规定 executor 必须活到哪个阶段。这些是可以比较的改进方向，本文不把它们写成当前已经存在的机制。</p>
+<p>源码：<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/Merge.h#L302">SpillMerger 所有权字段</a>，<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/Merge.cpp#L567">析构顺序</a>，<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/Merge.cpp#L291">Merge::close</a>，<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/common/file/FileInputStream.cpp#L40">底层预取收尾</a>。</p>
+<h2 id="configuration">11. 启用条件、配置与运行观测</h2>
+<h3 id="enablement">配置 F 之前，先满足 spill 的接入条件</h3>
+<p>LocalMergeNode::canSpill 检查排序键非空和 local_merge_spill_enabled。DriverCtx::makeSpillConfig 还检查全局 spill_enabled，以及是否有 spill 目录或创建目录回调。LocalMerge 构造最终只有在得到 spillConfig 且其中 executor 非空时，才读取并应用 local_merge_max_num_merge_sources。</p>
+<p>也就是说，缺少 spill executor 时，普通 LocalMerge 构造路径会保留默认的无限 fan-in，回到普通归并；不是仅设置一个 F 就必然开始多轮，也不是这个入口必然直接报错。另一方面，直接创建并 start 一个 SpillMerger 而没有 executor，则会触发检查失败。这两个入口的行为要区分。</p>
+<div class="tbl-wrap"><table><thead><tr><th>配置或接入项</th><th>当前默认值</th><th>在本特性中的作用</th></tr></thead><tbody><tr><td>spill_enabled</td><td>false</td><td>全局允许 spill；还需要宿主提供 spill 目录</td></tr><tr><td>local_merge_spill_enabled</td><td>false</td><td>允许有排序键的 LocalMerge 创建 spill 配置</td></tr><tr><td>local_merge_max_num_merge_sources</td><td>uint32_t 最大值</td><td>第一阶段每组的 F；要求大于 0，1 是合法值</td></tr><tr><td>local_merge_source_queue_size</td><td>2</td><td>每路可排队的 RowVector 批次数，两个阶段都会使用</td></tr><tr><td>preferred_output_batch_rows</td><td>1024</td><td>当前 Merge 构造传入的输出行数上限 R</td></tr><tr><td>preferred_output_batch_bytes</td><td>10 MiB</td><td>结合首批估计行宽缩小输出行数，不是硬内存限额</td></tr><tr><td>max_output_batch_rows</td><td>10000</td><td>其他 outputBatchRows 分支使用；当前 Merge 无参数调用不读取此上限</td></tr><tr><td>max_spill_bytes</td><td>100 GiB；0 表示不设此限制</td><td>查询级累计 spill 限制，不是 LocalMerge 专属预算</td></tr><tr><td>spill executor / spill directory</td><td>宿主提供</td><td>异步读回调度资源 / 中间文件存储位置</td></tr></tbody></table></div>
+<p class="code-label">C++ 配置示例：键值传给宿主使用的 QueryConfig 构造路径；不是完整可运行查询</p><figure class="highlight cpp"><pre><code class="language-cpp" data-snippet="9"><span class="comment">// Query configuration example; executor and spill directory are host setup.</span>
+std::unordered_map&lt;std::string, std::string&gt; config&#123;
+    &#123;<span class="string">&quot;spill_enabled&quot;</span>, <span class="string">&quot;true&quot;</span>&#125;,
+    &#123;<span class="string">&quot;local_merge_spill_enabled&quot;</span>, <span class="string">&quot;true&quot;</span>&#125;,
+    &#123;<span class="string">&quot;local_merge_max_num_merge_sources&quot;</span>, <span class="string">&quot;8&quot;</span>&#125;,
+    &#123;<span class="string">&quot;local_merge_source_queue_size&quot;</span>, <span class="string">&quot;2&quot;</span>&#125;,
+    &#123;<span class="string">&quot;preferred_output_batch_rows&quot;</span>, <span class="string">&quot;1024&quot;</span>&#125;,
+    &#123;<span class="string">&quot;preferred_output_batch_bytes&quot;</span>, <span class="string">&quot;10485760&quot;</span>&#125;,
+&#125;;</code></pre></figure>
+<p>F = 1 虽然合法，却会把每条原始 source 单独写为一个 run，最终仍可能同时面对 N 条 spill stream。F ≥ N 则不发生中间 spill。因此 F 是两阶段工作集之间的权衡参数，不是越小就一定越省总内存。配置生效后应通过实际 spilledRows、阶段统计和计划中的 source 数验证行为，不能只看配置已经写入。</p>
+<h3 id="metrics">怎样读两个阶段的统计</h3>
+<p>streamingSourceReadWallNanos 记录原始输入阶段的墙钟跨度；发生多轮时，这段还包括归并输出写 spill 的时间。spilledSourceReadWallNanos 记录读回 spill 并产生最终输出的阶段跨度。它们不是逐个 worker CPU 时间之和，也不是纯磁盘 I/O 时间，里面可能包含等待、调度和归并开销。</p>
+<p>分析时应一起观察输入行数、spilledRows / spilledBytes / spilledFiles、读写 I/O 与序列化统计、峰值内存和 executor 使用情况。阶段一很长，可能是扫描或写出慢；阶段二很长，可能是 spill 读回、解码或单线程比较复制慢。先用阶段指标缩小范围，再结合对应资源判断，不能从一个 wall-time 名字直接归因。</p>
+<p>源码：<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/core/QueryConfig.h#L677">LocalMerge 配置</a>，<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/Driver.cpp#L160">makeSpillConfig</a>，<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/Merge.cpp#L738">LocalMerge 构造</a>，<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/Merge.cpp#L299">阶段统计</a>。</p>
+<h2 id="test-coverage">12. 源码中的测试验证了哪些约束</h2>
+<p>这次文章核对阅读了 MergeTest 和 MergerTest 中的相关用例，下面说明现有测试的验证目标。本文没有重新编译或运行 Velox C++ 测试，也没有执行文中的配置示例；代码块中的原样节选由固定快照提取，伪代码用于解释控制流。博客构建、图形渲染和页面检查单独进行，不能替代执行引擎测试。</p>
+<div class="tbl-wrap"><table><thead><tr><th>测试入口</th><th>验证点</th><th>解读边界</th></tr></thead><tbody><tr><td>MergeTest.localMergeSpillBasic / localMergeSpill</td><td>有序结果、多种 fan-in、spill 行数与文件统计</td><td>特定数据大小下每组一个文件，不能外推所有组永远只有一个文件</td></tr><tr><td>localMergeSpill 的辅助测试逻辑</td><td>F ≥ N、空输入、缺少 executor 等分支</td><td>不满足多轮条件时可退回普通归并，spill 计数应为零</td></tr><tr><td>MergeTest.localMergeSpillPartialEmpty</td><td>部分 source 为空的多轮行为</td><td>空输入不能破坏结果或强制产生空文件组</td></tr><tr><td>MergeTest.localMergeSpillWithException</td><td>在不同 nextBatch 调用位置注入异常</td><td>验证相应读取异常能使查询失败并带回消息</td></tr><tr><td>MergeTest.localMergeSmallBatch</td><td>批末取数阻塞，保留部分输出状态</td><td>返回 nullptr 不应丢失已经选择的输出行</td></tr><tr><td>MergeTest.localMergeStart</td><td>阻塞 start 时，Values::getOutput 尚未执行</td><td>直接证明启动门早于上游读取</td></tr><tr><td>MergeTest.localMergeAbort</td><td>归并端抛错，同时异步 reader 延迟</td><td>覆盖一种提前失败交错；测试最后显式 join spill executor</td></tr><tr><td>MergerTest.sourceMerger / sourceMergerWithEmptySources / spillMerger</td><td>归并内核及多组数、批大小、队列容量组合</td><td>分层验证数据顺序与结束行为</td></tr><tr><td>MergerTest.spillMergerException</td><td>读回流故障注入</td><td>不能据此证明所有 continuation 错误均保留派生异常类型</td></tr></tbody></table></div>
+<p>这些测试中若干故障注入和启动时序用例处于 DEBUG 条件下。它们是理解协议的很好入口，但不能将“有 abort 测试”扩展成所有 raw this 初始回调、executor 销毁、取消交错都已经得到形式化保证。读实现时需要把测试覆盖到的具体时序与未覆盖的边界分开。</p>
+<p>测试源码：<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/tests/MergeTest.cpp#L449">MergeTest</a>，<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/tests/MergerTest.cpp#L391">MergerTest</a>。</p>
+<h2 id="design-tradeoffs">13. 设计取舍：用阶段边界管理工作集</h2>
+<h3 id="memory-model">内存模型需要同时计算两阶段</h3>
+<p>把单个原始 source 的 reader 工作集记为 R，把平均输入批次占用记为 V，把 queueSize 记为 q。第一阶段活跃 source 数至多 F，其主要数据工作集可以粗略写成 F × (R + (q + 1) × V)，再加上 producer 正在生成的向量、输出批次、spill 写缓冲、已创建对象和其他 Task 状态。这里的 +1 是 consumer 从队列取走后仍保留的当前批次。</p>
+<p>第二阶段令非空组数为 G，G ≤ ceil(N / F)，总 spill 文件数为 K。主要项变成 G × (q + 1) × Vspill，加上 K 个 reader 的构造与缓冲成本、活跃反序列化工作集、输出和其他状态。底层预取可能使某文件有两个 buffer，bufferSize 还会受文件大小约束，所以这依然是分析框架，不是可直接承诺的精确峰值公式。</p>
+<p>如果原始 reader 很重、spill reader 相对轻，分轮通常能显著降低第一阶段同时存在的昂贵读状态；但减小 F 会增大 G，还可能增大中间文件数与调度开销。最终阶段不再受 F 限制，提前创建 K 个 reader 又增加了一项不能忽略的成本。选择 F 时必须同时估计两个阶段，结合宽度、行宽偏斜、文件大小和 executor 能力测量。</p>
+<h3 id="ordered-run-as-boundary">有序 run 是简化系统的关键中间表示</h3>
+<p>第一阶段将复杂的扫描生命周期压缩成“这一组已完成的一条有序 run”。到第二阶段，只需知道如何顺序读每组并比较组间头部，SourceMerger 不必理解原始文件格式，也不需要了解哪些 Driver 尚未开始。文件组保留排序性质，队列统一同步接口，这两个边界共同降低了模块之间的耦合。</p>
+<p>把归并保持单线程，也明确了所有权：败者树、cursor 和输出 selection 在一个执行上下文中推进，异步 worker 只负责向受锁保护的队列生产批次。这比让多个线程共同修改 winner 树与输出位置容易推理。代价是最终的比较与 payload 复制仍受单线程吞吐限制，增加读取线程只能隐藏一部分读延迟，不能无限提升整体吞吐。</p>
+<h3 id="latency-and-io">换来的稳定性，付出的延迟与 I/O</h3>
+<p>N &gt; F 的路径会把全部输入行写入中间 spill，再读回来；与可直接流式输出的普通 LocalMerge 相比，它增加了序列化、磁盘写读和额外归并。这种选择适合原始输入已经有序、reader 工作集偏大、吞吐和完成稳定性比低首行延迟更重要的批处理。它不能被宣传成任何数据规模上都会更快的优化。</p>
+<p>第一阶段所有组完成后才产生最终输出，这个阻塞边界也限制了下游 LIMIT 可能带来的早停收益。一个可讨论的替代是让最后一组实时输出与旧 spill groups 一起归并，但那会让原始 reader 与 spill reader 同时活跃，重新增加内存与生命周期组合。当前实现选择统一写完再读回，控制流更规整，成本也更明确。</p>
+<h3 id="error-protocol-taste">错误处理的价值在于可解释的结束协议</h3>
+<p>这套异步设计值得保留的部分，是不让异常只停留在某条线程的局部日志中：共享槽保存失败信息，EOF 推进所有流的可观察结束，最终在消费端重抛。代价是错误传播需要等待协作收敛，无法天然提供快速取消、事务回滚或统一 join。讨论代码品味时，应同时看到清楚的模块边界和仍需补强的生命周期细节。</p>
+<p>未来可以沿几个明确方向演进：根据可用内存和实际 reader 工作集动态选择 F；在最终组数很大时引入额外归并层级；延迟创建组内后续文件 reader；保持完整动态异常信息；以显式完成协议覆盖取消和初始排队回调。官方原文把动态增大 fan-in 列为 Future Work；本文核对的快照仍使用配置中的固定 F，不能把这项愿景写成已落地行为。</p>
+<p>Multi-round LocalMerge 的核心，是承认“有序归并只需要少量当前行”并不意味着“同时打开任意多条输入都便宜”。lazy start 把读取工作集控制前移，spill run 把阶段之间的状态固化，async stream 在有界缓存内重叠读取与计算。它们共同形成了这条执行路径；任何一层的结束、背压或所有权语义不清楚，都会影响另一层能否正确推进。</p>
+<h2 id="references">14. 参考文章与源码入口</h2>
+<ul><li><a target="_blank" rel="noopener" href="https://velox-lib.io/blog/multi-round-local-merge">Multi-Round Lazy Start Merge</a>，官方背景与最初设计说明。</li><li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/Merge.cpp#L29">Merge.cpp</a> / <a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/Merge.h#L33">Merge.h</a>：控制流、归并内核、SpillMerger。</li><li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/MergeSource.cpp#L68">MergeSource.cpp</a> / <a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/CallbackSink.cpp#L20">CallbackSink.cpp</a>：启动、队列、EOF 与通知。</li><li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/Spill.cpp#L676">Spill.cpp</a> / <a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/SpillFile.cpp#L154">SpillFile.cpp</a>：文件组拼接与 reader。</li><li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/pull/13139">PR #13139</a>：merge source 启动机制；<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/pull/13634">PR #13634</a>：异步 SpillMerger。当前行为以本文固定快照为准。</li></ul>
+<p>源码节选来自 Apache-2.0 许可的 Velox 项目，原始版权和许可见各链接文件头及 <a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/LICENSE">项目 LICENSE</a>。本文的流程图、类图和时序图按当前实现重新绘制。</p>
+</div>
+
+  </div>
+</article>
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/categories/technology">Technology</a></li>
+         
+          <li><a href="/categories/life">Life</a></li>
+         
+          <li><a href="/archives/">Archives</a></li>
+         
+          <li><a href="/tags/">Tags</a></li>
+         
+          <li><a href="/about">About</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#problem-and-contract"><span class="toc-number">1.</span> <span class="toc-text">1. 有序数据合并，为什么仍然会耗尽内存</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#training-data"><span class="toc-number">1.1.</span> <span class="toc-text">从小时分区合并到天分区</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#sorted-source-contract"><span class="toc-number">1.2.</span> <span class="toc-text">source 的有序契约比文件有序更强</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#two-phase-example"><span class="toc-number">1.3.</span> <span class="toc-text">24 路输入、每轮 8 路的完整路径</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#module-map"><span class="toc-number">2.</span> <span class="toc-text">2. 算子、队列、游标与文件流各做什么</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#lazy-start"><span class="toc-number">3.</span> <span class="toc-text">3. Pipeline lazy start：先创建连接，再允许读取</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#gate-placement"><span class="toc-number">3.1.</span> <span class="toc-text">为什么启动门放在 CallbackSink</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#activation-order"><span class="toc-number">3.2.</span> <span class="toc-text">下一组 source 什么时候启动</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#queue-and-backpressure"><span class="toc-number">4.</span> <span class="toc-text">4. 一份队列协议，连接启动、数据和结束</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#queue-fields"><span class="toc-number">4.1.</span> <span class="toc-text">LocalMergeSource 保存哪些状态</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#notification-order"><span class="toc-number">4.2.</span> <span class="toc-text">为什么 promise 在锁外通知</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#source-merger"><span class="toc-number">5.</span> <span class="toc-text">5. 归并内核：比较、游标、批次复制</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#loser-tree"><span class="toc-number">5.1.</span> <span class="toc-text">TreeOfLosers 如何决定下一行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#copy-boundary"><span class="toc-number">5.2.</span> <span class="toc-text">不是每次选中一行就立即复制整行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#batch-sizing"><span class="toc-number">5.3.</span> <span class="toc-text">行宽估计怎样影响输出批次</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#round-controller"><span class="toc-number">6.</span> <span class="toc-text">6. 多轮控制：从当前 source 组切换到最终归并</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#controller-fields"><span class="toc-number">6.1.</span> <span class="toc-text">字段组合表达执行进度</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#spill-group-boundary"><span class="toc-number">6.2.</span> <span class="toc-text">为什么最后一轮也落盘</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#waiting-futures"><span class="toc-number">6.3.</span> <span class="toc-text">阻塞 future 怎样回到 Driver</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#spill-file-stream"><span class="toc-number">7.</span> <span class="toc-text">7. 文件组读回：有序拼接与真正的资源边界</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#reader-eager-init"><span class="toc-number">7.1.</span> <span class="toc-text">一条 stream 不等于只打开一个文件</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#async-stream-management"><span class="toc-number">8.</span> <span class="toc-text">8. Async stream：怎样调度，怎样控制领先量</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#stream-index"><span class="toc-number">8.1.</span> <span class="toc-text">streamIdx 是几组对象之间的对应关系</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#read-continuation"><span class="toc-number">8.2.</span> <span class="toc-text">快路径直接读，满队列后挂 continuation</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#queue-memory"><span class="toc-number">8.3.</span> <span class="toc-text">有界队列约束的是什么</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#async-errors"><span class="toc-number">9.</span> <span class="toc-text">9. 异步线程的异常怎样回到查询执行线程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#separate-eof-error"><span class="toc-number">9.1.</span> <span class="toc-text">错误信息与流结束必须分别表达</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#two-error-paths"><span class="toc-number">9.2.</span> <span class="toc-text">同步读取失败与 continuation 失败</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#cooperative-convergence"><span class="toc-number">9.3.</span> <span class="toc-text">一条流出错以后，其余流如何停止</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#central-rethrow"><span class="toc-number">9.4.</span> <span class="toc-text">为什么在 atEnd 处统一重抛</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#lifetime-and-cancel"><span class="toc-number">10.</span> <span class="toc-text">10. 对象所有权、回调寿命与提前取消</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#ownership"><span class="toc-number">10.1.</span> <span class="toc-text">谁负责让对象继续存在</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#initial-callback"><span class="toc-number">10.2.</span> <span class="toc-text">weak_ptr 不是所有回调都安全的证明</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#cleanup-boundary"><span class="toc-number">10.3.</span> <span class="toc-text">析构和 close 实际做了什么</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#configuration"><span class="toc-number">11.</span> <span class="toc-text">11. 启用条件、配置与运行观测</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#enablement"><span class="toc-number">11.1.</span> <span class="toc-text">配置 F 之前，先满足 spill 的接入条件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#metrics"><span class="toc-number">11.2.</span> <span class="toc-text">怎样读两个阶段的统计</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#test-coverage"><span class="toc-number">12.</span> <span class="toc-text">12. 源码中的测试验证了哪些约束</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#design-tradeoffs"><span class="toc-number">13.</span> <span class="toc-text">13. 设计取舍：用阶段边界管理工作集</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#memory-model"><span class="toc-number">13.1.</span> <span class="toc-text">内存模型需要同时计算两阶段</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ordered-run-as-boundary"><span class="toc-number">13.2.</span> <span class="toc-text">有序 run 是简化系统的关键中间表示</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#latency-and-io"><span class="toc-number">13.3.</span> <span class="toc-text">换来的稳定性，付出的延迟与 I&#x2F;O</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#error-protocol-taste"><span class="toc-number">13.4.</span> <span class="toc-text">错误处理的价值在于可解释的结束协议</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#references"><span class="toc-number">14.</span> <span class="toc-text">14. 参考文章与源码入口</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://duanmeng.github.io/2026/01/18/velox-multi-round-local-merge/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://duanmeng.github.io/2026/01/18/velox-multi-round-local-merge/&text=Velox Multi-Round LocalMerge：Lazy Start、异步读回与异常收敛"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://duanmeng.github.io/2026/01/18/velox-multi-round-local-merge/&title=Velox Multi-Round LocalMerge：Lazy Start、异步读回与异常收敛"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://duanmeng.github.io/2026/01/18/velox-multi-round-local-merge/&is_video=false&description=Velox Multi-Round LocalMerge：Lazy Start、异步读回与异常收敛"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Velox Multi-Round LocalMerge：Lazy Start、异步读回与异常收敛&body=Check out this article: https://duanmeng.github.io/2026/01/18/velox-multi-round-local-merge/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://duanmeng.github.io/2026/01/18/velox-multi-round-local-merge/&title=Velox Multi-Round LocalMerge：Lazy Start、异步读回与异常收敛"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://duanmeng.github.io/2026/01/18/velox-multi-round-local-merge/&title=Velox Multi-Round LocalMerge：Lazy Start、异步读回与异常收敛"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://duanmeng.github.io/2026/01/18/velox-multi-round-local-merge/&title=Velox Multi-Round LocalMerge：Lazy Start、异步读回与异常收敛"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://duanmeng.github.io/2026/01/18/velox-multi-round-local-merge/&title=Velox Multi-Round LocalMerge：Lazy Start、异步读回与异常收敛"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://duanmeng.github.io/2026/01/18/velox-multi-round-local-merge/&name=Velox Multi-Round LocalMerge：Lazy Start、异步读回与异常收敛&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://duanmeng.github.io/2026/01/18/velox-multi-round-local-merge/&t=Velox Multi-Round LocalMerge：Lazy Start、异步读回与异常收敛"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        
+        <a class="icon footer-home" href="/"><i class="fas fa-home" aria-hidden="true"></i> Home</a>
+        
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2026
+    duanmeng
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/categories/technology">Technology</a></li><!--
+     --><!--
+       --><li><a href="/categories/life">Life</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Archives</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tags</a></li><!--
+     --><!--
+       --><li><a href="/about">About</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+ 
+  <link
+    rel="preload"
+    href="/lib/font-awesome/css/all.min.css"
+    as="style"
+    onload="this.onload=null;this.rel='stylesheet'"
+  />
+  <noscript
+    ><link
+      rel="stylesheet"
+      href="/lib/font-awesome/css/all.min.css"
+  /></noscript>
+
+
+
+  
+    <script defer src="/lib/mermaid/mermaid.min.js"></script>
+  
+  <script type="application/json" id="mermaid-config">{"theme":"base","securityLevel":"strict","fontFamily":"-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, Microsoft YaHei, sans-serif","themeVariables":{"background":"#FAF9F6","primaryColor":"#FAF9F6","primaryBorderColor":"#B6A088","primaryTextColor":"#302E2B","secondaryColor":"#EEE7ED","secondaryBorderColor":"#9A8097","secondaryTextColor":"#302E2B","tertiaryColor":"#E8EFE3","tertiaryBorderColor":"#74896B","tertiaryTextColor":"#302E2B","lineColor":"#B8B1A7","textColor":"#302E2B","mainBkg":"#FAF9F6","nodeBorder":"#B6A088","clusterBkg":"#F2F1ED","clusterBorder":"#B6A088","titleColor":"#302E2B","edgeLabelBackground":"#FAF9F6","actorBkg":"#F2F1ED","actorBorder":"#B6A088","actorTextColor":"#302E2B","actorLineColor":"#B8B1A7","signalColor":"#706B63","signalTextColor":"#302E2B","noteBkgColor":"#F8EED8","noteBorderColor":"#BEA16D","noteTextColor":"#302E2B","labelBoxBkgColor":"#EEE7ED","labelBoxBorderColor":"#9A8097","labelTextColor":"#302E2B","activationBkgColor":"#E8EFE3","activationBorderColor":"#74896B","fontSize":"15px"},"flowchart":{"curve":"linear","padding":16,"nodeSpacing":40,"rankSpacing":48,"useMaxWidth":true},"sequence":{"useMaxWidth":true,"actorMargin":48,"messageMargin":36}}</script>
+  <script defer src="/js/mermaid-init.js"></script>
+
+
+    <!-- jquery -->
+ 
+  
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+
+
+
+<!-- clipboard -->
+
+   
+    
+<script src="/lib/clipboard/clipboard.min.js"></script>
+
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

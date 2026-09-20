@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="1070" viewBox="0 0 1280 1070" role="img" aria-labelledby="title desc">
+<title id="title">异步错误：记录异常 → 各流结束 → 归并端重抛</title><desc id="desc">图示一条 reader 失败，另一条仍在读取；已有队列数据可能继续形成输出前缀</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
+<rect x="0" y="0" width="1280" height="1070" rx="0" fill="white" stroke="none" stroke-width="1"/>
+<rect x="8" y="8" width="1264" height="1054" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<rect x="9" y="9" width="1262" height="94" rx="0" fill="#edf5ff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="103" x2="1271" y2="103" stroke="#d6d3cc" stroke-width="1"/>
+<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">异步错误：记录异常 → 各流结束 → 归并端重抛</text>
+<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">图示一条 reader 失败，另一条仍在读取；已有队列数据可能继续形成输出前缀</text>
+<rect x="35" y="137" width="250" height="88" rx="4" fill="#fff1f2" stroke="#be123c" stroke-width="1"/>
+<rect x="35" y="141" width="4" height="80" rx="0" fill="#be123c" stroke="none" stroke-width="1"/>
+<text x="55" y="171" font-family="DejaVu Sans Mono, Liberation Mono, Consolas, monospace" fill="#111827" font-size="20" text-anchor="start">Worker A</text>
+<text x="55" y="202" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">失败的 stream</text>
+<line x1="160" y1="230" x2="160" y2="935" stroke="#8b8b8b" stroke-width="2" stroke-dasharray="7 5"/>
+<rect x="355" y="137" width="250" height="88" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<rect x="355" y="141" width="4" height="80" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
+<text x="375" y="171" font-family="DejaVu Sans Mono, Liberation Mono, Consolas, monospace" fill="#111827" font-size="20" text-anchor="start">SpillMerger</text>
+<text x="375" y="202" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">共享异常槽</text>
+<line x1="480" y1="230" x2="480" y2="935" stroke="#8b8b8b" stroke-width="2" stroke-dasharray="7 5"/>
+<rect x="675" y="137" width="250" height="88" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="675" y="141" width="4" height="80" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="695" y="171" font-family="DejaVu Sans Mono, Liberation Mono, Consolas, monospace" fill="#111827" font-size="20" text-anchor="start">Worker B</text>
+<text x="695" y="202" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">其他 stream</text>
+<line x1="800" y1="230" x2="800" y2="935" stroke="#8b8b8b" stroke-width="2" stroke-dasharray="7 5"/>
+<rect x="995" y="137" width="250" height="88" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<rect x="995" y="141" width="4" height="80" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
+<text x="1015" y="171" font-family="DejaVu Sans Mono, Liberation Mono, Consolas, monospace" fill="#111827" font-size="20" text-anchor="start">Merge Driver</text>
+<text x="1015" y="202" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">消费与抛错</text>
+<line x1="1120" y1="230" x2="1120" y2="935" stroke="#8b8b8b" stroke-width="2" stroke-dasharray="7 5"/>
+<text x="320.0" y="265" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">nextBatch 抛异常 → setError</text>
+<polyline points="160,278 480,278" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="354" y="307" width="252" height="82" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<rect x="354" y="311" width="4" height="74" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
+<text x="374" y="341" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="400" text-anchor="start">mutex 保护首个写入</text>
+<text x="374" y="372" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">后来的错误不覆盖</text>
+<text x="640.0" y="412" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">finishSource(A)：EOF 经 A 的队列可见</text>
+<polyline points="160,425 1120,425" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="960.0" y="482" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">继续消费已有数据，释放队列空位</text>
+<polyline points="1120,495 800,495" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="640.0" y="552" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">B 下次进入回调：hasError()</text>
+<polyline points="800,565 480,565" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="640.0" y="616" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">true：停止后续读取</text>
+<polyline points="480,629 800,629" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="960.0" y="682" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">finishSource(B)：EOF 经 B 的队列可见</text>
+<polyline points="800,695 1120,695" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="919" y="731" width="321" height="86" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<rect x="919" y="735" width="4" height="78" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
+<text x="939" y="765" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="400" text-anchor="start">所有 source 到达 EOF</text>
+<text x="939" y="796" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">SourceMerger：atEnd = true</text>
+<text x="800.0" y="853" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">checkError：清理归并对象并 rethrow</text>
+<polyline points="1120,866 480,866" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="40" y="968" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
+<text x="60" y="997" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">EOF 是结束协议；exception_ptr 才是失败信息，二者需要一起传播</text>
+<text x="60" y="1022" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">这是 cooperative 收敛，不等于线程 join、输出回滚或强行打断正在执行的 I/O。</text>
+</svg>

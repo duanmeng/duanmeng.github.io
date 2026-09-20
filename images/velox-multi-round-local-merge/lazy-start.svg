@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="930" viewBox="0 0 1280 930" role="img" aria-labelledby="title desc">
+<title id="title">Pipeline lazy start：由下游打开启动门</title><desc id="desc">Driver 与 Operator 可以已经创建并初始化；门控的是继续向上游取数</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
+<rect x="0" y="0" width="1280" height="930" rx="0" fill="white" stroke="none" stroke-width="1"/>
+<rect x="8" y="8" width="1264" height="914" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<rect x="9" y="9" width="1262" height="94" rx="0" fill="#edf5ff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="103" x2="1271" y2="103" stroke="#d6d3cc" stroke-width="1"/>
+<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">Pipeline lazy start：由下游打开启动门</text>
+<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">Driver 与 Operator 可以已经创建并初始化；门控的是继续向上游取数</text>
+<rect x="35" y="132" width="250" height="86" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="35" y="136" width="4" height="78" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="55" y="166" font-family="DejaVu Sans Mono, Liberation Mono, Consolas, monospace" fill="#111827" font-size="20" text-anchor="start">Producer Driver</text>
+<text x="55" y="197" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">上游 pipeline</text>
+<line x1="160" y1="224" x2="160" y2="786" stroke="#8b8b8b" stroke-width="2" stroke-dasharray="7 5"/>
+<rect x="355" y="132" width="250" height="86" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="355" y="136" width="4" height="78" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="375" y="166" font-family="DejaVu Sans Mono, Liberation Mono, Consolas, monospace" fill="#111827" font-size="20" text-anchor="start">CallbackSink</text>
+<text x="375" y="197" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">pipeline 尾端</text>
+<line x1="480" y1="224" x2="480" y2="786" stroke="#8b8b8b" stroke-width="2" stroke-dasharray="7 5"/>
+<rect x="675" y="132" width="250" height="86" rx="4" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
+<rect x="675" y="136" width="4" height="78" rx="0" fill="#c2410c" stroke="none" stroke-width="1"/>
+<text x="695" y="166" font-family="DejaVu Sans Mono, Liberation Mono, Consolas, monospace" fill="#111827" font-size="20" text-anchor="start">LocalMergeSource</text>
+<text x="695" y="197" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">共享启动状态</text>
+<line x1="800" y1="224" x2="800" y2="786" stroke="#8b8b8b" stroke-width="2" stroke-dasharray="7 5"/>
+<rect x="995" y="132" width="250" height="86" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<rect x="995" y="136" width="4" height="78" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
+<text x="1015" y="166" font-family="DejaVu Sans Mono, Liberation Mono, Consolas, monospace" fill="#111827" font-size="20" text-anchor="start">LocalMerge</text>
+<text x="1015" y="197" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">下游 Driver</text>
+<line x1="1120" y1="224" x2="1120" y2="786" stroke="#8b8b8b" stroke-width="2" stroke-dasharray="7 5"/>
+<text x="320.0" y="261" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">先检查 sink.isBlocked()</text>
+<polyline points="160,274 480,274" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="640.0" y="319" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">started(&amp;future)</text>
+<polyline points="480,332 800,332" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="640.0" y="377" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">未启动：kWaitForConsumer</text>
+<polyline points="800,390 480,390" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="320.0" y="435" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">Driver 保存 future 并退出执行</text>
+<polyline points="480,448 160,448" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="35" y="477" width="260" height="63" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
+<rect x="35" y="481" width="4" height="55" rx="0" fill="#d6d3cc" stroke="none" stroke-width="1"/>
+<text x="55" y="511" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="400" text-anchor="start">等待期间不占 worker</text>
+<text x="960.0" y="545" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">选中本组 sources → start()</text>
+<polyline points="1120,558 800,558" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="480.0" y="609" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">started = true；兑现 producer promise</text>
+<polyline points="800,622 160,622" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="320.0" y="671" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">恢复 Driver，读取数据并 addInput</text>
+<polyline points="160,684 480,684" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="640.0" y="731" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">enqueue(RowVector)</text>
+<polyline points="480,744 800,744" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="40" y="828" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
+<text x="60" y="857" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">关键连接：LocalPlanner 给 CallbackSink 同时安装 startCb 和 consumerCb</text>
+<text x="60" y="882" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">普通 Driver future 阻塞协议；不是 Task pause，也不是等待创建 Driver。</text>
+</svg>

@@ -1,0 +1,138 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="915" viewBox="0 0 1280 915" role="img" aria-labelledby="title desc">
+<title id="title">空桶、半满桶、满桶：插入时分别发生什么</title><desc id="desc">示例从未删除的桶开始；每格表示一个 tag，pointer 与 payload 在此省略</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
+<rect x="0" y="0" width="1280" height="915" rx="0" fill="white" stroke="none" stroke-width="1"/>
+<rect x="8" y="8" width="1264" height="899" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<rect x="9" y="9" width="1262" height="94" rx="0" fill="#edf5ff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="103" x2="1271" y2="103" stroke="#d6d3cc" stroke-width="1"/>
+<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">空桶、半满桶、满桶：插入时分别发生什么</text>
+<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">示例从未删除的桶开始；每格表示一个 tag，pointer 与 payload 在此省略</text>
+<rect x="40" y="144" width="530" height="156" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="40" y="148" width="4" height="148" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="60" y="178" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="400" text-anchor="start">① 空桶：0 / 16</text>
+<rect x="62" y="220" width="26" height="38" rx="2" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="75" y="246" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="15" font-weight="400" text-anchor="middle">·</text>
+<rect x="93" y="220" width="26" height="38" rx="2" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="106" y="246" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="15" font-weight="400" text-anchor="middle">·</text>
+<rect x="124" y="220" width="26" height="38" rx="2" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="137" y="246" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="15" font-weight="400" text-anchor="middle">·</text>
+<rect x="155" y="220" width="26" height="38" rx="2" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="168" y="246" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="15" font-weight="400" text-anchor="middle">·</text>
+<rect x="186" y="220" width="26" height="38" rx="2" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="199" y="246" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="15" font-weight="400" text-anchor="middle">·</text>
+<rect x="217" y="220" width="26" height="38" rx="2" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="230" y="246" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="15" font-weight="400" text-anchor="middle">·</text>
+<rect x="248" y="220" width="26" height="38" rx="2" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="261" y="246" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="15" font-weight="400" text-anchor="middle">·</text>
+<rect x="279" y="220" width="26" height="38" rx="2" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="292" y="246" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="15" font-weight="400" text-anchor="middle">·</text>
+<rect x="310" y="220" width="26" height="38" rx="2" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="323" y="246" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="15" font-weight="400" text-anchor="middle">·</text>
+<rect x="341" y="220" width="26" height="38" rx="2" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="354" y="246" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="15" font-weight="400" text-anchor="middle">·</text>
+<rect x="372" y="220" width="26" height="38" rx="2" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="385" y="246" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="15" font-weight="400" text-anchor="middle">·</text>
+<rect x="403" y="220" width="26" height="38" rx="2" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="416" y="246" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="15" font-weight="400" text-anchor="middle">·</text>
+<rect x="434" y="220" width="26" height="38" rx="2" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="447" y="246" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="15" font-weight="400" text-anchor="middle">·</text>
+<rect x="465" y="220" width="26" height="38" rx="2" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="478" y="246" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="15" font-weight="400" text-anchor="middle">·</text>
+<rect x="496" y="220" width="26" height="38" rx="2" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="509" y="246" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="15" font-weight="400" text-anchor="middle">·</text>
+<rect x="527" y="220" width="26" height="38" rx="2" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="540" y="246" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="15" font-weight="400" text-anchor="middle">·</text>
+<polyline points="570,224 660,224" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="660" y="144" width="580" height="156" rx="4" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
+<rect x="660" y="148" width="4" height="148" rx="0" fill="#c2410c" stroke="none" stroke-width="1"/>
+<text x="680" y="178" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="400" text-anchor="start">候选检查与下一步</text>
+<text x="680" y="209" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">没有候选；新 key 使用第一个空槽</text>
+<text x="680" y="236" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">写 tag，并保存指向 RowContainer 的行指针</text>
+<rect x="40" y="350" width="530" height="156" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="40" y="354" width="4" height="148" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="60" y="384" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="400" text-anchor="start">② 半满桶：5 / 16</text>
+<rect x="62" y="426" width="26" height="38" rx="2" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="75" y="452" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#15803d" font-size="15" font-weight="400" text-anchor="middle">●</text>
+<rect x="93" y="426" width="26" height="38" rx="2" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="106" y="452" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#15803d" font-size="15" font-weight="400" text-anchor="middle">●</text>
+<rect x="124" y="426" width="26" height="38" rx="2" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="137" y="452" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#15803d" font-size="15" font-weight="400" text-anchor="middle">●</text>
+<rect x="155" y="426" width="26" height="38" rx="2" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="168" y="452" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#15803d" font-size="15" font-weight="400" text-anchor="middle">●</text>
+<rect x="186" y="426" width="26" height="38" rx="2" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="199" y="452" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#15803d" font-size="15" font-weight="400" text-anchor="middle">●</text>
+<rect x="217" y="426" width="26" height="38" rx="2" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="230" y="452" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="15" font-weight="400" text-anchor="middle">·</text>
+<rect x="248" y="426" width="26" height="38" rx="2" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="261" y="452" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="15" font-weight="400" text-anchor="middle">·</text>
+<rect x="279" y="426" width="26" height="38" rx="2" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="292" y="452" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="15" font-weight="400" text-anchor="middle">·</text>
+<rect x="310" y="426" width="26" height="38" rx="2" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="323" y="452" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="15" font-weight="400" text-anchor="middle">·</text>
+<rect x="341" y="426" width="26" height="38" rx="2" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="354" y="452" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="15" font-weight="400" text-anchor="middle">·</text>
+<rect x="372" y="426" width="26" height="38" rx="2" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="385" y="452" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="15" font-weight="400" text-anchor="middle">·</text>
+<rect x="403" y="426" width="26" height="38" rx="2" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="416" y="452" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="15" font-weight="400" text-anchor="middle">·</text>
+<rect x="434" y="426" width="26" height="38" rx="2" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="447" y="452" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="15" font-weight="400" text-anchor="middle">·</text>
+<rect x="465" y="426" width="26" height="38" rx="2" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="478" y="452" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="15" font-weight="400" text-anchor="middle">·</text>
+<rect x="496" y="426" width="26" height="38" rx="2" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="509" y="452" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="15" font-weight="400" text-anchor="middle">·</text>
+<rect x="527" y="426" width="26" height="38" rx="2" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<text x="540" y="452" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="15" font-weight="400" text-anchor="middle">·</text>
+<polyline points="570,430 660,430" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="660" y="350" width="580" height="156" rx="4" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
+<rect x="660" y="354" width="4" height="148" rx="0" fill="#c2410c" stroke="none" stroke-width="1"/>
+<text x="680" y="384" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="400" text-anchor="start">候选检查与下一步</text>
+<text x="680" y="415" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">先比较 tag，命中的候选再比较 key</text>
+<text x="680" y="442" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">找到相同 key：复用 group 或按 Join 语义处理重复行</text>
+<text x="680" y="469" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">确认没有匹配：使用空槽</text>
+<rect x="40" y="575" width="530" height="156" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="40" y="579" width="4" height="148" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="60" y="609" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="400" text-anchor="start">③ 满桶：16 / 16</text>
+<rect x="62" y="651" width="26" height="38" rx="2" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="75" y="677" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#15803d" font-size="15" font-weight="400" text-anchor="middle">●</text>
+<rect x="93" y="651" width="26" height="38" rx="2" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="106" y="677" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#15803d" font-size="15" font-weight="400" text-anchor="middle">●</text>
+<rect x="124" y="651" width="26" height="38" rx="2" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="137" y="677" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#15803d" font-size="15" font-weight="400" text-anchor="middle">●</text>
+<rect x="155" y="651" width="26" height="38" rx="2" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="168" y="677" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#15803d" font-size="15" font-weight="400" text-anchor="middle">●</text>
+<rect x="186" y="651" width="26" height="38" rx="2" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="199" y="677" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#15803d" font-size="15" font-weight="400" text-anchor="middle">●</text>
+<rect x="217" y="651" width="26" height="38" rx="2" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="230" y="677" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#15803d" font-size="15" font-weight="400" text-anchor="middle">●</text>
+<rect x="248" y="651" width="26" height="38" rx="2" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="261" y="677" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#15803d" font-size="15" font-weight="400" text-anchor="middle">●</text>
+<rect x="279" y="651" width="26" height="38" rx="2" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="292" y="677" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#15803d" font-size="15" font-weight="400" text-anchor="middle">●</text>
+<rect x="310" y="651" width="26" height="38" rx="2" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="323" y="677" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#15803d" font-size="15" font-weight="400" text-anchor="middle">●</text>
+<rect x="341" y="651" width="26" height="38" rx="2" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="354" y="677" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#15803d" font-size="15" font-weight="400" text-anchor="middle">●</text>
+<rect x="372" y="651" width="26" height="38" rx="2" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="385" y="677" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#15803d" font-size="15" font-weight="400" text-anchor="middle">●</text>
+<rect x="403" y="651" width="26" height="38" rx="2" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="416" y="677" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#15803d" font-size="15" font-weight="400" text-anchor="middle">●</text>
+<rect x="434" y="651" width="26" height="38" rx="2" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="447" y="677" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#15803d" font-size="15" font-weight="400" text-anchor="middle">●</text>
+<rect x="465" y="651" width="26" height="38" rx="2" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="478" y="677" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#15803d" font-size="15" font-weight="400" text-anchor="middle">●</text>
+<rect x="496" y="651" width="26" height="38" rx="2" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="509" y="677" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#15803d" font-size="15" font-weight="400" text-anchor="middle">●</text>
+<rect x="527" y="651" width="26" height="38" rx="2" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<text x="540" y="677" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#15803d" font-size="15" font-weight="400" text-anchor="middle">●</text>
+<polyline points="570,655 660,655" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="660" y="575" width="580" height="156" rx="4" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
+<rect x="660" y="579" width="4" height="148" rx="0" fill="#c2410c" stroke="none" stroke-width="1"/>
+<text x="680" y="609" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="400" text-anchor="start">候选检查与下一步</text>
+<text x="680" y="640" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">仍要先比较 tag 和候选 key</text>
+<text x="680" y="667" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">有匹配：不占用新的 distinct-key 槽</text>
+<text x="680" y="694" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">无匹配：前进到下一个 bucket，末尾回绕</text>
+<rect x="40" y="813" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
+<text x="60" y="842" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">真实实现还要处理 tombstone、并行插入分区边界和批量 probe 状态</text>
+<text x="60" y="867" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">遇到 empty 前先检查当前 bucket 的候选；tombstone 不能当作 empty 提前停止。</text>
+</svg>
