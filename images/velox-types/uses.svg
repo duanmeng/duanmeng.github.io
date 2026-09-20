@@ -1,66 +1,66 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="840" viewBox="0 0 1280 840" role="img" aria-labelledby="title desc">
-<title id="title">Function、Vector、Operator 在哪里使用哪一层类型</title><desc id="desc">横向是一行组件内的职责分工；各列信息在执行过程中共同存在。</desc>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="950" viewBox="0 0 1280 950" role="img" aria-labelledby="title desc">
+<title id="title">同一列 DATE：各接口到底使用哪种类型</title><desc id="desc">逻辑类型、物理类型和 C++ 值类型同时存在；按具体接口区分它们。</desc>
 <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
-<rect x="0" y="0" width="1280" height="840" rx="0" fill="white" stroke="none" stroke-width="1"/>
-<rect x="8" y="8" width="1264" height="824" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<rect x="0" y="0" width="1280" height="950" rx="0" fill="white" stroke="none" stroke-width="1"/>
+<rect x="8" y="8" width="1264" height="934" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
 <rect x="9" y="9" width="1262" height="94" rx="0" fill="#edf5ff" stroke="none" stroke-width="1"/>
 <line x1="9" y1="103" x2="1271" y2="103" stroke="#d6d3cc" stroke-width="1"/>
-<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">Function、Vector、Operator 在哪里使用哪一层类型</text>
-<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">横向是一行组件内的职责分工；各列信息在执行过程中共同存在。</text>
-<rect x="40" y="143" width="180" height="60" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<text x="56" y="182" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">组件</text>
-<rect x="250" y="143" width="300" height="60" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<text x="266" y="182" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">逻辑类型：数据契约</text>
-<rect x="580" y="143" width="300" height="60" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<text x="596" y="182" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">物理类型：基础表示</text>
-<rect x="910" y="143" width="330" height="60" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<text x="926" y="182" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">C++ 类型：值与算法</text>
-<rect x="40" y="240" width="180" height="116" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<rect x="40" y="244" width="4" height="108" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">同一列 DATE：各接口到底使用哪种类型</text>
+<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">逻辑类型、物理类型和 C++ 值类型同时存在；按具体接口区分它们。</text>
+<rect x="40" y="145" width="180" height="60" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<text x="56" y="183" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">组件</text>
+<rect x="250" y="145" width="300" height="60" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<text x="266" y="183" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">逻辑类型</text>
+<rect x="580" y="145" width="300" height="60" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<text x="596" y="183" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">物理类型 / kind</text>
+<rect x="910" y="145" width="330" height="60" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<text x="926" y="183" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">C++ 值类型</text>
+<rect x="40" y="240" width="180" height="120" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="40" y="244" width="4" height="112" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
 <text x="62" y="275" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Vector</text>
-<rect x="250" y="240" width="300" height="116" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<rect x="250" y="244" width="4" height="108" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
-<text x="272" y="275" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">完整 Type</text>
-<text x="272" y="308" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">DATE / DECIMAL / ROW</text>
-<rect x="580" y="240" width="300" height="116" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
-<rect x="580" y="244" width="4" height="108" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
-<text x="602" y="275" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">kind</text>
-<text x="602" y="308" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">INTEGER / BIGINT / ROW</text>
-<rect x="910" y="240" width="330" height="116" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
-<rect x="910" y="244" width="4" height="108" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
-<text x="932" y="275" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">原生值与 buffers</text>
-<text x="932" y="308" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">编码、索引、null、children</text>
-<rect x="40" y="399" width="180" height="116" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<rect x="40" y="403" width="4" height="108" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
-<text x="62" y="434" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Function</text>
-<rect x="250" y="399" width="300" height="116" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<rect x="250" y="403" width="4" height="108" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
-<text x="272" y="434" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">参数与返回签名</text>
-<text x="272" y="467" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">date → date 等逻辑契约</text>
-<rect x="580" y="399" width="300" height="116" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
-<rect x="580" y="403" width="4" height="108" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
-<text x="602" y="434" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">核对实现的 backing</text>
-<text x="602" y="467" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">例如 short / long decimal</text>
-<rect x="910" y="399" width="330" height="116" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
-<rect x="910" y="403" width="4" height="108" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
-<text x="932" y="434" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">call 或批处理实现</text>
-<text x="932" y="467" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">native / view / writer</text>
-<rect x="40" y="558" width="180" height="116" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<rect x="40" y="562" width="4" height="108" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
-<text x="62" y="593" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Operator</text>
-<rect x="250" y="558" width="300" height="116" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<rect x="250" y="562" width="4" height="108" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
-<text x="272" y="593" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">输入 / 输出 Row schema</text>
-<text x="272" y="626" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">RowVector 传递数据</text>
-<rect x="580" y="558" width="300" height="116" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
-<rect x="580" y="562" width="4" height="108" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
-<text x="602" y="593" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">选择列访问与比较路径</text>
-<text x="602" y="626" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">必要时保留逻辑比较语义</text>
-<rect x="910" y="558" width="330" height="116" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
-<rect x="910" y="562" width="4" height="108" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
-<text x="932" y="593" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">算法与内部状态</text>
-<text x="932" y="626" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">行存储、hash table、累加器</text>
-<rect x="40" y="738" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
-<text x="60" y="767" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">签名与 schema 保留逻辑语义；kind 支持实现选择；C++ 类型执行实际值操作。</text>
-<text x="60" y="792" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">Reader / Writer 还需要在文件类型与 Velox 类型之间建立映射。</text>
+<rect x="250" y="240" width="300" height="120" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="250" y="244" width="4" height="112" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="272" y="275" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">type() → DATE()</text>
+<text x="272" y="308" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">逻辑类型：日期</text>
+<rect x="580" y="240" width="300" height="120" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<rect x="580" y="244" width="4" height="112" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
+<text x="602" y="275" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">typeKind()</text>
+<text x="602" y="308" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">INTEGER（32 位整数）</text>
+<rect x="910" y="240" width="330" height="120" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<rect x="910" y="244" width="4" height="112" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
+<text x="932" y="275" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">FlatVector&lt;int32_t&gt;</text>
+<text x="932" y="308" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">值使用 int32_t</text>
+<rect x="40" y="425" width="180" height="120" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="40" y="429" width="4" height="112" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="62" y="460" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Function</text>
+<rect x="250" y="425" width="300" height="120" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="250" y="429" width="4" height="112" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="272" y="460" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">date → date</text>
+<text x="272" y="493" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">绑定后返回 DATE()</text>
+<rect x="580" y="425" width="300" height="120" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<rect x="580" y="429" width="4" height="112" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
+<text x="602" y="460" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">argPhysicalTypes()</text>
+<text x="602" y="493" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">INTEGER()，载体 TypePtr</text>
+<rect x="910" y="425" width="330" height="120" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<rect x="910" y="429" width="4" height="112" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
+<text x="932" y="460" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">call 的参数与结果</text>
+<text x="932" y="493" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">Date tag → int32_t</text>
+<rect x="40" y="610" width="180" height="120" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="40" y="614" width="4" height="112" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="62" y="645" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Operator</text>
+<rect x="250" y="610" width="300" height="120" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="250" y="614" width="4" height="112" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="272" y="645" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">ROW(d DATE)</text>
+<text x="272" y="678" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">输入 / 输出逻辑 schema</text>
+<rect x="580" y="610" width="300" height="120" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<rect x="580" y="614" width="4" height="112" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
+<text x="602" y="645" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">子列 kind → INTEGER</text>
+<text x="602" y="678" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">用于列访问与存储分派</text>
+<rect x="910" y="610" width="330" height="120" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<rect x="910" y="614" width="4" height="112" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
+<text x="932" y="645" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">读取 int32_t 值</text>
+<text x="932" y="678" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">状态由 C++ 算法组织</text>
+<rect x="40" y="848" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
+<text x="60" y="877" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">结果 Vector 继续携带 DATE()；物理签名 INTEGER() 没有替换它的逻辑类型。</text>
+<text x="60" y="902" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">Vector Function 的 args[i]-&gt;type() / outputType 也是逻辑类型；内部再选择物理分派和 C++ 运算。</text>
 </svg>

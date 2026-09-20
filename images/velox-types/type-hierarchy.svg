@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="1230" viewBox="0 0 1280 1230" role="img" aria-labelledby="title desc">
+<title id="title">Type 的实际继承结构：描述类、模板实例与别名</title><desc id="desc">本文涉及的类；虚线箭头由子类指向父类，K 表示各分支使用的 TypeKind 模板实参。</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
+<rect x="0" y="0" width="1280" height="1230" rx="0" fill="white" stroke="none" stroke-width="1"/>
+<rect x="8" y="8" width="1264" height="1214" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<rect x="9" y="9" width="1262" height="94" rx="0" fill="#edf5ff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="103" x2="1271" y2="103" stroke="#d6d3cc" stroke-width="1"/>
+<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">Type 的实际继承结构：描述类、模板实例与别名</text>
+<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">本文涉及的类；虚线箭头由子类指向父类，K 表示各分支使用的 TypeKind 模板实参。</text>
+<rect x="50" y="140" width="490" height="80" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="50" y="144" width="4" height="72" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="68" y="170" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Type</text>
+<text x="68" y="199" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">统一接口；保存 const TypeKind kind_</text>
+<rect x="130" y="260" width="700" height="80" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="130" y="264" width="4" height="72" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="148" y="290" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">TypeBase&lt;K&gt;</text>
+<text x="148" y="319" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">初始化 kind_；默认 name() / kindName() 来自 TypeTraits&lt;K&gt;</text>
+<polyline points="170,260 170,238 170,220" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="210" y="380" width="750" height="80" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="210" y="384" width="4" height="72" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="228" y="410" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">CanProvideCustomComparisonType&lt;K&gt;</text>
+<text x="228" y="439" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">增加基于 NativeType 的值 compare / hash 接口</text>
+<polyline points="250,380 250,340" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="290" y="500" width="800" height="80" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="290" y="504" width="4" height="72" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="308" y="530" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">ScalarType&lt;K&gt;</text>
+<text x="308" y="559" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">IntegerType = ScalarType&lt;INTEGER&gt;；BigintType = ScalarType&lt;BIGINT&gt;</text>
+<polyline points="330,500 330,460" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="370" y="620" width="385" height="80" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<rect x="370" y="624" width="4" height="72" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
+<text x="388" y="650" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">DateType</text>
+<text x="388" y="679" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">父类 IntegerType；逻辑名 DATE</text>
+<rect x="800" y="620" width="430" height="80" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<rect x="800" y="624" width="4" height="72" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
+<text x="818" y="650" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">DecimalType&lt;K&gt;</text>
+<text x="818" y="679" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">父类 ScalarType&lt;K&gt;；K = BIGINT / HUGEINT</text>
+<polyline points="410,620 410,580" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<polyline points="970,620 970,580" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="370" y="760" width="385" height="80" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<rect x="370" y="764" width="4" height="72" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
+<text x="388" y="790" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">ShortDecimalType</text>
+<text x="388" y="819" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">父类 DecimalType&lt;BIGINT&gt;</text>
+<rect x="800" y="760" width="430" height="80" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
+<rect x="800" y="764" width="4" height="72" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
+<text x="818" y="790" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">LongDecimalType</text>
+<text x="818" y="819" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">父类 DecimalType&lt;HUGEINT&gt;</text>
+<polyline points="562,760 562,730 880,730 880,700" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<polyline points="1100,760 1100,700" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="50" y="895" width="1180" height="185" rx="4" fill="#fafaf9" stroke="#d6d3cc" stroke-width="1"/>
+<text x="70" y="925" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">复杂类型的分支：各自直接继承 TypeBase 的对应实例</text>
+<rect x="70" y="950" width="355" height="110" rx="4" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
+<rect x="70" y="954" width="4" height="102" rx="0" fill="#c2410c" stroke="none" stroke-width="1"/>
+<text x="88" y="980" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">ArrayType</text>
+<text x="88" y="1009" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">父类 TypeBase&lt;ARRAY&gt;</text>
+<rect x="448" y="950" width="355" height="110" rx="4" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
+<rect x="448" y="954" width="4" height="102" rx="0" fill="#c2410c" stroke="none" stroke-width="1"/>
+<text x="466" y="980" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">MapType</text>
+<text x="466" y="1009" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">父类 TypeBase&lt;MAP&gt;</text>
+<rect x="826" y="950" width="384" height="110" rx="4" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
+<rect x="826" y="954" width="4" height="102" rx="0" fill="#c2410c" stroke="none" stroke-width="1"/>
+<text x="844" y="980" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">RowType</text>
+<text x="844" y="1009" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">父类 TypeBase&lt;ROW&gt;</text>
+<text x="88" y="1040" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">child_ 保存元素 TypePtr</text>
+<text x="466" y="1040" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">保存 key / value TypePtr</text>
+<text x="844" y="1040" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">保存字段 TypePtr 与字段名</text>
+<rect x="40" y="1128" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
+<text x="60" y="1157" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">基本 Type 既能描述逻辑类型，也能被用于物理签名；这不是两棵互斥的类树。</text>
+<text x="60" y="1182" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">DateType 继承 IntegerType 表示 C++ 实现复用，不表示 SQL DATE 等价于 INTEGER。</text>
+</svg>
