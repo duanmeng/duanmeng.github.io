@@ -1,47 +1,47 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="1130" viewBox="0 0 1280 1130" role="img" aria-labelledby="title desc">
 <title id="title">Part 3 · 结束信号怎样穿过两次 Shuffle</title><desc id="desc">信号沿生产者 → 远程交换 → 本地交换 → 聚合传播；多个来源必须分别完成。</desc>
-<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#657386" stroke-width="1.5"/></marker></defs>
 <rect x="0" y="0" width="1280" height="1130" rx="0" fill="white" stroke="none" stroke-width="1"/>
-<rect x="8" y="8" width="1264" height="1114" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
-<rect x="9" y="9" width="1262" height="94" rx="0" fill="#edf5ff" stroke="none" stroke-width="1"/>
-<line x1="9" y1="103" x2="1271" y2="103" stroke="#d6d3cc" stroke-width="1"/>
-<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">Part 3 · 结束信号怎样穿过两次 Shuffle</text>
-<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">信号沿生产者 → 远程交换 → 本地交换 → 聚合传播；多个来源必须分别完成。</text>
-<rect x="40" y="150" width="220" height="66" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<text x="150" y="190" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="middle">扫描 Driver</text>
-<line x1="150" y1="232" x2="150" y2="962" stroke="#706b63" stroke-width="2.4" stroke-dasharray="8 6"/>
-<rect x="370" y="150" width="220" height="66" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
-<text x="480" y="190" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="middle">远程输出 / 输入</text>
-<line x1="480" y1="232" x2="480" y2="962" stroke="#706b63" stroke-width="2.4" stroke-dasharray="8 6"/>
-<rect x="700" y="150" width="220" height="66" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
-<text x="810" y="190" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="middle">本地交换</text>
-<line x1="810" y1="232" x2="810" y2="962" stroke="#706b63" stroke-width="2.4" stroke-dasharray="8 6"/>
-<rect x="1030" y="150" width="220" height="66" rx="4" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
-<text x="1140" y="190" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="middle">HashAggregation</text>
-<line x1="1140" y1="232" x2="1140" y2="962" stroke="#706b63" stroke-width="2.4" stroke-dasharray="8 6"/>
-<rect x="55" y="265" width="450" height="72" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<text x="75" y="295" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">noMoreSplits 已收到，当前数据也读完</text>
-<text x="75" y="322" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="16" font-weight="400" text-anchor="start">TableScan 结束；通知其下游 sink</text>
-<polyline points="150,390 480,390" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="8" y="8" width="1264" height="1114" rx="4" fill="white" stroke="none" stroke-width="1"/>
+<rect x="9" y="9" width="1262" height="94" rx="0" fill="#ffffff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="103" x2="1271" y2="103" stroke="#dce3ea" stroke-width="1"/>
+<text x="40" y="49" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="28" font-weight="600" text-anchor="start">Part 3 · 结束信号怎样穿过两次 Shuffle</text>
+<text x="40" y="80" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">信号沿生产者 → 远程交换 → 本地交换 → 聚合传播；多个来源必须分别完成。</text>
+<rect x="40" y="150" width="220" height="66" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1"/>
+<text x="150" y="190" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#326cae" font-size="19" font-weight="600" text-anchor="middle">扫描 Driver</text>
+<line x1="150" y1="232" x2="150" y2="962" stroke="#657386" stroke-width="2.4" stroke-dasharray="8 6"/>
+<rect x="370" y="150" width="220" height="66" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1"/>
+<text x="480" y="190" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#65537f" font-size="19" font-weight="600" text-anchor="middle">远程输出 / 输入</text>
+<line x1="480" y1="232" x2="480" y2="962" stroke="#657386" stroke-width="2.4" stroke-dasharray="8 6"/>
+<rect x="700" y="150" width="220" height="66" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1"/>
+<text x="810" y="190" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#2e7963" font-size="19" font-weight="600" text-anchor="middle">本地交换</text>
+<line x1="810" y1="232" x2="810" y2="962" stroke="#657386" stroke-width="2.4" stroke-dasharray="8 6"/>
+<rect x="1030" y="150" width="220" height="66" rx="4" fill="#faf7ef" stroke="#ac9c76" stroke-width="1"/>
+<text x="1140" y="190" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#877951" font-size="19" font-weight="600" text-anchor="middle">HashAggregation</text>
+<line x1="1140" y1="232" x2="1140" y2="962" stroke="#657386" stroke-width="2.4" stroke-dasharray="8 6"/>
+<rect x="55" y="265" width="450" height="72" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1"/>
+<text x="75" y="295" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#326cae" font-size="19" font-weight="600" text-anchor="start">noMoreSplits 已收到，当前数据也读完</text>
+<text x="75" y="322" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="16" font-weight="400" text-anchor="start">TableScan 结束；通知其下游 sink</text>
+<polyline points="150,390 480,390" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
 <rect x="162.0" y="359" width="306" height="26" rx="0" fill="white" stroke="none" stroke-width="1"/>
-<text x="315.0" y="379" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">PartitionedOutput::noMoreInput()</text>
-<rect x="370" y="432" width="500" height="88" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
-<text x="390" y="465" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="600" text-anchor="start">OutputBufferManager 收齐各 Driver 的结束通知</text>
-<text x="390" y="495" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">flush 尾批次；对各目的地报告该 Task 不再产出</text>
-<rect x="370" y="573" width="500" height="88" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
-<text x="390" y="606" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">消费者从所有远程来源读到结束</text>
-<text x="390" y="636" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">Exchange 不再有输入，向 LocalPartition 传播</text>
-<polyline points="480,715 810,715" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="315.0" y="379" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="17" font-weight="400" text-anchor="middle">PartitionedOutput::noMoreInput()</text>
+<rect x="370" y="432" width="555" height="88" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1"/>
+<text x="390" y="465" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#65537f" font-size="18" font-weight="600" text-anchor="start">OutputBufferManager 收齐各 Driver 的结束通知</text>
+<text x="390" y="495" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">flush 尾批次；对各目的地报告该 Task 不再产出</text>
+<rect x="370" y="573" width="500" height="88" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1"/>
+<text x="390" y="606" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#65537f" font-size="19" font-weight="600" text-anchor="start">消费者从所有远程来源读到结束</text>
+<text x="390" y="636" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">Exchange 不再有输入，向 LocalPartition 传播</text>
+<polyline points="480,715 810,715" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
 <rect x="505.5" y="684" width="279" height="26" rx="0" fill="white" stroke="none" stroke-width="1"/>
-<text x="645.0" y="704" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">LocalPartition::noMoreInput()</text>
-<rect x="685" y="762" width="540" height="85" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
-<text x="705" y="795" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">LocalExchange 收齐生产者完成信号</text>
-<text x="705" y="826" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">读完已排队数据之后，向聚合传播结束</text>
-<polyline points="810,900 1140,900" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="645.0" y="704" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="17" font-weight="400" text-anchor="middle">LocalPartition::noMoreInput()</text>
+<rect x="685" y="762" width="540" height="85" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1"/>
+<text x="705" y="795" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#2e7963" font-size="19" font-weight="600" text-anchor="start">LocalExchange 收齐生产者完成信号</text>
+<text x="705" y="826" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">读完已排队数据之后，向聚合传播结束</text>
+<polyline points="810,900 1140,900" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
 <rect x="831.0" y="869" width="288" height="26" rx="0" fill="white" stroke="none" stroke-width="1"/>
-<text x="975.0" y="889" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">HashAggregation::noMoreInput()</text>
-<text x="1104" y="960" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#c2410c" font-size="18" font-weight="600" text-anchor="end">开始输出最终计数</text>
-<rect x="40" y="1028" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
-<text x="60" y="1057" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">原文示例的聚合是完整屏障：全部输入结束，计数才确定。</text>
-<text x="60" y="1082" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">最后一个 PartitionedOutput 将聚合结果送往第三阶段；第三阶段也要等全部来源结束。</text>
+<text x="975.0" y="889" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="17" font-weight="400" text-anchor="middle">HashAggregation::noMoreInput()</text>
+<text x="1104" y="960" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#ac9c76" font-size="18" font-weight="600" text-anchor="end">开始输出最终计数</text>
+<rect x="40" y="1028" width="1200" height="70" rx="4" fill="#ffffff" stroke="none" stroke-width="1"/><line x1="40.0" y1="1028.0" x2="1240.0" y2="1028.0" stroke="#dce3ea" stroke-width="1" data-style-decoration="summary-divider"/>
+<text x="60" y="1057" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="19" font-weight="600" text-anchor="start">原文示例的聚合是完整屏障：全部输入结束，计数才确定。</text>
+<text x="60" y="1082" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">最后一个 PartitionedOutput 将聚合结果送往第三阶段；第三阶段也要等全部来源结束。</text>
 </svg>

@@ -1,55 +1,55 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="896" viewBox="0 0 1280 896" role="img" aria-labelledby="title desc">
 <title id="title">MemoryManager：组件与两棵内存池树</title><desc id="desc">Pool 组织记账与回收；Arbitrator 分配 root 额度；Allocator 提供存储并检查自身容量。</desc>
-<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#657386" stroke-width="1.5"/></marker></defs>
 <rect x="0" y="0" width="1280" height="896" rx="0" fill="white" stroke="none" stroke-width="1"/>
-<rect x="8" y="8" width="1264" height="880" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
-<rect x="9" y="9" width="1262" height="94" rx="0" fill="#edf5ff" stroke="none" stroke-width="1"/>
-<line x1="9" y1="103" x2="1271" y2="103" stroke="#d6d3cc" stroke-width="1"/>
-<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">MemoryManager：组件与两棵内存池树</text>
-<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">Pool 组织记账与回收；Arbitrator 分配 root 额度；Allocator 提供存储并检查自身容量。</text>
-<rect x="40" y="140" width="1200" height="85" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<rect x="40" y="144" width="4" height="77" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
-<text x="62" y="175" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">MemoryManager</text>
-<text x="62" y="208" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">创建默认 allocator、arbitrator 和 system pools；提供 addRootPool / addLeafPool</text>
-<rect x="40" y="304" width="690" height="444" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
-<text x="64" y="337" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="22" font-weight="600" text-anchor="start">查询内存池树</text>
-<rect x="70" y="364" width="630" height="82" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<rect x="70" y="368" width="4" height="74" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
-<text x="92" y="399" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Query root · aggregate</text>
-<text x="92" y="432" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">QueryCtx 默认创建，或宿主传入</text>
-<polyline points="385,453 385,463" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="70" y="468" width="630" height="82" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
-<rect x="70" y="472" width="4" height="74" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
-<text x="92" y="503" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Task / Node · aggregate</text>
-<text x="92" y="536" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">组织执行范围、子池统计与回收</text>
-<polyline points="385,557 385,567" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="70" y="572" width="630" height="82" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
-<rect x="70" y="576" width="4" height="74" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
-<text x="92" y="607" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Operator · leaf</text>
-<text x="92" y="640" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">每个算子实例分配内存</text>
-<text x="64" y="710" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">Hash Join、connector、exchange 和 custom roots 有专门结构。</text>
-<rect x="890" y="304" width="350" height="90" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
-<rect x="890" y="308" width="4" height="82" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
-<text x="912" y="339" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">SharedArbitrator</text>
-<text x="912" y="372" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">管理查询 root capacity</text>
-<rect x="890" y="477" width="350" height="90" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
-<rect x="890" y="481" width="4" height="82" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
-<text x="912" y="512" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">MemoryAllocator</text>
-<text x="912" y="545" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">malloc / mmap · 自身容量限制</text>
-<rect x="890" y="654" width="350" height="94" rx="4" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
-<rect x="890" y="658" width="4" height="86" rx="0" fill="#c2410c" stroke="none" stroke-width="1"/>
-<text x="912" y="689" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">System root</text>
-<text x="912" y="722" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">spill / cache / trace 等 leaf</text>
-<polyline points="385,237 385,292" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<text x="409" y="272" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">创建 / 跟踪</text>
-<polyline points="1065,237 1065,292" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<polyline points="712,402 812,402 812,349 878,349" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<text x="761" y="383" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">仲裁</text>
-<polyline points="712,615 812,615 812,522 878,522" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<text x="753" y="596" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">分配</text>
-<polyline points="1065,642 1065,579" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<text x="1083" y="612" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="16" font-weight="400" text-anchor="start">同一默认 allocator</text>
-<rect x="40" y="794" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
-<text x="60" y="823" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">System root 不参加 SharedArbitrator；使用同一 allocator 时仍受 allocator 限制。</text>
-<text x="60" y="848" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">默认执行树没有独立的 Driver pool 层；自定义资源可以使用另一套 allocator / arbitrator。</text>
+<rect x="8" y="8" width="1264" height="880" rx="4" fill="white" stroke="none" stroke-width="1"/>
+<rect x="9" y="9" width="1262" height="94" rx="0" fill="#ffffff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="103" x2="1271" y2="103" stroke="#dce3ea" stroke-width="1"/>
+<text x="40" y="49" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="28" font-weight="600" text-anchor="start">MemoryManager：组件与两棵内存池树</text>
+<text x="40" y="80" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">Pool 组织记账与回收；Arbitrator 分配 root 额度；Allocator 提供存储并检查自身容量。</text>
+<rect x="40" y="140" width="1200" height="85" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1"/>
+<rect x="40" y="144" width="4" height="77" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="62" y="175" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#326cae" font-size="21" font-weight="600" text-anchor="start">MemoryManager</text>
+<text x="62" y="208" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">创建默认 allocator、arbitrator 和 system pools；提供 addRootPool / addLeafPool</text>
+<rect x="40" y="304" width="690" height="444" rx="4" fill="white" stroke="#dce3ea" stroke-width="1"/>
+<text x="64" y="337" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="22" font-weight="600" text-anchor="start">查询内存池树</text>
+<rect x="70" y="364" width="630" height="82" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1"/>
+<rect x="70" y="368" width="4" height="74" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="92" y="399" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#326cae" font-size="21" font-weight="600" text-anchor="start">Query root · aggregate</text>
+<text x="92" y="432" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">QueryCtx 默认创建，或宿主传入</text>
+<polyline points="385,453 385,463" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="70" y="468" width="630" height="82" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1"/>
+<rect x="70" y="472" width="4" height="74" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="92" y="503" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#65537f" font-size="21" font-weight="600" text-anchor="start">Task / Node · aggregate</text>
+<text x="92" y="536" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">组织执行范围、子池统计与回收</text>
+<polyline points="385,557 385,567" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="70" y="572" width="630" height="82" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1"/>
+<rect x="70" y="576" width="4" height="74" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="92" y="607" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#2e7963" font-size="21" font-weight="600" text-anchor="start">Operator · leaf</text>
+<text x="92" y="640" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">每个算子实例分配内存</text>
+<text x="64" y="710" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">Hash Join、connector、exchange 和 custom roots 有专门结构。</text>
+<rect x="890" y="304" width="350" height="90" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1"/>
+<rect x="890" y="308" width="4" height="82" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="912" y="339" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#65537f" font-size="21" font-weight="600" text-anchor="start">SharedArbitrator</text>
+<text x="912" y="372" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">管理查询 root capacity</text>
+<rect x="890" y="477" width="350" height="90" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1"/>
+<rect x="890" y="481" width="4" height="82" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="912" y="512" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#2e7963" font-size="21" font-weight="600" text-anchor="start">MemoryAllocator</text>
+<text x="912" y="545" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">malloc / mmap · 自身容量限制</text>
+<rect x="890" y="654" width="350" height="94" rx="4" fill="#faf7ef" stroke="#ac9c76" stroke-width="1"/>
+<rect x="890" y="658" width="4" height="86" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="912" y="689" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#877951" font-size="21" font-weight="600" text-anchor="start">System root</text>
+<text x="912" y="722" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">spill / cache / trace 等 leaf</text>
+<polyline points="385,237 385,292" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="409" y="272" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">创建 / 跟踪</text>
+<polyline points="1065,237 1065,292" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<polyline points="712,402 812,402 812,349 878,349" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="761" y="383" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">仲裁</text>
+<polyline points="712,615 812,615 812,522 878,522" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="753" y="596" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">分配</text>
+<polyline points="1065,642 1065,579" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="1083" y="612" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="16" font-weight="400" text-anchor="start">同一默认 allocator</text>
+<rect x="40" y="794" width="1200" height="70" rx="4" fill="#ffffff" stroke="none" stroke-width="1"/><line x1="40.0" y1="794.0" x2="1240.0" y2="794.0" stroke="#dce3ea" stroke-width="1" data-style-decoration="summary-divider"/>
+<text x="60" y="823" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="19" font-weight="600" text-anchor="start">System root 不参加 SharedArbitrator；使用同一 allocator 时仍受 allocator 限制。</text>
+<text x="60" y="848" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">默认执行树没有独立的 Driver pool 层；自定义资源可以使用另一套 allocator / arbitrator。</text>
 </svg>

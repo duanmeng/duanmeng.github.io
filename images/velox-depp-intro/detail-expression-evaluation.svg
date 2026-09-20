@@ -1,52 +1,52 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="1570" viewBox="0 0 1280 1570" role="img" aria-labelledby="title desc">
 <title id="title">Expr 求值路径：保留 rows、编码、null 与部分结果</title><desc id="desc">根据官方原图重绘完整阶段；表示适用的通用路径，具体函数可选择不同分支或快速路径。</desc>
-<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#657386" stroke-width="1.5"/></marker></defs>
 <rect x="0" y="0" width="1280" height="1570" rx="0" fill="white" stroke="none" stroke-width="1"/>
-<rect x="8" y="8" width="1264" height="1554" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
-<rect x="9" y="9" width="1262" height="94" rx="0" fill="#edf5ff" stroke="none" stroke-width="1"/>
-<line x1="9" y1="103" x2="1271" y2="103" stroke="#d6d3cc" stroke-width="1"/>
-<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">Expr 求值路径：保留 rows、编码、null 与部分结果</text>
-<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">根据官方原图重绘完整阶段；表示适用的通用路径，具体函数可选择不同分支或快速路径。</text>
-<rect x="55" y="140" width="1170" height="210" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<rect x="55" y="144" width="4" height="202" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
-<text x="77" y="175" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">1 · Expr::eval</text>
-<text x="77" y="208" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">输入：rows、data（输入列）</text>
-<text x="78" y="251" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="400" text-anchor="start">检查共享子表达式是否已有结果；若所需行全部已计算，直接返回。</text>
-<text x="78" y="283" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="400" text-anchor="start">否则将 rows 缩小为尚未有结果的行，保留 partial result。</text>
-<text x="78" y="315" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="400" text-anchor="start">输出：rows 子集、不变的 data、partial result。</text>
-<polyline points="640,362 640,393" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="55" y="405" width="1170" height="210" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
-<rect x="55" y="409" width="4" height="202" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
-<text x="77" y="440" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">2 · Expr::evalEncodings</text>
-<text x="77" y="473" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">输入：rows、data、partial result</text>
-<text x="78" y="516" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="400" text-anchor="start">在确定性与编码兼容等条件满足时，尝试 peeling 输入包装。</text>
-<text x="78" y="548" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="400" text-anchor="start">改用 inner vectors，并将选中行映射到对应底层行；保存 peeled wrappings。</text>
-<text x="78" y="580" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="400" text-anchor="start">输出：新的 rows/data、peeled wrappings、partial result。</text>
-<polyline points="640,627 640,658" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="55" y="670" width="1170" height="210" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<rect x="55" y="674" width="4" height="202" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
-<text x="77" y="705" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">3 · Expr::evalWithNulls</text>
-<text x="77" y="738" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">输入：rows、data、peeled wrappings、partial result</text>
-<text x="78" y="781" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="400" text-anchor="start">若表达式传播 null，找出至少一个输入为 null 的行。</text>
-<text x="78" y="813" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="400" text-anchor="start">从需要实际函数求值的 rows 中去除这些行，同时记住 null rows。</text>
-<text x="78" y="845" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="400" text-anchor="start">输出：rows 子集、未改变的 data/wrappings、null rows、partial result。</text>
-<polyline points="640,892 640,923" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="55" y="935" width="1170" height="210" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
-<rect x="55" y="939" width="4" height="202" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
-<text x="77" y="970" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">4 · Expr::evalAll</text>
-<text x="77" y="1003" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">输入：rows、data、peeled wrappings、null rows</text>
-<text x="78" y="1046" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="400" text-anchor="start">特殊形式进入 evalSpecialForm；普通函数递归求值输入表达式。</text>
-<text x="78" y="1078" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="400" text-anchor="start">再按语义处理 null、剥离可用编码，调用 VectorFunction::apply。</text>
-<text x="78" y="1110" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="400" text-anchor="start">函数结果按需要重新加包装与 null；保留 earlier partial result。</text>
-<polyline points="640,1157 640,1188" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="55" y="1200" width="1170" height="210" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<rect x="55" y="1204" width="4" height="202" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
-<text x="77" y="1235" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">5 · Finalize</text>
-<text x="77" y="1268" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">输入：result、wrappings、null rows、partial result</text>
-<text x="78" y="1311" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="400" text-anchor="start">恢复 peeled 包装，设置 null 行，并合并此前已计算的部分结果。</text>
-<text x="78" y="1343" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="400" text-anchor="start">若是共享子表达式，保存结果供后续引用复用。</text>
-<text x="78" y="1375" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="400" text-anchor="start">输出：覆盖所需逻辑行且保持语义的最终 result vector。</text>
-<rect x="40" y="1468" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
-<text x="60" y="1497" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">rows、partial result 与包装信息必须随阶段传递，不能只画一条函数调用链。</text>
-<text x="60" y="1522" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">重用前提包括确定性、错误和 null 语义；TRY、条件分支与有状态函数尤其需要按契约处理。</text>
+<rect x="8" y="8" width="1264" height="1554" rx="4" fill="white" stroke="none" stroke-width="1"/>
+<rect x="9" y="9" width="1262" height="94" rx="0" fill="#ffffff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="103" x2="1271" y2="103" stroke="#dce3ea" stroke-width="1"/>
+<text x="40" y="49" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="28" font-weight="600" text-anchor="start">Expr 求值路径：保留 rows、编码、null 与部分结果</text>
+<text x="40" y="80" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">根据官方原图重绘完整阶段；表示适用的通用路径，具体函数可选择不同分支或快速路径。</text>
+<rect x="55" y="140" width="1170" height="210" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1"/>
+<rect x="55" y="144" width="4" height="202" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="77" y="175" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#326cae" font-size="21" font-weight="600" text-anchor="start">1 · Expr::eval</text>
+<text x="77" y="208" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">输入：rows、data（输入列）</text>
+<text x="78" y="251" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="18" font-weight="400" text-anchor="start">检查共享子表达式是否已有结果；若所需行全部已计算，直接返回。</text>
+<text x="78" y="283" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="18" font-weight="400" text-anchor="start">否则将 rows 缩小为尚未有结果的行，保留 partial result。</text>
+<text x="78" y="315" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="18" font-weight="400" text-anchor="start">输出：rows 子集、不变的 data、partial result。</text>
+<polyline points="640,362 640,393" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="55" y="405" width="1170" height="210" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1"/>
+<rect x="55" y="409" width="4" height="202" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="77" y="440" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#65537f" font-size="21" font-weight="600" text-anchor="start">2 · Expr::evalEncodings</text>
+<text x="77" y="473" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">输入：rows、data、partial result</text>
+<text x="78" y="516" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="18" font-weight="400" text-anchor="start">在确定性与编码兼容等条件满足时，尝试 peeling 输入包装。</text>
+<text x="78" y="548" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="18" font-weight="400" text-anchor="start">改用 inner vectors，并将选中行映射到对应底层行；保存 peeled wrappings。</text>
+<text x="78" y="580" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="18" font-weight="400" text-anchor="start">输出：新的 rows/data、peeled wrappings、partial result。</text>
+<polyline points="640,627 640,658" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="55" y="670" width="1170" height="210" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1"/>
+<rect x="55" y="674" width="4" height="202" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="77" y="705" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#326cae" font-size="21" font-weight="600" text-anchor="start">3 · Expr::evalWithNulls</text>
+<text x="77" y="738" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">输入：rows、data、peeled wrappings、partial result</text>
+<text x="78" y="781" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="18" font-weight="400" text-anchor="start">若表达式传播 null，找出至少一个输入为 null 的行。</text>
+<text x="78" y="813" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="18" font-weight="400" text-anchor="start">从需要实际函数求值的 rows 中去除这些行，同时记住 null rows。</text>
+<text x="78" y="845" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="18" font-weight="400" text-anchor="start">输出：rows 子集、未改变的 data/wrappings、null rows、partial result。</text>
+<polyline points="640,892 640,923" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="55" y="935" width="1170" height="210" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1"/>
+<rect x="55" y="939" width="4" height="202" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="77" y="970" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#65537f" font-size="21" font-weight="600" text-anchor="start">4 · Expr::evalAll</text>
+<text x="77" y="1003" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">输入：rows、data、peeled wrappings、null rows</text>
+<text x="78" y="1046" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="18" font-weight="400" text-anchor="start">特殊形式进入 evalSpecialForm；普通函数递归求值输入表达式。</text>
+<text x="78" y="1078" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="18" font-weight="400" text-anchor="start">再按语义处理 null、剥离可用编码，调用 VectorFunction::apply。</text>
+<text x="78" y="1110" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="18" font-weight="400" text-anchor="start">函数结果按需要重新加包装与 null；保留 earlier partial result。</text>
+<polyline points="640,1157 640,1188" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="55" y="1200" width="1170" height="210" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1"/>
+<rect x="55" y="1204" width="4" height="202" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="77" y="1235" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#326cae" font-size="21" font-weight="600" text-anchor="start">5 · Finalize</text>
+<text x="77" y="1268" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">输入：result、wrappings、null rows、partial result</text>
+<text x="78" y="1311" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="18" font-weight="400" text-anchor="start">恢复 peeled 包装，设置 null 行，并合并此前已计算的部分结果。</text>
+<text x="78" y="1343" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="18" font-weight="400" text-anchor="start">若是共享子表达式，保存结果供后续引用复用。</text>
+<text x="78" y="1375" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="18" font-weight="400" text-anchor="start">输出：覆盖所需逻辑行且保持语义的最终 result vector。</text>
+<rect x="40" y="1468" width="1200" height="70" rx="4" fill="#ffffff" stroke="none" stroke-width="1"/><line x1="40.0" y1="1468.0" x2="1240.0" y2="1468.0" stroke="#dce3ea" stroke-width="1" data-style-decoration="summary-divider"/>
+<text x="60" y="1497" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="19" font-weight="600" text-anchor="start">rows、partial result 与包装信息必须随阶段传递，不能只画一条函数调用链。</text>
+<text x="60" y="1522" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">重用前提包括确定性、错误和 null 语义；TRY、条件分支与有状态函数尤其需要按契约处理。</text>
 </svg>

@@ -1,30 +1,30 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="492" viewBox="0 0 1280 492" role="img" aria-labelledby="title desc">
 <title id="title">三种表示与模式重选</title><desc id="desc">decideHashMode 根据编码空间重新选择；setHashMode 禁止从 kHash 切回。</desc>
-<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#657386" stroke-width="1.5"/></marker></defs>
 <rect x="0" y="0" width="1280" height="492" rx="0" fill="white" stroke="none" stroke-width="1"/>
-<rect x="8" y="8" width="1264" height="476" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
-<rect x="9" y="9" width="1262" height="94" rx="0" fill="#edf5ff" stroke="none" stroke-width="1"/>
-<line x1="9" y1="103" x2="1271" y2="103" stroke="#d6d3cc" stroke-width="1"/>
-<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">三种表示与模式重选</text>
-<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">decideHashMode 根据编码空间重新选择；setHashMode 禁止从 kHash 切回。</text>
-<rect x="44" y="160" width="300" height="116" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<rect x="44" y="164" width="4" height="108" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
-<text x="66" y="195" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">kArray</text>
-<text x="66" y="228" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">组合 ID 直接寻址</text>
-<rect x="490" y="160" width="300" height="116" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
-<rect x="490" y="164" width="4" height="108" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
-<text x="512" y="195" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">kNormalizedKey</text>
-<text x="512" y="228" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">组合 ID + bucket 探测</text>
-<rect x="936" y="160" width="300" height="116" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
-<rect x="936" y="164" width="4" height="108" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
-<text x="958" y="195" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">kHash</text>
-<text x="958" y="228" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">通用 hash + 实际 key 比较</text>
-<polyline points="356,215 478,215" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)" marker-start="url(#arrow)"/>
-<text x="417" y="186" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="16" font-weight="400" text-anchor="middle">重新编码</text>
-<polyline points="802,215 924,215" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<text x="863" y="186" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="16" font-weight="400" text-anchor="middle">退出 ID</text>
-<polyline points="194,286 194,337 1086,337 1086,286" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<text x="640" y="364" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="middle">Array 也可以直接进入 kHash</text>
-<rect x="40" y="390" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
-<text x="60" y="419" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">kHash 是终态；Array 与 NormalizedKey 可以在重新决策时互相选择。</text>
+<rect x="8" y="8" width="1264" height="476" rx="4" fill="white" stroke="none" stroke-width="1"/>
+<rect x="9" y="9" width="1262" height="94" rx="0" fill="#ffffff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="103" x2="1271" y2="103" stroke="#dce3ea" stroke-width="1"/>
+<text x="40" y="49" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="28" font-weight="600" text-anchor="start">三种表示与模式重选</text>
+<text x="40" y="80" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">decideHashMode 根据编码空间重新选择；setHashMode 禁止从 kHash 切回。</text>
+<rect x="44" y="160" width="300" height="116" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1"/>
+<rect x="44" y="164" width="4" height="108" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="66" y="195" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#326cae" font-size="21" font-weight="600" text-anchor="start">kArray</text>
+<text x="66" y="228" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">组合 ID 直接寻址</text>
+<rect x="490" y="160" width="300" height="116" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1"/>
+<rect x="490" y="164" width="4" height="108" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="512" y="195" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#65537f" font-size="21" font-weight="600" text-anchor="start">kNormalizedKey</text>
+<text x="512" y="228" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">组合 ID + bucket 探测</text>
+<rect x="936" y="160" width="300" height="116" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1"/>
+<rect x="936" y="164" width="4" height="108" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="958" y="195" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#2e7963" font-size="21" font-weight="600" text-anchor="start">kHash</text>
+<text x="958" y="228" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">通用 hash + 实际 key 比较</text>
+<polyline points="356,215 478,215" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)" marker-start="url(#arrow)"/>
+<text x="417" y="186" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="16" font-weight="400" text-anchor="middle">重新编码</text>
+<polyline points="802,215 924,215" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="863" y="186" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="16" font-weight="400" text-anchor="middle">退出 ID</text>
+<polyline points="194,286 194,337 1086,337 1086,286" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="640" y="364" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="middle">Array 也可以直接进入 kHash</text>
+<rect x="40" y="390" width="1200" height="70" rx="4" fill="#ffffff" stroke="none" stroke-width="1"/><line x1="40.0" y1="390.0" x2="1240.0" y2="390.0" stroke="#dce3ea" stroke-width="1" data-style-decoration="summary-divider"/>
+<text x="60" y="419" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="19" font-weight="600" text-anchor="start">kHash 是终态；Array 与 NormalizedKey 可以在重新决策时互相选择。</text>
 </svg>

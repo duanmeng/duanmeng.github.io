@@ -1,38 +1,38 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="750" viewBox="0 0 1280 750" role="img" aria-labelledby="title desc">
 <title id="title">“同一种类型”要先确定比较层次</title><desc id="desc">类型对象的比较，不等同于值比较，也不等同于允许 SQL 转换</desc>
-<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#657386" stroke-width="1.5"/></marker></defs>
 <rect x="0" y="0" width="1280" height="750" rx="0" fill="white" stroke="none" stroke-width="1"/>
-<rect x="8" y="8" width="1264" height="734" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
-<rect x="9" y="9" width="1262" height="94" rx="0" fill="#edf5ff" stroke="none" stroke-width="1"/>
-<line x1="9" y1="103" x2="1271" y2="103" stroke="#d6d3cc" stroke-width="1"/>
-<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">“同一种类型”要先确定比较层次</text>
-<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">类型对象的比较，不等同于值比较，也不等同于允许 SQL 转换</text>
-<rect x="40" y="145" width="365" height="122" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<rect x="40" y="149" width="4" height="114" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
-<text x="62" y="180" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">kindEquals</text>
-<text x="62" y="213" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">递归比较 backing kind 树</text>
-<rect x="457" y="145" width="365" height="122" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
-<rect x="457" y="149" width="4" height="114" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
-<text x="479" y="180" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">equivalent</text>
-<text x="479" y="213" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">逻辑身份与参数；ROW 忽略名字</text>
-<rect x="874" y="145" width="366" height="122" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
-<rect x="874" y="149" width="4" height="114" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
-<text x="896" y="180" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">operator== / equals</text>
-<text x="896" y="213" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">强匹配；含 ROW 名与 OPAQUE 身份</text>
-<text x="40" y="303" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">以下结果顺序：kindEquals / equivalent / operator==</text>
-<rect x="40" y="324" width="366" height="120" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
-<text x="56" y="362" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="600" text-anchor="start">DATE / INTEGER</text>
-<text x="56" y="407" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="400" text-anchor="start">true / false / false</text>
-<rect x="457" y="324" width="366" height="120" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
-<text x="473" y="362" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="600" text-anchor="start">DECIMAL(10,2) / (12,2)</text>
-<text x="473" y="407" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="400" text-anchor="start">true / false / false</text>
-<rect x="874" y="324" width="366" height="120" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
-<text x="890" y="362" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="600" text-anchor="start">ROW 字段名 a → b</text>
-<text x="890" y="407" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="400" text-anchor="start">true / true / false</text>
-<rect x="40" y="505" width="1200" height="105" rx="4" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
-<rect x="40" y="509" width="4" height="97" rx="0" fill="#c2410c" stroke="none" stroke-width="1"/>
-<text x="62" y="540" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">coercion / CAST 是另外的问题</text>
-<text x="62" y="573" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">类型不等价仍可能允许转换；kind 相同也不能证明换标签就能保值。</text>
-<rect x="40" y="648" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
-<text x="60" y="677" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">hashKind / hash() 计算类型描述的 hash；hash(value) 计算值的 hash。</text>
+<rect x="8" y="8" width="1264" height="734" rx="4" fill="white" stroke="none" stroke-width="1"/>
+<rect x="9" y="9" width="1262" height="94" rx="0" fill="#ffffff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="103" x2="1271" y2="103" stroke="#dce3ea" stroke-width="1"/>
+<text x="40" y="49" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="28" font-weight="600" text-anchor="start">“同一种类型”要先确定比较层次</text>
+<text x="40" y="80" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">类型对象的比较，不等同于值比较，也不等同于允许 SQL 转换</text>
+<rect x="40" y="145" width="365" height="122" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1"/>
+<rect x="40" y="149" width="4" height="114" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="62" y="180" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#326cae" font-size="21" font-weight="600" text-anchor="start">kindEquals</text>
+<text x="62" y="213" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">递归比较 backing kind 树</text>
+<rect x="457" y="145" width="365" height="122" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1"/>
+<rect x="457" y="149" width="4" height="114" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="479" y="180" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#2e7963" font-size="21" font-weight="600" text-anchor="start">equivalent</text>
+<text x="479" y="213" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">逻辑身份与参数；ROW 忽略名字</text>
+<rect x="874" y="145" width="366" height="122" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1"/>
+<rect x="874" y="149" width="4" height="114" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="896" y="180" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#65537f" font-size="21" font-weight="600" text-anchor="start">operator== / equals</text>
+<text x="896" y="213" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">强匹配；含 ROW 名与 OPAQUE 身份</text>
+<text x="40" y="303" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">以下结果顺序：kindEquals / equivalent / operator==</text>
+<rect x="40" y="324" width="366" height="120" rx="4" fill="white" stroke="#dce3ea" stroke-width="1"/>
+<text x="56" y="362" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="18" font-weight="600" text-anchor="start">DATE / INTEGER</text>
+<text x="56" y="407" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="20" font-weight="400" text-anchor="start">true / false / false</text>
+<rect x="457" y="324" width="366" height="120" rx="4" fill="white" stroke="#dce3ea" stroke-width="1"/>
+<text x="473" y="362" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="18" font-weight="600" text-anchor="start">DECIMAL(10,2) / (12,2)</text>
+<text x="473" y="407" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="20" font-weight="400" text-anchor="start">true / false / false</text>
+<rect x="874" y="324" width="366" height="120" rx="4" fill="white" stroke="#dce3ea" stroke-width="1"/>
+<text x="890" y="362" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="18" font-weight="600" text-anchor="start">ROW 字段名 a → b</text>
+<text x="890" y="407" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="20" font-weight="400" text-anchor="start">true / true / false</text>
+<rect x="40" y="505" width="1200" height="105" rx="4" fill="#faf7ef" stroke="#ac9c76" stroke-width="1"/>
+<rect x="40" y="509" width="4" height="97" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="62" y="540" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#877951" font-size="21" font-weight="600" text-anchor="start">coercion / CAST 是另外的问题</text>
+<text x="62" y="573" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">类型不等价仍可能允许转换；kind 相同也不能证明换标签就能保值。</text>
+<rect x="40" y="648" width="1200" height="70" rx="4" fill="#ffffff" stroke="none" stroke-width="1"/><line x1="40.0" y1="648.0" x2="1240.0" y2="648.0" stroke="#dce3ea" stroke-width="1" data-style-decoration="summary-divider"/>
+<text x="60" y="677" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="19" font-weight="600" text-anchor="start">hashKind / hash() 计算类型描述的 hash；hash(value) 计算值的 hash。</text>
 </svg>

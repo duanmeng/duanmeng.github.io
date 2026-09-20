@@ -1,46 +1,46 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="745" viewBox="0 0 1280 745" role="img" aria-labelledby="title desc">
 <title id="title">SourceMerger：逐行选 winner，按列复制输出</title><desc id="desc">各 source 已排序；比较键决定输出位置，payload 在需要时批量复制</desc>
-<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#657386" stroke-width="1.5"/></marker></defs>
 <rect x="0" y="0" width="1280" height="745" rx="0" fill="white" stroke="none" stroke-width="1"/>
-<rect x="8" y="8" width="1264" height="729" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
-<rect x="9" y="9" width="1262" height="94" rx="0" fill="#edf5ff" stroke="none" stroke-width="1"/>
-<line x1="9" y1="103" x2="1271" y2="103" stroke="#d6d3cc" stroke-width="1"/>
-<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">SourceMerger：逐行选 winner，按列复制输出</text>
-<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">各 source 已排序；比较键决定输出位置，payload 在需要时批量复制</text>
-<rect x="40" y="140" width="380" height="117" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<rect x="40" y="144" width="4" height="109" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
-<text x="60" y="174" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="400" text-anchor="start">Stream A</text>
-<text x="60" y="205" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">当前批次：[1, 4, 9]</text>
-<text x="60" y="232" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">下一批次：尚未读取</text>
-<polyline points="230,257 230,293 640,293 640,334" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="450" y="140" width="380" height="117" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<rect x="450" y="144" width="4" height="109" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
-<text x="470" y="174" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="400" text-anchor="start">Stream B</text>
-<text x="470" y="205" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">当前批次：[2, 5, 8]</text>
-<text x="470" y="232" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">只比较当前头部行</text>
-<polyline points="640,257 640,293 640,293 640,334" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="860" y="140" width="380" height="117" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<rect x="860" y="144" width="4" height="109" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
-<text x="880" y="174" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="400" text-anchor="start">Stream C</text>
-<text x="880" y="205" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">当前批次：[3, 6, 7]</text>
-<text x="880" y="232" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">耗尽后按需取下一批</text>
-<polyline points="1050,257 1050,293 640,293 640,334" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="240" y="334" width="800" height="94" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
-<rect x="240" y="338" width="4" height="86" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
-<text x="260" y="368" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="400" text-anchor="start">TreeOfLosers：winner = A(1)，pop 后重放 A 的路径</text>
-<text x="260" y="399" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">后续 winner：B(2) → C(3) → A(4) → B(5) → C(6)…</text>
-<polyline points="640,428 640,470" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="40" y="470" width="580" height="124" rx="4" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
-<rect x="40" y="474" width="4" height="116" rx="0" fill="#c2410c" stroke="none" stroke-width="1"/>
-<text x="60" y="504" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="400" text-anchor="start">先记映射，再复制列</text>
-<text x="60" y="535" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">A：source rows [0, 1] → output rows [0, 3]</text>
-<text x="60" y="562" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">B：source rows [0, 1] → output rows [1, 4]</text>
-<rect x="660" y="470" width="580" height="124" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
-<rect x="660" y="474" width="4" height="116" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
-<text x="680" y="504" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="400" text-anchor="start">两个必须复制的时机</text>
-<text x="680" y="535" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">① 当前 source 批末：换批前复制其已选行</text>
-<text x="680" y="562" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">② 输出批已满：复制所有 source 的待输出行</text>
-<rect x="40" y="643" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
-<text x="60" y="672" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">缺少某个活跃 source 的下一行时，需要等待，不能擅自把它当 EOF</text>
-<text x="60" y="697" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">空队列是暂时不可用；只有明确 EOF 才能从后续 winner 竞争中退出。</text>
+<rect x="8" y="8" width="1264" height="729" rx="4" fill="white" stroke="none" stroke-width="1"/>
+<rect x="9" y="9" width="1262" height="94" rx="0" fill="#ffffff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="103" x2="1271" y2="103" stroke="#dce3ea" stroke-width="1"/>
+<text x="40" y="49" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="28" font-weight="600" text-anchor="start">SourceMerger：逐行选 winner，按列复制输出</text>
+<text x="40" y="80" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">各 source 已排序；比较键决定输出位置，payload 在需要时批量复制</text>
+<rect x="40" y="140" width="380" height="117" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1"/>
+<rect x="40" y="144" width="4" height="109" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="60" y="174" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#326cae" font-size="20" font-weight="400" text-anchor="start">Stream A</text>
+<text x="60" y="205" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">当前批次：[1, 4, 9]</text>
+<text x="60" y="232" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">下一批次：尚未读取</text>
+<polyline points="230,257 230,293 640,293 640,334" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="450" y="140" width="380" height="117" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1"/>
+<rect x="450" y="144" width="4" height="109" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="470" y="174" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#326cae" font-size="20" font-weight="400" text-anchor="start">Stream B</text>
+<text x="470" y="205" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">当前批次：[2, 5, 8]</text>
+<text x="470" y="232" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">只比较当前头部行</text>
+<polyline points="640,257 640,293 640,293 640,334" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="860" y="140" width="380" height="117" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1"/>
+<rect x="860" y="144" width="4" height="109" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="880" y="174" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#326cae" font-size="20" font-weight="400" text-anchor="start">Stream C</text>
+<text x="880" y="205" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">当前批次：[3, 6, 7]</text>
+<text x="880" y="232" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">耗尽后按需取下一批</text>
+<polyline points="1050,257 1050,293 640,293 640,334" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="240" y="334" width="800" height="94" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1"/>
+<rect x="240" y="338" width="4" height="86" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="260" y="368" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#2e7963" font-size="20" font-weight="400" text-anchor="start">TreeOfLosers：winner = A(1)，pop 后重放 A 的路径</text>
+<text x="260" y="399" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">后续 winner：B(2) → C(3) → A(4) → B(5) → C(6)…</text>
+<polyline points="640,428 640,470" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="40" y="470" width="580" height="124" rx="4" fill="#faf7ef" stroke="#ac9c76" stroke-width="1"/>
+<rect x="40" y="474" width="4" height="116" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="60" y="504" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#877951" font-size="20" font-weight="400" text-anchor="start">先记映射，再复制列</text>
+<text x="60" y="535" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">A：source rows [0, 1] → output rows [0, 3]</text>
+<text x="60" y="562" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">B：source rows [0, 1] → output rows [1, 4]</text>
+<rect x="660" y="470" width="580" height="124" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1"/>
+<rect x="660" y="474" width="4" height="116" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="680" y="504" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#65537f" font-size="20" font-weight="400" text-anchor="start">两个必须复制的时机</text>
+<text x="680" y="535" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">① 当前 source 批末：换批前复制其已选行</text>
+<text x="680" y="562" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">② 输出批已满：复制所有 source 的待输出行</text>
+<rect x="40" y="643" width="1200" height="70" rx="4" fill="#ffffff" stroke="none" stroke-width="1"/><line x1="40.0" y1="643.0" x2="1240.0" y2="643.0" stroke="#dce3ea" stroke-width="1" data-style-decoration="summary-divider"/>
+<text x="60" y="672" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="19" font-weight="600" text-anchor="start">缺少某个活跃 source 的下一行时，需要等待，不能擅自把它当 EOF</text>
+<text x="60" y="697" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">空队列是暂时不可用；只有明确 EOF 才能从后续 winner 竞争中退出。</text>
 </svg>

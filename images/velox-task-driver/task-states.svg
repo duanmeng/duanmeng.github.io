@@ -1,46 +1,46 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="704" viewBox="0 0 1280 704" role="img" aria-labelledby="title desc">
 <title id="title">TaskState：一个运行态，四种终态</title><desc id="desc">Running 描述任务的逻辑生命期；不表示此刻一定有 Driver 在线程上执行。</desc>
-<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#657386" stroke-width="1.5"/></marker></defs>
 <rect x="0" y="0" width="1280" height="704" rx="0" fill="white" stroke="none" stroke-width="1"/>
-<rect x="8" y="8" width="1264" height="688" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
-<rect x="9" y="9" width="1262" height="94" rx="0" fill="#edf5ff" stroke="none" stroke-width="1"/>
-<line x1="9" y1="103" x2="1271" y2="103" stroke="#d6d3cc" stroke-width="1"/>
-<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">TaskState：一个运行态，四种终态</text>
-<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">Running 描述任务的逻辑生命期；不表示此刻一定有 Driver 在线程上执行。</text>
-<rect x="40" y="257" width="320" height="105" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<rect x="40" y="261" width="4" height="97" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
-<text x="62" y="292" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">kRunning = 0</text>
-<text x="62" y="325" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">创建后即处于该状态</text>
-<polyline points="372,309 660,309" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<line x1="660" y1="185" x2="660" y2="515" stroke="#8b8b8b" stroke-width="1" stroke-dasharray="6 5"/>
-<rect x="910" y="143" width="330" height="88" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
-<rect x="910" y="147" width="4" height="80" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
-<text x="932" y="178" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">kFinished = 1</text>
-<text x="932" y="211" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">正常完成或输出提前结束</text>
-<polyline points="673,185 898,185" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<text x="783" y="168" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="18" font-weight="400" text-anchor="middle">完成条件成立</text>
-<rect x="910" y="253" width="330" height="88" rx="4" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
-<rect x="910" y="257" width="4" height="80" rx="0" fill="#c2410c" stroke="none" stroke-width="1"/>
-<text x="932" y="288" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">kCanceled = 2</text>
-<text x="932" y="321" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">请求取消</text>
-<polyline points="673,295 898,295" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<text x="783" y="278" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="18" font-weight="400" text-anchor="middle">requestCancel</text>
-<rect x="910" y="363" width="330" height="88" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
-<rect x="910" y="367" width="4" height="80" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
-<text x="932" y="398" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">kAborted = 3</text>
-<text x="932" y="431" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">外部错误导致中止</text>
-<polyline points="673,405 898,405" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<text x="783" y="388" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="18" font-weight="400" text-anchor="middle">requestAbort</text>
-<rect x="910" y="473" width="330" height="88" rx="4" fill="#fff1f2" stroke="#be123c" stroke-width="1"/>
-<rect x="910" y="477" width="4" height="80" rx="0" fill="#be123c" stroke="none" stroke-width="1"/>
-<text x="932" y="508" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">kFailed = 4</text>
-<text x="932" y="541" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">记录执行错误</text>
-<polyline points="673,515 898,515" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<text x="783" y="498" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="18" font-weight="400" text-anchor="middle">setError</text>
-<rect x="40" y="407" width="478" height="91" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
-<text x="60" y="440" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">pause / block / yield</text>
-<text x="60" y="475" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="18" font-weight="400" text-anchor="start">不新增 TaskState，任务仍可处于 Running。</text>
-<rect x="40" y="602" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
-<text x="60" y="631" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">terminate 选定终态后，再关闭 Driver、通知等待者并清理共享资源。</text>
-<text x="60" y="656" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">终态通知、活跃线程计数归零、最终对象析构，是三个不同的完成边界。</text>
+<rect x="8" y="8" width="1264" height="688" rx="4" fill="white" stroke="none" stroke-width="1"/>
+<rect x="9" y="9" width="1262" height="94" rx="0" fill="#ffffff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="103" x2="1271" y2="103" stroke="#dce3ea" stroke-width="1"/>
+<text x="40" y="49" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="28" font-weight="600" text-anchor="start">TaskState：一个运行态，四种终态</text>
+<text x="40" y="80" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">Running 描述任务的逻辑生命期；不表示此刻一定有 Driver 在线程上执行。</text>
+<rect x="40" y="257" width="320" height="105" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1"/>
+<rect x="40" y="261" width="4" height="97" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="62" y="292" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#326cae" font-size="21" font-weight="600" text-anchor="start">kRunning = 0</text>
+<text x="62" y="325" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">创建后即处于该状态</text>
+<polyline points="372,309 660,309" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<line x1="660" y1="185" x2="660" y2="515" stroke="#657386" stroke-width="1" stroke-dasharray="6 5"/>
+<rect x="910" y="143" width="330" height="88" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1"/>
+<rect x="910" y="147" width="4" height="80" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="932" y="178" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#2e7963" font-size="21" font-weight="600" text-anchor="start">kFinished = 1</text>
+<text x="932" y="211" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">正常完成或输出提前结束</text>
+<polyline points="673,185 898,185" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="783" y="168" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="18" font-weight="400" text-anchor="middle">完成条件成立</text>
+<rect x="910" y="253" width="330" height="88" rx="4" fill="#faf7ef" stroke="#ac9c76" stroke-width="1"/>
+<rect x="910" y="257" width="4" height="80" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="932" y="288" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#877951" font-size="21" font-weight="600" text-anchor="start">kCanceled = 2</text>
+<text x="932" y="321" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">请求取消</text>
+<polyline points="673,295 898,295" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="783" y="278" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="18" font-weight="400" text-anchor="middle">requestCancel</text>
+<rect x="910" y="363" width="330" height="88" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1"/>
+<rect x="910" y="367" width="4" height="80" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="932" y="398" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#65537f" font-size="21" font-weight="600" text-anchor="start">kAborted = 3</text>
+<text x="932" y="431" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">外部错误导致中止</text>
+<polyline points="673,405 898,405" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="783" y="388" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="18" font-weight="400" text-anchor="middle">requestAbort</text>
+<rect x="910" y="473" width="330" height="88" rx="4" fill="#fbf3f3" stroke="#a95f64" stroke-width="1"/>
+<rect x="910" y="477" width="4" height="80" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="932" y="508" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#8d4f54" font-size="21" font-weight="600" text-anchor="start">kFailed = 4</text>
+<text x="932" y="541" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">记录执行错误</text>
+<polyline points="673,515 898,515" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="783" y="498" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="18" font-weight="400" text-anchor="middle">setError</text>
+<rect x="40" y="407" width="478" height="91" rx="4" fill="#faf7ef" stroke="#dce3ea" stroke-width="1"/>
+<text x="60" y="440" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="21" font-weight="600" text-anchor="start">pause / block / yield</text>
+<text x="60" y="475" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="18" font-weight="400" text-anchor="start">不新增 TaskState，任务仍可处于 Running。</text>
+<rect x="40" y="602" width="1200" height="70" rx="4" fill="#ffffff" stroke="none" stroke-width="1"/><line x1="40.0" y1="602.0" x2="1240.0" y2="602.0" stroke="#dce3ea" stroke-width="1" data-style-decoration="summary-divider"/>
+<text x="60" y="631" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="19" font-weight="600" text-anchor="start">terminate 选定终态后，再关闭 Driver、通知等待者并清理共享资源。</text>
+<text x="60" y="656" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">终态通知、活跃线程计数归零、最终对象析构，是三个不同的完成边界。</text>
 </svg>

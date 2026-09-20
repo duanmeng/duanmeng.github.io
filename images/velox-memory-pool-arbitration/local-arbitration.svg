@@ -1,59 +1,59 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="1000" viewBox="0 0 1280 1000" role="img" aria-labelledby="title desc">
 <title id="title">SharedArbitrator 扩容：按顺序尝试</title><desc id="desc">每个 root 的 operation 串行；本地路径在请求线程执行。下图省略异常包装和重复检查。</desc>
-<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#657386" stroke-width="1.5"/></marker></defs>
 <rect x="0" y="0" width="1280" height="1000" rx="0" fill="white" stroke="none" stroke-width="1"/>
-<rect x="8" y="8" width="1264" height="984" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
-<rect x="9" y="9" width="1262" height="94" rx="0" fill="#edf5ff" stroke="none" stroke-width="1"/>
-<line x1="9" y1="103" x2="1271" y2="103" stroke="#d6d3cc" stroke-width="1"/>
-<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">SharedArbitrator 扩容：按顺序尝试</text>
-<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">每个 root 的 operation 串行；本地路径在请求线程执行。下图省略异常包装和重复检查。</text>
-<rect x="60" y="142" width="760" height="99" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
-<rect x="60" y="146" width="4" height="91" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
-<text x="82" y="177" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">1 · grow(0, request)</text>
-<text x="82" y="210" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">已有 root 余量 → 只提交 reservation</text>
-<polyline points="440,252 440,266" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<polyline points="832,189 950,189" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<text x="892" y="172" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="middle">成功</text>
-<rect x="60" y="275" width="760" height="99" rx="4" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
-<rect x="60" y="279" width="4" height="91" rx="0" fill="#c2410c" stroke="none" stroke-width="1"/>
-<text x="82" y="310" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">2 · ensureCapacity</text>
-<text x="82" y="343" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">撞上限 → 收缩自身 / self-reclaim 后重查</text>
-<polyline points="440,385 440,399" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="60" y="408" width="760" height="99" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<rect x="60" y="412" width="4" height="91" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
-<text x="82" y="443" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">3 · growWithFreeCapacity</text>
-<text x="82" y="476" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">从 arbitrator 的空闲额度中取得增长量</text>
-<polyline points="440,518 440,532" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<polyline points="832,455 950,455" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<text x="892" y="438" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="middle">成功</text>
-<rect x="60" y="541" width="760" height="99" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
-<rect x="60" y="545" width="4" height="91" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
-<text x="82" y="576" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">4 · reclaimUnusedCapacity</text>
-<text x="82" y="609" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">收回各 root 可收缩的空闲额度，再试增长</text>
-<polyline points="832,588 950,588" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<text x="892" y="571" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="middle">成功</text>
-<rect x="960" y="142" width="280" height="498" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
-<text x="986" y="186" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="22" font-weight="600" text-anchor="start">返回分配路径</text>
-<text x="986" y="247" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="400" text-anchor="start">本次 reservation</text>
-<text x="986" y="282" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="400" text-anchor="start">已在 root 提交</text>
-<text x="986" y="368" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">capacity 不一定增长：</text>
-<text x="986" y="399" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">第 1 步可能直接满足。</text>
-<text x="986" y="489" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="400" text-anchor="start">然后才调用</text>
-<text x="986" y="524" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="24" font-weight="600" text-anchor="start">Allocator</text>
-<polyline points="440,652 440,683" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<text x="462" y="678" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">仍不足</text>
-<rect x="60" y="708" width="560" height="126" rx="4" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
-<rect x="60" y="712" width="4" height="118" rx="0" fill="#c2410c" stroke="none" stroke-width="1"/>
-<text x="82" y="743" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Global 关闭</text>
-<text x="82" y="776" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">尝试回收请求方自身的已用资源</text>
-<text x="82" y="812" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">满足则返回，否则报告失败。</text>
-<rect x="680" y="708" width="560" height="126" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
-<rect x="680" y="712" width="4" height="118" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
-<text x="702" y="743" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Global 开启</text>
-<text x="702" y="776" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">登记全局 waiter，等待跨查询回收</text>
-<text x="702" y="812" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">请求线程保留调用栈；成功 / 超时 / abort。</text>
-<polyline points="440,687 960,687 960,696" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="40" y="898" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
-<text x="60" y="927" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">Local 会访问其他 root 的空闲 capacity；self-reclaim 也可能暂停同查询的 Task。</text>
-<text x="60" y="952" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">ensureCapacity 无法满足 root / arbitrator 上限时直接失败，不会无条件进入下一步。</text>
+<rect x="8" y="8" width="1264" height="984" rx="4" fill="white" stroke="none" stroke-width="1"/>
+<rect x="9" y="9" width="1262" height="94" rx="0" fill="#ffffff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="103" x2="1271" y2="103" stroke="#dce3ea" stroke-width="1"/>
+<text x="40" y="49" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="28" font-weight="600" text-anchor="start">SharedArbitrator 扩容：按顺序尝试</text>
+<text x="40" y="80" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">每个 root 的 operation 串行；本地路径在请求线程执行。下图省略异常包装和重复检查。</text>
+<rect x="60" y="142" width="760" height="99" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1"/>
+<rect x="60" y="146" width="4" height="91" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="82" y="177" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#2e7963" font-size="21" font-weight="600" text-anchor="start">1 · grow(0, request)</text>
+<text x="82" y="210" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">已有 root 余量 → 只提交 reservation</text>
+<polyline points="440,252 440,266" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<polyline points="832,189 950,189" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="892" y="172" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="middle">成功</text>
+<rect x="60" y="275" width="760" height="99" rx="4" fill="#faf7ef" stroke="#ac9c76" stroke-width="1"/>
+<rect x="60" y="279" width="4" height="91" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="82" y="310" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#877951" font-size="21" font-weight="600" text-anchor="start">2 · ensureCapacity</text>
+<text x="82" y="343" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">撞上限 → 收缩自身 / self-reclaim 后重查</text>
+<polyline points="440,385 440,399" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="60" y="408" width="760" height="99" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1"/>
+<rect x="60" y="412" width="4" height="91" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="82" y="443" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#326cae" font-size="21" font-weight="600" text-anchor="start">3 · growWithFreeCapacity</text>
+<text x="82" y="476" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">从 arbitrator 的空闲额度中取得增长量</text>
+<polyline points="440,518 440,532" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<polyline points="832,455 950,455" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="892" y="438" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="middle">成功</text>
+<rect x="60" y="541" width="760" height="99" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1"/>
+<rect x="60" y="545" width="4" height="91" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="82" y="576" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#65537f" font-size="21" font-weight="600" text-anchor="start">4 · reclaimUnusedCapacity</text>
+<text x="82" y="609" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">收回各 root 可收缩的空闲额度，再试增长</text>
+<polyline points="832,588 950,588" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="892" y="571" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="middle">成功</text>
+<rect x="960" y="142" width="280" height="498" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1"/>
+<text x="986" y="186" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#2e7963" font-size="22" font-weight="600" text-anchor="start">返回分配路径</text>
+<text x="986" y="247" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#2e7963" font-size="20" font-weight="400" text-anchor="start">本次 reservation</text>
+<text x="986" y="282" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#2e7963" font-size="20" font-weight="400" text-anchor="start">已在 root 提交</text>
+<text x="986" y="368" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">capacity 不一定增长：</text>
+<text x="986" y="399" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">第 1 步可能直接满足。</text>
+<text x="986" y="489" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#2e7963" font-size="20" font-weight="400" text-anchor="start">然后才调用</text>
+<text x="986" y="524" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#2e7963" font-size="24" font-weight="600" text-anchor="start">Allocator</text>
+<polyline points="440,652 440,683" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="462" y="678" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">仍不足</text>
+<rect x="60" y="708" width="560" height="126" rx="4" fill="#faf7ef" stroke="#ac9c76" stroke-width="1"/>
+<rect x="60" y="712" width="4" height="118" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="82" y="743" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#877951" font-size="21" font-weight="600" text-anchor="start">Global 关闭</text>
+<text x="82" y="776" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">尝试回收请求方自身的已用资源</text>
+<text x="82" y="812" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">满足则返回，否则报告失败。</text>
+<rect x="680" y="708" width="560" height="126" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1"/>
+<rect x="680" y="712" width="4" height="118" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="702" y="743" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#65537f" font-size="21" font-weight="600" text-anchor="start">Global 开启</text>
+<text x="702" y="776" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">登记全局 waiter，等待跨查询回收</text>
+<text x="702" y="812" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">请求线程保留调用栈；成功 / 超时 / abort。</text>
+<polyline points="440,687 960,687 960,696" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="40" y="898" width="1200" height="70" rx="4" fill="#ffffff" stroke="none" stroke-width="1"/><line x1="40.0" y1="898.0" x2="1240.0" y2="898.0" stroke="#dce3ea" stroke-width="1" data-style-decoration="summary-divider"/>
+<text x="60" y="927" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="19" font-weight="600" text-anchor="start">Local 会访问其他 root 的空闲 capacity；self-reclaim 也可能暂停同查询的 Task。</text>
+<text x="60" y="952" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">ensureCapacity 无法满足 root / arbitrator 上限时直接失败，不会无条件进入下一步。</text>
 </svg>

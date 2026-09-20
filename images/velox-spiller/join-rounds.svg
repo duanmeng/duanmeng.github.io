@@ -1,37 +1,37 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="838" viewBox="0 0 1280 838" role="img" aria-labelledby="title desc">
 <title id="title">HashJoin Spill 的恢复轮次</title><desc id="desc">两侧数据共享分区身份，bridge 选择下一次恢复对象。</desc>
-<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#657386" stroke-width="1.5"/></marker></defs>
 <rect x="0" y="0" width="1280" height="838" rx="0" fill="white" stroke="none" stroke-width="1"/>
-<rect x="8" y="8" width="1264" height="822" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
-<rect x="9" y="9" width="1262" height="94" rx="0" fill="#edf5ff" stroke="none" stroke-width="1"/>
-<line x1="9" y1="103" x2="1271" y2="103" stroke="#d6d3cc" stroke-width="1"/>
-<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">HashJoin Spill 的恢复轮次</text>
-<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">两侧数据共享分区身份，bridge 选择下一次恢复对象。</text>
-<rect x="20" y="130" width="360" height="80" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<rect x="20" y="134" width="4" height="72" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
-<text x="200" y="177" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="600" text-anchor="middle">Build Spiller</text>
-<line x1="200" y1="228" x2="200" y2="706" stroke="#8b8b8b" stroke-width="1" stroke-dasharray="6 5"/>
-<rect x="460" y="130" width="360" height="80" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<rect x="460" y="134" width="4" height="72" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
-<text x="640" y="177" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="600" text-anchor="middle">Bridge / Partition ID</text>
-<line x1="640" y1="228" x2="640" y2="706" stroke="#8b8b8b" stroke-width="1" stroke-dasharray="6 5"/>
-<rect x="900" y="130" width="360" height="80" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<rect x="900" y="134" width="4" height="72" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
-<text x="1080" y="177" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="600" text-anchor="middle">Probe Spiller</text>
-<line x1="1080" y1="228" x2="1080" y2="706" stroke="#8b8b8b" stroke-width="1" stroke-dasharray="6 5"/>
-<text x="420.0" y="249" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="middle">完成分区文件并发布 IDs</text>
-<polyline points="200,265 640,265" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<text x="860.0" y="332" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="middle">相应 probe 输入保存到分区</text>
-<polyline points="640,348 1080,348" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<text x="860.0" y="415" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="middle">本轮输入 / 输出处理完毕</text>
-<polyline points="1080,431 640,431" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<text x="420.0" y="498" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="middle">领取一个分区的 shard</text>
-<polyline points="640,514 200,514" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<text x="420.0" y="581" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="middle">恢复表，或生成更深子分区</text>
-<polyline points="200,597 640,597" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<text x="860.0" y="664" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="middle">消费该 restoredPartitionId 的输入</text>
-<polyline points="640,680 1080,680" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="40" y="736" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
-<text x="60" y="765" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">同一个 key 的倾斜不会因增加 hash bits 自动消失。</text>
-<text x="60" y="790" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">超过恢复层数限制后禁用进一步 spill，仍放不下时查询可能失败。</text>
+<rect x="8" y="8" width="1264" height="822" rx="4" fill="white" stroke="none" stroke-width="1"/>
+<rect x="9" y="9" width="1262" height="94" rx="0" fill="#ffffff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="103" x2="1271" y2="103" stroke="#dce3ea" stroke-width="1"/>
+<text x="40" y="49" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="28" font-weight="600" text-anchor="start">HashJoin Spill 的恢复轮次</text>
+<text x="40" y="80" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">两侧数据共享分区身份，bridge 选择下一次恢复对象。</text>
+<rect x="20" y="130" width="360" height="80" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1"/>
+<rect x="20" y="134" width="4" height="72" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="200" y="177" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#326cae" font-size="18" font-weight="600" text-anchor="middle">Build Spiller</text>
+<line x1="200" y1="228" x2="200" y2="706" stroke="#657386" stroke-width="1" stroke-dasharray="6 5"/>
+<rect x="460" y="130" width="360" height="80" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1"/>
+<rect x="460" y="134" width="4" height="72" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="640" y="177" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#326cae" font-size="18" font-weight="600" text-anchor="middle">Bridge / Partition ID</text>
+<line x1="640" y1="228" x2="640" y2="706" stroke="#657386" stroke-width="1" stroke-dasharray="6 5"/>
+<rect x="900" y="130" width="360" height="80" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1"/>
+<rect x="900" y="134" width="4" height="72" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="1080" y="177" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#326cae" font-size="18" font-weight="600" text-anchor="middle">Probe Spiller</text>
+<line x1="1080" y1="228" x2="1080" y2="706" stroke="#657386" stroke-width="1" stroke-dasharray="6 5"/>
+<text x="420.0" y="249" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="middle">完成分区文件并发布 IDs</text>
+<polyline points="200,265 640,265" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="860.0" y="332" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="middle">相应 probe 输入保存到分区</text>
+<polyline points="640,348 1080,348" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="860.0" y="415" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="middle">本轮输入 / 输出处理完毕</text>
+<polyline points="1080,431 640,431" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="420.0" y="498" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="middle">领取一个分区的 shard</text>
+<polyline points="640,514 200,514" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="420.0" y="581" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="middle">恢复表，或生成更深子分区</text>
+<polyline points="200,597 640,597" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="860.0" y="664" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="middle">消费该 restoredPartitionId 的输入</text>
+<polyline points="640,680 1080,680" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="40" y="736" width="1200" height="70" rx="4" fill="#ffffff" stroke="none" stroke-width="1"/><line x1="40.0" y1="736.0" x2="1240.0" y2="736.0" stroke="#dce3ea" stroke-width="1" data-style-decoration="summary-divider"/>
+<text x="60" y="765" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="19" font-weight="600" text-anchor="start">同一个 key 的倾斜不会因增加 hash bits 自动消失。</text>
+<text x="60" y="790" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">超过恢复层数限制后禁用进一步 spill，仍放不下时查询可能失败。</text>
 </svg>

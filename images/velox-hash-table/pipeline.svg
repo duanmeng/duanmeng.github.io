@@ -1,72 +1,72 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="658" viewBox="0 0 1280 658" role="img" aria-labelledby="title desc">
 <title id="title">4 路 probe 的分阶段执行</title><desc id="desc">按列自上而下推进：先预取 4 个 bucket，再处理候选，最后完成比较与插入。</desc>
-<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#657386" stroke-width="1.5"/></marker></defs>
 <rect x="0" y="0" width="1280" height="658" rx="0" fill="white" stroke="none" stroke-width="1"/>
-<rect x="8" y="8" width="1264" height="642" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
-<rect x="9" y="9" width="1262" height="94" rx="0" fill="#edf5ff" stroke="none" stroke-width="1"/>
-<line x1="9" y1="103" x2="1271" y2="103" stroke="#d6d3cc" stroke-width="1"/>
-<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">4 路 probe 的分阶段执行</text>
-<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">按列自上而下推进：先预取 4 个 bucket，再处理候选，最后完成比较与插入。</text>
-<rect x="180" y="142" width="300" height="96" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<rect x="180" y="146" width="4" height="88" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
-<text x="202" y="177" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">preProbe</text>
-<text x="202" y="210" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">预取 bucket</text>
-<polyline points="493,190 531,190" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="180" y="264" width="300" height="42" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<text x="200" y="292" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="16" font-weight="400" text-anchor="start">01</text>
-<text x="348" y="292" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="400" text-anchor="middle">probe 0</text>
-<rect x="180" y="322" width="300" height="42" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<text x="200" y="350" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="16" font-weight="400" text-anchor="start">02</text>
-<text x="348" y="350" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="400" text-anchor="middle">probe 1</text>
-<rect x="180" y="380" width="300" height="42" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<text x="200" y="408" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="16" font-weight="400" text-anchor="start">03</text>
-<text x="348" y="408" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="400" text-anchor="middle">probe 2</text>
-<rect x="180" y="438" width="300" height="42" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<text x="200" y="466" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="16" font-weight="400" text-anchor="start">04</text>
-<text x="348" y="466" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="400" text-anchor="middle">probe 3</text>
-<rect x="546" y="142" width="300" height="96" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
-<rect x="546" y="146" width="4" height="88" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
-<text x="568" y="177" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">firstProbe</text>
-<text x="568" y="210" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">读取 tags，预取候选行</text>
-<polyline points="859,190 897,190" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="546" y="264" width="300" height="42" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
-<text x="566" y="292" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="16" font-weight="400" text-anchor="start">05</text>
-<text x="714" y="292" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="400" text-anchor="middle">probe 0</text>
-<rect x="546" y="322" width="300" height="42" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
-<text x="566" y="350" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="16" font-weight="400" text-anchor="start">06</text>
-<text x="714" y="350" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="400" text-anchor="middle">probe 1</text>
-<rect x="546" y="380" width="300" height="42" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
-<text x="566" y="408" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="16" font-weight="400" text-anchor="start">07</text>
-<text x="714" y="408" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="400" text-anchor="middle">probe 2</text>
-<rect x="546" y="438" width="300" height="42" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
-<text x="566" y="466" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="16" font-weight="400" text-anchor="start">08</text>
-<text x="714" y="466" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="400" text-anchor="middle">probe 3</text>
-<rect x="912" y="142" width="300" height="96" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
-<rect x="912" y="146" width="4" height="88" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
-<text x="934" y="177" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">fullProbe</text>
-<text x="934" y="210" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">比较、探测与插入</text>
-<rect x="912" y="264" width="300" height="42" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
-<text x="932" y="292" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="16" font-weight="400" text-anchor="start">09</text>
-<text x="1080" y="292" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="400" text-anchor="middle">probe 0</text>
-<text x="1190" y="292" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#15803d" font-size="20" font-weight="400" text-anchor="middle"></text>
-<rect x="912" y="322" width="300" height="42" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
-<text x="932" y="350" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="16" font-weight="400" text-anchor="start">10</text>
-<text x="1080" y="350" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="400" text-anchor="middle">probe 1</text>
-<text x="1190" y="350" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#15803d" font-size="20" font-weight="400" text-anchor="middle">↺</text>
-<rect x="912" y="380" width="300" height="42" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
-<text x="932" y="408" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="16" font-weight="400" text-anchor="start">11</text>
-<text x="1080" y="408" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="400" text-anchor="middle">probe 2</text>
-<text x="1190" y="408" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#15803d" font-size="20" font-weight="400" text-anchor="middle">↺</text>
-<rect x="912" y="438" width="300" height="42" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
-<text x="932" y="466" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="16" font-weight="400" text-anchor="start">12</text>
-<text x="1080" y="466" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="400" text-anchor="middle">probe 3</text>
-<text x="1190" y="466" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#15803d" font-size="20" font-weight="400" text-anchor="middle">↺</text>
-<text x="40" y="292" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="400" text-anchor="start">输入行 0</text>
-<text x="40" y="350" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="400" text-anchor="start">输入行 1</text>
-<text x="40" y="408" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="400" text-anchor="start">输入行 2</text>
-<text x="40" y="466" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="400" text-anchor="start">输入行 3</text>
-<text x="929" y="515" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">↺ 重新检查本批更早的插入</text>
-<rect x="40" y="556" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
-<text x="60" y="585" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">extraCheck：后续 probe 重新读取 tags，避免相同 key 被重复创建为两个 group。</text>
-<text x="60" y="610" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">编号表示这条源码路径的调用顺序；图中距离不代表 CPU cycle 或缓存延迟。</text>
+<rect x="8" y="8" width="1264" height="642" rx="4" fill="white" stroke="none" stroke-width="1"/>
+<rect x="9" y="9" width="1262" height="94" rx="0" fill="#ffffff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="103" x2="1271" y2="103" stroke="#dce3ea" stroke-width="1"/>
+<text x="40" y="49" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="28" font-weight="600" text-anchor="start">4 路 probe 的分阶段执行</text>
+<text x="40" y="80" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">按列自上而下推进：先预取 4 个 bucket，再处理候选，最后完成比较与插入。</text>
+<rect x="180" y="142" width="300" height="96" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1"/>
+<rect x="180" y="146" width="4" height="88" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="202" y="177" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#326cae" font-size="21" font-weight="600" text-anchor="start">preProbe</text>
+<text x="202" y="210" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">预取 bucket</text>
+<polyline points="493,190 531,190" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="180" y="264" width="300" height="42" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1"/>
+<text x="200" y="292" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="16" font-weight="400" text-anchor="start">01</text>
+<text x="348" y="292" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="19" font-weight="400" text-anchor="middle">probe 0</text>
+<rect x="180" y="322" width="300" height="42" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1"/>
+<text x="200" y="350" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="16" font-weight="400" text-anchor="start">02</text>
+<text x="348" y="350" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="19" font-weight="400" text-anchor="middle">probe 1</text>
+<rect x="180" y="380" width="300" height="42" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1"/>
+<text x="200" y="408" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="16" font-weight="400" text-anchor="start">03</text>
+<text x="348" y="408" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="19" font-weight="400" text-anchor="middle">probe 2</text>
+<rect x="180" y="438" width="300" height="42" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1"/>
+<text x="200" y="466" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="16" font-weight="400" text-anchor="start">04</text>
+<text x="348" y="466" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="19" font-weight="400" text-anchor="middle">probe 3</text>
+<rect x="546" y="142" width="300" height="96" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1"/>
+<rect x="546" y="146" width="4" height="88" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="568" y="177" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#65537f" font-size="21" font-weight="600" text-anchor="start">firstProbe</text>
+<text x="568" y="210" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">读取 tags，预取候选行</text>
+<polyline points="859,190 897,190" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="546" y="264" width="300" height="42" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1"/>
+<text x="566" y="292" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="16" font-weight="400" text-anchor="start">05</text>
+<text x="714" y="292" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="19" font-weight="400" text-anchor="middle">probe 0</text>
+<rect x="546" y="322" width="300" height="42" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1"/>
+<text x="566" y="350" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="16" font-weight="400" text-anchor="start">06</text>
+<text x="714" y="350" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="19" font-weight="400" text-anchor="middle">probe 1</text>
+<rect x="546" y="380" width="300" height="42" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1"/>
+<text x="566" y="408" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="16" font-weight="400" text-anchor="start">07</text>
+<text x="714" y="408" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="19" font-weight="400" text-anchor="middle">probe 2</text>
+<rect x="546" y="438" width="300" height="42" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1"/>
+<text x="566" y="466" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="16" font-weight="400" text-anchor="start">08</text>
+<text x="714" y="466" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="19" font-weight="400" text-anchor="middle">probe 3</text>
+<rect x="912" y="142" width="300" height="96" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1"/>
+<rect x="912" y="146" width="4" height="88" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="934" y="177" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#2e7963" font-size="21" font-weight="600" text-anchor="start">fullProbe</text>
+<text x="934" y="210" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">比较、探测与插入</text>
+<rect x="912" y="264" width="300" height="42" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1"/>
+<text x="932" y="292" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="16" font-weight="400" text-anchor="start">09</text>
+<text x="1080" y="292" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="19" font-weight="400" text-anchor="middle">probe 0</text>
+<text x="1190" y="292" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#39826d" font-size="20" font-weight="400" text-anchor="middle"/>
+<rect x="912" y="322" width="300" height="42" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1"/>
+<text x="932" y="350" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="16" font-weight="400" text-anchor="start">10</text>
+<text x="1080" y="350" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="19" font-weight="400" text-anchor="middle">probe 1</text>
+<text x="1190" y="350" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#39826d" font-size="20" font-weight="400" text-anchor="middle">↺</text>
+<rect x="912" y="380" width="300" height="42" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1"/>
+<text x="932" y="408" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="16" font-weight="400" text-anchor="start">11</text>
+<text x="1080" y="408" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="19" font-weight="400" text-anchor="middle">probe 2</text>
+<text x="1190" y="408" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#39826d" font-size="20" font-weight="400" text-anchor="middle">↺</text>
+<rect x="912" y="438" width="300" height="42" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1"/>
+<text x="932" y="466" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="16" font-weight="400" text-anchor="start">12</text>
+<text x="1080" y="466" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="19" font-weight="400" text-anchor="middle">probe 3</text>
+<text x="1190" y="466" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#39826d" font-size="20" font-weight="400" text-anchor="middle">↺</text>
+<text x="40" y="292" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="18" font-weight="400" text-anchor="start">输入行 0</text>
+<text x="40" y="350" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="18" font-weight="400" text-anchor="start">输入行 1</text>
+<text x="40" y="408" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="18" font-weight="400" text-anchor="start">输入行 2</text>
+<text x="40" y="466" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="18" font-weight="400" text-anchor="start">输入行 3</text>
+<text x="929" y="515" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">↺ 重新检查本批更早的插入</text>
+<rect x="40" y="556" width="1200" height="70" rx="4" fill="#ffffff" stroke="none" stroke-width="1"/><line x1="40.0" y1="556.0" x2="1240.0" y2="556.0" stroke="#dce3ea" stroke-width="1" data-style-decoration="summary-divider"/>
+<text x="60" y="585" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="19" font-weight="600" text-anchor="start">extraCheck：后续 probe 重新读取 tags，避免相同 key 被重复创建为两个 group。</text>
+<text x="60" y="610" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">编号表示这条源码路径的调用顺序；图中距离不代表 CPU cycle 或缓存延迟。</text>
 </svg>

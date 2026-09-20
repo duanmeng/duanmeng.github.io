@@ -1,57 +1,57 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="890" viewBox="0 0 1280 890" role="img" aria-labelledby="title desc">
 <title id="title">Spill 读回模块：一组文件，一条 BatchStream</title><desc id="desc">BatchStream::nextBatch 同步返回 RowVector；异步能力由 SpillMerger 调度层提供</desc>
-<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#657386" stroke-width="1.5"/></marker></defs>
 <rect x="0" y="0" width="1280" height="890" rx="0" fill="white" stroke="none" stroke-width="1"/>
-<rect x="8" y="8" width="1264" height="874" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
-<rect x="9" y="9" width="1262" height="94" rx="0" fill="#edf5ff" stroke="none" stroke-width="1"/>
-<line x1="9" y1="103" x2="1271" y2="103" stroke="#d6d3cc" stroke-width="1"/>
-<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">Spill 读回模块：一组文件，一条 BatchStream</text>
-<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">BatchStream::nextBatch 同步返回 RowVector；异步能力由 SpillMerger 调度层提供</text>
-<rect x="40" y="139" width="475" height="118" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
-<rect x="40" y="143" width="4" height="110" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
-<text x="60" y="173" font-family="DejaVu Sans Mono, Liberation Mono, Consolas, monospace" fill="#111827" font-size="20" text-anchor="start">SpillMerger</text>
-<text x="60" y="204" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">batchStreams_：unique_ptr 拥有每条文件流</text>
-<text x="60" y="231" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">sources_：shared_ptr 持有各路队列</text>
-<rect x="765" y="139" width="475" height="118" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
-<rect x="765" y="143" width="4" height="110" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
-<text x="785" y="173" font-family="DejaVu Sans Mono, Liberation Mono, Consolas, monospace" fill="#111827" font-size="20" text-anchor="start">SourceMerger</text>
-<text x="785" y="204" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">消费每一路的 LocalMergeSource</text>
-<text x="785" y="231" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">复用 TreeOfLosers 和 SourceStream</text>
-<text x="640.0" y="185" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">unique_ptr 持有</text>
-<polyline points="515,198 765,198" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<polyline points="278,257 278,327" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<text x="302" y="298" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">每个非空文件组一个</text>
-<rect x="40" y="327" width="475" height="122" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<rect x="40" y="331" width="4" height="114" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
-<text x="60" y="361" font-family="DejaVu Sans Mono, Liberation Mono, Consolas, monospace" fill="#111827" font-size="20" text-anchor="start">ConcatFilesSpillBatchStream</text>
-<text x="60" y="392" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">实现 BatchStream 接口；fileIndex_ 顺序推进</text>
-<text x="60" y="419" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">vector&lt;unique_ptr&lt;SpillReadFile&gt;&gt;</text>
-<polyline points="515,387 765,387" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<text x="640" y="367" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="middle">RowVector → enqueue</text>
-<rect x="765" y="327" width="475" height="122" rx="4" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
-<rect x="765" y="331" width="4" height="114" rx="0" fill="#c2410c" stroke="none" stroke-width="1"/>
-<text x="785" y="361" font-family="DejaVu Sans Mono, Liberation Mono, Consolas, monospace" fill="#111827" font-size="20" text-anchor="start">LocalMergeSource</text>
-<text x="785" y="392" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">每个 stream 一个有界 RowVector 队列</text>
-<text x="785" y="419" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">满则挂 continuation；空则 consumer 等待</text>
-<polyline points="1000,327 1000,257" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<polyline points="278,449 278,514" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<text x="300" y="490" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">unique_ptr，按文件顺序消费</text>
-<rect x="40" y="514" width="475" height="112" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<rect x="40" y="518" width="4" height="104" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
-<text x="60" y="548" font-family="DejaVu Sans Mono, Liberation Mono, Consolas, monospace" fill="#111827" font-size="20" text-anchor="start">SpillReadFile</text>
-<text x="60" y="579" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">继承 SerializedPageFileReader</text>
-<text x="60" y="606" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">Presto serde → RowVectorPtr</text>
-<polyline points="515,570 765,570" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="765" y="514" width="475" height="112" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<rect x="765" y="518" width="4" height="104" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
-<text x="785" y="548" font-family="DejaVu Sans Mono, Liberation Mono, Consolas, monospace" fill="#111827" font-size="20" text-anchor="start">FileInputStream</text>
-<text x="785" y="579" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">基类持有 unique_ptr；缓冲读 / 可选预取</text>
-<text x="785" y="606" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">构造 reader 即打开文件、分配缓冲和首读</text>
-<rect x="40" y="664" width="1200" height="92" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
-<rect x="40" y="668" width="4" height="84" rx="0" fill="#d6d3cc" stroke="none" stroke-width="1"/>
-<text x="60" y="698" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="400" text-anchor="start">组内有序拼接 ≠ 所有文件彼此归并</text>
-<text x="60" y="729" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">当前路径使用 ConcatFilesSpillBatchStream；另一个 ConcatFilesSpillMergeStream 不在这条 async 路径中。</text>
-<rect x="40" y="788" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
-<text x="60" y="817" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">最终归并路数 = 文件组数 G；文件 reader 与缓冲规模还与总文件数 K 有关</text>
-<text x="60" y="842" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">不能仅凭一个组一条 stream，推断每组同一时刻只创建或打开一个文件。</text>
+<rect x="8" y="8" width="1264" height="874" rx="4" fill="white" stroke="none" stroke-width="1"/>
+<rect x="9" y="9" width="1262" height="94" rx="0" fill="#ffffff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="103" x2="1271" y2="103" stroke="#dce3ea" stroke-width="1"/>
+<text x="40" y="49" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="28" font-weight="600" text-anchor="start">Spill 读回模块：一组文件，一条 BatchStream</text>
+<text x="40" y="80" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">BatchStream::nextBatch 同步返回 RowVector；异步能力由 SpillMerger 调度层提供</text>
+<rect x="40" y="139" width="475" height="118" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1"/>
+<rect x="40" y="143" width="4" height="110" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="60" y="173" font-family="DejaVu Sans Mono, Liberation Mono, Consolas, monospace" fill="#65537f" font-size="20" text-anchor="start">SpillMerger</text>
+<text x="60" y="204" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">batchStreams_：unique_ptr 拥有每条文件流</text>
+<text x="60" y="231" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">sources_：shared_ptr 持有各路队列</text>
+<rect x="765" y="139" width="475" height="118" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1"/>
+<rect x="765" y="143" width="4" height="110" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="785" y="173" font-family="DejaVu Sans Mono, Liberation Mono, Consolas, monospace" fill="#2e7963" font-size="20" text-anchor="start">SourceMerger</text>
+<text x="785" y="204" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">消费每一路的 LocalMergeSource</text>
+<text x="785" y="231" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">复用 TreeOfLosers 和 SourceStream</text>
+<text x="640.0" y="185" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="17" font-weight="400" text-anchor="middle">unique_ptr 持有</text>
+<polyline points="515,198 765,198" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<polyline points="278,257 278,327" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="302" y="298" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">每个非空文件组一个</text>
+<rect x="40" y="327" width="475" height="122" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1"/>
+<rect x="40" y="331" width="4" height="114" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="60" y="361" font-family="DejaVu Sans Mono, Liberation Mono, Consolas, monospace" fill="#326cae" font-size="20" text-anchor="start">ConcatFilesSpillBatchStream</text>
+<text x="60" y="392" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">实现 BatchStream 接口；fileIndex_ 顺序推进</text>
+<text x="60" y="419" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">vector&lt;unique_ptr&lt;SpillReadFile&gt;&gt;</text>
+<polyline points="515,387 765,387" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="640" y="367" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="middle">RowVector → enqueue</text>
+<rect x="765" y="327" width="475" height="122" rx="4" fill="#faf7ef" stroke="#ac9c76" stroke-width="1"/>
+<rect x="765" y="331" width="4" height="114" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="785" y="361" font-family="DejaVu Sans Mono, Liberation Mono, Consolas, monospace" fill="#877951" font-size="20" text-anchor="start">LocalMergeSource</text>
+<text x="785" y="392" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">每个 stream 一个有界 RowVector 队列</text>
+<text x="785" y="419" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">满则挂 continuation；空则 consumer 等待</text>
+<polyline points="1000,327 1000,257" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<polyline points="278,449 278,514" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="300" y="490" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">unique_ptr，按文件顺序消费</text>
+<rect x="40" y="514" width="475" height="112" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1"/>
+<rect x="40" y="518" width="4" height="104" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="60" y="548" font-family="DejaVu Sans Mono, Liberation Mono, Consolas, monospace" fill="#326cae" font-size="20" text-anchor="start">SpillReadFile</text>
+<text x="60" y="579" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">继承 SerializedPageFileReader</text>
+<text x="60" y="606" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">Presto serde → RowVectorPtr</text>
+<polyline points="515,570 765,570" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="765" y="514" width="475" height="112" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1"/>
+<rect x="765" y="518" width="4" height="104" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="785" y="548" font-family="DejaVu Sans Mono, Liberation Mono, Consolas, monospace" fill="#326cae" font-size="20" text-anchor="start">FileInputStream</text>
+<text x="785" y="579" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">基类持有 unique_ptr；缓冲读 / 可选预取</text>
+<text x="785" y="606" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">构造 reader 即打开文件、分配缓冲和首读</text>
+<rect x="40" y="664" width="1200" height="92" rx="4" fill="#faf7ef" stroke="#dce3ea" stroke-width="1"/>
+<rect x="40" y="668" width="4" height="84" rx="0" fill="#dce3ea" stroke="none" stroke-width="1"/>
+<text x="60" y="698" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="20" font-weight="400" text-anchor="start">组内有序拼接 ≠ 所有文件彼此归并</text>
+<text x="60" y="729" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">当前路径使用 ConcatFilesSpillBatchStream；另一个 ConcatFilesSpillMergeStream 不在这条 async 路径中。</text>
+<rect x="40" y="788" width="1200" height="70" rx="4" fill="#ffffff" stroke="none" stroke-width="1"/><line x1="40.0" y1="788.0" x2="1240.0" y2="788.0" stroke="#dce3ea" stroke-width="1" data-style-decoration="summary-divider"/>
+<text x="60" y="817" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="19" font-weight="600" text-anchor="start">最终归并路数 = 文件组数 G；文件 reader 与缓冲规模还与总文件数 K 有关</text>
+<text x="60" y="842" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">不能仅凭一个组一条 stream，推断每组同一时刻只创建或打开一个文件。</text>
 </svg>

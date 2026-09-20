@@ -1,60 +1,60 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="860" viewBox="0 0 1280 860" role="img" aria-labelledby="title desc">
 <title id="title">Async stream：逻辑流串行推进，多个流共享 executor</title><desc id="desc">streamIdx 对齐 batchStreams_[i] 和 sources_[i]；一条流不固定绑定某个线程</desc>
-<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#657386" stroke-width="1.5"/></marker></defs>
 <rect x="0" y="0" width="1280" height="860" rx="0" fill="white" stroke="none" stroke-width="1"/>
-<rect x="8" y="8" width="1264" height="844" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
-<rect x="9" y="9" width="1262" height="94" rx="0" fill="#edf5ff" stroke="none" stroke-width="1"/>
-<line x1="9" y1="103" x2="1271" y2="103" stroke="#d6d3cc" stroke-width="1"/>
-<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">Async stream：逻辑流串行推进，多个流共享 executor</text>
-<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">streamIdx 对齐 batchStreams_[i] 和 sources_[i]；一条流不固定绑定某个线程</text>
-<rect x="40" y="137" width="1200" height="88" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
-<rect x="40" y="141" width="4" height="80" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
-<text x="60" y="171" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="400" text-anchor="start">Spill executor：有限 worker 执行多个 stream 的回调</text>
-<text x="60" y="202" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">start() 为每条 stream 提交初始工作；后续等待队列空位时，通过 future.via(executor_) 继续。</text>
-<polyline points="230,225 230,279" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="40" y="279" width="380" height="107" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<rect x="40" y="283" width="4" height="99" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
-<text x="60" y="313" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="400" text-anchor="start">Stream 0：nextBatch()</text>
-<text x="60" y="344" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">同步文件读取与解码</text>
-<text x="60" y="371" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">该步仍然占用当前 worker</text>
-<polyline points="230,386 230,430" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="40" y="430" width="380" height="106" rx="4" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
-<rect x="40" y="434" width="4" height="98" rx="0" fill="#c2410c" stroke="none" stroke-width="1"/>
-<text x="60" y="464" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="400" text-anchor="start">Queue 0：enqueue(batch)</text>
-<text x="60" y="495" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">未满：当前线程直接继续读取</text>
-<text x="60" y="522" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">已满：挂 continuation，返回</text>
-<polyline points="230,536 230,587 640,587 640,627" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<polyline points="640,225 640,279" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="450" y="279" width="380" height="107" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<rect x="450" y="283" width="4" height="99" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
-<text x="470" y="313" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="400" text-anchor="start">Stream 1：nextBatch()</text>
-<text x="470" y="344" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">同步文件读取与解码</text>
-<text x="470" y="371" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">该步仍然占用当前 worker</text>
-<polyline points="640,386 640,430" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="450" y="430" width="380" height="106" rx="4" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
-<rect x="450" y="434" width="4" height="98" rx="0" fill="#c2410c" stroke="none" stroke-width="1"/>
-<text x="470" y="464" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="400" text-anchor="start">Queue 1：enqueue(batch)</text>
-<text x="470" y="495" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">未满：当前线程直接继续读取</text>
-<text x="470" y="522" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">已满：挂 continuation，返回</text>
-<polyline points="640,536 640,587 640,587 640,627" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<polyline points="1050,225 1050,279" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="860" y="279" width="380" height="107" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<rect x="860" y="283" width="4" height="99" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
-<text x="880" y="313" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="400" text-anchor="start">Stream 2：nextBatch()</text>
-<text x="880" y="344" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">同步文件读取与解码</text>
-<text x="880" y="371" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">该步仍然占用当前 worker</text>
-<polyline points="1050,386 1050,430" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="860" y="430" width="380" height="106" rx="4" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
-<rect x="860" y="434" width="4" height="98" rx="0" fill="#c2410c" stroke="none" stroke-width="1"/>
-<text x="880" y="464" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="400" text-anchor="start">Queue 2：enqueue(batch)</text>
-<text x="880" y="495" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">未满：当前线程直接继续读取</text>
-<text x="880" y="522" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">已满：挂 continuation，返回</text>
-<polyline points="1050,536 1050,587 640,587 640,627" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="240" y="627" width="800" height="98" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
-<rect x="240" y="631" width="4" height="90" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
-<text x="260" y="661" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="400" text-anchor="start">LocalMerge Driver：单线程 SourceMerger</text>
-<text x="260" y="692" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">next() 取走一个批次，通知 producer；future 就绪后 stream 才能继续读下一批。</text>
-<rect x="40" y="758" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
-<text x="60" y="787" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">async 在调度边界：等待背压不占线程；读文件与反序列化并不因此变成非阻塞 API</text>
-<text x="60" y="812" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">没有通用 AsyncStream 类；这里是一组 BatchStream + 队列 + continuation 构成的逻辑流。</text>
+<rect x="8" y="8" width="1264" height="844" rx="4" fill="white" stroke="none" stroke-width="1"/>
+<rect x="9" y="9" width="1262" height="94" rx="0" fill="#ffffff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="103" x2="1271" y2="103" stroke="#dce3ea" stroke-width="1"/>
+<text x="40" y="49" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="28" font-weight="600" text-anchor="start">Async stream：逻辑流串行推进，多个流共享 executor</text>
+<text x="40" y="80" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">streamIdx 对齐 batchStreams_[i] 和 sources_[i]；一条流不固定绑定某个线程</text>
+<rect x="40" y="137" width="1200" height="88" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1"/>
+<rect x="40" y="141" width="4" height="80" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="60" y="171" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#65537f" font-size="20" font-weight="400" text-anchor="start">Spill executor：有限 worker 执行多个 stream 的回调</text>
+<text x="60" y="202" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">start() 为每条 stream 提交初始工作；后续等待队列空位时，通过 future.via(executor_) 继续。</text>
+<polyline points="230,225 230,279" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="40" y="279" width="380" height="107" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1"/>
+<rect x="40" y="283" width="4" height="99" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="60" y="313" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#326cae" font-size="20" font-weight="400" text-anchor="start">Stream 0：nextBatch()</text>
+<text x="60" y="344" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">同步文件读取与解码</text>
+<text x="60" y="371" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">该步仍然占用当前 worker</text>
+<polyline points="230,386 230,430" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="40" y="430" width="380" height="106" rx="4" fill="#faf7ef" stroke="#ac9c76" stroke-width="1"/>
+<rect x="40" y="434" width="4" height="98" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="60" y="464" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#877951" font-size="20" font-weight="400" text-anchor="start">Queue 0：enqueue(batch)</text>
+<text x="60" y="495" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">未满：当前线程直接继续读取</text>
+<text x="60" y="522" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">已满：挂 continuation，返回</text>
+<polyline points="230,536 230,587 640,587 640,627" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<polyline points="640,225 640,279" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="450" y="279" width="380" height="107" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1"/>
+<rect x="450" y="283" width="4" height="99" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="470" y="313" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#326cae" font-size="20" font-weight="400" text-anchor="start">Stream 1：nextBatch()</text>
+<text x="470" y="344" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">同步文件读取与解码</text>
+<text x="470" y="371" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">该步仍然占用当前 worker</text>
+<polyline points="640,386 640,430" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="450" y="430" width="380" height="106" rx="4" fill="#faf7ef" stroke="#ac9c76" stroke-width="1"/>
+<rect x="450" y="434" width="4" height="98" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="470" y="464" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#877951" font-size="20" font-weight="400" text-anchor="start">Queue 1：enqueue(batch)</text>
+<text x="470" y="495" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">未满：当前线程直接继续读取</text>
+<text x="470" y="522" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">已满：挂 continuation，返回</text>
+<polyline points="640,536 640,587 640,587 640,627" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<polyline points="1050,225 1050,279" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="860" y="279" width="380" height="107" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1"/>
+<rect x="860" y="283" width="4" height="99" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="880" y="313" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#326cae" font-size="20" font-weight="400" text-anchor="start">Stream 2：nextBatch()</text>
+<text x="880" y="344" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">同步文件读取与解码</text>
+<text x="880" y="371" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">该步仍然占用当前 worker</text>
+<polyline points="1050,386 1050,430" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="860" y="430" width="380" height="106" rx="4" fill="#faf7ef" stroke="#ac9c76" stroke-width="1"/>
+<rect x="860" y="434" width="4" height="98" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="880" y="464" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#877951" font-size="20" font-weight="400" text-anchor="start">Queue 2：enqueue(batch)</text>
+<text x="880" y="495" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">未满：当前线程直接继续读取</text>
+<text x="880" y="522" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">已满：挂 continuation，返回</text>
+<polyline points="1050,536 1050,587 640,587 640,627" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="240" y="627" width="800" height="98" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1"/>
+<rect x="240" y="631" width="4" height="90" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="260" y="661" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#2e7963" font-size="20" font-weight="400" text-anchor="start">LocalMerge Driver：单线程 SourceMerger</text>
+<text x="260" y="692" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">next() 取走一个批次，通知 producer；future 就绪后 stream 才能继续读下一批。</text>
+<rect x="40" y="758" width="1200" height="70" rx="4" fill="#ffffff" stroke="none" stroke-width="1"/><line x1="40.0" y1="758.0" x2="1240.0" y2="758.0" stroke="#dce3ea" stroke-width="1" data-style-decoration="summary-divider"/>
+<text x="60" y="787" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="19" font-weight="600" text-anchor="start">async 在调度边界：等待背压不占线程；读文件与反序列化并不因此变成非阻塞 API</text>
+<text x="60" y="812" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">没有通用 AsyncStream 类；这里是一组 BatchStream + 队列 + continuation 构成的逻辑流。</text>
 </svg>

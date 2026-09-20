@@ -1,65 +1,65 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="792" viewBox="0 0 1280 792" role="img" aria-labelledby="title desc">
 <title id="title">Task、Pipeline、Driver 与执行线程</title><desc id="desc">容器表示执行结构；共享状态连接 pipeline；每个 Driver 拥有独立的 Operator 实例。</desc>
-<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#657386" stroke-width="1.5"/></marker></defs>
 <rect x="0" y="0" width="1280" height="792" rx="0" fill="white" stroke="none" stroke-width="1"/>
-<rect x="8" y="8" width="1264" height="776" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
-<rect x="9" y="9" width="1262" height="94" rx="0" fill="#edf5ff" stroke="none" stroke-width="1"/>
-<line x1="9" y1="103" x2="1271" y2="103" stroke="#d6d3cc" stroke-width="1"/>
-<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">Task、Pipeline、Driver 与执行线程</text>
-<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">容器表示执行结构；共享状态连接 pipeline；每个 Driver 拥有独立的 Operator 实例。</text>
-<rect x="40" y="140" width="290" height="89" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
-<rect x="40" y="144" width="4" height="81" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
-<text x="62" y="175" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">PlanFragment</text>
-<text x="62" y="208" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">LocalPlanner 划分 pipeline</text>
-<rect x="475" y="140" width="330" height="89" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<rect x="475" y="144" width="4" height="81" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
-<text x="497" y="175" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">QueryCtx</text>
-<text x="497" y="208" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">配置 · 查询 pool · executors</text>
-<rect x="950" y="140" width="290" height="89" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
-<rect x="950" y="144" width="4" height="81" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
-<text x="972" y="175" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Executor</text>
-<text x="972" y="208" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">执行 Driver::run</text>
-<polyline points="185,241 185,280" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<text x="211" y="268" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="16" font-weight="400" text-anchor="start">规划</text>
-<polyline points="640,282 640,241" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<text x="664" y="267" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="16" font-weight="400" text-anchor="start">Task 持有上下文</text>
-<polyline points="1095,241 1095,280" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<text x="1115" y="267" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="16" font-weight="400" text-anchor="start">调度</text>
-<rect x="40" y="294" width="1200" height="368" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
-<text x="64" y="327" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="23" font-weight="600" text-anchor="start">Task · 管理 Driver、Split 与跨 pipeline 的连接</text>
-<rect x="64" y="351" width="522" height="203" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<rect x="64" y="355" width="4" height="195" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
-<text x="86" y="386" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Pipeline A</text>
-<text x="86" y="419" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">DriverFactory → 按并行度创建 Driver</text>
-<rect x="84" y="439" width="482" height="89" rx="4" fill="white" stroke="#1d4ed8" stroke-width="1"/>
-<text x="99" y="463" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="600" text-anchor="start">Driver i</text>
-<rect x="99" y="480" width="128" height="32" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<text x="163" y="502" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="16" font-weight="400" text-anchor="middle">Source</text>
-<polyline points="231,496 249,496" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="255" y="480" width="128" height="32" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<text x="319" y="502" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="16" font-weight="400" text-anchor="middle">Operator …</text>
-<polyline points="387,496 405,496" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="411" y="480" width="128" height="32" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<text x="475" y="502" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="16" font-weight="400" text-anchor="middle">Sink</text>
-<polyline points="325,565 325,596" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="694" y="351" width="522" height="203" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
-<rect x="694" y="355" width="4" height="195" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
-<text x="716" y="386" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Pipeline B</text>
-<text x="716" y="419" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">DriverFactory → 按并行度创建 Driver</text>
-<rect x="714" y="439" width="482" height="89" rx="4" fill="white" stroke="#7e22ce" stroke-width="1"/>
-<text x="729" y="463" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="600" text-anchor="start">Driver i</text>
-<rect x="729" y="480" width="128" height="32" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
-<text x="793" y="502" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="16" font-weight="400" text-anchor="middle">Source</text>
-<polyline points="861,496 879,496" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="885" y="480" width="128" height="32" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
-<text x="949" y="502" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="16" font-weight="400" text-anchor="middle">Operator …</text>
-<polyline points="1017,496 1035,496" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="1041" y="480" width="128" height="32" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
-<text x="1105" y="502" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="16" font-weight="400" text-anchor="middle">Sink</text>
-<polyline points="955,565 955,596" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="64" y="605" width="1152" height="36" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
-<text x="640" y="630" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="400" text-anchor="middle">SplitGroupState：JoinBridge · LocalExchange · peer barrier</text>
-<rect x="40" y="690" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
-<text x="60" y="719" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">Driver 是可反复调度的执行对象；executor 的工作线程可以被多个 Driver 复用。</text>
-<text x="60" y="744" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">同一 pipeline 的各个 Driver 不共享 Operator 实例；需要共享的数据通过 Task 管理的结构连接。</text>
+<rect x="8" y="8" width="1264" height="776" rx="4" fill="white" stroke="none" stroke-width="1"/>
+<rect x="9" y="9" width="1262" height="94" rx="0" fill="#ffffff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="103" x2="1271" y2="103" stroke="#dce3ea" stroke-width="1"/>
+<text x="40" y="49" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="28" font-weight="600" text-anchor="start">Task、Pipeline、Driver 与执行线程</text>
+<text x="40" y="80" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">容器表示执行结构；共享状态连接 pipeline；每个 Driver 拥有独立的 Operator 实例。</text>
+<rect x="40" y="140" width="290" height="89" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1"/>
+<rect x="40" y="144" width="4" height="81" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="62" y="175" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#65537f" font-size="21" font-weight="600" text-anchor="start">PlanFragment</text>
+<text x="62" y="208" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">LocalPlanner 划分 pipeline</text>
+<rect x="475" y="140" width="330" height="89" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1"/>
+<rect x="475" y="144" width="4" height="81" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="497" y="175" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#326cae" font-size="21" font-weight="600" text-anchor="start">QueryCtx</text>
+<text x="497" y="208" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">配置 · 查询 pool · executors</text>
+<rect x="950" y="140" width="290" height="89" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1"/>
+<rect x="950" y="144" width="4" height="81" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="972" y="175" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#2e7963" font-size="21" font-weight="600" text-anchor="start">Executor</text>
+<text x="972" y="208" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">执行 Driver::run</text>
+<polyline points="185,241 185,280" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="211" y="268" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="16" font-weight="400" text-anchor="start">规划</text>
+<polyline points="640,282 640,241" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="664" y="267" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="16" font-weight="400" text-anchor="start">Task 持有上下文</text>
+<polyline points="1095,241 1095,280" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="1115" y="267" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="16" font-weight="400" text-anchor="start">调度</text>
+<rect x="40" y="294" width="1200" height="368" rx="4" fill="white" stroke="#dce3ea" stroke-width="1"/>
+<text x="64" y="327" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="23" font-weight="600" text-anchor="start">Task · 管理 Driver、Split 与跨 pipeline 的连接</text>
+<rect x="64" y="351" width="522" height="203" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1"/>
+<rect x="64" y="355" width="4" height="195" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="86" y="386" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#326cae" font-size="21" font-weight="600" text-anchor="start">Pipeline A</text>
+<text x="86" y="419" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">DriverFactory → 按并行度创建 Driver</text>
+<rect x="84" y="439" width="482" height="89" rx="4" fill="white" stroke="#4078bd" stroke-width="1"/>
+<text x="99" y="463" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="17" font-weight="600" text-anchor="start">Driver i</text>
+<rect x="99" y="480" width="128" height="32" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1"/>
+<text x="163" y="502" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="16" font-weight="400" text-anchor="middle">Source</text>
+<polyline points="231,496 249,496" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="255" y="480" width="128" height="32" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1"/>
+<text x="319" y="502" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="16" font-weight="400" text-anchor="middle">Operator …</text>
+<polyline points="387,496 405,496" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="411" y="480" width="128" height="32" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1"/>
+<text x="475" y="502" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="16" font-weight="400" text-anchor="middle">Sink</text>
+<polyline points="325,565 325,596" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="694" y="351" width="522" height="203" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1"/>
+<rect x="694" y="355" width="4" height="195" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="716" y="386" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#65537f" font-size="21" font-weight="600" text-anchor="start">Pipeline B</text>
+<text x="716" y="419" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">DriverFactory → 按并行度创建 Driver</text>
+<rect x="714" y="439" width="482" height="89" rx="4" fill="white" stroke="#8d76b7" stroke-width="1"/>
+<text x="729" y="463" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="17" font-weight="600" text-anchor="start">Driver i</text>
+<rect x="729" y="480" width="128" height="32" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1"/>
+<text x="793" y="502" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="16" font-weight="400" text-anchor="middle">Source</text>
+<polyline points="861,496 879,496" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="885" y="480" width="128" height="32" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1"/>
+<text x="949" y="502" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="16" font-weight="400" text-anchor="middle">Operator …</text>
+<polyline points="1017,496 1035,496" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="1041" y="480" width="128" height="32" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1"/>
+<text x="1105" y="502" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="16" font-weight="400" text-anchor="middle">Sink</text>
+<polyline points="955,565 955,596" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="64" y="605" width="1152" height="36" rx="4" fill="#ffffff" stroke="none" stroke-width="1"/><line x1="64.0" y1="605.0" x2="1216.0" y2="605.0" stroke="#dce3ea" stroke-width="1" data-style-decoration="summary-divider"/>
+<text x="640" y="630" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="20" font-weight="400" text-anchor="middle">SplitGroupState：JoinBridge · LocalExchange · peer barrier</text>
+<rect x="40" y="690" width="1200" height="70" rx="4" fill="#ffffff" stroke="none" stroke-width="1"/><line x1="40.0" y1="690.0" x2="1240.0" y2="690.0" stroke="#dce3ea" stroke-width="1" data-style-decoration="summary-divider"/>
+<text x="60" y="719" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="19" font-weight="600" text-anchor="start">Driver 是可反复调度的执行对象；executor 的工作线程可以被多个 Driver 复用。</text>
+<text x="60" y="744" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">同一 pipeline 的各个 Driver 不共享 Operator 实例；需要共享的数据通过 Task 管理的结构连接。</text>
 </svg>

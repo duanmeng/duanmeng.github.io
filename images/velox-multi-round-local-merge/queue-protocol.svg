@@ -1,45 +1,45 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="920" viewBox="0 0 1280 920" role="img" aria-labelledby="title desc">
 <title id="title">队列背压：返回 blocked 时，当前批次已经入队</title><desc id="desc">示例 queueSize = 2；nullptr EOF 是结束标志，不占队列槽位</desc>
-<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#657386" stroke-width="1.5"/></marker></defs>
 <rect x="0" y="0" width="1280" height="920" rx="0" fill="white" stroke="none" stroke-width="1"/>
-<rect x="8" y="8" width="1264" height="904" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
-<rect x="9" y="9" width="1262" height="94" rx="0" fill="#edf5ff" stroke="none" stroke-width="1"/>
-<line x1="9" y1="103" x2="1271" y2="103" stroke="#d6d3cc" stroke-width="1"/>
-<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">队列背压：返回 blocked 时，当前批次已经入队</text>
-<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">示例 queueSize = 2；nullptr EOF 是结束标志，不占队列槽位</text>
-<rect x="40" y="140" width="280" height="86" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<rect x="40" y="144" width="4" height="78" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
-<text x="60" y="174" font-family="DejaVu Sans Mono, Liberation Mono, Consolas, monospace" fill="#111827" font-size="20" text-anchor="start">Producer</text>
-<text x="60" y="205" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">Driver 或 spill callback</text>
-<line x1="180" y1="228" x2="180" y2="794" stroke="#8b8b8b" stroke-width="2" stroke-dasharray="7 5"/>
-<rect x="500" y="140" width="280" height="86" rx="4" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
-<rect x="500" y="144" width="4" height="78" rx="0" fill="#c2410c" stroke="none" stroke-width="1"/>
-<text x="520" y="174" font-family="DejaVu Sans Mono, Liberation Mono, Consolas, monospace" fill="#111827" font-size="20" text-anchor="start">LocalMergeSource</text>
-<text x="520" y="205" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">有界 queue + promises</text>
-<line x1="640" y1="228" x2="640" y2="794" stroke="#8b8b8b" stroke-width="2" stroke-dasharray="7 5"/>
-<rect x="960" y="140" width="280" height="86" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
-<rect x="960" y="144" width="4" height="78" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
-<text x="980" y="174" font-family="DejaVu Sans Mono, Liberation Mono, Consolas, monospace" fill="#111827" font-size="20" text-anchor="start">Consumer</text>
-<text x="980" y="205" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">SourceStream</text>
-<line x1="1100" y1="228" x2="1100" y2="794" stroke="#8b8b8b" stroke-width="2" stroke-dasharray="7 5"/>
-<text x="410.0" y="274" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">enqueue(A) → 队列 [A]</text>
-<polyline points="180,287 640,287" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<text x="410.0" y="339" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">enqueue(B) → 队列 [A, B]</text>
-<polyline points="180,352 640,352" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<text x="410.0" y="404" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">kWaitForConsumer + future</text>
-<polyline points="640,417 180,417" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="35" y="450" width="325" height="64" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
-<rect x="35" y="454" width="4" height="56" rx="0" fill="#d6d3cc" stroke="none" stroke-width="1"/>
-<text x="55" y="484" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="400" text-anchor="start">停止读下一批，不重试入队 B</text>
-<text x="870.0" y="529" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">next() → 取走 A，队列 [B]</text>
-<polyline points="1100,542 640,542" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<text x="410.0" y="594" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">在队列锁外通知 producer</text>
-<polyline points="640,607 180,607" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<text x="410.0" y="659" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">恢复后 enqueue(nullptr) → atEnd</text>
-<polyline points="180,672 640,672" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<text x="870.0" y="724" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">先取走 B；再 next 才看到 EOF</text>
-<polyline points="1100,737 640,737" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="40" y="818" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
-<text x="60" y="847" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">相反方向：queue 空且尚未 EOF → consumer 保存 future，等待 producer 通知</text>
-<text x="60" y="872" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">同一个队列协议同时服务于 pipeline lazy start、数据可用通知和生产端背压。</text>
+<rect x="8" y="8" width="1264" height="904" rx="4" fill="white" stroke="none" stroke-width="1"/>
+<rect x="9" y="9" width="1262" height="94" rx="0" fill="#ffffff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="103" x2="1271" y2="103" stroke="#dce3ea" stroke-width="1"/>
+<text x="40" y="49" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="28" font-weight="600" text-anchor="start">队列背压：返回 blocked 时，当前批次已经入队</text>
+<text x="40" y="80" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">示例 queueSize = 2；nullptr EOF 是结束标志，不占队列槽位</text>
+<rect x="40" y="140" width="280" height="86" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1"/>
+<rect x="40" y="144" width="4" height="78" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="60" y="174" font-family="DejaVu Sans Mono, Liberation Mono, Consolas, monospace" fill="#326cae" font-size="20" text-anchor="start">Producer</text>
+<text x="60" y="205" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">Driver 或 spill callback</text>
+<line x1="180" y1="228" x2="180" y2="794" stroke="#657386" stroke-width="2" stroke-dasharray="7 5"/>
+<rect x="500" y="140" width="280" height="86" rx="4" fill="#faf7ef" stroke="#ac9c76" stroke-width="1"/>
+<rect x="500" y="144" width="4" height="78" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="520" y="174" font-family="DejaVu Sans Mono, Liberation Mono, Consolas, monospace" fill="#877951" font-size="20" text-anchor="start">LocalMergeSource</text>
+<text x="520" y="205" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">有界 queue + promises</text>
+<line x1="640" y1="228" x2="640" y2="794" stroke="#657386" stroke-width="2" stroke-dasharray="7 5"/>
+<rect x="960" y="140" width="280" height="86" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1"/>
+<rect x="960" y="144" width="4" height="78" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="980" y="174" font-family="DejaVu Sans Mono, Liberation Mono, Consolas, monospace" fill="#2e7963" font-size="20" text-anchor="start">Consumer</text>
+<text x="980" y="205" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">SourceStream</text>
+<line x1="1100" y1="228" x2="1100" y2="794" stroke="#657386" stroke-width="2" stroke-dasharray="7 5"/>
+<text x="410.0" y="274" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="17" font-weight="400" text-anchor="middle">enqueue(A) → 队列 [A]</text>
+<polyline points="180,287 640,287" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="410.0" y="339" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="17" font-weight="400" text-anchor="middle">enqueue(B) → 队列 [A, B]</text>
+<polyline points="180,352 640,352" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="410.0" y="404" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="17" font-weight="400" text-anchor="middle">kWaitForConsumer + future</text>
+<polyline points="640,417 180,417" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="35" y="450" width="325" height="64" rx="4" fill="#faf7ef" stroke="#dce3ea" stroke-width="1"/>
+<rect x="35" y="454" width="4" height="56" rx="0" fill="#dce3ea" stroke="none" stroke-width="1"/>
+<text x="55" y="484" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="20" font-weight="400" text-anchor="start">停止读下一批，不重试入队 B</text>
+<text x="870.0" y="529" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="17" font-weight="400" text-anchor="middle">next() → 取走 A，队列 [B]</text>
+<polyline points="1100,542 640,542" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="410.0" y="594" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="17" font-weight="400" text-anchor="middle">在队列锁外通知 producer</text>
+<polyline points="640,607 180,607" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="410.0" y="659" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="17" font-weight="400" text-anchor="middle">恢复后 enqueue(nullptr) → atEnd</text>
+<polyline points="180,672 640,672" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="870.0" y="724" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="17" font-weight="400" text-anchor="middle">先取走 B；再 next 才看到 EOF</text>
+<polyline points="1100,737 640,737" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="40" y="818" width="1200" height="70" rx="4" fill="#ffffff" stroke="none" stroke-width="1"/><line x1="40.0" y1="818.0" x2="1240.0" y2="818.0" stroke="#dce3ea" stroke-width="1" data-style-decoration="summary-divider"/>
+<text x="60" y="847" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="19" font-weight="600" text-anchor="start">相反方向：queue 空且尚未 EOF → consumer 保存 future，等待 producer 通知</text>
+<text x="60" y="872" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">同一个队列协议同时服务于 pipeline lazy start、数据可用通知和生产端背压。</text>
 </svg>

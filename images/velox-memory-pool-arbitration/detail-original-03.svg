@@ -1,37 +1,37 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="960" viewBox="0 0 1280 960" role="img" aria-labelledby="title desc">
 <title id="title">Task 回收窗口：pause → reclaim → resume</title><desc id="desc">TaskReclaimer 把停稳与恢复包在实际释放资源的外围；capacity shrink 在此后。</desc>
-<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#657386" stroke-width="1.5"/></marker></defs>
 <rect x="0" y="0" width="1280" height="960" rx="0" fill="white" stroke="none" stroke-width="1"/>
-<rect x="8" y="8" width="1264" height="944" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
-<rect x="9" y="9" width="1262" height="94" rx="0" fill="#edf5ff" stroke="none" stroke-width="1"/>
-<line x1="9" y1="103" x2="1271" y2="103" stroke="#d6d3cc" stroke-width="1"/>
-<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">Task 回收窗口：pause → reclaim → resume</text>
-<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">TaskReclaimer 把停稳与恢复包在实际释放资源的外围；capacity shrink 在此后。</text>
-<rect x="70" y="140" width="1140" height="100" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<rect x="70" y="144" width="4" height="92" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
-<text x="92" y="175" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">TaskReclaimer::reclaim</text>
-<text x="92" y="208" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">先 lock weak_ptr&lt;Task&gt; 并确认当前状态</text>
-<polyline points="640,250 640,272" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="70" y="282" width="1140" height="100" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
-<rect x="70" y="286" width="4" height="92" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
-<text x="92" y="317" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">task-&gt;requestPause()</text>
-<text x="92" y="350" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">等待 Task 活跃 Driver 停稳；requestor 可以是保栈 suspended</text>
-<polyline points="640,392 640,414" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="70" y="424" width="1140" height="100" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<rect x="70" y="428" width="4" height="92" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
-<text x="92" y="459" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">MemoryReclaimer::reclaim</text>
-<text x="92" y="492" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">访问 children，按候选优先级与估算量排序并依次回收</text>
-<polyline points="640,534 640,556" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="70" y="566" width="1140" height="100" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
-<rect x="70" y="570" width="4" height="92" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
-<text x="92" y="601" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Node / ParallelMemoryReclaimer</text>
-<text x="92" y="634" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">调用线程与 executor 协作，对合适的 peers 执行 op-&gt;reclaim → spill</text>
-<polyline points="640,676 640,698" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="70" y="708" width="1140" height="100" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<rect x="70" y="712" width="4" height="92" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
-<text x="92" y="743" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">task-&gt;resume()</text>
-<text x="92" y="776" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">关闭暂停窗口，恢复符合条件的 Driver；异常路径也须收尾</text>
-<rect x="40" y="858" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
-<text x="60" y="887" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">阶段 1 释放 used / reservation；阶段 2 由 participant shrink 归还 root capacity。</text>
-<text x="60" y="912" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">进入可回收区、对象保活与共享状态协议同样必要；pause 不是任意线程的抢占式暂停。</text>
+<rect x="8" y="8" width="1264" height="944" rx="4" fill="white" stroke="none" stroke-width="1"/>
+<rect x="9" y="9" width="1262" height="94" rx="0" fill="#ffffff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="103" x2="1271" y2="103" stroke="#dce3ea" stroke-width="1"/>
+<text x="40" y="49" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="28" font-weight="600" text-anchor="start">Task 回收窗口：pause → reclaim → resume</text>
+<text x="40" y="80" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">TaskReclaimer 把停稳与恢复包在实际释放资源的外围；capacity shrink 在此后。</text>
+<rect x="70" y="140" width="1140" height="100" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1"/>
+<rect x="70" y="144" width="4" height="92" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="92" y="175" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#326cae" font-size="21" font-weight="600" text-anchor="start">TaskReclaimer::reclaim</text>
+<text x="92" y="208" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">先 lock weak_ptr&lt;Task&gt; 并确认当前状态</text>
+<polyline points="640,250 640,272" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="70" y="282" width="1140" height="100" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1"/>
+<rect x="70" y="286" width="4" height="92" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="92" y="317" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#65537f" font-size="21" font-weight="600" text-anchor="start">task-&gt;requestPause()</text>
+<text x="92" y="350" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">等待 Task 活跃 Driver 停稳；requestor 可以是保栈 suspended</text>
+<polyline points="640,392 640,414" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="70" y="424" width="1140" height="100" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1"/>
+<rect x="70" y="428" width="4" height="92" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="92" y="459" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#326cae" font-size="21" font-weight="600" text-anchor="start">MemoryReclaimer::reclaim</text>
+<text x="92" y="492" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">访问 children，按候选优先级与估算量排序并依次回收</text>
+<polyline points="640,534 640,556" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="70" y="566" width="1140" height="100" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1"/>
+<rect x="70" y="570" width="4" height="92" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="92" y="601" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#65537f" font-size="21" font-weight="600" text-anchor="start">Node / ParallelMemoryReclaimer</text>
+<text x="92" y="634" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">调用线程与 executor 协作，对合适的 peers 执行 op-&gt;reclaim → spill</text>
+<polyline points="640,676 640,698" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="70" y="708" width="1140" height="100" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1"/>
+<rect x="70" y="712" width="4" height="92" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="92" y="743" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#326cae" font-size="21" font-weight="600" text-anchor="start">task-&gt;resume()</text>
+<text x="92" y="776" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">关闭暂停窗口，恢复符合条件的 Driver；异常路径也须收尾</text>
+<rect x="40" y="858" width="1200" height="70" rx="4" fill="#ffffff" stroke="none" stroke-width="1"/><line x1="40.0" y1="858.0" x2="1240.0" y2="858.0" stroke="#dce3ea" stroke-width="1" data-style-decoration="summary-divider"/>
+<text x="60" y="887" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="19" font-weight="600" text-anchor="start">阶段 1 释放 used / reservation；阶段 2 由 participant shrink 归还 root capacity。</text>
+<text x="60" y="912" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">进入可回收区、对象保活与共享状态协议同样必要；pause 不是任意线程的抢占式暂停。</text>
 </svg>

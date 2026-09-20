@@ -1,67 +1,67 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="938" viewBox="0 0 1280 938" role="img" aria-labelledby="title desc">
 <title id="title">一批数据怎样穿过 Scan → FilterProject → Sink</title><desc id="desc">普通并行路径示意：初始无缓存输出；省略重复的控制、阻塞与需求检查。时间由上向下。</desc>
-<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#657386" stroke-width="1.5"/></marker></defs>
 <rect x="0" y="0" width="1280" height="938" rx="0" fill="white" stroke="none" stroke-width="1"/>
-<rect x="8" y="8" width="1264" height="922" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
-<rect x="9" y="9" width="1262" height="94" rx="0" fill="#edf5ff" stroke="none" stroke-width="1"/>
-<line x1="9" y1="103" x2="1271" y2="103" stroke="#d6d3cc" stroke-width="1"/>
-<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">一批数据怎样穿过 Scan → FilterProject → Sink</text>
-<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">普通并行路径示意：初始无缓存输出；省略重复的控制、阻塞与需求检查。时间由上向下。</text>
-<rect x="27" y="140" width="216" height="78" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<rect x="27" y="144" width="4" height="70" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
-<text x="49" y="175" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Driver</text>
-<text x="135" y="202" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="15" font-weight="400" text-anchor="middle">唯一的调用方</text>
-<line x1="135" y1="229" x2="135" y2="805" stroke="#d6d3cc" stroke-width="1" stroke-dasharray="6 5"/>
-<rect x="327" y="140" width="216" height="78" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
-<rect x="327" y="144" width="4" height="70" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
-<text x="349" y="175" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Scan</text>
-<text x="435" y="202" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="15" font-weight="400" text-anchor="middle">source</text>
-<line x1="435" y1="229" x2="435" y2="805" stroke="#d6d3cc" stroke-width="1" stroke-dasharray="6 5"/>
-<rect x="667" y="140" width="216" height="78" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
-<rect x="667" y="144" width="4" height="70" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
-<text x="689" y="175" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">FilterProject</text>
-<text x="775" y="202" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="15" font-weight="400" text-anchor="middle">中间算子</text>
-<line x1="775" y1="229" x2="775" y2="805" stroke="#d6d3cc" stroke-width="1" stroke-dasharray="6 5"/>
-<rect x="1027" y="140" width="216" height="78" rx="4" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
-<rect x="1027" y="144" width="4" height="70" rx="0" fill="#c2410c" stroke="none" stroke-width="1"/>
-<text x="1049" y="175" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Sink</text>
-<text x="1135" y="202" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="15" font-weight="400" text-anchor="middle">末端算子</text>
-<line x1="1135" y1="229" x2="1135" y2="805" stroke="#d6d3cc" stroke-width="1" stroke-dasharray="6 5"/>
-<polyline points="135,266 1135,266" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="8" y="8" width="1264" height="922" rx="4" fill="white" stroke="none" stroke-width="1"/>
+<rect x="9" y="9" width="1262" height="94" rx="0" fill="#ffffff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="103" x2="1271" y2="103" stroke="#dce3ea" stroke-width="1"/>
+<text x="40" y="49" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="28" font-weight="600" text-anchor="start">一批数据怎样穿过 Scan → FilterProject → Sink</text>
+<text x="40" y="80" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">普通并行路径示意：初始无缓存输出；省略重复的控制、阻塞与需求检查。时间由上向下。</text>
+<rect x="27" y="140" width="216" height="78" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1"/>
+<rect x="27" y="144" width="4" height="70" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="49" y="175" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#326cae" font-size="21" font-weight="600" text-anchor="start">Driver</text>
+<text x="135" y="202" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="15" font-weight="400" text-anchor="middle">唯一的调用方</text>
+<line x1="135" y1="229" x2="135" y2="805" stroke="#dce3ea" stroke-width="1" stroke-dasharray="6 5"/>
+<rect x="327" y="140" width="216" height="78" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1"/>
+<rect x="327" y="144" width="4" height="70" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="349" y="175" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#2e7963" font-size="21" font-weight="600" text-anchor="start">Scan</text>
+<text x="435" y="202" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="15" font-weight="400" text-anchor="middle">source</text>
+<line x1="435" y1="229" x2="435" y2="805" stroke="#dce3ea" stroke-width="1" stroke-dasharray="6 5"/>
+<rect x="667" y="140" width="216" height="78" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1"/>
+<rect x="667" y="144" width="4" height="70" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="689" y="175" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#65537f" font-size="21" font-weight="600" text-anchor="start">FilterProject</text>
+<text x="775" y="202" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="15" font-weight="400" text-anchor="middle">中间算子</text>
+<line x1="775" y1="229" x2="775" y2="805" stroke="#dce3ea" stroke-width="1" stroke-dasharray="6 5"/>
+<rect x="1027" y="140" width="216" height="78" rx="4" fill="#faf7ef" stroke="#ac9c76" stroke-width="1"/>
+<rect x="1027" y="144" width="4" height="70" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="1049" y="175" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#877951" font-size="21" font-weight="600" text-anchor="start">Sink</text>
+<text x="1135" y="202" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="15" font-weight="400" text-anchor="middle">末端算子</text>
+<line x1="1135" y1="229" x2="1135" y2="805" stroke="#dce3ea" stroke-width="1" stroke-dasharray="6 5"/>
+<polyline points="135,266 1135,266" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
 <rect x="575.5" y="237" width="119" height="24" rx="0" fill="white" stroke="none" stroke-width="1"/>
-<text x="635.0" y="256" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">getOutput()</text>
-<polyline points="1135,304 135,304" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="635.0" y="256" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="17" font-weight="400" text-anchor="middle">getOutput()</text>
+<polyline points="1135,304 135,304" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
 <rect x="551.0" y="275" width="168" height="24" rx="0" fill="white" stroke="none" stroke-width="1"/>
-<text x="635.0" y="294" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">nullptr，尚未完成</text>
-<polyline points="135,352 1135,352" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="635.0" y="294" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="17" font-weight="400" text-anchor="middle">nullptr，尚未完成</text>
+<polyline points="135,352 1135,352" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
 <rect x="535.5" y="323" width="199" height="24" rx="0" fill="white" stroke="none" stroke-width="1"/>
-<text x="635.0" y="342" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">needsInput() → true</text>
-<polyline points="135,399 775,399" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="635.0" y="342" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="17" font-weight="400" text-anchor="middle">needsInput() → true</text>
+<polyline points="135,399 775,399" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
 <rect x="295.5" y="370" width="319" height="24" rx="0" fill="white" stroke="none" stroke-width="1"/>
-<text x="455.0" y="389" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">getOutput() → nullptr，需更多输入</text>
-<polyline points="135,450 775,450" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="455.0" y="389" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="17" font-weight="400" text-anchor="middle">getOutput() → nullptr，需更多输入</text>
+<polyline points="135,450 775,450" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
 <rect x="355.5" y="421" width="199" height="24" rx="0" fill="white" stroke="none" stroke-width="1"/>
-<text x="455.0" y="440" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">needsInput() → true</text>
-<polyline points="135,501 435,501" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="455.0" y="440" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="17" font-weight="400" text-anchor="middle">needsInput() → true</text>
+<polyline points="135,501 435,501" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
 <rect x="225.5" y="472" width="119" height="24" rx="0" fill="white" stroke="none" stroke-width="1"/>
-<text x="285.0" y="491" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">getOutput()</text>
-<polyline points="435,540 135,540" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="285.0" y="491" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="17" font-weight="400" text-anchor="middle">getOutput()</text>
+<polyline points="435,540 135,540" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
 <rect x="243.5" y="511" width="83" height="24" rx="0" fill="white" stroke="none" stroke-width="1"/>
-<text x="285.0" y="530" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">batch A</text>
-<polyline points="135,591 775,591" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="285.0" y="530" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="17" font-weight="400" text-anchor="middle">batch A</text>
+<polyline points="135,591 775,591" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
 <rect x="368.5" y="562" width="173" height="24" rx="0" fill="white" stroke="none" stroke-width="1"/>
-<text x="455.0" y="581" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">addInput(batch A)</text>
-<polyline points="135,646 775,646" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="455.0" y="581" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="17" font-weight="400" text-anchor="middle">addInput(batch A)</text>
+<polyline points="135,646 775,646" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
 <rect x="395.5" y="617" width="119" height="24" rx="0" fill="white" stroke="none" stroke-width="1"/>
-<text x="455.0" y="636" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">getOutput()</text>
-<polyline points="775,685 135,685" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="455.0" y="636" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="17" font-weight="400" text-anchor="middle">getOutput()</text>
+<polyline points="775,685 135,685" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
 <rect x="413.5" y="656" width="83" height="24" rx="0" fill="white" stroke="none" stroke-width="1"/>
-<text x="455.0" y="675" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">batch B</text>
-<polyline points="135,748 1135,748" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="455.0" y="675" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="17" font-weight="400" text-anchor="middle">batch B</text>
+<polyline points="135,748 1135,748" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
 <rect x="548.5" y="719" width="173" height="24" rx="0" fill="white" stroke="none" stroke-width="1"/>
-<text x="635.0" y="738" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" font-weight="400" text-anchor="middle">addInput(batch B)</text>
-<text x="640" y="800" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="18" font-weight="400" text-anchor="middle">传递后 i += 2，再经循环 --i：净前进到下游算子。</text>
-<rect x="40" y="836" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
-<text x="60" y="865" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">下游表达需求，Driver 从上游取批次，再把批次交给下游。</text>
-<text x="60" y="890" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">nullptr 后还要检查阻塞与完成状态；它本身不代表让出线程或整个 pipeline 结束。</text>
+<text x="635.0" y="738" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="17" font-weight="400" text-anchor="middle">addInput(batch B)</text>
+<text x="640" y="800" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="18" font-weight="400" text-anchor="middle">传递后 i += 2，再经循环 --i：净前进到下游算子。</text>
+<rect x="40" y="836" width="1200" height="70" rx="4" fill="#ffffff" stroke="none" stroke-width="1"/><line x1="40.0" y1="836.0" x2="1240.0" y2="836.0" stroke="#dce3ea" stroke-width="1" data-style-decoration="summary-divider"/>
+<text x="60" y="865" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="19" font-weight="600" text-anchor="start">下游表达需求，Driver 从上游取批次，再把批次交给下游。</text>
+<text x="60" y="890" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">nullptr 后还要检查阻塞与完成状态；它本身不代表让出线程或整个 pipeline 结束。</text>
 </svg>

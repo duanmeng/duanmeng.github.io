@@ -1,81 +1,81 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="920" viewBox="0 0 1280 920" role="img" aria-labelledby="title desc">
 <title id="title">从 I/O 到计算：类型元数据与值一同向前</title><desc id="desc">kind 用于分派，C++ T 用于实现；完整逻辑 Type 在执行边界持续存在</desc>
-<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#657386" stroke-width="1.5"/></marker></defs>
 <rect x="0" y="0" width="1280" height="920" rx="0" fill="white" stroke="none" stroke-width="1"/>
-<rect x="8" y="8" width="1264" height="904" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
-<rect x="9" y="9" width="1262" height="94" rx="0" fill="#edf5ff" stroke="none" stroke-width="1"/>
-<line x1="9" y1="103" x2="1271" y2="103" stroke="#d6d3cc" stroke-width="1"/>
-<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">从 I/O 到计算：类型元数据与值一同向前</text>
-<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">kind 用于分派，C++ T 用于实现；完整逻辑 Type 在执行边界持续存在</text>
-<rect x="40" y="137" width="220" height="54" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<text x="150.0" y="171" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="600" text-anchor="middle">文件</text>
-<rect x="285" y="137" width="220" height="54" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<text x="395.0" y="171" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="600" text-anchor="middle">Reader</text>
-<rect x="530" y="137" width="220" height="54" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<text x="640.0" y="171" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="600" text-anchor="middle">Vector / Scan</text>
-<rect x="775" y="137" width="220" height="54" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<text x="885.0" y="171" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="600" text-anchor="middle">Function / Operator</text>
-<rect x="1020" y="137" width="220" height="54" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<text x="1130.0" y="171" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="600" text-anchor="middle">输出边界</text>
-<text x="40" y="240" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">类型与元数据</text>
-<rect x="40" y="266" width="220" height="143" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
-<text x="55" y="302" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="600" text-anchor="start">Parquet schema</text>
-<text x="55" y="337" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="400" text-anchor="start">INT64 + DECIMAL</text>
-<text x="55" y="372" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="400" text-anchor="start">precision / scale</text>
-<rect x="285" y="266" width="220" height="143" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
-<text x="300" y="302" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="600" text-anchor="start">fileType</text>
-<text x="300" y="337" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="400" text-anchor="start">requestedType</text>
-<text x="300" y="372" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="400" text-anchor="start">兼容性检查</text>
-<rect x="530" y="266" width="220" height="143" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
-<text x="545" y="302" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="600" text-anchor="start">RowTypePtr</text>
-<text x="545" y="337" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="400" text-anchor="start">child TypePtr</text>
-<text x="545" y="372" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="400" text-anchor="start">完整逻辑类型</text>
-<rect x="775" y="266" width="220" height="143" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
-<text x="790" y="302" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="600" text-anchor="start">TypedExpr</text>
-<text x="790" y="337" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="400" text-anchor="start">signature / Type</text>
-<text x="790" y="372" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="400" text-anchor="start">参数与语义</text>
-<rect x="1020" y="266" width="220" height="143" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
-<text x="1035" y="302" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="600" text-anchor="start">输出 schema</text>
-<text x="1035" y="337" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="400" text-anchor="start">Arrow / file type</text>
-<text x="1035" y="372" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="400" text-anchor="start">格式映射</text>
-<polyline points="260,337 285,337" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<polyline points="505,337 530,337" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<polyline points="750,337 775,337" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<polyline points="995,337 1020,337" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<text x="40" y="464" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">值与实现</text>
-<rect x="40" y="490" width="220" height="143" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
-<text x="55" y="526" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="600" text-anchor="start">pages / bytes</text>
-<text x="55" y="561" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="400" text-anchor="start">encoding</text>
-<text x="55" y="596" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="400" text-anchor="start">levels / nulls</text>
-<polyline points="150.0,409 150.0,490" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="285" y="490" width="220" height="143" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
-<text x="300" y="526" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="600" text-anchor="start">解码与必要转换</text>
-<text x="300" y="561" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="400" text-anchor="start">unscaled 整数</text>
-<text x="300" y="596" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="400" text-anchor="start">重建嵌套 / null</text>
-<polyline points="395.0,409 395.0,490" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="530" y="490" width="220" height="143" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
-<text x="545" y="526" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="600" text-anchor="start">buffers / indices</text>
-<text x="545" y="561" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="400" text-anchor="start">Flat / Dictionary</text>
-<text x="545" y="596" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="400" text-anchor="start">Lazy / children</text>
-<polyline points="640.0,409 640.0,490" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="775" y="490" width="220" height="143" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
-<text x="790" y="526" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="600" text-anchor="start">native / view</text>
-<text x="790" y="561" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="400" text-anchor="start">整数运算与缩放</text>
-<text x="790" y="596" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="400" text-anchor="start">hash / compare</text>
-<polyline points="885.0,409 885.0,490" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="1020" y="490" width="220" height="143" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
-<text x="1035" y="526" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="600" text-anchor="start">结果 Vector</text>
-<text x="1035" y="561" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="400" text-anchor="start">序列化 / 写出</text>
-<text x="1035" y="596" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="400" text-anchor="start">布局与所有权</text>
-<polyline points="1130.0,409 1130.0,490" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<polyline points="260,561 285,561" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<polyline points="505,561 530,561" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<polyline points="750,561 775,561" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<polyline points="995,561 1020,561" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="40" y="695" width="1200" height="100" rx="4" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
-<rect x="40" y="699" width="4" height="92" rx="0" fill="#c2410c" stroke="none" stroke-width="1"/>
-<text x="62" y="730" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">不是一条“logical → physical → C++ → 猜回 logical”的单向管线</text>
-<text x="62" y="763" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">查询 schema 与格式 schema 在边界映射；执行中 Type 与数据表示各有职责。</text>
-<rect x="40" y="818" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
-<text x="60" y="847" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">文件物理类型 ≠ Velox backing kind ≠ Vector encoding。</text>
+<rect x="8" y="8" width="1264" height="904" rx="4" fill="white" stroke="none" stroke-width="1"/>
+<rect x="9" y="9" width="1262" height="94" rx="0" fill="#ffffff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="103" x2="1271" y2="103" stroke="#dce3ea" stroke-width="1"/>
+<text x="40" y="49" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="28" font-weight="600" text-anchor="start">从 I/O 到计算：类型元数据与值一同向前</text>
+<text x="40" y="80" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">kind 用于分派，C++ T 用于实现；完整逻辑 Type 在执行边界持续存在</text>
+<rect x="40" y="137" width="220" height="54" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1"/>
+<text x="150.0" y="171" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#326cae" font-size="20" font-weight="600" text-anchor="middle">文件</text>
+<rect x="285" y="137" width="220" height="54" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1"/>
+<text x="395.0" y="171" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#326cae" font-size="20" font-weight="600" text-anchor="middle">Reader</text>
+<rect x="530" y="137" width="220" height="54" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1"/>
+<text x="640.0" y="171" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#326cae" font-size="20" font-weight="600" text-anchor="middle">Vector / Scan</text>
+<rect x="775" y="137" width="220" height="54" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1"/>
+<text x="885.0" y="171" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#326cae" font-size="20" font-weight="600" text-anchor="middle">Function / Operator</text>
+<rect x="1020" y="137" width="220" height="54" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1"/>
+<text x="1130.0" y="171" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#326cae" font-size="20" font-weight="600" text-anchor="middle">输出边界</text>
+<text x="40" y="240" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">类型与元数据</text>
+<rect x="40" y="266" width="220" height="143" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1"/>
+<text x="55" y="302" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#2e7963" font-size="18" font-weight="600" text-anchor="start">Parquet schema</text>
+<text x="55" y="337" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="18" font-weight="400" text-anchor="start">INT64 + DECIMAL</text>
+<text x="55" y="372" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="18" font-weight="400" text-anchor="start">precision / scale</text>
+<rect x="285" y="266" width="220" height="143" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1"/>
+<text x="300" y="302" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#2e7963" font-size="18" font-weight="600" text-anchor="start">fileType</text>
+<text x="300" y="337" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="18" font-weight="400" text-anchor="start">requestedType</text>
+<text x="300" y="372" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="18" font-weight="400" text-anchor="start">兼容性检查</text>
+<rect x="530" y="266" width="220" height="143" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1"/>
+<text x="545" y="302" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#2e7963" font-size="18" font-weight="600" text-anchor="start">RowTypePtr</text>
+<text x="545" y="337" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="18" font-weight="400" text-anchor="start">child TypePtr</text>
+<text x="545" y="372" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="18" font-weight="400" text-anchor="start">完整逻辑类型</text>
+<rect x="775" y="266" width="220" height="143" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1"/>
+<text x="790" y="302" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#2e7963" font-size="18" font-weight="600" text-anchor="start">TypedExpr</text>
+<text x="790" y="337" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="18" font-weight="400" text-anchor="start">signature / Type</text>
+<text x="790" y="372" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="18" font-weight="400" text-anchor="start">参数与语义</text>
+<rect x="1020" y="266" width="220" height="143" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1"/>
+<text x="1035" y="302" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#2e7963" font-size="18" font-weight="600" text-anchor="start">输出 schema</text>
+<text x="1035" y="337" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="18" font-weight="400" text-anchor="start">Arrow / file type</text>
+<text x="1035" y="372" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="18" font-weight="400" text-anchor="start">格式映射</text>
+<polyline points="260,337 285,337" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<polyline points="505,337 530,337" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<polyline points="750,337 775,337" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<polyline points="995,337 1020,337" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="40" y="464" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">值与实现</text>
+<rect x="40" y="490" width="220" height="143" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1"/>
+<text x="55" y="526" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#65537f" font-size="18" font-weight="600" text-anchor="start">pages / bytes</text>
+<text x="55" y="561" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="18" font-weight="400" text-anchor="start">encoding</text>
+<text x="55" y="596" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="18" font-weight="400" text-anchor="start">levels / nulls</text>
+<polyline points="150.0,409 150.0,490" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="285" y="490" width="220" height="143" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1"/>
+<text x="300" y="526" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#65537f" font-size="18" font-weight="600" text-anchor="start">解码与必要转换</text>
+<text x="300" y="561" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="18" font-weight="400" text-anchor="start">unscaled 整数</text>
+<text x="300" y="596" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="18" font-weight="400" text-anchor="start">重建嵌套 / null</text>
+<polyline points="395.0,409 395.0,490" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="530" y="490" width="220" height="143" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1"/>
+<text x="545" y="526" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#65537f" font-size="18" font-weight="600" text-anchor="start">buffers / indices</text>
+<text x="545" y="561" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="18" font-weight="400" text-anchor="start">Flat / Dictionary</text>
+<text x="545" y="596" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="18" font-weight="400" text-anchor="start">Lazy / children</text>
+<polyline points="640.0,409 640.0,490" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="775" y="490" width="220" height="143" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1"/>
+<text x="790" y="526" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#65537f" font-size="18" font-weight="600" text-anchor="start">native / view</text>
+<text x="790" y="561" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="18" font-weight="400" text-anchor="start">整数运算与缩放</text>
+<text x="790" y="596" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="18" font-weight="400" text-anchor="start">hash / compare</text>
+<polyline points="885.0,409 885.0,490" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="1020" y="490" width="220" height="143" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1"/>
+<text x="1035" y="526" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#65537f" font-size="18" font-weight="600" text-anchor="start">结果 Vector</text>
+<text x="1035" y="561" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="18" font-weight="400" text-anchor="start">序列化 / 写出</text>
+<text x="1035" y="596" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="18" font-weight="400" text-anchor="start">布局与所有权</text>
+<polyline points="1130.0,409 1130.0,490" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<polyline points="260,561 285,561" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<polyline points="505,561 530,561" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<polyline points="750,561 775,561" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<polyline points="995,561 1020,561" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="40" y="695" width="1200" height="100" rx="4" fill="#faf7ef" stroke="#ac9c76" stroke-width="1"/>
+<rect x="40" y="699" width="4" height="92" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="62" y="730" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#877951" font-size="21" font-weight="600" text-anchor="start">不是一条“logical → physical → C++ → 猜回 logical”的单向管线</text>
+<text x="62" y="763" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">查询 schema 与格式 schema 在边界映射；执行中 Type 与数据表示各有职责。</text>
+<rect x="40" y="818" width="1200" height="70" rx="4" fill="#ffffff" stroke="none" stroke-width="1"/><line x1="40.0" y1="818.0" x2="1240.0" y2="818.0" stroke="#dce3ea" stroke-width="1" data-style-decoration="summary-divider"/>
+<text x="60" y="847" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="19" font-weight="600" text-anchor="start">文件物理类型 ≠ Velox backing kind ≠ Vector encoding。</text>
 </svg>

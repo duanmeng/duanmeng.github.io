@@ -1,63 +1,63 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="910" viewBox="0 0 1280 910" role="img" aria-labelledby="title desc">
 <title id="title">Merge 的轮次推进与阶段切换</title><desc id="desc">图中是根据字段和控制流归纳的状态，不是源码中的 enum</desc>
-<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#657386" stroke-width="1.5"/></marker></defs>
 <rect x="0" y="0" width="1280" height="910" rx="0" fill="white" stroke="none" stroke-width="1"/>
-<rect x="8" y="8" width="1264" height="894" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
-<rect x="9" y="9" width="1262" height="94" rx="0" fill="#edf5ff" stroke="none" stroke-width="1"/>
-<line x1="9" y1="103" x2="1271" y2="103" stroke="#d6d3cc" stroke-width="1"/>
-<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">Merge 的轮次推进与阶段切换</text>
-<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">图中是根据字段和控制流归纳的状态，不是源码中的 enum</text>
-<rect x="40" y="142" width="340" height="113" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<rect x="40" y="146" width="4" height="105" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
-<text x="60" y="176" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="400" text-anchor="start">等待下一组</text>
-<text x="60" y="207" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">sourceMerger_ == nullptr</text>
-<text x="60" y="234" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">numStartedSources_ &lt; N</text>
-<polyline points="380,198 457,198" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="457" y="142" width="370" height="113" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<rect x="457" y="146" width="4" height="105" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
-<text x="477" y="176" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="400" text-anchor="start">启动至多 F 路</text>
-<text x="477" y="207" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">建立 SourceMerger，再 start sources</text>
-<text x="477" y="234" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">numStartedSources_ 向后推进</text>
-<polyline points="827,198 880,198" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="880" y="142" width="360" height="113" rx="4" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
-<rect x="880" y="146" width="4" height="105" rx="0" fill="#c2410c" stroke="none" stroke-width="1"/>
-<text x="900" y="176" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="400" text-anchor="start">当前组归并</text>
-<text x="900" y="207" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">有序批次 → MergeSpiller</text>
-<text x="900" y="234" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">N &gt; F 时每批均写 spill</text>
-<polyline points="1060,255 1060,322" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="880" y="322" width="360" height="116" rx="4" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
-<rect x="880" y="326" width="4" height="108" rx="0" fill="#c2410c" stroke="none" stroke-width="1"/>
-<text x="900" y="356" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="400" text-anchor="start">当前组 EOF</text>
-<text x="900" y="387" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">finishSpill → 一个非空文件组</text>
-<text x="900" y="414" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">重置 sourceMerger_ / spiller</text>
-<polyline points="880,377 690,377" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="370" y="322" width="320" height="116" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
-<rect x="370" y="326" width="4" height="108" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
-<text x="390" y="356" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="400" text-anchor="start">仍有未启动 source？</text>
-<text x="390" y="387" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">是：进入下一轮</text>
-<text x="390" y="414" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">否：阶段 1 完成</text>
-<polyline points="370,380 208,380 208,255" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<text x="233" y="357" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#7e22ce" font-size="18" font-weight="400" text-anchor="start">是</text>
-<polyline points="530,438 530,509" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<text x="550" y="480" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#7e22ce" font-size="17" font-weight="400" text-anchor="start">否，且至少 spill 过一行</text>
-<rect x="270" y="509" width="530" height="112" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
-<rect x="270" y="513" width="4" height="104" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
-<text x="290" y="543" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="400" text-anchor="start">setupSpillMerger()</text>
-<text x="290" y="574" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">全部文件组建立 BatchStream 和本地队列</text>
-<text x="290" y="601" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">一次性启动最终读回，G 路 SourceMerger</text>
-<polyline points="530,621 530,670" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="270" y="670" width="530" height="87" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
-<rect x="270" y="674" width="4" height="79" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
-<text x="290" y="704" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="400" text-anchor="start">最终输出 → EOF → finished_</text>
-<text x="290" y="735" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">检测异步错误后才确认成功结束</text>
-<rect x="865" y="540" width="375" height="185" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
-<rect x="865" y="544" width="4" height="177" rx="0" fill="#d6d3cc" stroke="none" stroke-width="1"/>
-<text x="885" y="574" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="400" text-anchor="start">两个直接结束分支</text>
-<text x="885" y="605" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">N ≤ F：普通流式归并，直接输出</text>
-<text x="885" y="632" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">没有任何输入行：不建 SpillMerger</text>
-<text x="885" y="659" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">第二阶段不按 F 再次拆组</text>
-<text x="885" y="686" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">最后一个原始输入组也必须 spill</text>
-<rect x="40" y="808" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
-<text x="60" y="837" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">needSpill() 判断的是 F &lt; 总 source 数，不是本轮剩余 source 数</text>
-<text x="60" y="862" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">这保证所有原始输入先成为完整有序 run，再统一参与最终归并。</text>
+<rect x="8" y="8" width="1264" height="894" rx="4" fill="white" stroke="none" stroke-width="1"/>
+<rect x="9" y="9" width="1262" height="94" rx="0" fill="#ffffff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="103" x2="1271" y2="103" stroke="#dce3ea" stroke-width="1"/>
+<text x="40" y="49" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="28" font-weight="600" text-anchor="start">Merge 的轮次推进与阶段切换</text>
+<text x="40" y="80" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">图中是根据字段和控制流归纳的状态，不是源码中的 enum</text>
+<rect x="40" y="142" width="340" height="113" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1"/>
+<rect x="40" y="146" width="4" height="105" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="60" y="176" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#326cae" font-size="20" font-weight="400" text-anchor="start">等待下一组</text>
+<text x="60" y="207" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">sourceMerger_ == nullptr</text>
+<text x="60" y="234" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">numStartedSources_ &lt; N</text>
+<polyline points="380,198 457,198" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="457" y="142" width="370" height="113" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1"/>
+<rect x="457" y="146" width="4" height="105" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="477" y="176" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#326cae" font-size="20" font-weight="400" text-anchor="start">启动至多 F 路</text>
+<text x="477" y="207" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">建立 SourceMerger，再 start sources</text>
+<text x="477" y="234" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">numStartedSources_ 向后推进</text>
+<polyline points="827,198 880,198" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="880" y="142" width="360" height="113" rx="4" fill="#faf7ef" stroke="#ac9c76" stroke-width="1"/>
+<rect x="880" y="146" width="4" height="105" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="900" y="176" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#877951" font-size="20" font-weight="400" text-anchor="start">当前组归并</text>
+<text x="900" y="207" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">有序批次 → MergeSpiller</text>
+<text x="900" y="234" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">N &gt; F 时每批均写 spill</text>
+<polyline points="1060,255 1060,322" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="880" y="322" width="360" height="116" rx="4" fill="#faf7ef" stroke="#ac9c76" stroke-width="1"/>
+<rect x="880" y="326" width="4" height="108" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="900" y="356" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#877951" font-size="20" font-weight="400" text-anchor="start">当前组 EOF</text>
+<text x="900" y="387" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">finishSpill → 一个非空文件组</text>
+<text x="900" y="414" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">重置 sourceMerger_ / spiller</text>
+<polyline points="880,377 690,377" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="370" y="322" width="320" height="116" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1"/>
+<rect x="370" y="326" width="4" height="108" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="390" y="356" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#65537f" font-size="20" font-weight="400" text-anchor="start">仍有未启动 source？</text>
+<text x="390" y="387" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">是：进入下一轮</text>
+<text x="390" y="414" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">否：阶段 1 完成</text>
+<polyline points="370,380 208,380 208,255" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="233" y="357" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#8d76b7" font-size="18" font-weight="400" text-anchor="start">是</text>
+<polyline points="530,438 530,509" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="550" y="480" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#8d76b7" font-size="17" font-weight="400" text-anchor="start">否，且至少 spill 过一行</text>
+<rect x="270" y="509" width="530" height="112" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1"/>
+<rect x="270" y="513" width="4" height="104" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="290" y="543" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#2e7963" font-size="20" font-weight="400" text-anchor="start">setupSpillMerger()</text>
+<text x="290" y="574" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">全部文件组建立 BatchStream 和本地队列</text>
+<text x="290" y="601" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">一次性启动最终读回，G 路 SourceMerger</text>
+<polyline points="530,621 530,670" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="270" y="670" width="530" height="87" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1"/>
+<rect x="270" y="674" width="4" height="79" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="290" y="704" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#2e7963" font-size="20" font-weight="400" text-anchor="start">最终输出 → EOF → finished_</text>
+<text x="290" y="735" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">检测异步错误后才确认成功结束</text>
+<rect x="865" y="540" width="375" height="185" rx="4" fill="#faf7ef" stroke="#dce3ea" stroke-width="1"/>
+<rect x="865" y="544" width="4" height="177" rx="0" fill="#dce3ea" stroke="none" stroke-width="1"/>
+<text x="885" y="574" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="20" font-weight="400" text-anchor="start">两个直接结束分支</text>
+<text x="885" y="605" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">N ≤ F：普通流式归并，直接输出</text>
+<text x="885" y="632" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">没有任何输入行：不建 SpillMerger</text>
+<text x="885" y="659" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">第二阶段不按 F 再次拆组</text>
+<text x="885" y="686" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">最后一个原始输入组也必须 spill</text>
+<rect x="40" y="808" width="1200" height="70" rx="4" fill="#ffffff" stroke="none" stroke-width="1"/><line x1="40.0" y1="808.0" x2="1240.0" y2="808.0" stroke="#dce3ea" stroke-width="1" data-style-decoration="summary-divider"/>
+<text x="60" y="837" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="19" font-weight="600" text-anchor="start">needSpill() 判断的是 F &lt; 总 source 数，不是本轮剩余 source 数</text>
+<text x="60" y="862" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">这保证所有原始输入先成为完整有序 run，再统一参与最终归并。</text>
 </svg>

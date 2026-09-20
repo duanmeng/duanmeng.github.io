@@ -1,62 +1,62 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="886" viewBox="0 0 1280 886" role="img" aria-labelledby="title desc">
 <title id="title">Driver 的调度状态：线程、等待与关闭</title><desc id="desc">ThreadState 是多个字段的组合。下图概括常见路径，不把它们当成单一 enum。</desc>
-<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#657386" stroke-width="1.5"/></marker></defs>
 <rect x="0" y="0" width="1280" height="886" rx="0" fill="white" stroke="none" stroke-width="1"/>
-<rect x="8" y="8" width="1264" height="870" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
-<rect x="9" y="9" width="1262" height="94" rx="0" fill="#edf5ff" stroke="none" stroke-width="1"/>
-<line x1="9" y1="103" x2="1271" y2="103" stroke="#d6d3cc" stroke-width="1"/>
-<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">Driver 的调度状态：线程、等待与关闭</text>
-<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">ThreadState 是多个字段的组合。下图概括常见路径，不把它们当成单一 enum。</text>
-<rect x="45" y="162" width="280" height="89" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<rect x="45" y="166" width="4" height="81" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
-<text x="67" y="197" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Created</text>
-<text x="67" y="230" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">off thread，等待启动</text>
-<rect x="475" y="162" width="310" height="89" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
-<rect x="475" y="166" width="4" height="81" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
-<text x="497" y="197" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Enqueued</text>
-<text x="497" y="230" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">isEnqueued = true</text>
-<polyline points="338,206 462,206" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<text x="400" y="185" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="middle">enqueue</text>
-<rect x="45" y="346" width="740" height="308" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
-<text x="68" y="378" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="23" font-weight="600" text-anchor="start">On thread · thread 字段已设置</text>
-<rect x="76" y="413" width="276" height="94" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
-<rect x="76" y="417" width="4" height="86" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
-<text x="98" y="448" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">执行算子</text>
-<text x="98" y="481" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">numSuspensions = 0</text>
-<rect x="476" y="413" width="276" height="94" rx="4" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
-<rect x="476" y="417" width="4" height="86" rx="0" fill="#c2410c" stroke="none" stroke-width="1"/>
-<text x="498" y="448" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Suspended</text>
-<text x="498" y="481" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">numSuspensions &gt; 0</text>
-<polyline points="364,458 464,458" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)" marker-start="url(#arrow)"/>
-<text x="414" y="430" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="16" font-weight="400" text-anchor="middle">保留栈</text>
-<text x="74" y="565" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="400" text-anchor="start">首次 enterSuspended：numThreads_ 减 1</text>
-<text x="74" y="601" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="400" text-anchor="start">最后一层 leaveSuspended：恢复计数；原线程继续</text>
-<polyline points="630,263 630,304 214,304 214,334" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<text x="340" y="289" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="18" font-weight="400" text-anchor="start">Task::enter → kNone</text>
-<polyline points="768,334 768,276 756,276 756,263" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<text x="799" y="300" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">kYield → 重新入队</text>
-<rect x="940" y="346" width="300" height="94" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
-<rect x="940" y="350" width="4" height="86" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
-<text x="962" y="381" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Blocked</text>
-<text x="962" y="414" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">等待 future</text>
-<polyline points="799,390 928,390" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<text x="859" y="369" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="middle">kBlock</text>
-<polyline points="1090,334 1090,206 798,206" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<text x="1104" y="281" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">future 就绪</text>
-<rect x="940" y="504" width="300" height="114" rx="4" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
-<rect x="940" y="508" width="4" height="106" rx="0" fill="#c2410c" stroke="none" stroke-width="1"/>
-<text x="962" y="539" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">因 pause 停下</text>
-<text x="962" y="572" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">off thread，等待恢复</text>
-<text x="962" y="599" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">resume 按条件重新入队</text>
-<polyline points="799,551 928,551" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<text x="859" y="530" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="middle">kPause</text>
-<rect x="940" y="668" width="300" height="79" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
-<rect x="940" y="672" width="4" height="71" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
-<text x="962" y="703" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Closed</text>
-<text x="962" y="736" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">closed_ = true</text>
-<polyline points="640,666 640,707 928,707" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<text x="770" y="693" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="middle">完成 / 安全终止</text>
-<rect x="40" y="784" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
-<text x="60" y="813" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">Suspended 仍占有原线程和调用栈；Block / Yield / Pause 则离开本轮执行。</text>
-<text x="60" y="838" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">终止可以发生在多个阶段；isTerminated 可先于关闭置位，pause 中的 off-thread 关闭要等 resume。</text>
+<rect x="8" y="8" width="1264" height="870" rx="4" fill="white" stroke="none" stroke-width="1"/>
+<rect x="9" y="9" width="1262" height="94" rx="0" fill="#ffffff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="103" x2="1271" y2="103" stroke="#dce3ea" stroke-width="1"/>
+<text x="40" y="49" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="28" font-weight="600" text-anchor="start">Driver 的调度状态：线程、等待与关闭</text>
+<text x="40" y="80" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">ThreadState 是多个字段的组合。下图概括常见路径，不把它们当成单一 enum。</text>
+<rect x="45" y="162" width="280" height="89" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1"/>
+<rect x="45" y="166" width="4" height="81" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="67" y="197" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#326cae" font-size="21" font-weight="600" text-anchor="start">Created</text>
+<text x="67" y="230" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">off thread，等待启动</text>
+<rect x="475" y="162" width="310" height="89" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1"/>
+<rect x="475" y="166" width="4" height="81" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="497" y="197" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#65537f" font-size="21" font-weight="600" text-anchor="start">Enqueued</text>
+<text x="497" y="230" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">isEnqueued = true</text>
+<polyline points="338,206 462,206" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="400" y="185" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="middle">enqueue</text>
+<rect x="45" y="346" width="740" height="308" rx="4" fill="white" stroke="#dce3ea" stroke-width="1"/>
+<text x="68" y="378" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="23" font-weight="600" text-anchor="start">On thread · thread 字段已设置</text>
+<rect x="76" y="413" width="276" height="94" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1"/>
+<rect x="76" y="417" width="4" height="86" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="98" y="448" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#2e7963" font-size="21" font-weight="600" text-anchor="start">执行算子</text>
+<text x="98" y="481" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">numSuspensions = 0</text>
+<rect x="476" y="413" width="276" height="94" rx="4" fill="#faf7ef" stroke="#ac9c76" stroke-width="1"/>
+<rect x="476" y="417" width="4" height="86" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="498" y="448" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#877951" font-size="21" font-weight="600" text-anchor="start">Suspended</text>
+<text x="498" y="481" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">numSuspensions &gt; 0</text>
+<polyline points="364,458 464,458" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)" marker-start="url(#arrow)"/>
+<text x="414" y="430" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="16" font-weight="400" text-anchor="middle">保留栈</text>
+<text x="74" y="565" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="19" font-weight="400" text-anchor="start">首次 enterSuspended：numThreads_ 减 1</text>
+<text x="74" y="601" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="19" font-weight="400" text-anchor="start">最后一层 leaveSuspended：恢复计数；原线程继续</text>
+<polyline points="630,263 630,304 214,304 214,334" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="340" y="289" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="18" font-weight="400" text-anchor="start">Task::enter → kNone</text>
+<polyline points="768,334 768,276 756,276 756,263" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="799" y="300" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">kYield → 重新入队</text>
+<rect x="940" y="346" width="300" height="94" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1"/>
+<rect x="940" y="350" width="4" height="86" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="962" y="381" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#65537f" font-size="21" font-weight="600" text-anchor="start">Blocked</text>
+<text x="962" y="414" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">等待 future</text>
+<polyline points="799,390 928,390" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="859" y="369" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="middle">kBlock</text>
+<polyline points="1090,334 1090,206 798,206" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="1104" y="281" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">future 就绪</text>
+<rect x="940" y="504" width="300" height="114" rx="4" fill="#faf7ef" stroke="#ac9c76" stroke-width="1"/>
+<rect x="940" y="508" width="4" height="106" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="962" y="539" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#877951" font-size="21" font-weight="600" text-anchor="start">因 pause 停下</text>
+<text x="962" y="572" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">off thread，等待恢复</text>
+<text x="962" y="599" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">resume 按条件重新入队</text>
+<polyline points="799,551 928,551" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="859" y="530" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="middle">kPause</text>
+<rect x="940" y="668" width="300" height="79" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1"/>
+<rect x="940" y="672" width="4" height="71" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="962" y="703" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#2e7963" font-size="21" font-weight="600" text-anchor="start">Closed</text>
+<text x="962" y="736" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">closed_ = true</text>
+<polyline points="640,666 640,707 928,707" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="770" y="693" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="middle">完成 / 安全终止</text>
+<rect x="40" y="784" width="1200" height="70" rx="4" fill="#ffffff" stroke="none" stroke-width="1"/><line x1="40.0" y1="784.0" x2="1240.0" y2="784.0" stroke="#dce3ea" stroke-width="1" data-style-decoration="summary-divider"/>
+<text x="60" y="813" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="19" font-weight="600" text-anchor="start">Suspended 仍占有原线程和调用栈；Block / Yield / Pause 则离开本轮执行。</text>
+<text x="60" y="838" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">终止可以发生在多个阶段；isTerminated 可先于关闭置位，pause 中的 off-thread 关闭要等 resume。</text>
 </svg>

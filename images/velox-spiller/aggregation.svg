@@ -1,32 +1,32 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="780" viewBox="0 0 1280 780" role="img" aria-labelledby="title desc">
 <title id="title">Aggregation：写出可合并状态</title><desc id="desc">示例是 sum 中间态；复杂 aggregate 使用自己的 spillType。</desc>
-<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#657386" stroke-width="1.5"/></marker></defs>
 <rect x="0" y="0" width="1280" height="780" rx="0" fill="white" stroke="none" stroke-width="1"/>
-<rect x="8" y="8" width="1264" height="764" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
-<rect x="9" y="9" width="1262" height="94" rx="0" fill="#edf5ff" stroke="none" stroke-width="1"/>
-<line x1="9" y1="103" x2="1271" y2="103" stroke="#d6d3cc" stroke-width="1"/>
-<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">Aggregation：写出可合并状态</text>
-<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">示例是 sum 中间态；复杂 aggregate 使用自己的 spillType。</text>
-<rect x="60" y="170" width="460" height="115" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<rect x="60" y="174" width="4" height="107" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
-<text x="82" y="205" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Run A：key = x</text>
-<text x="82" y="238" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">状态 sum = 12</text>
-<rect x="60" y="360" width="460" height="115" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
-<rect x="60" y="364" width="4" height="107" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
-<text x="82" y="395" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Run B：key = x</text>
-<text x="82" y="428" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">状态 sum = 8</text>
-<rect x="665" y="250" width="545" height="140" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
-<rect x="665" y="254" width="4" height="132" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
-<text x="687" y="285" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Ordered merge</text>
-<text x="687" y="318" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">相同 key 连续合并，形成 sum = 20</text>
-<polyline points="535,227 590,227 590,320 650,320" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<polyline points="535,417 590,417 590,320 650,320" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="300" y="525" width="680" height="95" rx="4" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
-<rect x="300" y="529" width="4" height="87" rx="0" fill="#c2410c" stroke="none" stroke-width="1"/>
-<text x="322" y="560" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">key 结束后才输出一个 group</text>
-<text x="322" y="593" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">avg 等聚合必须保存 sum/count 等足够中间态</text>
-<polyline points="940,406 940,475 640,475 640,510" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="40" y="678" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
-<text x="60" y="707" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">Input spill 后要合并不同 run；Output spill 只保存尚未输出的组。</text>
-<text x="60" y="732" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">freezeAndExecute 限制并行提取时修改非线程安全的 aggregate allocator。</text>
+<rect x="8" y="8" width="1264" height="764" rx="4" fill="white" stroke="none" stroke-width="1"/>
+<rect x="9" y="9" width="1262" height="94" rx="0" fill="#ffffff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="103" x2="1271" y2="103" stroke="#dce3ea" stroke-width="1"/>
+<text x="40" y="49" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="28" font-weight="600" text-anchor="start">Aggregation：写出可合并状态</text>
+<text x="40" y="80" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">示例是 sum 中间态；复杂 aggregate 使用自己的 spillType。</text>
+<rect x="60" y="170" width="460" height="115" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1"/>
+<rect x="60" y="174" width="4" height="107" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="82" y="205" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#326cae" font-size="21" font-weight="600" text-anchor="start">Run A：key = x</text>
+<text x="82" y="238" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">状态 sum = 12</text>
+<rect x="60" y="360" width="460" height="115" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1"/>
+<rect x="60" y="364" width="4" height="107" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="82" y="395" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#65537f" font-size="21" font-weight="600" text-anchor="start">Run B：key = x</text>
+<text x="82" y="428" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">状态 sum = 8</text>
+<rect x="665" y="250" width="545" height="140" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1"/>
+<rect x="665" y="254" width="4" height="132" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="687" y="285" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#2e7963" font-size="21" font-weight="600" text-anchor="start">Ordered merge</text>
+<text x="687" y="318" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">相同 key 连续合并，形成 sum = 20</text>
+<polyline points="535,227 590,227 590,320 650,320" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<polyline points="535,417 590,417 590,320 650,320" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="300" y="525" width="680" height="95" rx="4" fill="#faf7ef" stroke="#ac9c76" stroke-width="1"/>
+<rect x="300" y="529" width="4" height="87" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="322" y="560" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#877951" font-size="21" font-weight="600" text-anchor="start">key 结束后才输出一个 group</text>
+<text x="322" y="593" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">avg 等聚合必须保存 sum/count 等足够中间态</text>
+<polyline points="940,406 940,475 640,475 640,510" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="40" y="678" width="1200" height="70" rx="4" fill="#ffffff" stroke="none" stroke-width="1"/><line x1="40.0" y1="678.0" x2="1240.0" y2="678.0" stroke="#dce3ea" stroke-width="1" data-style-decoration="summary-divider"/>
+<text x="60" y="707" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="19" font-weight="600" text-anchor="start">Input spill 后要合并不同 run；Output spill 只保存尚未输出的组。</text>
+<text x="60" y="732" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">freezeAndExecute 限制并行提取时修改非线程安全的 aggregate allocator。</text>
 </svg>

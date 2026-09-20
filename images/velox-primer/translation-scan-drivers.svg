@@ -1,56 +1,56 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="874" viewBox="0 0 1280 874" role="img" aria-labelledby="title desc">
 <title id="title">Part 2 · 一个扫描 Task，多个 Driver 实例</title><desc id="desc">同一 pipeline 的 Operator 序列相同；每个 Driver 拥有各自的 Operator 对象。</desc>
-<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#657386" stroke-width="1.5"/></marker></defs>
 <rect x="0" y="0" width="1280" height="874" rx="0" fill="white" stroke="none" stroke-width="1"/>
-<rect x="8" y="8" width="1264" height="858" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
-<rect x="9" y="9" width="1262" height="94" rx="0" fill="#edf5ff" stroke="none" stroke-width="1"/>
-<line x1="9" y1="103" x2="1271" y2="103" stroke="#d6d3cc" stroke-width="1"/>
-<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">Part 2 · 一个扫描 Task，多个 Driver 实例</text>
-<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">同一 pipeline 的 Operator 序列相同；每个 Driver 拥有各自的 Operator 对象。</text>
-<rect x="45" y="145" width="1190" height="570" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
-<text x="70" y="188" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="25" font-weight="600" text-anchor="start">Task · 一个 TableScan → PartitionedOutput pipeline</text>
-<rect x="75" y="221" width="1130" height="66" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
-<text x="640" y="260" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="400" text-anchor="middle">Split 由 Task 接收；各个 TableScan 获取尚未处理的 Split</text>
-<rect x="90" y="331" width="350" height="350" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
-<text x="112" y="371" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#15803d" font-size="23" font-weight="600" text-anchor="start">Driver 0</text>
-<rect x="110" y="405" width="310" height="82" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<rect x="110" y="409" width="4" height="74" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
-<text x="132" y="440" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">TableScan</text>
-<text x="132" y="473" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">从 DataSource 获得 RowVector</text>
-<rect x="110" y="568" width="310" height="82" rx="4" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
-<rect x="110" y="572" width="4" height="74" rx="0" fill="#c2410c" stroke="none" stroke-width="1"/>
-<text x="132" y="603" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">PartitionedOutput</text>
-<text x="132" y="636" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">按目的地序列化并提交输出</text>
-<polyline points="265,298 265,321" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<polyline points="265,498 265,556" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<text x="284" y="535" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">RowVector</text>
-<rect x="465" y="331" width="350" height="350" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
-<text x="487" y="371" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#15803d" font-size="23" font-weight="600" text-anchor="start">Driver 1</text>
-<rect x="485" y="405" width="310" height="82" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<rect x="485" y="409" width="4" height="74" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
-<text x="507" y="440" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">TableScan</text>
-<text x="507" y="473" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">从 DataSource 获得 RowVector</text>
-<rect x="485" y="568" width="310" height="82" rx="4" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
-<rect x="485" y="572" width="4" height="74" rx="0" fill="#c2410c" stroke="none" stroke-width="1"/>
-<text x="507" y="603" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">PartitionedOutput</text>
-<text x="507" y="636" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">按目的地序列化并提交输出</text>
-<polyline points="640,298 640,321" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<polyline points="640,498 640,556" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<text x="659" y="535" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">RowVector</text>
-<rect x="840" y="331" width="350" height="350" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
-<text x="862" y="371" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#15803d" font-size="23" font-weight="600" text-anchor="start">Driver 4</text>
-<rect x="860" y="405" width="310" height="82" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<rect x="860" y="409" width="4" height="74" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
-<text x="882" y="440" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">TableScan</text>
-<text x="882" y="473" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">从 DataSource 获得 RowVector</text>
-<rect x="860" y="568" width="310" height="82" rx="4" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
-<rect x="860" y="572" width="4" height="74" rx="0" fill="#c2410c" stroke="none" stroke-width="1"/>
-<text x="882" y="603" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">PartitionedOutput</text>
-<text x="882" y="636" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">按目的地序列化并提交输出</text>
-<polyline points="1015,298 1015,321" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<polyline points="1015,498 1015,556" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<text x="1034" y="535" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">RowVector</text>
-<rect x="40" y="772" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
-<text x="60" y="801" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">原文假设该 pipeline 有 5 个 Driver；图中展示其中 3 个。</text>
-<text x="60" y="826" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">Driver 交给线程池 executor 调度；等待 split 或输出空间时可以离开执行线程。</text>
+<rect x="8" y="8" width="1264" height="858" rx="4" fill="white" stroke="none" stroke-width="1"/>
+<rect x="9" y="9" width="1262" height="94" rx="0" fill="#ffffff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="103" x2="1271" y2="103" stroke="#dce3ea" stroke-width="1"/>
+<text x="40" y="49" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="28" font-weight="600" text-anchor="start">Part 2 · 一个扫描 Task，多个 Driver 实例</text>
+<text x="40" y="80" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">同一 pipeline 的 Operator 序列相同；每个 Driver 拥有各自的 Operator 对象。</text>
+<rect x="45" y="145" width="1190" height="570" rx="4" fill="white" stroke="#dce3ea" stroke-width="1"/>
+<text x="70" y="188" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="25" font-weight="600" text-anchor="start">Task · 一个 TableScan → PartitionedOutput pipeline</text>
+<rect x="75" y="221" width="1130" height="66" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1"/>
+<text x="640" y="260" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#65537f" font-size="21" font-weight="400" text-anchor="middle">Split 由 Task 接收；各个 TableScan 获取尚未处理的 Split</text>
+<rect x="90" y="331" width="350" height="350" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1"/>
+<text x="112" y="371" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#39826d" font-size="23" font-weight="600" text-anchor="start">Driver 0</text>
+<rect x="110" y="405" width="310" height="82" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1"/>
+<rect x="110" y="409" width="4" height="74" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="132" y="440" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#326cae" font-size="21" font-weight="600" text-anchor="start">TableScan</text>
+<text x="132" y="473" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">从 DataSource 获得 RowVector</text>
+<rect x="110" y="568" width="310" height="82" rx="4" fill="#faf7ef" stroke="#ac9c76" stroke-width="1"/>
+<rect x="110" y="572" width="4" height="74" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="132" y="603" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#877951" font-size="21" font-weight="600" text-anchor="start">PartitionedOutput</text>
+<text x="132" y="636" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">按目的地序列化并提交输出</text>
+<polyline points="265,298 265,321" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<polyline points="265,498 265,556" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="284" y="535" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">RowVector</text>
+<rect x="465" y="331" width="350" height="350" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1"/>
+<text x="487" y="371" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#39826d" font-size="23" font-weight="600" text-anchor="start">Driver 1</text>
+<rect x="485" y="405" width="310" height="82" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1"/>
+<rect x="485" y="409" width="4" height="74" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="507" y="440" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#326cae" font-size="21" font-weight="600" text-anchor="start">TableScan</text>
+<text x="507" y="473" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">从 DataSource 获得 RowVector</text>
+<rect x="485" y="568" width="310" height="82" rx="4" fill="#faf7ef" stroke="#ac9c76" stroke-width="1"/>
+<rect x="485" y="572" width="4" height="74" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="507" y="603" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#877951" font-size="21" font-weight="600" text-anchor="start">PartitionedOutput</text>
+<text x="507" y="636" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">按目的地序列化并提交输出</text>
+<polyline points="640,298 640,321" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<polyline points="640,498 640,556" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="659" y="535" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">RowVector</text>
+<rect x="840" y="331" width="350" height="350" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1"/>
+<text x="862" y="371" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#39826d" font-size="23" font-weight="600" text-anchor="start">Driver 4</text>
+<rect x="860" y="405" width="310" height="82" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1"/>
+<rect x="860" y="409" width="4" height="74" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="882" y="440" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#326cae" font-size="21" font-weight="600" text-anchor="start">TableScan</text>
+<text x="882" y="473" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">从 DataSource 获得 RowVector</text>
+<rect x="860" y="568" width="310" height="82" rx="4" fill="#faf7ef" stroke="#ac9c76" stroke-width="1"/>
+<rect x="860" y="572" width="4" height="74" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="882" y="603" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#877951" font-size="21" font-weight="600" text-anchor="start">PartitionedOutput</text>
+<text x="882" y="636" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">按目的地序列化并提交输出</text>
+<polyline points="1015,298 1015,321" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<polyline points="1015,498 1015,556" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="1034" y="535" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">RowVector</text>
+<rect x="40" y="772" width="1200" height="70" rx="4" fill="#ffffff" stroke="none" stroke-width="1"/><line x1="40.0" y1="772.0" x2="1240.0" y2="772.0" stroke="#dce3ea" stroke-width="1" data-style-decoration="summary-divider"/>
+<text x="60" y="801" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="19" font-weight="600" text-anchor="start">原文假设该 pipeline 有 5 个 Driver；图中展示其中 3 个。</text>
+<text x="60" y="826" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">Driver 交给线程池 executor 调度；等待 split 或输出空间时可以离开执行线程。</text>
 </svg>

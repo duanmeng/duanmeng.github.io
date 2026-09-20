@@ -1,57 +1,57 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="822" viewBox="0 0 1280 822" role="img" aria-labelledby="title desc">
 <title id="title">Part 2 / 3 · 一个 GROUP BY 的三个 Stage</title><desc id="desc">SELECT l_partkey, count(*) FROM lineitem GROUP BY l_partkey;</desc>
-<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#657386" stroke-width="1.5"/></marker></defs>
 <rect x="0" y="0" width="1280" height="822" rx="0" fill="white" stroke="none" stroke-width="1"/>
-<rect x="8" y="8" width="1264" height="806" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
-<rect x="9" y="9" width="1262" height="94" rx="0" fill="#edf5ff" stroke="none" stroke-width="1"/>
-<line x1="9" y1="103" x2="1271" y2="103" stroke="#d6d3cc" stroke-width="1"/>
-<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">Part 2 / 3 · 一个 GROUP BY 的三个 Stage</text>
-<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">SELECT l_partkey, count(*) FROM lineitem GROUP BY l_partkey;</text>
-<rect x="45" y="150" width="330" height="440" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
-<text x="67" y="189" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#15803d" font-size="25" font-weight="600" text-anchor="start">Stage 1 · 扫描</text>
-<text x="67" y="224" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="18" font-weight="400" text-anchor="start">示例：10 个 Task</text>
-<rect x="475" y="150" width="330" height="440" rx="4" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
-<text x="497" y="189" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#c2410c" font-size="25" font-weight="600" text-anchor="start">Stage 2 · 聚合</text>
-<text x="497" y="224" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="18" font-weight="400" text-anchor="start">示例：100 个 Task</text>
-<rect x="905" y="150" width="330" height="440" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
-<text x="927" y="189" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#7e22ce" font-size="25" font-weight="600" text-anchor="start">Stage 3 · 汇集</text>
-<text x="927" y="224" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="18" font-weight="400" text-anchor="start">示例：1 个 Task</text>
-<rect x="70" y="265" width="280" height="76" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
-<rect x="70" y="269" width="4" height="68" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
-<text x="92" y="300" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Task 0</text>
-<text x="92" y="333" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">扫描 l_partkey</text>
-<rect x="70" y="373" width="280" height="76" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
-<rect x="70" y="377" width="4" height="68" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
-<text x="92" y="408" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Task 1</text>
-<text x="92" y="441" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">扫描 l_partkey</text>
-<rect x="70" y="481" width="280" height="76" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
-<rect x="70" y="485" width="4" height="68" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
-<text x="92" y="516" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Task 9</text>
-<text x="92" y="549" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">扫描 l_partkey</text>
-<rect x="500" y="265" width="280" height="76" rx="4" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
-<rect x="500" y="269" width="4" height="68" rx="0" fill="#c2410c" stroke="none" stroke-width="1"/>
-<text x="522" y="300" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Task 0</text>
-<text x="522" y="333" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">本分区的 key → count</text>
-<rect x="500" y="373" width="280" height="76" rx="4" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
-<rect x="500" y="377" width="4" height="68" rx="0" fill="#c2410c" stroke="none" stroke-width="1"/>
-<text x="522" y="408" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Task 1</text>
-<text x="522" y="441" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">本分区的 key → count</text>
-<rect x="500" y="481" width="280" height="76" rx="4" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
-<rect x="500" y="485" width="4" height="68" rx="0" fill="#c2410c" stroke="none" stroke-width="1"/>
-<text x="522" y="516" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">Task 99</text>
-<text x="522" y="549" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">本分区的 key → count</text>
-<rect x="930" y="340" width="280" height="114" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
-<rect x="930" y="344" width="4" height="106" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
-<text x="952" y="375" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">最终 Task</text>
-<text x="952" y="408" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">读取全部聚合结果</text>
-<polyline points="387,370 463,370" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<text x="425" y="323" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#7e22ce" font-size="18" font-weight="400" text-anchor="middle">hash</text>
-<text x="425" y="347" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="16" font-weight="400" text-anchor="middle">shuffle</text>
-<polyline points="817,370 893,370" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<text x="855" y="336" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#7e22ce" font-size="18" font-weight="400" text-anchor="middle">gather</text>
-<text x="70" y="629" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="600" text-anchor="start">hash(l_partkey) % 100 决定第二阶段目的地。</text>
-<text x="70" y="665" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="19" font-weight="400" text-anchor="start">相同 key 在同一 Task 聚合；最终 Task 从全部 100 个来源汇集结果。</text>
-<rect x="40" y="720" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
-<text x="60" y="749" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">Stage 是共享同一计划片段的一组 Task；图中的数量来自原文示例。</text>
-<text x="60" y="774" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">不同 Stage 的 worker 进程可以重叠，不要求每个 Stage 独占一组机器。</text>
+<rect x="8" y="8" width="1264" height="806" rx="4" fill="white" stroke="none" stroke-width="1"/>
+<rect x="9" y="9" width="1262" height="94" rx="0" fill="#ffffff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="103" x2="1271" y2="103" stroke="#dce3ea" stroke-width="1"/>
+<text x="40" y="49" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="28" font-weight="600" text-anchor="start">Part 2 / 3 · 一个 GROUP BY 的三个 Stage</text>
+<text x="40" y="80" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">SELECT l_partkey, count(*) FROM lineitem GROUP BY l_partkey;</text>
+<rect x="45" y="150" width="330" height="440" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1"/>
+<text x="67" y="189" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#39826d" font-size="25" font-weight="600" text-anchor="start">Stage 1 · 扫描</text>
+<text x="67" y="224" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="18" font-weight="400" text-anchor="start">示例：10 个 Task</text>
+<rect x="475" y="150" width="330" height="440" rx="4" fill="#faf7ef" stroke="#ac9c76" stroke-width="1"/>
+<text x="497" y="189" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#ac9c76" font-size="25" font-weight="600" text-anchor="start">Stage 2 · 聚合</text>
+<text x="497" y="224" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="18" font-weight="400" text-anchor="start">示例：100 个 Task</text>
+<rect x="905" y="150" width="330" height="440" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1"/>
+<text x="927" y="189" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#8d76b7" font-size="25" font-weight="600" text-anchor="start">Stage 3 · 汇集</text>
+<text x="927" y="224" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="18" font-weight="400" text-anchor="start">示例：1 个 Task</text>
+<rect x="70" y="265" width="280" height="76" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1"/>
+<rect x="70" y="269" width="4" height="68" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="92" y="300" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#2e7963" font-size="21" font-weight="600" text-anchor="start">Task 0</text>
+<text x="92" y="333" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">扫描 l_partkey</text>
+<rect x="70" y="373" width="280" height="76" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1"/>
+<rect x="70" y="377" width="4" height="68" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="92" y="408" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#2e7963" font-size="21" font-weight="600" text-anchor="start">Task 1</text>
+<text x="92" y="441" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">扫描 l_partkey</text>
+<rect x="70" y="481" width="280" height="76" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1"/>
+<rect x="70" y="485" width="4" height="68" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="92" y="516" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#2e7963" font-size="21" font-weight="600" text-anchor="start">Task 9</text>
+<text x="92" y="549" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">扫描 l_partkey</text>
+<rect x="500" y="265" width="280" height="76" rx="4" fill="#faf7ef" stroke="#ac9c76" stroke-width="1"/>
+<rect x="500" y="269" width="4" height="68" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="522" y="300" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#877951" font-size="21" font-weight="600" text-anchor="start">Task 0</text>
+<text x="522" y="333" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">本分区的 key → count</text>
+<rect x="500" y="373" width="280" height="76" rx="4" fill="#faf7ef" stroke="#ac9c76" stroke-width="1"/>
+<rect x="500" y="377" width="4" height="68" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="522" y="408" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#877951" font-size="21" font-weight="600" text-anchor="start">Task 1</text>
+<text x="522" y="441" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">本分区的 key → count</text>
+<rect x="500" y="481" width="280" height="76" rx="4" fill="#faf7ef" stroke="#ac9c76" stroke-width="1"/>
+<rect x="500" y="485" width="4" height="68" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="522" y="516" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#877951" font-size="21" font-weight="600" text-anchor="start">Task 99</text>
+<text x="522" y="549" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">本分区的 key → count</text>
+<rect x="930" y="340" width="280" height="114" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1"/>
+<rect x="930" y="344" width="4" height="106" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="952" y="375" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#65537f" font-size="21" font-weight="600" text-anchor="start">最终 Task</text>
+<text x="952" y="408" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">读取全部聚合结果</text>
+<polyline points="387,370 463,370" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="425" y="323" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#8d76b7" font-size="18" font-weight="400" text-anchor="middle">hash</text>
+<text x="425" y="347" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="16" font-weight="400" text-anchor="middle">shuffle</text>
+<polyline points="817,370 893,370" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="855" y="336" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#8d76b7" font-size="18" font-weight="400" text-anchor="middle">gather</text>
+<text x="70" y="629" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="20" font-weight="600" text-anchor="start">hash(l_partkey) % 100 决定第二阶段目的地。</text>
+<text x="70" y="665" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="19" font-weight="400" text-anchor="start">相同 key 在同一 Task 聚合；最终 Task 从全部 100 个来源汇集结果。</text>
+<rect x="40" y="720" width="1200" height="70" rx="4" fill="#ffffff" stroke="none" stroke-width="1"/><line x1="40.0" y1="720.0" x2="1240.0" y2="720.0" stroke="#dce3ea" stroke-width="1" data-style-decoration="summary-divider"/>
+<text x="60" y="749" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="19" font-weight="600" text-anchor="start">Stage 是共享同一计划片段的一组 Task；图中的数量来自原文示例。</text>
+<text x="60" y="774" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">不同 Stage 的 worker 进程可以重叠，不要求每个 Stage 独占一组机器。</text>
 </svg>

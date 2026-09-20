@@ -1,70 +1,70 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="930" viewBox="0 0 1280 930" role="img" aria-labelledby="title desc">
 <title id="title">归并模块：继承、组合与非拥有引用</title><desc id="desc">实线空心三角表示继承；虚线箭头表示使用或持有，所有权在连线上标注</desc>
-<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
-<defs><marker id="inherit" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="11" markerHeight="11" orient="auto"><path d="M 1 1 L 11 6 L 1 11 Z" fill="white" stroke="#8b8b8b"/></marker></defs>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#657386" stroke-width="1.5"/></marker></defs>
+<defs><marker id="inherit" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="11" markerHeight="11" orient="auto"><path d="M 1 1 L 11 6 L 1 11 Z" fill="white" stroke="#657386"/></marker></defs>
 <rect x="0" y="0" width="1280" height="930" rx="0" fill="white" stroke="none" stroke-width="1"/>
-<rect x="8" y="8" width="1264" height="914" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
-<rect x="9" y="9" width="1262" height="94" rx="0" fill="#edf5ff" stroke="none" stroke-width="1"/>
-<line x1="9" y1="103" x2="1271" y2="103" stroke="#d6d3cc" stroke-width="1"/>
-<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">归并模块：继承、组合与非拥有引用</text>
-<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">实线空心三角表示继承；虚线箭头表示使用或持有，所有权在连线上标注</text>
-<rect x="40" y="135" width="335" height="90" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<rect x="40" y="139" width="4" height="82" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
-<text x="60" y="169" font-family="DejaVu Sans Mono, Liberation Mono, Consolas, monospace" fill="#111827" font-size="20" text-anchor="start">LocalMerge</text>
-<text x="60" y="200" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">获取 Task 中的本地 sources</text>
-<rect x="455" y="135" width="335" height="90" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<rect x="455" y="139" width="4" height="82" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
-<text x="475" y="169" font-family="DejaVu Sans Mono, Liberation Mono, Consolas, monospace" fill="#111827" font-size="20" text-anchor="start">Merge</text>
-<text x="475" y="200" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">轮次 / spill / 输出调度</text>
-<rect x="870" y="135" width="370" height="90" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<rect x="870" y="139" width="4" height="82" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
-<text x="890" y="169" font-family="DejaVu Sans Mono, Liberation Mono, Consolas, monospace" fill="#111827" font-size="20" text-anchor="start">SourceOperator</text>
-<text x="890" y="200" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">Driver 调用 isBlocked / getOutput</text>
-<line x1="375" y1="180" x2="455" y2="180" stroke="#8b8b8b" stroke-width="1.5" marker-end="url(#inherit)"/>
-<line x1="790" y1="180" x2="870" y2="180" stroke="#8b8b8b" stroke-width="1.5" marker-end="url(#inherit)"/>
-<polyline points="610,225 610,295" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<text x="628" y="266" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="16" font-weight="400" text-anchor="start">unique_ptr</text>
-<rect x="415" y="295" width="395" height="112" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
-<rect x="415" y="299" width="4" height="104" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
-<text x="435" y="329" font-family="DejaVu Sans Mono, Liberation Mono, Consolas, monospace" fill="#111827" font-size="20" text-anchor="start">SourceMerger</text>
-<text x="435" y="360" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">统一的有序流归并与输出组装</text>
-<text x="435" y="387" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">streams_ 只观察 cursor</text>
-<polyline points="455,195 400,195 400,255 207,255 207,295" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<text x="55" y="282" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="16" font-weight="400" text-anchor="start">shared_ptr</text>
-<rect x="40" y="295" width="335" height="112" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
-<rect x="40" y="299" width="4" height="104" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
-<text x="60" y="329" font-family="DejaVu Sans Mono, Liberation Mono, Consolas, monospace" fill="#111827" font-size="20" text-anchor="start">SpillMerger</text>
-<text x="60" y="360" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">管理最终读回阶段</text>
-<text x="60" y="387" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">内部另有一个 SourceMerger</text>
-<polyline points="790,195 825,195 825,255 1060,255 1060,295" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<text x="1080" y="282" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="16" font-weight="400" text-anchor="start">shared_ptr</text>
-<rect x="870" y="295" width="370" height="112" rx="4" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
-<rect x="870" y="299" width="4" height="104" rx="0" fill="#c2410c" stroke="none" stroke-width="1"/>
-<text x="890" y="329" font-family="DejaVu Sans Mono, Liberation Mono, Consolas, monospace" fill="#111827" font-size="20" text-anchor="start">MergeSource</text>
-<text x="890" y="360" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">start / started / next / enqueue</text>
-<text x="890" y="387" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">接口隔离 producer 和 consumer</text>
-<polyline points="610,407 610,484" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<text x="628" y="450" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="16" font-weight="400" text-anchor="start">unique_ptr</text>
-<rect x="415" y="484" width="395" height="90" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
-<rect x="415" y="488" width="4" height="82" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
-<text x="435" y="518" font-family="DejaVu Sans Mono, Liberation Mono, Consolas, monospace" fill="#111827" font-size="20" text-anchor="start">TreeOfLosers&lt;SourceStream&gt;</text>
-<text x="435" y="549" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">比较当前行，返回获胜 stream</text>
-<polyline points="610,574 610,644" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<text x="628" y="616" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="16" font-weight="400" text-anchor="start">vector&lt;unique_ptr&lt;…&gt;&gt;</text>
-<rect x="415" y="644" width="395" height="112" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
-<rect x="415" y="648" width="4" height="104" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
-<text x="435" y="678" font-family="DejaVu Sans Mono, Liberation Mono, Consolas, monospace" fill="#111827" font-size="20" text-anchor="start">SourceStream</text>
-<text x="435" y="709" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">当前 RowVector、行游标、输出位置</text>
-<text x="435" y="736" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">继承 MergeStream</text>
-<polyline points="810,700 840,700 840,435 1060,435 1060,407" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<text x="880" y="490" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="16" font-weight="400" text-anchor="start">MergeSource*：非拥有引用</text>
-<rect x="40" y="520" width="335" height="148" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
-<rect x="40" y="524" width="4" height="140" rx="0" fill="#d6d3cc" stroke="none" stroke-width="1"/>
-<text x="60" y="554" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="400" text-anchor="start">指针不能混为一谈</text>
-<text x="60" y="585" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">TreeOfLosers 拥有 cursor</text>
-<text x="60" y="612" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">SourceMerger::streams_ 是裸指针</text>
-<text x="60" y="639" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">SourceStream 不拥有 MergeSource</text>
-<rect x="40" y="828" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
-<text x="60" y="857" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">SourceMerger 只关心如何归并，不关心数据来自上游 Driver 还是 spill 文件</text>
-<text x="60" y="882" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">原始输入与读回阶段复用同一个 cursor / 比较 / 输出批次实现。</text>
+<rect x="8" y="8" width="1264" height="914" rx="4" fill="white" stroke="none" stroke-width="1"/>
+<rect x="9" y="9" width="1262" height="94" rx="0" fill="#ffffff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="103" x2="1271" y2="103" stroke="#dce3ea" stroke-width="1"/>
+<text x="40" y="49" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="28" font-weight="600" text-anchor="start">归并模块：继承、组合与非拥有引用</text>
+<text x="40" y="80" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">实线空心三角表示继承；虚线箭头表示使用或持有，所有权在连线上标注</text>
+<rect x="40" y="135" width="335" height="90" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1"/>
+<rect x="40" y="139" width="4" height="82" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="60" y="169" font-family="DejaVu Sans Mono, Liberation Mono, Consolas, monospace" fill="#326cae" font-size="20" text-anchor="start">LocalMerge</text>
+<text x="60" y="200" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">获取 Task 中的本地 sources</text>
+<rect x="455" y="135" width="335" height="90" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1"/>
+<rect x="455" y="139" width="4" height="82" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="475" y="169" font-family="DejaVu Sans Mono, Liberation Mono, Consolas, monospace" fill="#326cae" font-size="20" text-anchor="start">Merge</text>
+<text x="475" y="200" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">轮次 / spill / 输出调度</text>
+<rect x="870" y="135" width="370" height="90" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1"/>
+<rect x="870" y="139" width="4" height="82" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="890" y="169" font-family="DejaVu Sans Mono, Liberation Mono, Consolas, monospace" fill="#326cae" font-size="20" text-anchor="start">SourceOperator</text>
+<text x="890" y="200" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">Driver 调用 isBlocked / getOutput</text>
+<line x1="375" y1="180" x2="455" y2="180" stroke="#657386" stroke-width="1.5" marker-end="url(#inherit)"/>
+<line x1="790" y1="180" x2="870" y2="180" stroke="#657386" stroke-width="1.5" marker-end="url(#inherit)"/>
+<polyline points="610,225 610,295" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="628" y="266" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="16" font-weight="400" text-anchor="start">unique_ptr</text>
+<rect x="415" y="295" width="395" height="112" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1"/>
+<rect x="415" y="299" width="4" height="104" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="435" y="329" font-family="DejaVu Sans Mono, Liberation Mono, Consolas, monospace" fill="#2e7963" font-size="20" text-anchor="start">SourceMerger</text>
+<text x="435" y="360" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">统一的有序流归并与输出组装</text>
+<text x="435" y="387" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">streams_ 只观察 cursor</text>
+<polyline points="455,195 400,195 400,255 207,255 207,295" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="55" y="282" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="16" font-weight="400" text-anchor="start">shared_ptr</text>
+<rect x="40" y="295" width="335" height="112" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1"/>
+<rect x="40" y="299" width="4" height="104" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="60" y="329" font-family="DejaVu Sans Mono, Liberation Mono, Consolas, monospace" fill="#65537f" font-size="20" text-anchor="start">SpillMerger</text>
+<text x="60" y="360" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">管理最终读回阶段</text>
+<text x="60" y="387" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">内部另有一个 SourceMerger</text>
+<polyline points="790,195 825,195 825,255 1060,255 1060,295" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="1080" y="282" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="16" font-weight="400" text-anchor="start">shared_ptr</text>
+<rect x="870" y="295" width="370" height="112" rx="4" fill="#faf7ef" stroke="#ac9c76" stroke-width="1"/>
+<rect x="870" y="299" width="4" height="104" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="890" y="329" font-family="DejaVu Sans Mono, Liberation Mono, Consolas, monospace" fill="#877951" font-size="20" text-anchor="start">MergeSource</text>
+<text x="890" y="360" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">start / started / next / enqueue</text>
+<text x="890" y="387" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">接口隔离 producer 和 consumer</text>
+<polyline points="610,407 610,484" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="628" y="450" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="16" font-weight="400" text-anchor="start">unique_ptr</text>
+<rect x="415" y="484" width="395" height="90" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1"/>
+<rect x="415" y="488" width="4" height="82" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="435" y="518" font-family="DejaVu Sans Mono, Liberation Mono, Consolas, monospace" fill="#2e7963" font-size="20" text-anchor="start">TreeOfLosers&lt;SourceStream&gt;</text>
+<text x="435" y="549" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">比较当前行，返回获胜 stream</text>
+<polyline points="610,574 610,644" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="628" y="616" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="16" font-weight="400" text-anchor="start">vector&lt;unique_ptr&lt;…&gt;&gt;</text>
+<rect x="415" y="644" width="395" height="112" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1"/>
+<rect x="415" y="648" width="4" height="104" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="435" y="678" font-family="DejaVu Sans Mono, Liberation Mono, Consolas, monospace" fill="#2e7963" font-size="20" text-anchor="start">SourceStream</text>
+<text x="435" y="709" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">当前 RowVector、行游标、输出位置</text>
+<text x="435" y="736" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">继承 MergeStream</text>
+<polyline points="810,700 840,700 840,435 1060,435 1060,407" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="880" y="490" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="16" font-weight="400" text-anchor="start">MergeSource*：非拥有引用</text>
+<rect x="40" y="520" width="335" height="148" rx="4" fill="#faf7ef" stroke="#dce3ea" stroke-width="1"/>
+<rect x="40" y="524" width="4" height="140" rx="0" fill="#dce3ea" stroke="none" stroke-width="1"/>
+<text x="60" y="554" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="20" font-weight="400" text-anchor="start">指针不能混为一谈</text>
+<text x="60" y="585" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">TreeOfLosers 拥有 cursor</text>
+<text x="60" y="612" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">SourceMerger::streams_ 是裸指针</text>
+<text x="60" y="639" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">SourceStream 不拥有 MergeSource</text>
+<rect x="40" y="828" width="1200" height="70" rx="4" fill="#ffffff" stroke="none" stroke-width="1"/><line x1="40.0" y1="828.0" x2="1240.0" y2="828.0" stroke="#dce3ea" stroke-width="1" data-style-decoration="summary-divider"/>
+<text x="60" y="857" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="19" font-weight="600" text-anchor="start">SourceMerger 只关心如何归并，不关心数据来自上游 Driver 还是 spill 文件</text>
+<text x="60" y="882" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">原始输入与读回阶段复用同一个 cursor / 比较 / 输出批次实现。</text>
 </svg>

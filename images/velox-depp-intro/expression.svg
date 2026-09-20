@@ -1,42 +1,42 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="760" viewBox="0 0 1280 760" role="img" aria-labelledby="title desc">
 <title id="title">表达式执行：数据、行集合与语义共同参与</title><desc id="desc">示意适用路径；并非每个函数都会依次经过所有优化。</desc>
-<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#657386" stroke-width="1.5"/></marker></defs>
 <rect x="0" y="0" width="1280" height="760" rx="0" fill="white" stroke="none" stroke-width="1"/>
-<rect x="8" y="8" width="1264" height="744" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
-<rect x="9" y="9" width="1262" height="94" rx="0" fill="#edf5ff" stroke="none" stroke-width="1"/>
-<line x1="9" y1="103" x2="1271" y2="103" stroke="#d6d3cc" stroke-width="1"/>
-<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">表达式执行：数据、行集合与语义共同参与</text>
-<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">示意适用路径；并非每个函数都会依次经过所有优化。</text>
-<rect x="50" y="170" width="350" height="118" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<rect x="50" y="174" width="4" height="110" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
-<text x="72" y="205" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">输入 Vector</text>
-<text x="72" y="238" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">Flat / Constant / Dictionary / Lazy</text>
-<polyline points="410,229 450,229" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="465" y="170" width="350" height="118" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
-<rect x="465" y="174" width="4" height="110" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
-<text x="487" y="205" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">SelectivityVector</text>
-<text x="487" y="238" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">标记需要求值的逻辑行</text>
-<polyline points="825,229 865,229" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="880" y="170" width="350" height="118" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
-<rect x="880" y="174" width="4" height="110" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
-<text x="902" y="205" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">语义与编码判断</text>
-<text x="902" y="238" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">null、确定性、可剥离包装</text>
-<rect x="50" y="395" width="350" height="118" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<rect x="50" y="399" width="4" height="110" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
-<text x="72" y="430" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">底层值求值</text>
-<text x="72" y="463" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">选择可用的函数执行路径</text>
-<polyline points="410,454 450,454" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="465" y="395" width="350" height="118" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
-<rect x="465" y="399" width="4" height="110" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
-<text x="487" y="430" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">共享与复用</text>
-<text x="487" y="463" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">CSE / dictionary memoization</text>
-<polyline points="825,454 865,454" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="880" y="395" width="350" height="118" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
-<rect x="880" y="399" width="4" height="110" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
-<text x="902" y="430" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">结果 Vector</text>
-<text x="902" y="463" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">恢复映射并保留正确 null</text>
-<polyline points="1055,305 1055,340 225,340 225,378" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="40" y="658" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
-<text x="60" y="687" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">编码 peeling 与 memoization 都有适用前提。</text>
-<text x="60" y="712" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">TRY、条件分支、非确定函数及错误传播不能被无条件全量求值改写。</text>
+<rect x="8" y="8" width="1264" height="744" rx="4" fill="white" stroke="none" stroke-width="1"/>
+<rect x="9" y="9" width="1262" height="94" rx="0" fill="#ffffff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="103" x2="1271" y2="103" stroke="#dce3ea" stroke-width="1"/>
+<text x="40" y="49" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="28" font-weight="600" text-anchor="start">表达式执行：数据、行集合与语义共同参与</text>
+<text x="40" y="80" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">示意适用路径；并非每个函数都会依次经过所有优化。</text>
+<rect x="50" y="170" width="350" height="118" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1"/>
+<rect x="50" y="174" width="4" height="110" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="72" y="205" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#326cae" font-size="21" font-weight="600" text-anchor="start">输入 Vector</text>
+<text x="72" y="238" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">Flat / Constant / Dictionary / Lazy</text>
+<polyline points="410,229 450,229" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="465" y="170" width="350" height="118" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1"/>
+<rect x="465" y="174" width="4" height="110" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="487" y="205" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#65537f" font-size="21" font-weight="600" text-anchor="start">SelectivityVector</text>
+<text x="487" y="238" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">标记需要求值的逻辑行</text>
+<polyline points="825,229 865,229" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="880" y="170" width="350" height="118" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1"/>
+<rect x="880" y="174" width="4" height="110" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="902" y="205" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#2e7963" font-size="21" font-weight="600" text-anchor="start">语义与编码判断</text>
+<text x="902" y="238" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">null、确定性、可剥离包装</text>
+<rect x="50" y="395" width="350" height="118" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1"/>
+<rect x="50" y="399" width="4" height="110" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="72" y="430" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#326cae" font-size="21" font-weight="600" text-anchor="start">底层值求值</text>
+<text x="72" y="463" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">选择可用的函数执行路径</text>
+<polyline points="410,454 450,454" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="465" y="395" width="350" height="118" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1"/>
+<rect x="465" y="399" width="4" height="110" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="487" y="430" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#65537f" font-size="21" font-weight="600" text-anchor="start">共享与复用</text>
+<text x="487" y="463" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">CSE / dictionary memoization</text>
+<polyline points="825,454 865,454" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="880" y="395" width="350" height="118" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1"/>
+<rect x="880" y="399" width="4" height="110" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="902" y="430" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#2e7963" font-size="21" font-weight="600" text-anchor="start">结果 Vector</text>
+<text x="902" y="463" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">恢复映射并保留正确 null</text>
+<polyline points="1055,305 1055,340 225,340 225,378" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="40" y="658" width="1200" height="70" rx="4" fill="#ffffff" stroke="none" stroke-width="1"/><line x1="40.0" y1="658.0" x2="1240.0" y2="658.0" stroke="#dce3ea" stroke-width="1" data-style-decoration="summary-divider"/>
+<text x="60" y="687" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="19" font-weight="600" text-anchor="start">编码 peeling 与 memoization 都有适用前提。</text>
+<text x="60" y="712" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">TRY、条件分支、非确定函数及错误传播不能被无条件全量求值改写。</text>
 </svg>

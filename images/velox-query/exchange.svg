@@ -1,35 +1,35 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="755" viewBox="0 0 1280 755" role="img" aria-labelledby="title desc">
 <title id="title">Remote Exchange：页传输与进度确认</title><desc id="desc">常规 Presto interactive HTTP 路径。</desc>
-<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#657386" stroke-width="1.5"/></marker></defs>
 <rect x="0" y="0" width="1280" height="755" rx="0" fill="white" stroke="none" stroke-width="1"/>
-<rect x="8" y="8" width="1264" height="739" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
-<rect x="9" y="9" width="1262" height="94" rx="0" fill="#edf5ff" stroke="none" stroke-width="1"/>
-<line x1="9" y1="103" x2="1271" y2="103" stroke="#d6d3cc" stroke-width="1"/>
-<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">Remote Exchange：页传输与进度确认</text>
-<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">常规 Presto interactive HTTP 路径。</text>
-<rect x="20" y="130" width="360" height="80" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<rect x="20" y="134" width="4" height="72" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
-<text x="200" y="177" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="600" text-anchor="middle">上游 OutputBuffer</text>
-<line x1="200" y1="228" x2="200" y2="623" stroke="#8b8b8b" stroke-width="1" stroke-dasharray="6 5"/>
-<rect x="460" y="130" width="360" height="80" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<rect x="460" y="134" width="4" height="72" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
-<text x="640" y="177" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="600" text-anchor="middle">PrestoExchangeSource</text>
-<line x1="640" y1="228" x2="640" y2="623" stroke="#8b8b8b" stroke-width="1" stroke-dasharray="6 5"/>
-<rect x="900" y="130" width="360" height="80" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<rect x="900" y="134" width="4" height="72" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
-<text x="1080" y="177" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="18" font-weight="600" text-anchor="middle">下游 Exchange</text>
-<line x1="1080" y1="228" x2="1080" y2="623" stroke="#8b8b8b" stroke-width="1" stroke-dasharray="6 5"/>
-<text x="420.0" y="249" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="middle">按 token 请求结果页</text>
-<polyline points="640,265 200,265" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<text x="420.0" y="332" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="middle">数据 + next token + complete</text>
-<polyline points="200,348 640,348" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<text x="860.0" y="415" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="middle">入 ExchangeQueue，等待反序列化</text>
-<polyline points="640,431 1080,431" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<text x="420.0" y="498" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="middle">acknowledge 更早的页</text>
-<polyline points="640,514 200,514" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<text x="420.0" y="581" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="middle">释放缓冲，后续生产可继续</text>
-<polyline points="200,597 640,597" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="40" y="653" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
-<text x="60" y="682" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">上游输出、网络来源和下游队列都有各自的生命周期与流控。</text>
-<text x="60" y="707" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">Local Exchange 直接传 RowVector；它不经过这条 HTTP / 序列化路径。</text>
+<rect x="8" y="8" width="1264" height="739" rx="4" fill="white" stroke="none" stroke-width="1"/>
+<rect x="9" y="9" width="1262" height="94" rx="0" fill="#ffffff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="103" x2="1271" y2="103" stroke="#dce3ea" stroke-width="1"/>
+<text x="40" y="49" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="28" font-weight="600" text-anchor="start">Remote Exchange：页传输与进度确认</text>
+<text x="40" y="80" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">常规 Presto interactive HTTP 路径。</text>
+<rect x="20" y="130" width="360" height="80" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1"/>
+<rect x="20" y="134" width="4" height="72" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="200" y="177" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#326cae" font-size="18" font-weight="600" text-anchor="middle">上游 OutputBuffer</text>
+<line x1="200" y1="228" x2="200" y2="623" stroke="#657386" stroke-width="1" stroke-dasharray="6 5"/>
+<rect x="460" y="130" width="360" height="80" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1"/>
+<rect x="460" y="134" width="4" height="72" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="640" y="177" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#326cae" font-size="18" font-weight="600" text-anchor="middle">PrestoExchangeSource</text>
+<line x1="640" y1="228" x2="640" y2="623" stroke="#657386" stroke-width="1" stroke-dasharray="6 5"/>
+<rect x="900" y="130" width="360" height="80" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1"/>
+<rect x="900" y="134" width="4" height="72" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="1080" y="177" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#326cae" font-size="18" font-weight="600" text-anchor="middle">下游 Exchange</text>
+<line x1="1080" y1="228" x2="1080" y2="623" stroke="#657386" stroke-width="1" stroke-dasharray="6 5"/>
+<text x="420.0" y="249" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="middle">按 token 请求结果页</text>
+<polyline points="640,265 200,265" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="420.0" y="332" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="middle">数据 + next token + complete</text>
+<polyline points="200,348 640,348" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="860.0" y="415" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="middle">入 ExchangeQueue，等待反序列化</text>
+<polyline points="640,431 1080,431" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="420.0" y="498" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="middle">acknowledge 更早的页</text>
+<polyline points="640,514 200,514" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="420.0" y="581" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="middle">释放缓冲，后续生产可继续</text>
+<polyline points="200,597 640,597" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="40" y="653" width="1200" height="70" rx="4" fill="#ffffff" stroke="none" stroke-width="1"/><line x1="40.0" y1="653.0" x2="1240.0" y2="653.0" stroke="#dce3ea" stroke-width="1" data-style-decoration="summary-divider"/>
+<text x="60" y="682" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="19" font-weight="600" text-anchor="start">上游输出、网络来源和下游队列都有各自的生命周期与流控。</text>
+<text x="60" y="707" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">Local Exchange 直接传 RowVector；它不经过这条 HTTP / 序列化路径。</text>
 </svg>

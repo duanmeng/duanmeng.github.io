@@ -1,42 +1,42 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="806" viewBox="0 0 1280 806" role="img" aria-labelledby="title desc">
 <title id="title">并行 Join Build：分区写同一张索引</title><desc id="desc">按 bucketOffset 分配行与 bucket 所有权；越界探测转入 overflow。</desc>
-<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#657386" stroke-width="1.5"/></marker></defs>
 <rect x="0" y="0" width="1280" height="806" rx="0" fill="white" stroke="none" stroke-width="1"/>
-<rect x="8" y="8" width="1264" height="790" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
-<rect x="9" y="9" width="1262" height="94" rx="0" fill="#edf5ff" stroke="none" stroke-width="1"/>
-<line x1="9" y1="103" x2="1271" y2="103" stroke="#d6d3cc" stroke-width="1"/>
-<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">并行 Join Build：分区写同一张索引</text>
-<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">按 bucketOffset 分配行与 bucket 所有权；越界探测转入 overflow。</text>
-<rect x="415" y="140" width="450" height="90" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
-<rect x="415" y="144" width="4" height="82" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
-<text x="437" y="175" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">RowContainer 0、1、…</text>
-<text x="437" y="208" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">按目标 bucket 区间标记 partition</text>
-<polyline points="400,185 245,185 245,270" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<polyline points="880,185 1035,185 1035,270" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="60" y="284" width="390" height="92" rx="4" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
-<rect x="60" y="288" width="4" height="84" rx="0" fill="#7e22ce" stroke="none" stroke-width="1"/>
-<text x="82" y="319" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">任务 P0</text>
-<text x="82" y="352" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">遍历所有行容器中属于本分区的行</text>
-<rect x="830" y="284" width="390" height="92" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
-<rect x="830" y="288" width="4" height="84" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
-<text x="852" y="319" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">任务 P1</text>
-<text x="852" y="352" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">遍历所有行容器中属于本分区的行</text>
-<polyline points="245,389 245,431" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<polyline points="1035,389 1035,431" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<text x="640" y="410" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="middle">共享索引 table_</text>
-<rect x="60" y="445" width="580" height="59" rx="0" fill="#faf5ff" stroke="#7e22ce" stroke-width="1"/>
-<text x="350" y="483" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="22" font-weight="400" text-anchor="middle">P0：[start0, end0)</text>
-<rect x="640" y="445" width="580" height="59" rx="0" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
-<text x="930" y="483" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="22" font-weight="400" text-anchor="middle">P1：[start1, end1)</text>
-<polyline points="640,517 640,550" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="410" y="562" width="460" height="76" rx="4" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
-<rect x="410" y="566" width="4" height="68" rx="0" fill="#c2410c" stroke="none" stroke-width="1"/>
-<text x="432" y="597" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="21" font-weight="600" text-anchor="start">overflow：保存 row* + hash</text>
-<line x1="60" y1="670" x2="1220" y2="670" stroke="#8b8b8b" stroke-width="1" stroke-dasharray="6 5"/>
+<rect x="8" y="8" width="1264" height="790" rx="4" fill="white" stroke="none" stroke-width="1"/>
+<rect x="9" y="9" width="1262" height="94" rx="0" fill="#ffffff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="103" x2="1271" y2="103" stroke="#dce3ea" stroke-width="1"/>
+<text x="40" y="49" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="28" font-weight="600" text-anchor="start">并行 Join Build：分区写同一张索引</text>
+<text x="40" y="80" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">按 bucketOffset 分配行与 bucket 所有权；越界探测转入 overflow。</text>
+<rect x="415" y="140" width="450" height="90" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1"/>
+<rect x="415" y="144" width="4" height="82" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="437" y="175" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#326cae" font-size="21" font-weight="600" text-anchor="start">RowContainer 0、1、…</text>
+<text x="437" y="208" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">按目标 bucket 区间标记 partition</text>
+<polyline points="400,185 245,185 245,270" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<polyline points="880,185 1035,185 1035,270" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="60" y="284" width="390" height="92" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1"/>
+<rect x="60" y="288" width="4" height="84" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="82" y="319" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#65537f" font-size="21" font-weight="600" text-anchor="start">任务 P0</text>
+<text x="82" y="352" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">遍历所有行容器中属于本分区的行</text>
+<rect x="830" y="284" width="390" height="92" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1"/>
+<rect x="830" y="288" width="4" height="84" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="852" y="319" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#2e7963" font-size="21" font-weight="600" text-anchor="start">任务 P1</text>
+<text x="852" y="352" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">遍历所有行容器中属于本分区的行</text>
+<polyline points="245,389 245,431" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<polyline points="1035,389 1035,431" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="640" y="410" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="21" font-weight="600" text-anchor="middle">共享索引 table_</text>
+<rect x="60" y="445" width="580" height="59" rx="0" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1"/>
+<text x="350" y="483" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#65537f" font-size="22" font-weight="400" text-anchor="middle">P0：[start0, end0)</text>
+<rect x="640" y="445" width="580" height="59" rx="0" fill="#f0f7f3" stroke="#39826d" stroke-width="1"/>
+<text x="930" y="483" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#2e7963" font-size="22" font-weight="400" text-anchor="middle">P1：[start1, end1)</text>
+<polyline points="640,517 640,550" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="410" y="562" width="460" height="76" rx="4" fill="#faf7ef" stroke="#ac9c76" stroke-width="1"/>
+<rect x="410" y="566" width="4" height="68" rx="0" fill="none" stroke="none" stroke-width="1"/>
+<text x="432" y="597" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#877951" font-size="21" font-weight="600" text-anchor="start">overflow：保存 row* + hash</text>
+<line x1="60" y1="670" x2="1220" y2="670" stroke="#657386" stroke-width="1" stroke-dasharray="6 5"/>
 <rect x="466" y="652" width="348" height="35" rx="0" fill="white" stroke="none" stroke-width="1"/>
-<text x="640" y="677" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="400" text-anchor="middle">barrier：所有分区构建完成</text>
-<polyline points="640,639 640,647" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
-<rect x="40" y="704" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
-<text x="60" y="733" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">串行补入 overflow：使用保存的 hash，解除分区边界限制。</text>
-<text x="60" y="758" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">索引共享；并行任务独占不相交的 bucket 区间，边界按 128 B 对齐。</text>
+<text x="640" y="677" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="19" font-weight="400" text-anchor="middle">barrier：所有分区构建完成</text>
+<polyline points="640,639 640,647" fill="none" stroke="#657386" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="40" y="704" width="1200" height="70" rx="4" fill="#ffffff" stroke="none" stroke-width="1"/><line x1="40.0" y1="704.0" x2="1240.0" y2="704.0" stroke="#dce3ea" stroke-width="1" data-style-decoration="summary-divider"/>
+<text x="60" y="733" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#1f2d3d" font-size="19" font-weight="600" text-anchor="start">串行补入 overflow：使用保存的 hash，解除分区边界限制。</text>
+<text x="60" y="758" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" fill="#657386" font-size="17" font-weight="400" text-anchor="start">索引共享；并行任务独占不相交的 bucket 区间，边界按 128 B 对齐。</text>
 </svg>
