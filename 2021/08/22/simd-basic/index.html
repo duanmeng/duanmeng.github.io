@@ -230,7 +230,10 @@ body:has(.simd-article) #toc-footer .toc-level-2::before { display: none; }
 <h2 id="model">1. 从一个标量循环理解 SIMD</h2>
 
 <p>先看数组相加：</p>
-<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">for</span> (std::<span class="type">size_t</span> i = <span class="number">0</span>; i &lt; n; ++i) {</span><br><span class="line">  out[i] = a[i] + b[i];</span><br><span class="line">}</span><br></pre></td></tr></table></figure><p>每次迭代读取一个 <code>a[i]</code> 和一个 <code>b[i]</code>，做一次加法，再写一个 <code>out[i]</code>。相邻迭代之间没有数据依赖：计算 <code>out[3]</code> 不需要等待 <code>out[2]</code>。因此，我们可以把连续 8 次迭代放进一组，分别加载 8 个 a 和 8 个 b，用一次 packed 加法描述这 8 对元素的运算，再把 8 个结果写回。</p>
+<figure class="highlight cpp cpp-highlight"><table><tbody><tr><td class="code"><pre><code class="language-cpp"><span class="keyword">for</span> (std::<span class="type">size_t</span> i = <span class="number">0</span>; i &lt; n; ++i) {
+  out[i] = a[i] + b[i];
+}
+</code></pre></td></tr></tbody></table></figure><p>每次迭代读取一个 <code>a[i]</code> 和一个 <code>b[i]</code>，做一次加法，再写一个 <code>out[i]</code>。相邻迭代之间没有数据依赖：计算 <code>out[3]</code> 不需要等待 <code>out[2]</code>。因此，我们可以把连续 8 次迭代放进一组，分别加载 8 个 a 和 8 个 b，用一次 packed 加法描述这 8 对元素的运算，再把 8 个结果写回。</p>
 <figure class="simd-figure"><div class="simd-diagram-scroll" tabindex="0" role="region" aria-label="图 1，可横向滚动"><img src="/images/simd-basic/scalar-vector.svg" alt="标量与向量表达的是同样的逐元素加法。图中的八列是运算语义，不代表八条线程，也不规定芯片内部恰好有八个独立加法器。" loading="lazy"></div><figcaption>图 1 · 标量与向量表达的是同样的逐元素加法。图中的八列是运算语义，不代表八条线程，也不规定芯片内部恰好有八个独立加法器。 <a href="/images/simd-basic/scalar-vector.svg">打开原图</a></figcaption></figure>
 
 
@@ -240,7 +243,10 @@ body:has(.simd-article) #toc-footer .toc-level-2::before { display: none; }
 <p>也不要把 SIMD 与 CPU 的超标量执行混为一谈。超标量和乱序执行可以重叠执行多条彼此独立的指令；SIMD 描述的是<strong>一条指令内部的数据宽度</strong>。现代 Intel CPU 同时使用这些机制。</p>
 <h3 id="什么样的循环可以直接向量化">什么样的循环可以直接向量化</h3>
 <p>数组加法、乘以常量、阈值比较和字节变换，通常具有独立的逐元素工作，非常适合先尝试 SIMD。下面的递推则不同：</p>
-<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">for</span> (std::<span class="type">size_t</span> i = <span class="number">1</span>; i &lt; n; ++i) {</span><br><span class="line">  a[i] = a[i - <span class="number">1</span>] + b[i];</span><br><span class="line">}</span><br></pre></td></tr></table></figure><p>第 i 个结果依赖刚刚产生的第 i−1 个结果，不能直接把 8 次迭代当成互不相关的 8 个 lane。前缀和等算法仍可以 SIMD 化，但需要重新组织依赖和跨元素通信，而不是机械替换加法指令。</p>
+<figure class="highlight cpp cpp-highlight"><table><tbody><tr><td class="code"><pre><code class="language-cpp"><span class="keyword">for</span> (std::<span class="type">size_t</span> i = <span class="number">1</span>; i &lt; n; ++i) {
+  a[i] = a[i - <span class="number">1</span>] + b[i];
+}
+</code></pre></td></tr></tbody></table></figure><p>第 i 个结果依赖刚刚产生的第 i−1 个结果，不能直接把 8 次迭代当成互不相关的 8 个 lane。前缀和等算法仍可以 SIMD 化，但需要重新组织依赖和跨元素通信，而不是机械替换加法指令。</p>
 <p>别名也会改变这个判断。如果 <code>out</code> 与 <code>a</code> 完全相同，逐批原位数组相加可以成立；如果 <code>out == a + 1</code>，写入结果可能覆盖下一次迭代的输入。开始优化前，必须先明确输入输出的重叠规则。</p>
 <h2 id="cpu">2. 一条 SIMD 指令在 CPU 中怎样执行</h2>
 
@@ -339,15 +345,34 @@ body:has(.simd-article) #toc-footer .toc-level-2::before { display: none; }
 <h2 id="first-program">4. 第一个可以运行的 AVX 程序</h2>
 
 <p>先用一个固定的八元素例子，把“内存 → 寄存器 → 运算 → 内存”走完。下面的入门程序面向已经确认支持 AVX 的本机实验，编译时允许整个程序使用 AVX；文末的完整示例则采用函数级 target 和运行时检测。</p>
-<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;immintrin.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// Build with -mavx and run only on a machine with usable AVX support.</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>{</span><br><span class="line">  <span class="type">const</span> <span class="type">float</span> a[<span class="number">8</span>] = {<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>};</span><br><span class="line">  <span class="type">const</span> <span class="type">float</span> b[<span class="number">8</span>] = {<span class="number">10</span>, <span class="number">11</span>, <span class="number">12</span>, <span class="number">13</span>, <span class="number">14</span>, <span class="number">15</span>, <span class="number">16</span>, <span class="number">17</span>};</span><br><span class="line">  <span class="type">float</span> out[<span class="number">8</span>];</span><br><span class="line">  <span class="type">const</span> __m256 va = _mm256_loadu_ps(a);</span><br><span class="line">  <span class="type">const</span> __m256 vb = _mm256_loadu_ps(b);</span><br><span class="line">  <span class="type">const</span> __m256 sum = _mm256_add_ps(va, vb);</span><br><span class="line">  _mm256_storeu_ps(out, sum);</span><br><span class="line">  <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">8</span>; ++i) std::cout &lt;&lt; (i ? <span class="string">&quot; &quot;</span> : <span class="string">&quot;&quot;</span>) &lt;&lt; out[i];</span><br><span class="line">  std::cout &lt;&lt; <span class="string">&#x27;\n&#x27;</span>;</span><br><span class="line">}</span><br></pre></td></tr></table></figure><pre><code>g++ -std&#x3D;c++17 -O2 -mavx first_avx.cpp -o first_avx
-.&#x2F;first_avx</code></pre>
+<figure class="highlight cpp cpp-highlight"><table><tbody><tr><td class="code"><pre><code class="language-cpp"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;immintrin.h&gt;</span></span>
+<span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span>
+
+<span class="comment">// Build with -mavx and run only on a machine with usable AVX support.</span>
+<span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>{
+  <span class="type">const</span> <span class="type">float</span> a[<span class="number">8</span>] = {<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>};
+  <span class="type">const</span> <span class="type">float</span> b[<span class="number">8</span>] = {<span class="number">10</span>, <span class="number">11</span>, <span class="number">12</span>, <span class="number">13</span>, <span class="number">14</span>, <span class="number">15</span>, <span class="number">16</span>, <span class="number">17</span>};
+  <span class="type">float</span> out[<span class="number">8</span>];
+  <span class="type">const</span> __m256 va = _mm256_loadu_ps(a);
+  <span class="type">const</span> __m256 vb = _mm256_loadu_ps(b);
+  <span class="type">const</span> __m256 sum = _mm256_add_ps(va, vb);
+  _mm256_storeu_ps(out, sum);
+  <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">8</span>; ++i) std::cout &lt;&lt; (i ? <span class="string">" "</span> : <span class="string">""</span>) &lt;&lt; out[i];
+  std::cout &lt;&lt; <span class="string">'\n'</span>;
+}
+</code></pre></td></tr></tbody></table></figure><pre><code>g++ -std=c++17 -O2 -mavx first_avx.cpp -o first_avx
+./first_avx</code></pre>
 <p>输出是 <code>10 12 14 16 18 20 22 24</code>。第一条 load 产生 <code>[0,1,2,3 | 4,5,6,7]</code>，第二条产生 <code>[10,11,12,13 | 14,15,16,17]</code>，加法把相同位置相加，store 再按 lane 顺序写回数组。加载和写回的单位是完整的 8 个 float，而不是把一个 float 拆成八份。</p>
 <h3 id="怎样读-intrinsic-的名字">怎样读 intrinsic 的名字</h3>
 <p>以 <code>_mm256_add_epi32</code> 为例：<code>256</code> 表示向量宽度，<code>add</code> 表示操作，<code>epi32</code> 表示 packed 32-bit integer 元素。<code>ps</code> 表示 packed single-precision float，<code>pd</code> 表示 packed double；<code>ss</code>、<code>sd</code> 通常描述只对低位标量元素计算的浮点形式。</p>
 <p>名字是线索，不是完整规格。<code>_mm256_movemask_epi8</code> 返回的是一个标量 <code>int</code>，不是 <code>__m256i</code>；<code>_mm256_cvtepu32_epi64</code> 从一个 128 位来源取四个 uint32，产生四个 uint64。每次使用新指令，都应检查<strong>输入类型、输出类型、ISA、元素宽度和索引作用范围</strong>。</p>
 <p>Intrinsic 也是编译器接口，不保证与机器指令严格一对一。构造常量的 <code>set</code> 可能变成常量加载，cast 可能不产生指令，加载可能与算术指令结合，未使用的结果会被优化掉。最终判断实际执行路径，要看编译后的汇编。</p>
 <h3 id="广播、构造与观察结果">广播、构造与观察结果</h3>
-<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line">__m256 a = _mm256_set_ps(<span class="number">7</span>, <span class="number">6</span>, <span class="number">5</span>, <span class="number">4</span>, <span class="number">3</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="number">0</span>);</span><br><span class="line">__m256 b = _mm256_setr_ps(<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>);</span><br><span class="line">__m256 c = _mm256_set1_ps(<span class="number">2.0f</span>);  <span class="comment">// [2,2,2,2 | 2,2,2,2]</span></span><br><span class="line">__m256 z = _mm256_setzero_ps();   <span class="comment">// 所有位为零</span></span><br></pre></td></tr></table></figure><p>这里 a 和 b 相同。<code>set</code> 的参数从高元素写到低元素，<code>setr</code> 按 lane 0 开始写，适合教学与构造索引。<code>set1</code> 将同一个标量广播到所有元素。64 位整数构造常见的名字带 <code>epi64x</code>，例如 <code>_mm256_setr_epi64x</code>，不要只靠字符串拼接猜 API。</p>
+<figure class="highlight cpp cpp-highlight"><table><tbody><tr><td class="code"><pre><code class="language-cpp">__m256 a = _mm256_set_ps(<span class="number">7</span>, <span class="number">6</span>, <span class="number">5</span>, <span class="number">4</span>, <span class="number">3</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="number">0</span>);
+__m256 b = _mm256_setr_ps(<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>);
+__m256 c = _mm256_set1_ps(<span class="number">2.0f</span>);  <span class="comment">// [2,2,2,2 | 2,2,2,2]</span>
+__m256 z = _mm256_setzero_ps();   <span class="comment">// 所有位为零</span>
+</code></pre></td></tr></tbody></table></figure><p>这里 a 和 b 相同。<code>set</code> 的参数从高元素写到低元素，<code>setr</code> 按 lane 0 开始写，适合教学与构造索引。<code>set1</code> 将同一个标量广播到所有元素。64 位整数构造常见的名字带 <code>epi64x</code>，例如 <code>_mm256_setr_epi64x</code>，不要只靠字符串拼接猜 API。</p>
 <p>调试时最直接的做法是 store 到正确类型、足够长度的数组，再逐个打印。不要把对向量变量地址的随意指针强转和解引用，当成通用的 C++ 类型转换方法；intrinsic 的 cast、数值 conversion 与普通 C++ 对象别名规则需要分别理解。</p>
 <span class="simd-legacy-anchor" id="第一个完整循环：数组相加" aria-hidden="true"></span>
 <span class="simd-legacy-anchor" id="maskload-的掩码不是-01-布尔数组" aria-hidden="true"></span>
@@ -395,8 +420,18 @@ body:has(.simd-article) #toc-footer .toc-level-2::before { display: none; }
 </div>
 <p><code>alignas(32) float a[16]</code> 保证 a 的起点对齐，但 <code>a + 1</code> 相对起点偏移 4 字节，不再满足 32 字节对齐。地址对齐、对象范围有效和缓存命中是三件不同的事，不能互相替代。</p>
 <h3 id="完整的数组相加循环">完整的数组相加循环</h3>
-<p>下面的函数约定三个数组各有 n 个可访问元素。输出可以与某一个输入完全相同，但不允许破坏遍历正确性的任意部分重叠。<code>TARGET_AVX</code> 是示例中的 <code>__attribute__((target(&quot;avx&quot;), noinline))</code>，用于把这个函数单独编译为 AVX 路径。</p>
-<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="function">TARGET_AVX</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">add_f32_avx</span><span class="params">(<span class="type">const</span> <span class="type">float</span>* a, <span class="type">const</span> <span class="type">float</span>* b, <span class="type">float</span>* out, std::<span class="type">size_t</span> n)</span> </span>{</span><br><span class="line">  std::<span class="type">size_t</span> i = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">for</span> (; n - i &gt;= <span class="number">8</span>; i += <span class="number">8</span>) {</span><br><span class="line">    <span class="type">const</span> __m256 x = _mm256_loadu_ps(a + i);</span><br><span class="line">    <span class="type">const</span> __m256 y = _mm256_loadu_ps(b + i);</span><br><span class="line">    _mm256_storeu_ps(out + i, _mm256_add_ps(x, y));</span><br><span class="line">  }</span><br><span class="line">  <span class="keyword">for</span> (; i &lt; n; ++i) out[i] = a[i] + b[i];</span><br><span class="line">}</span><br></pre></td></tr></table></figure><p>向量循环处理完整的 8 元素批次；末尾不足 8 个元素时，用标量循环完成。<code>n - i &gt;= 8</code> 在这里依赖始终成立的不变量 <code>i &lt;= n</code>，同时避免用 <code>i + 8 &lt;= n</code> 时极端整数溢出的表达问题。</p>
+<p>下面的函数约定三个数组各有 n 个可访问元素。输出可以与某一个输入完全相同，但不允许破坏遍历正确性的任意部分重叠。<code>TARGET_AVX</code> 是示例中的 <code>__attribute__((target("avx"), noinline))</code>，用于把这个函数单独编译为 AVX 路径。</p>
+<figure class="highlight cpp cpp-highlight"><table><tbody><tr><td class="code"><pre><code class="language-cpp"><span class="function">TARGET_AVX
+<span class="type">void</span> <span class="title">add_f32_avx</span><span class="params">(<span class="type">const</span> <span class="type">float</span>* a, <span class="type">const</span> <span class="type">float</span>* b, <span class="type">float</span>* out, std::<span class="type">size_t</span> n)</span> </span>{
+  std::<span class="type">size_t</span> i = <span class="number">0</span>;
+  <span class="keyword">for</span> (; n - i &gt;= <span class="number">8</span>; i += <span class="number">8</span>) {
+    <span class="type">const</span> __m256 x = _mm256_loadu_ps(a + i);
+    <span class="type">const</span> __m256 y = _mm256_loadu_ps(b + i);
+    _mm256_storeu_ps(out + i, _mm256_add_ps(x, y));
+  }
+  <span class="keyword">for</span> (; i &lt; n; ++i) out[i] = a[i] + b[i];
+}
+</code></pre></td></tr></tbody></table></figure><p>向量循环处理完整的 8 元素批次；末尾不足 8 个元素时，用标量循环完成。<code>n - i &gt;= 8</code> 在这里依赖始终成立的不变量 <code>i &lt;= n</code>，同时避免用 <code>i + 8 &lt;= n</code> 时极端整数溢出的表达问题。</p>
 <p>向量循环的 i 每次增加 8，但这是八个元素，不是八个字节。<code>a + i</code> 的地址增量还要乘以 <code>sizeof(float)</code>。构造 gather 的 scale 时会再次遇到“元素索引”与“字节地址”的区别。</p>
 <h3 id="对齐为什么可能影响性能">对齐为什么可能影响性能</h3>
 <p>现代 Intel CPU 上，一个碰巧对齐的 <code>loadu</code> 往往并不比同地址的 aligned load 多付固定代价。更重要的因素可能是一次访问是否跨 cache line、是否跨页、数据是否在 L1，以及目标微架构怎样处理拆分访问。因此不要把“未对齐总是慢一倍”当规律。</p>
@@ -440,14 +475,27 @@ body:has(.simd-article) #toc-footer .toc-level-2::before { display: none; }
 <p>普通 <code>add_epi8/16/32/64</code> 的低位加法不区分符号；同一位串按 signed 或 unsigned 解释，低位结果一致。饱和加法则需要明确符号：signed int16 的 <code>30000 + 10000</code>，环绕后的位型解释为 −25536，signed 饱和加法返回 32767。AVX2 的常用饱和加减主要针对 8/16 位元素，不要假设所有宽度都有相同名字的版本。</p>
 <h3 id="乘法的低位和扩宽不是一回事">乘法的“低位”和“扩宽”不是一回事</h3>
 <p><code>_mm256_mullo_epi32(a,b)</code> 对八对 int32 做乘法，每个结果保留低 32 位，仍然得到八个元素。<code>_mm256_mul_epi32(a,b)</code> 做 signed 32×32→64 扩宽乘法，但只使用每个输入的 <strong>0、2、4、6</strong> 号元素，结果是四个 int64。</p>
-<pre><code>a &#x3D; [a0,a1,a2,a3 | a4,a5,a6,a7]
-b &#x3D; [b0,b1,b2,b3 | b4,b5,b6,b7]
-mul_epi32(a,b) &#x3D; [a0*b0, a2*b2 | a4*b4, a6*b6]  &#x2F;&#x2F; 四个64-bit结果</code></pre>
+<pre><code>a = [a0,a1,a2,a3 | a4,a5,a6,a7]
+b = [b0,b1,b2,b3 | b4,b5,b6,b7]
+mul_epi32(a,b) = [a0*b0, a2*b2 | a4*b4, a6*b6]  // 四个64-bit结果</code></pre>
 <p>寄存器总宽度没有变，所以不能同时容纳八个 64 位乘积。若需要所有八个扩宽结果，必须另行处理奇数元素或拆成两组。无符号扩宽乘法用 <code>_mm256_mul_epu32</code>。AVX2 也没有像浮点 <code>div_ps</code> 那样通用的逐元素整数除法 intrinsic，通常需要常量除法变换、其他算法或标量处理。</p>
 <h3 id="浮点操作仍然遵循浮点规则">浮点操作仍然遵循浮点规则</h3>
 <p><code>_mm256_mul_ps</code> 产生八个独立的 float 乘积，每个结果按相应浮点规则舍入。NaN、无穷、舍入模式以及异常控制，并不会因为使用向量而消失。特别是 reduction 改变加法分组、FMA 改变舍入次数时，结果可能与逐元素标量表达式不逐位相同。后面会单独推导这两种情况。</p>
 <p>一个直接的应用是 SAXPY，即 <code>out[i] = alpha * x[i] + y[i]</code>。先广播 alpha，再对各 lane 相乘并相加：</p>
-<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="function">TARGET_AVX</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">saxpy_avx</span><span class="params">(<span class="type">float</span> alpha, <span class="type">const</span> <span class="type">float</span>* x, <span class="type">const</span> <span class="type">float</span>* y,</span></span></span><br><span class="line"><span class="params"><span class="function">               <span class="type">float</span>* out, std::<span class="type">size_t</span> n)</span> </span>{</span><br><span class="line">  <span class="type">const</span> __m256 a = _mm256_set1_ps(alpha);</span><br><span class="line">  std::<span class="type">size_t</span> i = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">for</span> (; n - i &gt;= <span class="number">8</span>; i += <span class="number">8</span>) {</span><br><span class="line">    <span class="type">const</span> __m256 vx = _mm256_loadu_ps(x + i);</span><br><span class="line">    <span class="type">const</span> __m256 vy = _mm256_loadu_ps(y + i);</span><br><span class="line">    <span class="type">const</span> __m256 product = _mm256_mul_ps(a, vx);</span><br><span class="line">    _mm256_storeu_ps(out + i, _mm256_add_ps(product, vy));</span><br><span class="line">  }</span><br><span class="line">  <span class="keyword">for</span> (; i &lt; n; ++i) out[i] = alpha * x[i] + y[i];</span><br><span class="line">}</span><br></pre></td></tr></table></figure><p>这份演示用 <code>-ffp-contract=off</code> 保持显式的乘法加法分开，便于与 FMA 比较。输入输出的重叠约定与数组相加相同；向量版本的主要变化是每次处理八项，不是更换数学问题。</p>
+<figure class="highlight cpp cpp-highlight"><table><tbody><tr><td class="code"><pre><code class="language-cpp"><span class="function">TARGET_AVX
+<span class="type">void</span> <span class="title">saxpy_avx</span><span class="params">(<span class="type">float</span> alpha, <span class="type">const</span> <span class="type">float</span>* x, <span class="type">const</span> <span class="type">float</span>* y,
+               <span class="type">float</span>* out, std::<span class="type">size_t</span> n)</span> </span>{
+  <span class="type">const</span> __m256 a = _mm256_set1_ps(alpha);
+  std::<span class="type">size_t</span> i = <span class="number">0</span>;
+  <span class="keyword">for</span> (; n - i &gt;= <span class="number">8</span>; i += <span class="number">8</span>) {
+    <span class="type">const</span> __m256 vx = _mm256_loadu_ps(x + i);
+    <span class="type">const</span> __m256 vy = _mm256_loadu_ps(y + i);
+    <span class="type">const</span> __m256 product = _mm256_mul_ps(a, vx);
+    _mm256_storeu_ps(out + i, _mm256_add_ps(product, vy));
+  }
+  <span class="keyword">for</span> (; i &lt; n; ++i) out[i] = alpha * x[i] + y[i];
+}
+</code></pre></td></tr></tbody></table></figure><p>这份演示用 <code>-ffp-contract=off</code> 保持显式的乘法加法分开，便于与 FMA 比较。输入输出的重叠约定与数组相加相同；向量版本的主要变化是每次处理八项，不是更换数学问题。</p>
 <span class="simd-legacy-anchor" id="movemask-与-blend-服务于不同的控制方式" aria-hidden="true"></span>
 <span class="simd-legacy-anchor" id="完整模式：统计大于阈值的-uint32" aria-hidden="true"></span>
 <span class="simd-legacy-anchor" id="Permuting-and-Shuffling" aria-hidden="true"></span>
@@ -461,7 +509,11 @@ mul_epi32(a,b) &#x3D; [a0*b0, a2*b2 | a4*b4, a6*b6]  &#x2F;&#x2F; 四个64-bit�
 
 
 <p>以 <code>x = [-3,9,0,12 | 7,-1,20,4]</code> 为例，<code>x &gt; 5</code> 在 lane 1、3、4、6 成立。对应 mask 是 <code>[0,-1,0,-1 | -1,0,-1,0]</code>。如果需要把不满足条件的值设为零，可以直接 <code>and(x, mask)</code>。更一般的条件选择是：</p>
-<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 每个 mask 元素必须是全一或全零。</span></span><br><span class="line">__m256i selected = _mm256_or_si256(</span><br><span class="line">    _mm256_and_si256(mask, when_true),</span><br><span class="line">    _mm256_andnot_si256(mask, when_false)); <span class="comment">// (~mask) &amp; when_false</span></span><br></pre></td></tr></table></figure><p>这等价于逐位表达式 <code>(mask &amp; a) | (~mask &amp; b)</code>。<code>andnot(a,b)</code> 的顺序尤其容易写反：它是 <code>(~a) &amp; b</code>。</p>
+<figure class="highlight cpp cpp-highlight"><table><tbody><tr><td class="code"><pre><code class="language-cpp"><span class="comment">// 每个 mask 元素必须是全一或全零。</span>
+__m256i selected = _mm256_or_si256(
+    _mm256_and_si256(mask, when_true),
+    _mm256_andnot_si256(mask, when_false)); <span class="comment">// (~mask) &amp; when_false</span>
+</code></pre></td></tr></tbody></table></figure><p>这等价于逐位表达式 <code>(mask &amp; a) | (~mask &amp; b)</code>。<code>andnot(a,b)</code> 的顺序尤其容易写反：它是 <code>(~a) &amp; b</code>。</p>
 <h3 id="blend-检查哪些位">Blend 检查哪些位</h3>
 <p><code>_mm256_blendv_ps(a,b,m)</code> 对每个 32-bit float 元素检查 mask 的<strong>最高位</strong>：置位选 b，否则选 a。<code>_mm256_blendv_epi8</code> 则每个字节检查一个最高位。它们不会要求 mask 的其他位也全为 1，所以不能把一个随意的 mask 同时当作完整的逐位选择条件。</p>
 <p>例如 int32 mask 为 1，即位型 <code>0x00000001</code>，它不是比较指令生成的真值 mask：用它做 AND 只保留最低位，用它做 <code>blendv_ps</code> 也不会选择 b。先说清楚 mask 的粒度和位型，再决定用哪种操作。</p>
@@ -490,7 +542,29 @@ XOR 0x80000000：0x80000000, ... , 0xffffffff, 0x00000000, ... , 0x7fffffff
 
 <p>这不是只对“小于 2³¹ 的正常值”生效的技巧，而是覆盖全部 32 位无符号范围的保序映射。相等比较本来就只比较位串，不需要这一步；如果条件由 <code>&gt;</code> 改成 <code>&gt;=</code>，还要显式纳入相等，不能只换一个阈值就忽略边界溢出。</p>
 <p>下面是完整的 unsigned 阈值计数。阈值只广播和变换一次，每批处理八项，最后处理尾部：</p>
-<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="function">TARGET_AVX2</span></span><br><span class="line"><span class="function">std::<span class="type">size_t</span> <span class="title">count_gt_u32_avx2</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">    <span class="type">const</span> std::<span class="type">uint32_t</span>* data, std::<span class="type">size_t</span> n, std::<span class="type">uint32_t</span> threshold)</span> </span>{</span><br><span class="line">  <span class="type">const</span> __m256i sign = _mm256_set1_epi32(std::numeric_limits&lt;<span class="type">int</span>&gt;::<span class="built_in">min</span>());</span><br><span class="line">  std::<span class="type">int32_t</span> thresholdBits;</span><br><span class="line">  std::<span class="built_in">memcpy</span>(&amp;thresholdBits, &amp;threshold, <span class="built_in">sizeof</span>(thresholdBits));</span><br><span class="line">  <span class="type">const</span> __m256i limit = _mm256_xor_si256(_mm256_set1_epi32(thresholdBits), sign);</span><br><span class="line">  std::<span class="type">size_t</span> count = <span class="number">0</span>, i = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">for</span> (; n - i &gt;= <span class="number">8</span>; i += <span class="number">8</span>) {</span><br><span class="line">    <span class="type">const</span> __m256i x = _mm256_loadu_si256(</span><br><span class="line">        <span class="built_in">reinterpret_cast</span>&lt;<span class="type">const</span> __m256i*&gt;(data + i));</span><br><span class="line">    <span class="type">const</span> __m256i mask = _mm256_cmpgt_epi32(_mm256_xor_si256(x, sign), limit);</span><br><span class="line">    <span class="type">unsigned</span> bits = <span class="built_in">static_cast</span>&lt;<span class="type">unsigned</span>&gt;(</span><br><span class="line">        _mm256_movemask_ps(_mm256_castsi256_ps(mask)));</span><br><span class="line">    <span class="keyword">while</span> (bits != <span class="number">0</span>) {</span><br><span class="line">      bits &amp;= bits - <span class="number">1</span>;</span><br><span class="line">      ++count;</span><br><span class="line">    }</span><br><span class="line">  }</span><br><span class="line">  <span class="keyword">for</span> (; i &lt; n; ++i) count += data[i] &gt; threshold;</span><br><span class="line">  <span class="keyword">return</span> count;</span><br><span class="line">}</span><br></pre></td></tr></table></figure><p><code>memcpy</code> 用来把 threshold 的位型放进 int32，避免依赖 C++17 中超范围 unsigned→signed 数值转换的实现选择。计数用一个短的标量清位循环，每轮 <code>bits &amp;= bits - 1</code> 删除一个最低置位。性能代码可以使用 popcount，但 <strong>POPCNT 也有独立的 CPU 特性要求</strong>；不要因为检测了 AVX2 就手写一条未经检测的 POPCNT 指令。</p>
+<figure class="highlight cpp cpp-highlight"><table><tbody><tr><td class="code"><pre><code class="language-cpp"><span class="function">TARGET_AVX2
+std::<span class="type">size_t</span> <span class="title">count_gt_u32_avx2</span><span class="params">(
+    <span class="type">const</span> std::<span class="type">uint32_t</span>* data, std::<span class="type">size_t</span> n, std::<span class="type">uint32_t</span> threshold)</span> </span>{
+  <span class="type">const</span> __m256i sign = _mm256_set1_epi32(std::numeric_limits&lt;<span class="type">int</span>&gt;::<span class="built_in">min</span>());
+  std::<span class="type">int32_t</span> thresholdBits;
+  std::<span class="built_in">memcpy</span>(&amp;thresholdBits, &amp;threshold, <span class="built_in">sizeof</span>(thresholdBits));
+  <span class="type">const</span> __m256i limit = _mm256_xor_si256(_mm256_set1_epi32(thresholdBits), sign);
+  std::<span class="type">size_t</span> count = <span class="number">0</span>, i = <span class="number">0</span>;
+  <span class="keyword">for</span> (; n - i &gt;= <span class="number">8</span>; i += <span class="number">8</span>) {
+    <span class="type">const</span> __m256i x = _mm256_loadu_si256(
+        <span class="built_in">reinterpret_cast</span>&lt;<span class="type">const</span> __m256i*&gt;(data + i));
+    <span class="type">const</span> __m256i mask = _mm256_cmpgt_epi32(_mm256_xor_si256(x, sign), limit);
+    <span class="type">unsigned</span> bits = <span class="built_in">static_cast</span>&lt;<span class="type">unsigned</span>&gt;(
+        _mm256_movemask_ps(_mm256_castsi256_ps(mask)));
+    <span class="keyword">while</span> (bits != <span class="number">0</span>) {
+      bits &amp;= bits - <span class="number">1</span>;
+      ++count;
+    }
+  }
+  <span class="keyword">for</span> (; i &lt; n; ++i) count += data[i] &gt; threshold;
+  <span class="keyword">return</span> count;
+}
+</code></pre></td></tr></tbody></table></figure><p><code>memcpy</code> 用来把 threshold 的位型放进 int32，避免依赖 C++17 中超范围 unsigned→signed 数值转换的实现选择。计数用一个短的标量清位循环，每轮 <code>bits &amp;= bits - 1</code> 删除一个最低置位。性能代码可以使用 popcount，但 <strong>POPCNT 也有独立的 CPU 特性要求</strong>；不要因为检测了 AVX2 就手写一条未经检测的 POPCNT 指令。</p>
 <p>有符号输入不需要 bias；可下载代码中的 <code>count_gt_i32_avx2</code> 展示了这条更短的路径。对两者都应验证恰好等于阈值、0、最大值以及跨越符号位的值。</p>
 <span class="simd-legacy-anchor" id="_mm_shuffle-从右边决定-lane-0" aria-hidden="true"></span>
 <span class="simd-legacy-anchor" id="byte-shuffle-可当作小查表，但每半只有-16-个入口" aria-hidden="true"></span>
@@ -509,7 +583,8 @@ XOR 0x80000000：0x80000000, ... , 0xffffffff, 0x00000000, ... , 0x7fffffff
 <p>控制 immediate 通常要求编译时常量，不能把一个任意运行时整数直接传进要求 imm8 的位置。需要每次迭代都变化的索引时，应寻找接受向量索引的变量版本；它的允许范围也可能不同。</p>
 <h3 id="双输入-shuffle：每半区从-a-取两项、从-b-取两项">双输入 shuffle：每半区从 a 取两项、从 b 取两项</h3>
 <p><code>_mm256_shuffle_ps(a,b,imm)</code> 在每个半区产生四项：输出前两项从 a 选，后两项从 b 选。控制位最低两组索引 a，最高两组索引 b。</p>
-<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line">__m256 out = _mm256_shuffle_ps(a, b, _MM_SHUFFLE(<span class="number">2</span>,<span class="number">0</span>,<span class="number">2</span>,<span class="number">0</span>));</span><br></pre></td></tr></table></figure><p>当 a=0..7、b=10..17 时，输出是 <code>[0,2,10,12 | 4,6,14,16]</code>。特别注意高半从 a 的 4..7 与 b 的 14..17 选，而不是重新使用整个输入的前四项。</p>
+<figure class="highlight cpp cpp-highlight"><table><tbody><tr><td class="code"><pre><code class="language-cpp">__m256 out = _mm256_shuffle_ps(a, b, _MM_SHUFFLE(<span class="number">2</span>,<span class="number">0</span>,<span class="number">2</span>,<span class="number">0</span>));
+</code></pre></td></tr></tbody></table></figure><p>当 a=0..7、b=10..17 时，输出是 <code>[0,2,10,12 | 4,6,14,16]</code>。特别注意高半从 a 的 4..7 与 b 的 14..17 选，而不是重新使用整个输入的前四项。</p>
 <figure class="simd-figure"><div class="simd-diagram-scroll" tabindex="0" role="region" aria-label="图 9，可横向滚动"><img src="/images/simd-basic/two-input-shuffle.svg" alt="双输入 shuffle 在每个半区分别执行 [a0,a2,b0,b2] 的局部映射，两个输入不会自动拼接成一个全局索引表。" loading="lazy"></div><figcaption>图 9 · 双输入 shuffle 在每个半区分别执行 [a0,a2,b0,b2] 的局部映射，两个输入不会自动拼接成一个全局索引表。 <a href="/images/simd-basic/two-input-shuffle.svg">打开原图</a></figcaption></figure>
 
 
@@ -598,14 +673,22 @@ unpackhi → [2,12,3,13 | 6,16,7,17]</code></pre>
 
 <p>逐元素加法每个 lane 独立；求和则必须把不同 lane 的结果汇集到一起。这叫 horizontal reduction。它既会引入跨元素通信，也会改变运算分组。</p>
 <p><code>_mm256_hadd_ps(a,b)</code> 这个名字容易让人以为“一次得到总和”，实际上它仍按半区做相邻配对。令 v=<code>[1,2,3,4 | 5,6,7,8]</code>：</p>
-<pre><code>hadd(v,v)     &#x3D; [3,7,3,7 | 11,15,11,15]
-再 hadd 自身  &#x3D; [10,10,10,10 | 26,26,26,26]</code></pre>
+<pre><code>hadd(v,v)     = [3,7,3,7 | 11,15,11,15]
+再 hadd 自身  = [10,10,10,10 | 26,26,26,26]</code></pre>
 <p>此时低半的和是 10，高半是 26，两个半区还没有相加。无论指令名字多像“求和”，都应把实际输出写下来。</p>
 <figure class="simd-figure"><div class="simd-diagram-scroll" tabindex="0" role="region" aria-label="图 14，可横向滚动"><img src="/images/simd-basic/reduction.svg" alt="先跨半区把对应项相加，再在 XMM 中缩小有效结果数。只有最后提取的低元素是完整八项之和。" loading="lazy"></div><figcaption>图 14 · 先跨半区把对应项相加，再在 XMM 中缩小有效结果数。只有最后提取的低元素是完整八项之和。 <a href="/images/simd-basic/reduction.svg">打开原图</a></figcaption></figure>
 
 
 <p>下面这段使用 AVX 加上 XMM 操作，完整地把八项归约为一个标量：</p>
-<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="function">TARGET_AVX</span></span><br><span class="line"><span class="function"><span class="type">float</span> <span class="title">horizontal_sum8_avx</span><span class="params">(__m256 v)</span> </span>{</span><br><span class="line">  __m128 s = _mm_add_ps(_mm256_castps256_ps128(v),</span><br><span class="line">                        _mm256_extractf128_ps(v, <span class="number">1</span>));</span><br><span class="line">  s = _mm_add_ps(s, _mm_movehl_ps(s, s));</span><br><span class="line">  s = _mm_add_ss(s, _mm_shuffle_ps(s, s, _MM_SHUFFLE(<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>)));</span><br><span class="line">  <span class="keyword">return</span> _mm_cvtss_f32(s);</span><br><span class="line">}</span><br></pre></td></tr></table></figure><p>对 1..8，第一步相加 low/high 得到 <code>[6,8,10,12]</code>。<code>movehl</code> 把高两项复制到低两项，下一次加法后是 <code>[16,20,20,24]</code>。这里只需要低两项：最后 <code>add_ss</code> 将 16+20 放在 lane 0，再提取 36。其余 lane 的中间值不是额外的输出，不应被误当成已经正确归约的总和。</p>
+<figure class="highlight cpp cpp-highlight"><table><tbody><tr><td class="code"><pre><code class="language-cpp"><span class="function">TARGET_AVX
+<span class="type">float</span> <span class="title">horizontal_sum8_avx</span><span class="params">(__m256 v)</span> </span>{
+  __m128 s = _mm_add_ps(_mm256_castps256_ps128(v),
+                        _mm256_extractf128_ps(v, <span class="number">1</span>));
+  s = _mm_add_ps(s, _mm_movehl_ps(s, s));
+  s = _mm_add_ss(s, _mm_shuffle_ps(s, s, _MM_SHUFFLE(<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>)));
+  <span class="keyword">return</span> _mm_cvtss_f32(s);
+}
+</code></pre></td></tr></tbody></table></figure><p>对 1..8，第一步相加 low/high 得到 <code>[6,8,10,12]</code>。<code>movehl</code> 把高两项复制到低两项，下一次加法后是 <code>[16,20,20,24]</code>。这里只需要低两项：最后 <code>add_ss</code> 将 16+20 放在 lane 0，再提取 36。其余 lane 的中间值不是额外的输出，不应被误当成已经正确归约的总和。</p>
 <h3 id="长数组先垂直累加，最后再横向合并">长数组先垂直累加，最后再横向合并</h3>
 <p>如果对每批八项都立即归约，循环中就会反复付出 shuffle、跨半区搬运和标量依赖的成本。更常见的方式是让多个向量 accumulator 各自累积，循环结束后合并，再归约一次。第 14 章的点积使用两个独立 accumulator；完整源码也包含数组求和版本。</p>
 <p>浮点加法不满足实数意义下的结合律。<code>(a+b)+c</code> 与 <code>a+(b+c)</code> 可能因为中间舍入不同而产生不同结果。向量归约、分块并行和 FMA 都可能改变分组，因此正确性判断要采用应用需要的误差界；要求逐位复现顺序标量结果时，不能无条件替换求和顺序。</p>
@@ -617,7 +700,16 @@ unpackhi → [2,12,3,13 | 6,16,7,17]</code></pre>
 
 
 <p>AVX 提供 float/double maskload/maskstore，AVX2 扩展了 32/64-bit 整数版本。Mask 的每个元素最高位控制是否访问该位置。Maskload 的禁用元素在结果中为零；maskstore 的禁用元素不会写入，目标原有内容保持不变。</p>
-<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="function">TARGET_AVX2</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">load_tail_u32</span><span class="params">(<span class="type">const</span> std::<span class="type">uint32_t</span>* input, <span class="type">int</span> count, std::<span class="type">uint32_t</span>* out8)</span> </span>{</span><br><span class="line">  <span class="comment">// Contract: 0 &lt;= count &lt;= 8, input has count readable elements;</span></span><br><span class="line">  <span class="comment">// out8 always has eight writable elements. Disabled lanes become zero.</span></span><br><span class="line">  <span class="type">const</span> __m256i index = _mm256_setr_epi32(<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>);</span><br><span class="line">  <span class="type">const</span> __m256i mask = _mm256_cmpgt_epi32(_mm256_set1_epi32(count), index);</span><br><span class="line">  <span class="type">const</span> __m256i x = _mm256_maskload_epi32(<span class="built_in">reinterpret_cast</span>&lt;<span class="type">const</span> <span class="type">int</span>*&gt;(input), mask);</span><br><span class="line">  _mm256_storeu_si256(<span class="built_in">reinterpret_cast</span>&lt;__m256i*&gt;(out8), x);</span><br><span class="line">}</span><br></pre></td></tr></table></figure><p>这个辅助函数的输出 <code>out8</code> 必须始终有八个可写元素，因为它最后用了一个普通的完整 store。Maskload 只解决<strong>输入加载</strong>的边界，不会自动改变之后 store 的范围。若结果也写回短尾部，要用相应 maskstore、标量存储，或者足够大的临时缓冲区。</p>
+<figure class="highlight cpp cpp-highlight"><table><tbody><tr><td class="code"><pre><code class="language-cpp"><span class="function">TARGET_AVX2
+<span class="type">void</span> <span class="title">load_tail_u32</span><span class="params">(<span class="type">const</span> std::<span class="type">uint32_t</span>* input, <span class="type">int</span> count, std::<span class="type">uint32_t</span>* out8)</span> </span>{
+  <span class="comment">// Contract: 0 &lt;= count &lt;= 8, input has count readable elements;</span>
+  <span class="comment">// out8 always has eight writable elements. Disabled lanes become zero.</span>
+  <span class="type">const</span> __m256i index = _mm256_setr_epi32(<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>);
+  <span class="type">const</span> __m256i mask = _mm256_cmpgt_epi32(_mm256_set1_epi32(count), index);
+  <span class="type">const</span> __m256i x = _mm256_maskload_epi32(<span class="built_in">reinterpret_cast</span>&lt;<span class="type">const</span> <span class="type">int</span>*&gt;(input), mask);
+  _mm256_storeu_si256(<span class="built_in">reinterpret_cast</span>&lt;__m256i*&gt;(out8), x);
+}
+</code></pre></td></tr></tbody></table></figure><p>这个辅助函数的输出 <code>out8</code> 必须始终有八个可写元素，因为它最后用了一个普通的完整 store。Maskload 只解决<strong>输入加载</strong>的边界，不会自动改变之后 store 的范围。若结果也写回短尾部，要用相应 maskstore、标量存储，或者足够大的临时缓冲区。</p>
 <p>掩掉的零值还可能影响计算。例如只剩三项时加载成 <code>[x0,x1,x2,0,0,0,0,0]</code>，随后计算 <code>x &gt;= 0</code>，禁用位置也会得到真。涉及计数、min/max 或异常敏感操作时，要把有效性 mask 继续带入算法，或选择适合操作的填充值。maskload 不是一个自动消除所有尾部问题的开关。</p>
 <p>AVX2 没有同样形式的任意字节 maskload。对不足 32 字节的文本，通常用标量尾循环，或复制有效字节到固定大小临时数组，并保证填充值不会被算入最终答案。只有在调用契约明确提供了可访问 padding 时，才能使用依赖 padding 的完整加载。</p>
 <p>本教程的验证包含紧贴不可访问页的整数尾部加载。这样可以检查实现是否真正避免访问禁用位置。普通 load 后再 AND/blend，不会撤销已经发生的越界读取。</p>
@@ -626,18 +718,52 @@ unpackhi → [2,12,3,13 | 6,16,7,17]</code></pre>
 <p>下面的应用都包含循环边界和标量尾部。示例重点是可解释的语义；完整源码同时保留标量参考来检查输出，未宣称这些教学实现已经是每个 CPU 上的最优版本。</p>
 <h3 id="141-ascii-小写转大写：范围-mask-加逐字节修正">14.1 ASCII 小写转大写：范围 mask 加逐字节修正</h3>
 <p>ASCII 小写字母位于 <code>0x61..0x7a</code>，对应大写字母恰好少 <code>0x20</code>。先判断每个字节在不在这个范围内，再只对满足条件的字节减 32。</p>
-<pre><code>输入字节：  &#39;a&#39;  &#39;Z&#39;  &#39;z&#39;  &#39;0&#39;  &#39;&#123;&#39;  0xff
+<pre><code>输入字节：  'a'  'Z'  'z'  '0'  '{'  0xff
 范围 mask：  ff   00   ff   00   00    00
 减去 delta： 20   00   20   00   00    00
-输出字节：  &#39;A&#39;  &#39;Z&#39;  &#39;Z&#39;  &#39;0&#39;  &#39;&#123;&#39;  0xff</code></pre>
-<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="function">TARGET_AVX2</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">ascii_upper_avx2</span><span class="params">(std::<span class="type">uint8_t</span>* bytes, std::<span class="type">size_t</span> n)</span> </span>{</span><br><span class="line">  <span class="type">const</span> __m256i beforeA = _mm256_set1_epi8(<span class="string">&#x27;a&#x27;</span> - <span class="number">1</span>);</span><br><span class="line">  <span class="type">const</span> __m256i afterZ = _mm256_set1_epi8(<span class="string">&#x27;z&#x27;</span> + <span class="number">1</span>);</span><br><span class="line">  <span class="type">const</span> __m256i caseBit = _mm256_set1_epi8(<span class="number">0x20</span>);</span><br><span class="line">  std::<span class="type">size_t</span> i = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">for</span> (; n - i &gt;= <span class="number">32</span>; i += <span class="number">32</span>) {</span><br><span class="line">    <span class="type">const</span> __m256i x = _mm256_loadu_si256(</span><br><span class="line">        <span class="built_in">reinterpret_cast</span>&lt;<span class="type">const</span> __m256i*&gt;(bytes + i));</span><br><span class="line">    <span class="type">const</span> __m256i lower = _mm256_cmpgt_epi8(x, beforeA);</span><br><span class="line">    <span class="type">const</span> __m256i upper = _mm256_cmpgt_epi8(afterZ, x);</span><br><span class="line">    <span class="type">const</span> __m256i mask = _mm256_and_si256(lower, upper);</span><br><span class="line">    <span class="type">const</span> __m256i delta = _mm256_and_si256(mask, caseBit);</span><br><span class="line">    _mm256_storeu_si256(<span class="built_in">reinterpret_cast</span>&lt;__m256i*&gt;(bytes + i),</span><br><span class="line">                       _mm256_sub_epi8(x, delta));</span><br><span class="line">  }</span><br><span class="line">  <span class="keyword">for</span> (; i &lt; n; ++i)</span><br><span class="line">    <span class="keyword">if</span> (bytes[i] &gt;= <span class="string">&#x27;a&#x27;</span> &amp;&amp; bytes[i] &lt;= <span class="string">&#x27;z&#x27;</span>) bytes[i] -= <span class="number">0x20</span>;</span><br><span class="line">}</span><br></pre></td></tr></table></figure><p>这里使用 signed byte 比较仍然正确：ASCII 小写范围完全落在 0..127；所有 128..255 字节按 signed 解释为负数，第一项 <code>x &gt; &#39;a&#39;-1</code> 就为假，最终 mask 为零。两个条件的 AND 保证高位字节不被误改。</p>
+输出字节：  'A'  'Z'  'Z'  '0'  '{'  0xff</code></pre>
+<figure class="highlight cpp cpp-highlight"><table><tbody><tr><td class="code"><pre><code class="language-cpp"><span class="function">TARGET_AVX2
+<span class="type">void</span> <span class="title">ascii_upper_avx2</span><span class="params">(std::<span class="type">uint8_t</span>* bytes, std::<span class="type">size_t</span> n)</span> </span>{
+  <span class="type">const</span> __m256i beforeA = _mm256_set1_epi8(<span class="string">'a'</span> - <span class="number">1</span>);
+  <span class="type">const</span> __m256i afterZ = _mm256_set1_epi8(<span class="string">'z'</span> + <span class="number">1</span>);
+  <span class="type">const</span> __m256i caseBit = _mm256_set1_epi8(<span class="number">0x20</span>);
+  std::<span class="type">size_t</span> i = <span class="number">0</span>;
+  <span class="keyword">for</span> (; n - i &gt;= <span class="number">32</span>; i += <span class="number">32</span>) {
+    <span class="type">const</span> __m256i x = _mm256_loadu_si256(
+        <span class="built_in">reinterpret_cast</span>&lt;<span class="type">const</span> __m256i*&gt;(bytes + i));
+    <span class="type">const</span> __m256i lower = _mm256_cmpgt_epi8(x, beforeA);
+    <span class="type">const</span> __m256i upper = _mm256_cmpgt_epi8(afterZ, x);
+    <span class="type">const</span> __m256i mask = _mm256_and_si256(lower, upper);
+    <span class="type">const</span> __m256i delta = _mm256_and_si256(mask, caseBit);
+    _mm256_storeu_si256(<span class="built_in">reinterpret_cast</span>&lt;__m256i*&gt;(bytes + i),
+                       _mm256_sub_epi8(x, delta));
+  }
+  <span class="keyword">for</span> (; i &lt; n; ++i)
+    <span class="keyword">if</span> (bytes[i] &gt;= <span class="string">'a'</span> &amp;&amp; bytes[i] &lt;= <span class="string">'z'</span>) bytes[i] -= <span class="number">0x20</span>;
+}
+</code></pre></td></tr></tbody></table></figure><p>这里使用 signed byte 比较仍然正确：ASCII 小写范围完全落在 0..127；所有 128..255 字节按 signed 解释为负数，第一项 <code>x &gt; 'a'-1</code> 就为假，最终 mask 为零。两个条件的 AND 保证高位字节不被误改。</p>
 <p>函数原位处理任意字节串，仅把 ASCII a..z 转为 A..Z，其余字节保持原样。它不实现 Unicode 大小写规则，也不依赖输入以 NUL 结尾；调用者显式给出长度。</p>
 <h3 id="142-图像亮度：用饱和加法表达边界">14.2 图像亮度：用饱和加法表达边界</h3>
 <p>对 uint8 灰度值增加 delta，希望结果最多为 255：</p>
 <pre><code>输入：       [0, 10, 120, 240, 250, 255]
-delta&#x3D;20：   [20,30,140,255,255,255]
-普通环绕加： [20,30,140,  4, 14, 19]  &#x2F;&#x2F; 亮点反而变暗</code></pre>
-<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="function">TARGET_AVX2</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">brighten_u8_avx2</span><span class="params">(std::<span class="type">uint8_t</span>* data, std::<span class="type">size_t</span> n, std::<span class="type">uint8_t</span> delta)</span> </span>{</span><br><span class="line">  <span class="type">char</span> deltaBits;</span><br><span class="line">  std::<span class="built_in">memcpy</span>(&amp;deltaBits, &amp;delta, <span class="built_in">sizeof</span>(deltaBits));</span><br><span class="line">  <span class="type">const</span> __m256i amount = _mm256_set1_epi8(deltaBits);</span><br><span class="line">  std::<span class="type">size_t</span> i = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">for</span> (; n - i &gt;= <span class="number">32</span>; i += <span class="number">32</span>) {</span><br><span class="line">    <span class="type">const</span> __m256i x = _mm256_loadu_si256(</span><br><span class="line">        <span class="built_in">reinterpret_cast</span>&lt;<span class="type">const</span> __m256i*&gt;(data + i));</span><br><span class="line">    _mm256_storeu_si256(<span class="built_in">reinterpret_cast</span>&lt;__m256i*&gt;(data + i),</span><br><span class="line">                       _mm256_adds_epu8(x, amount));</span><br><span class="line">  }</span><br><span class="line">  <span class="keyword">for</span> (; i &lt; n; ++i)</span><br><span class="line">    data[i] = <span class="built_in">static_cast</span>&lt;std::<span class="type">uint8_t</span>&gt;(std::<span class="built_in">min</span>(<span class="number">255u</span>, <span class="built_in">unsigned</span>(data[i]) + delta));</span><br><span class="line">}</span><br></pre></td></tr></table></figure><p><code>adds_epu8</code> 正好表达 <code>min(255, unsigned(x)+delta)</code>，省去显式比较再选择。但它只适用于我们确实想要饱和边界的应用；哈希、整数模运算等可能需要环绕，不能把饱和当作通用的“更安全加法”。这里直接处理字节强度，不涉及颜色空间或 gamma 校正。</p>
+delta=20：   [20,30,140,255,255,255]
+普通环绕加： [20,30,140,  4, 14, 19]  // 亮点反而变暗</code></pre>
+<figure class="highlight cpp cpp-highlight"><table><tbody><tr><td class="code"><pre><code class="language-cpp"><span class="function">TARGET_AVX2
+<span class="type">void</span> <span class="title">brighten_u8_avx2</span><span class="params">(std::<span class="type">uint8_t</span>* data, std::<span class="type">size_t</span> n, std::<span class="type">uint8_t</span> delta)</span> </span>{
+  <span class="type">char</span> deltaBits;
+  std::<span class="built_in">memcpy</span>(&amp;deltaBits, &amp;delta, <span class="built_in">sizeof</span>(deltaBits));
+  <span class="type">const</span> __m256i amount = _mm256_set1_epi8(deltaBits);
+  std::<span class="type">size_t</span> i = <span class="number">0</span>;
+  <span class="keyword">for</span> (; n - i &gt;= <span class="number">32</span>; i += <span class="number">32</span>) {
+    <span class="type">const</span> __m256i x = _mm256_loadu_si256(
+        <span class="built_in">reinterpret_cast</span>&lt;<span class="type">const</span> __m256i*&gt;(data + i));
+    _mm256_storeu_si256(<span class="built_in">reinterpret_cast</span>&lt;__m256i*&gt;(data + i),
+                       _mm256_adds_epu8(x, amount));
+  }
+  <span class="keyword">for</span> (; i &lt; n; ++i)
+    data[i] = <span class="built_in">static_cast</span>&lt;std::<span class="type">uint8_t</span>&gt;(std::<span class="built_in">min</span>(<span class="number">255u</span>, <span class="built_in">unsigned</span>(data[i]) + delta));
+}
+</code></pre></td></tr></tbody></table></figure><p><code>adds_epu8</code> 正好表达 <code>min(255, unsigned(x)+delta)</code>，省去显式比较再选择。但它只适用于我们确实想要饱和边界的应用；哈希、整数模运算等可能需要环绕，不能把饱和当作通用的“更安全加法”。这里直接处理字节强度，不涉及颜色空间或 gamma 校正。</p>
 <h3 id="143-aos-→-soa：先局部选出-xy，再修正跨半区顺序">14.3 AoS → SoA：先局部选出 x/y，再修正跨半区顺序</h3>
 <p>假设输入保存二维点：<code>[x0,y0,x1,y1,...]</code>，希望输出两个连续数组 x、y。这是从 Array of Structures 的交错布局转为 Structure of Arrays。</p>
 <p>一次处理八个点，需要加载 16 个 float，放进两个 YMM。先用双输入 shuffle 取偶数位置，就能收集 x，但其顺序是 <code>[x0,x1,x4,x5 | x2,x3,x6,x7]</code>。原因正是 shuffle 在每个半区独立工作。再用 AVX2 的全局 permute，索引 <code>[0,1,4,5,2,3,6,7]</code>，才得到连续的 x0..x7。</p>
@@ -645,19 +771,84 @@ delta&#x3D;20：   [20,30,140,255,255,255]
 
 
 
-<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="function">TARGET_AVX2</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">deinterleave_xy_avx2</span><span class="params">(<span class="type">const</span> <span class="type">float</span>* xy, <span class="type">float</span>* x, <span class="type">float</span>* y,</span></span></span><br><span class="line"><span class="params"><span class="function">                         std::<span class="type">size_t</span> n)</span> </span>{</span><br><span class="line">  <span class="comment">// xy holds 2*n floats; x and y each hold n floats. Buffers are disjoint.</span></span><br><span class="line">  <span class="type">const</span> __m256i order = _mm256_setr_epi32(<span class="number">0</span>, <span class="number">1</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">6</span>, <span class="number">7</span>);</span><br><span class="line">  std::<span class="type">size_t</span> i = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">for</span> (; n - i &gt;= <span class="number">8</span>; i += <span class="number">8</span>) {</span><br><span class="line">    <span class="type">const</span> __m256 lo = _mm256_loadu_ps(xy + <span class="number">2</span> * i);</span><br><span class="line">    <span class="type">const</span> __m256 hi = _mm256_loadu_ps(xy + <span class="number">2</span> * i + <span class="number">8</span>);</span><br><span class="line">    <span class="type">const</span> __m256 tx = _mm256_shuffle_ps(lo, hi, _MM_SHUFFLE(<span class="number">2</span>, <span class="number">0</span>, <span class="number">2</span>, <span class="number">0</span>));</span><br><span class="line">    <span class="type">const</span> __m256 ty = _mm256_shuffle_ps(lo, hi, _MM_SHUFFLE(<span class="number">3</span>, <span class="number">1</span>, <span class="number">3</span>, <span class="number">1</span>));</span><br><span class="line">    _mm256_storeu_ps(x + i, _mm256_permutevar8x32_ps(tx, order));</span><br><span class="line">    _mm256_storeu_ps(y + i, _mm256_permutevar8x32_ps(ty, order));</span><br><span class="line">  }</span><br><span class="line">  <span class="keyword">for</span> (; i &lt; n; ++i) { x[i] = xy[<span class="number">2</span> * i]; y[i] = xy[<span class="number">2</span> * i + <span class="number">1</span>]; }</span><br><span class="line">}</span><br></pre></td></tr></table></figure><p>输出 x、y 各有 n 个位置，输入 xy 有 2n 个位置，且这三个缓冲区互不重叠。<code>2*n</code> 的大小计算必须在调用方分配时有效。这条两步重排很适合练习：仅检查输出是否包含了所有 x 还不够，还必须检查顺序。</p>
+<figure class="highlight cpp cpp-highlight"><table><tbody><tr><td class="code"><pre><code class="language-cpp"><span class="function">TARGET_AVX2
+<span class="type">void</span> <span class="title">deinterleave_xy_avx2</span><span class="params">(<span class="type">const</span> <span class="type">float</span>* xy, <span class="type">float</span>* x, <span class="type">float</span>* y,
+                         std::<span class="type">size_t</span> n)</span> </span>{
+  <span class="comment">// xy holds 2*n floats; x and y each hold n floats. Buffers are disjoint.</span>
+  <span class="type">const</span> __m256i order = _mm256_setr_epi32(<span class="number">0</span>, <span class="number">1</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">6</span>, <span class="number">7</span>);
+  std::<span class="type">size_t</span> i = <span class="number">0</span>;
+  <span class="keyword">for</span> (; n - i &gt;= <span class="number">8</span>; i += <span class="number">8</span>) {
+    <span class="type">const</span> __m256 lo = _mm256_loadu_ps(xy + <span class="number">2</span> * i);
+    <span class="type">const</span> __m256 hi = _mm256_loadu_ps(xy + <span class="number">2</span> * i + <span class="number">8</span>);
+    <span class="type">const</span> __m256 tx = _mm256_shuffle_ps(lo, hi, _MM_SHUFFLE(<span class="number">2</span>, <span class="number">0</span>, <span class="number">2</span>, <span class="number">0</span>));
+    <span class="type">const</span> __m256 ty = _mm256_shuffle_ps(lo, hi, _MM_SHUFFLE(<span class="number">3</span>, <span class="number">1</span>, <span class="number">3</span>, <span class="number">1</span>));
+    _mm256_storeu_ps(x + i, _mm256_permutevar8x32_ps(tx, order));
+    _mm256_storeu_ps(y + i, _mm256_permutevar8x32_ps(ty, order));
+  }
+  <span class="keyword">for</span> (; i &lt; n; ++i) { x[i] = xy[<span class="number">2</span> * i]; y[i] = xy[<span class="number">2</span> * i + <span class="number">1</span>]; }
+}
+</code></pre></td></tr></tbody></table></figure><p>输出 x、y 各有 n 个位置，输入 xy 有 2n 个位置，且这三个缓冲区互不重叠。<code>2*n</code> 的大小计算必须在调用方分配时有效。这条两步重排很适合练习：仅检查输出是否包含了所有 x 还不够，还必须检查顺序。</p>
 <p>SoA 的价值在于后续只处理 x 时，可以连续加载纯 x 数据，减少反复提取。但如果每次工作都需要整个点，或转换成本高于后续收益，AoS 也可能更合适。布局选择取决于实际的访问模式。</p>
 <h3 id="144-点积：两个-accumulator-与一次归约">14.4 点积：两个 accumulator 与一次归约</h3>
 <p>点积 <code>sum(x[i]*y[i])</code> 同时包含逐元素乘法和跨元素累加。向量循环把这两层拆开：先算八个独立乘积，分别累加到对应 lane；循环结束后再横向求和。</p>
-<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="function">TARGET_AVX</span></span><br><span class="line"><span class="function"><span class="type">float</span> <span class="title">dot_f32_avx</span><span class="params">(<span class="type">const</span> <span class="type">float</span>* x, <span class="type">const</span> <span class="type">float</span>* y, std::<span class="type">size_t</span> n)</span> </span>{</span><br><span class="line">  __m256 acc0 = _mm256_setzero_ps(), acc1 = _mm256_setzero_ps();</span><br><span class="line">  std::<span class="type">size_t</span> i = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">for</span> (; n - i &gt;= <span class="number">16</span>; i += <span class="number">16</span>) {</span><br><span class="line">    <span class="type">const</span> __m256 p0 = _mm256_mul_ps(_mm256_loadu_ps(x + i),</span><br><span class="line">                                   _mm256_loadu_ps(y + i));</span><br><span class="line">    <span class="type">const</span> __m256 p1 = _mm256_mul_ps(_mm256_loadu_ps(x + i + <span class="number">8</span>),</span><br><span class="line">                                   _mm256_loadu_ps(y + i + <span class="number">8</span>));</span><br><span class="line">    acc0 = _mm256_add_ps(acc0, p0);</span><br><span class="line">    acc1 = _mm256_add_ps(acc1, p1);</span><br><span class="line">  }</span><br><span class="line">  __m256 sum = _mm256_add_ps(acc0, acc1);</span><br><span class="line">  <span class="keyword">if</span> (n - i &gt;= <span class="number">8</span>) {</span><br><span class="line">    sum = _mm256_add_ps(sum, _mm256_mul_ps(_mm256_loadu_ps(x + i),</span><br><span class="line">                                         _mm256_loadu_ps(y + i)));</span><br><span class="line">    i += <span class="number">8</span>;</span><br><span class="line">  }</span><br><span class="line">  <span class="type">float</span> result = <span class="built_in">horizontal_sum8_avx</span>(sum);</span><br><span class="line">  <span class="keyword">for</span> (; i &lt; n; ++i) result += x[i] * y[i];</span><br><span class="line">  <span class="keyword">return</span> result;</span><br><span class="line">}</span><br></pre></td></tr></table></figure><p>这里每轮处理 16 项，用 acc0、acc1 保存两条独立累加链。这样 CPU 不必让每一条向量加法都等待同一个前驱结果。多 accumulator 不是越多越好：更多寄存器、展开代码和最后的合并也有成本，具体数量应按处理器和数据规模测量。</p>
+<figure class="highlight cpp cpp-highlight"><table><tbody><tr><td class="code"><pre><code class="language-cpp"><span class="function">TARGET_AVX
+<span class="type">float</span> <span class="title">dot_f32_avx</span><span class="params">(<span class="type">const</span> <span class="type">float</span>* x, <span class="type">const</span> <span class="type">float</span>* y, std::<span class="type">size_t</span> n)</span> </span>{
+  __m256 acc0 = _mm256_setzero_ps(), acc1 = _mm256_setzero_ps();
+  std::<span class="type">size_t</span> i = <span class="number">0</span>;
+  <span class="keyword">for</span> (; n - i &gt;= <span class="number">16</span>; i += <span class="number">16</span>) {
+    <span class="type">const</span> __m256 p0 = _mm256_mul_ps(_mm256_loadu_ps(x + i),
+                                   _mm256_loadu_ps(y + i));
+    <span class="type">const</span> __m256 p1 = _mm256_mul_ps(_mm256_loadu_ps(x + i + <span class="number">8</span>),
+                                   _mm256_loadu_ps(y + i + <span class="number">8</span>));
+    acc0 = _mm256_add_ps(acc0, p0);
+    acc1 = _mm256_add_ps(acc1, p1);
+  }
+  __m256 sum = _mm256_add_ps(acc0, acc1);
+  <span class="keyword">if</span> (n - i &gt;= <span class="number">8</span>) {
+    sum = _mm256_add_ps(sum, _mm256_mul_ps(_mm256_loadu_ps(x + i),
+                                         _mm256_loadu_ps(y + i)));
+    i += <span class="number">8</span>;
+  }
+  <span class="type">float</span> result = <span class="built_in">horizontal_sum8_avx</span>(sum);
+  <span class="keyword">for</span> (; i &lt; n; ++i) result += x[i] * y[i];
+  <span class="keyword">return</span> result;
+}
+</code></pre></td></tr></tbody></table></figure><p>这里每轮处理 16 项，用 acc0、acc1 保存两条独立累加链。这样 CPU 不必让每一条向量加法都等待同一个前驱结果。多 accumulator 不是越多越好：更多寄存器、展开代码和最后的合并也有成本，具体数量应按处理器和数据规模测量。</p>
 <p>这份代码使用分离的 mul/add，没有要求 FMA。测试输入包含有界整数形式的 float，使本次语义验证中的期望和可以精确比较；真实浮点数据仍需按应用需求设置误差容限，不能把这种测试特例当成任意输入下的逐位一致保证。</p>
 <h3 id="145-字节位计数：把-byte-shuffle-变成小型-lut">14.5 字节位计数：把 byte shuffle 变成小型 LUT</h3>
 <p>一个字节最多有八个置位。把它分为两个 nibble：<code>lo = x &amp; 0x0f</code>，<code>hi = (x &gt;&gt; 4) &amp; 0x0f</code>。每个 nibble 只有 16 种值，查表后相加即可。</p>
-<pre><code>x &#x3D; 0xb3 &#x3D; 1011 0011
-lo &#x3D; 3  → LUT[3]  &#x3D; 2
-hi &#x3D; 11 → LUT[11] &#x3D; 3
-这个字节的 popcount &#x3D; 5</code></pre>
-<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="function">TARGET_AVX2</span></span><br><span class="line"><span class="function">std::<span class="type">uint64_t</span> <span class="title">popcount_bytes_avx2</span><span class="params">(<span class="type">const</span> std::<span class="type">uint8_t</span>* data, std::<span class="type">size_t</span> n)</span> </span>{</span><br><span class="line">  <span class="type">const</span> __m256i lut = _mm256_setr_epi8(</span><br><span class="line">      <span class="number">0</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">2</span>,<span class="number">1</span>,<span class="number">2</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">1</span>,<span class="number">2</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">3</span>,<span class="number">4</span>,</span><br><span class="line">      <span class="number">0</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">2</span>,<span class="number">1</span>,<span class="number">2</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">1</span>,<span class="number">2</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">3</span>,<span class="number">4</span>);</span><br><span class="line">  <span class="type">const</span> __m256i nibble = _mm256_set1_epi8(<span class="number">0x0f</span>);</span><br><span class="line">  <span class="type">const</span> __m256i zero = _mm256_setzero_si256();</span><br><span class="line">  std::<span class="type">uint64_t</span> count = <span class="number">0</span>;</span><br><span class="line">  std::<span class="type">size_t</span> i = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">for</span> (; n - i &gt;= <span class="number">32</span>; i += <span class="number">32</span>) {</span><br><span class="line">    <span class="type">const</span> __m256i x = _mm256_loadu_si256(</span><br><span class="line">        <span class="built_in">reinterpret_cast</span>&lt;<span class="type">const</span> __m256i*&gt;(data + i));</span><br><span class="line">    <span class="type">const</span> __m256i lo = _mm256_and_si256(x, nibble);</span><br><span class="line">    <span class="type">const</span> __m256i hi = _mm256_and_si256(_mm256_srli_epi16(x, <span class="number">4</span>), nibble);</span><br><span class="line">    <span class="type">const</span> __m256i eachByte = _mm256_add_epi8(</span><br><span class="line">        _mm256_shuffle_epi8(lut, lo), _mm256_shuffle_epi8(lut, hi));</span><br><span class="line">    <span class="type">const</span> __m256i groups = _mm256_sad_epu8(eachByte, zero);</span><br><span class="line">    <span class="built_in">alignas</span>(<span class="number">32</span>) std::<span class="type">uint64_t</span> sums[<span class="number">4</span>];</span><br><span class="line">    _mm256_store_si256(<span class="built_in">reinterpret_cast</span>&lt;__m256i*&gt;(sums), groups);</span><br><span class="line">    count += sums[<span class="number">0</span>] + sums[<span class="number">1</span>] + sums[<span class="number">2</span>] + sums[<span class="number">3</span>];</span><br><span class="line">  }</span><br><span class="line">  <span class="keyword">for</span> (; i &lt; n; ++i) {</span><br><span class="line">    <span class="type">unsigned</span> x = data[i];</span><br><span class="line">    <span class="keyword">while</span> (x) { x &amp;= x - <span class="number">1</span>; ++count; }</span><br><span class="line">  }</span><br><span class="line">  <span class="keyword">return</span> count;</span><br><span class="line">}</span><br></pre></td></tr></table></figure><p>代码用 16-bit 逻辑右移生成高 nibble，再做逐字节 <code>&amp; 0x0f</code>。右移过程中从邻字节进入的位会被这一步掩掉，因此每个字节最终只留下自己的高四位。AVX2 没有普通的逐字节右移指令，组合操作的正确性要由位流推导出来。</p>
+<pre><code>x = 0xb3 = 1011 0011
+lo = 3  → LUT[3]  = 2
+hi = 11 → LUT[11] = 3
+这个字节的 popcount = 5</code></pre>
+<figure class="highlight cpp cpp-highlight"><table><tbody><tr><td class="code"><pre><code class="language-cpp"><span class="function">TARGET_AVX2
+std::<span class="type">uint64_t</span> <span class="title">popcount_bytes_avx2</span><span class="params">(<span class="type">const</span> std::<span class="type">uint8_t</span>* data, std::<span class="type">size_t</span> n)</span> </span>{
+  <span class="type">const</span> __m256i lut = _mm256_setr_epi8(
+      <span class="number">0</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">2</span>,<span class="number">1</span>,<span class="number">2</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">1</span>,<span class="number">2</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">3</span>,<span class="number">4</span>,
+      <span class="number">0</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">2</span>,<span class="number">1</span>,<span class="number">2</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">1</span>,<span class="number">2</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">3</span>,<span class="number">4</span>);
+  <span class="type">const</span> __m256i nibble = _mm256_set1_epi8(<span class="number">0x0f</span>);
+  <span class="type">const</span> __m256i zero = _mm256_setzero_si256();
+  std::<span class="type">uint64_t</span> count = <span class="number">0</span>;
+  std::<span class="type">size_t</span> i = <span class="number">0</span>;
+  <span class="keyword">for</span> (; n - i &gt;= <span class="number">32</span>; i += <span class="number">32</span>) {
+    <span class="type">const</span> __m256i x = _mm256_loadu_si256(
+        <span class="built_in">reinterpret_cast</span>&lt;<span class="type">const</span> __m256i*&gt;(data + i));
+    <span class="type">const</span> __m256i lo = _mm256_and_si256(x, nibble);
+    <span class="type">const</span> __m256i hi = _mm256_and_si256(_mm256_srli_epi16(x, <span class="number">4</span>), nibble);
+    <span class="type">const</span> __m256i eachByte = _mm256_add_epi8(
+        _mm256_shuffle_epi8(lut, lo), _mm256_shuffle_epi8(lut, hi));
+    <span class="type">const</span> __m256i groups = _mm256_sad_epu8(eachByte, zero);
+    <span class="built_in">alignas</span>(<span class="number">32</span>) std::<span class="type">uint64_t</span> sums[<span class="number">4</span>];
+    _mm256_store_si256(<span class="built_in">reinterpret_cast</span>&lt;__m256i*&gt;(sums), groups);
+    count += sums[<span class="number">0</span>] + sums[<span class="number">1</span>] + sums[<span class="number">2</span>] + sums[<span class="number">3</span>];
+  }
+  <span class="keyword">for</span> (; i &lt; n; ++i) {
+    <span class="type">unsigned</span> x = data[i];
+    <span class="keyword">while</span> (x) { x &amp;= x - <span class="number">1</span>; ++count; }
+  }
+  <span class="keyword">return</span> count;
+}
+</code></pre></td></tr></tbody></table></figure><p>代码用 16-bit 逻辑右移生成高 nibble，再做逐字节 <code>&amp; 0x0f</code>。右移过程中从邻字节进入的位会被这一步掩掉，因此每个字节最终只留下自己的高四位。AVX2 没有普通的逐字节右移指令，组合操作的正确性要由位流推导出来。</p>
 <p><code>_mm256_sad_epu8(eachByte, zero)</code> 把每组八个非负字节与零的绝对差相加，产生四个 uint64 分组和，再累加进标量 uint64。这里每字节的中间结果最大为 8，不会发生 byte add 溢出。演示每批就归约，便于理解；性能实现可以在证明中间值不溢出的前提下进一步批量累加。最终总位数也必须能被返回的 uint64 容纳。</p>
 <h2 id="fma">15. FMA：少一次舍入，不只是少一个指令</h2>
 
@@ -668,7 +859,7 @@ hi &#x3D; 11 → LUT[11] &#x3D; 3
 
 <p>1 附近、从下方接近时，binary32 相邻可表示值间隔是 2⁻²⁴，乘积距离 1 只有 2⁻²⁶，因此分离乘法把它舍入为 1，再加 −1 得到 0。FMA 则先在融合运算中消去 1，再把 −2⁻²⁶ 作为最终结果，它恰好可表示。</p>
 <p>FMA 往往能减少某些算法的舍入误差，但同时改变了与旧实现逐位复现的行为。编译器是否允许把普通 <code>a*b+c</code> 收缩为 FMA，也取决于编译选项和目标支持。本教程比较分离与融合操作时使用 <code>-ffp-contract=off</code>；显式 FMA intrinsic 仍表达融合语义。</p>
-<p>FMA 函数使用单独的 <code>target(&quot;avx,fma&quot;)</code>，调用前单独检查 FMA 支持。不能只因 AVX2 路径可运行，就把未检查的 FMA 混入其中。</p>
+<p>FMA 函数使用单独的 <code>target("avx,fma")</code>，调用前单独检查 FMA 支持。不能只因 AVX2 路径可运行，就把未检查的 FMA 混入其中。</p>
 <span class="simd-legacy-anchor" id="自动向量化是必须比较的基线" aria-hidden="true"></span>
 <span class="simd-legacy-anchor" id="一个可复核的测量应包含什么" aria-hidden="true"></span>
 <span class="simd-legacy-anchor" id="References" aria-hidden="true"></span>
@@ -694,7 +885,18 @@ hi &#x3D; 11 → LUT[11] &#x3D; 3
 
 <p>编译器能生成 AVX2，并不代表运行它的 CPU 和操作系统支持 AVX2。AVX 涉及扩展寄存器状态，操作系统必须启用 XSAVE 对相关状态的保存恢复。手写检测时要正确结合 CPU 特性、OSXSAVE 和 XGETBV 的状态；只检查一个 AVX CPUID 位不够。</p>
 <p>对于本文采用的现代 GCC / Clang x86-64 环境，通常使用编译器的运行时特性检测设施，让它处理可用状态判断，再把专用函数放在独立 target 中。普通 main 及分派函数保持基线 ISA。示例采用：</p>
-<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> TARGET_AVX  __attribute__((target(<span class="string">&quot;avx&quot;</span>), noinline))</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> TARGET_AVX2 __attribute__((target(<span class="string">&quot;avx2&quot;</span>), noinline))</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> TARGET_FMA  __attribute__((target(<span class="string">&quot;avx,fma&quot;</span>), noinline))</span></span><br></pre></td></tr></table></figure><figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="function">std::<span class="type">size_t</span> <span class="title">count_gt_u32</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">    <span class="type">const</span> std::<span class="type">uint32_t</span>* data, std::<span class="type">size_t</span> n, std::<span class="type">uint32_t</span> threshold)</span> </span>{</span><br><span class="line">  <span class="keyword">using</span> Fn = std::<span class="built_in">size_t</span> (*)(<span class="type">const</span> std::<span class="type">uint32_t</span>*, std::<span class="type">size_t</span>, std::<span class="type">uint32_t</span>);</span><br><span class="line">  <span class="type">static</span> <span class="type">const</span> Fn fn = __builtin_cpu_supports(<span class="string">&quot;avx2&quot;</span>)</span><br><span class="line">      ? count_gt_u32_avx2</span><br><span class="line">      : count_gt_u32_scalar;</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">fn</span>(data, n, threshold);</span><br><span class="line">}</span><br></pre></td></tr></table></figure><p>静态函数指针在首次调用时选定路径，后续不反复检测。示例在普通 main 执行阶段使用编译器已初始化的检测设施；如果在更早的 ifunc resolver 中使用 GCC builtin，需要遵循其 <code>__builtin_cpu_init()</code> 规则。不同编译器和构建环境的分派机制并不完全相同，应查对应文档。</p>
+<figure class="highlight cpp cpp-highlight"><table><tbody><tr><td class="code"><pre><code class="language-cpp"><span class="meta">#<span class="keyword">define</span> TARGET_AVX  __attribute__((target(<span class="string">"avx"</span>), noinline))</span>
+<span class="meta">#<span class="keyword">define</span> TARGET_AVX2 __attribute__((target(<span class="string">"avx2"</span>), noinline))</span>
+<span class="meta">#<span class="keyword">define</span> TARGET_FMA  __attribute__((target(<span class="string">"avx,fma"</span>), noinline))</span>
+</code></pre></td></tr></tbody></table></figure><figure class="highlight cpp cpp-highlight"><table><tbody><tr><td class="code"><pre><code class="language-cpp"><span class="function">std::<span class="type">size_t</span> <span class="title">count_gt_u32</span><span class="params">(
+    <span class="type">const</span> std::<span class="type">uint32_t</span>* data, std::<span class="type">size_t</span> n, std::<span class="type">uint32_t</span> threshold)</span> </span>{
+  <span class="keyword">using</span> Fn = std::<span class="built_in">size_t</span> (*)(<span class="type">const</span> std::<span class="type">uint32_t</span>*, std::<span class="type">size_t</span>, std::<span class="type">uint32_t</span>);
+  <span class="type">static</span> <span class="type">const</span> Fn fn = __builtin_cpu_supports(<span class="string">"avx2"</span>)
+      ? count_gt_u32_avx2
+      : count_gt_u32_scalar;
+  <span class="keyword">return</span> <span class="built_in">fn</span>(data, n, threshold);
+}
+</code></pre></td></tr></tbody></table></figure><p>静态函数指针在首次调用时选定路径，后续不反复检测。示例在普通 main 执行阶段使用编译器已初始化的检测设施；如果在更早的 ifunc resolver 中使用 GCC builtin，需要遵循其 <code>__builtin_cpu_init()</code> 规则。不同编译器和构建环境的分派机制并不完全相同，应查对应文档。</p>
 <p><strong>带标量回退的整个程序不要全局使用 <code>-mavx2</code> 或 <code>-march=native</code>。</strong> 否则编译器可能在进入检测之前就生成 AVX2 指令，回退分支失去意义。函数级 target 或独立编译单元，才给不同 ISA 路径提供明确边界。跨边界尽量传普通指针、长度和标量返回值，避免把 YMM 参数/返回值放入基线函数的 ABI。</p>
 <p>代码中的 <code>noinline</code> 便于教学时观察专用函数及其汇编，不代表生产程序必须对所有小辅助函数禁用内联。向量类型辅助函数要与调用路径使用兼容的 target；实际项目可用单独翻译单元或谨慎设置内联策略。</p>
 <h3 id="avx-与-legacy-sse-交界">AVX 与 legacy SSE 交界</h3>
@@ -706,12 +908,12 @@ hi &#x3D; 11 → LUT[11] &#x3D; 3
 
 <p>下载 <a href="/code/simd-basic/first_avx.cpp">第一个 AVX 程序</a> 和 <a href="/code/simd-basic/simd_examples.cpp">完整 C++17 示例及检查程序</a>。完整版包含数组相加、signed/unsigned 阈值计数、求和、SAXPY、ASCII 转换、饱和亮度、AoS→SoA、点积、字节位计数、maskload 和 FMA，以及相应标量对照与指令语义检查。</p>
 <pre><code># 完整版保持基线编译，专用函数通过 target attribute 启用 ISA。
-g++ -std&#x3D;c++17 -O3 -Wall -Wextra -Werror -ffp-contract&#x3D;off \
+g++ -std=c++17 -O3 -Wall -Wextra -Werror -ffp-contract=off \
     simd_examples.cpp -o simd_examples
-.&#x2F;simd_examples
+./simd_examples
 
-<p>clang++ -std&#x3D;c++17 -O3 -Wall -Wextra -Werror -ffp-contract&#x3D;off <br>    simd_examples.cpp -o simd_examples_clang<br>.&#x2F;simd_examples_clang</p>
-<h1 id="检查越界及未定义行为。"><a href="#检查越界及未定义行为。" class="headerlink" title="检查越界及未定义行为。"></a>检查越界及未定义行为。</h1><p>g++ -std&#x3D;c++17 -O1 -g -ffp-contract&#x3D;off <br>    -fsanitize&#x3D;address,undefined -fno-omit-frame-pointer <br>    simd_examples.cpp -o simd_examples_sanitize<br>ASAN_OPTIONS&#x3D;detect_leaks&#x3D;0 .&#x2F;simd_examples_sanitize</code></pre></p>
+<p>clang++ -std=c++17 -O3 -Wall -Wextra -Werror -ffp-contract=off <br>    simd_examples.cpp -o simd_examples_clang<br>./simd_examples_clang</p>
+<h1 id="检查越界及未定义行为。"><a href="#检查越界及未定义行为。" class="headerlink" title="检查越界及未定义行为。"></a>检查越界及未定义行为。</h1></code><p><code>g++ -std=c++17 -O1 -g -ffp-contract=off <br>    -fsanitize=address,undefined -fno-omit-frame-pointer <br>    simd_examples.cpp -o simd_examples_sanitize<br>ASAN_OPTIONS=detect_leaks=0 ./simd_examples_sanitize</code></p></pre><p></p>
 <p>2026-09-19 在 Intel Xeon Platinum 8260（KVM 暴露的 x86-64 环境）实际编译并运行：GCC 12.2、Clang 22.1.8 的优化构建，以及 GCC AddressSanitizer + UndefinedBehaviorSanitizer 构建均通过。运行时检测结果为 AVX=1、AVX2=1、FMA=1。</p>
 <ul>
 <li>4,626 组应用检查：长度 0..513，覆盖所有相关尾长、偏移起点、SAXPY、signed 计数、ASCII、饱和亮度、AoS→SoA、点积与位计数。</li>
@@ -721,7 +923,7 @@ g++ -std&#x3D;c++17 -O3 -Wall -Wextra -Werror -ffp-contract&#x3D;off \
 </ul>
 <p>程序输出：</p>
 <pre><code>PASS: 4626 application cases; lengths 0..513; exact lane diagrams; ASCII all256 values
-PASS: 1548 count cases; lengths 0..257; AVX&#x3D;1 AVX2&#x3D;1 FMA&#x3D;1; lane, tail, mask, shuffle and reduction checks</code></pre>
+PASS: 1548 count cases; lengths 0..257; AVX=1 AVX2=1 FMA=1; lane, tail, mask, shuffle and reduction checks</code></pre>
 <p>这份程序验证的是教学算法和关键指令语义，并没有给出性能基准结果；它也不替代对所有浮点特殊值、任意缓冲区重叠或其他 CPU 微架构的系统测试。当前机器支持 AVX、AVX2、FMA，缺少这些特性的机器上的实际回退启动仍需要相应硬件或虚拟机另测。</p>
 <h3 id="读完后可以手算的练习">读完后可以手算的练习</h3>
 <ol>

@@ -16,8 +16,6 @@
 <meta property="og:image" content="https://duanmeng.github.io/images/velox-types/layers.svg">
 <meta property="og:image" content="https://duanmeng.github.io/images/velox-types/uses.svg">
 <meta property="og:image" content="https://duanmeng.github.io/images/velox-types/pipeline.svg">
-<meta property="og:image" content="https://duanmeng.github.io/images/velox-types/type-hierarchy.svg">
-<meta property="og:image" content="https://duanmeng.github.io/images/velox-types/physical-signature.svg">
 <meta property="og:image" content="https://duanmeng.github.io/images/velox-types/traits.svg">
 <meta property="og:image" content="https://duanmeng.github.io/images/velox-types/tree.svg">
 <meta property="og:image" content="https://duanmeng.github.io/images/velox-types/vector.svg">
@@ -297,7 +295,7 @@ article.post .velox-types-article .tbl-wrap>table{display:table;width:100%;min-w
 <p>例如整数 12345，按 BIGINT 解释就是 12345，按 <code>DECIMAL(12,2)</code> 解释是 123.45。两者可以用相同的 <code>int64_t</code> 承载，但函数匹配、格式化和与另一列相加时需要的语义信息不同。</p>
 <h3 id="layers">1.3 三者的层级关系：语义、基础表示、语言实现</h3>
 <p>三者形成从数据语义到实现的抽象关系：<strong>逻辑类型选择一种基础表示，基础表示关联到 C++ 值类型或访问实现。</strong> 这条关系中的箭头表示表示方式的关联，不表示数据依次经历三个处理阶段，也不表示三个 C++ 类之间存在继承关系。</p>
-<figure class="review-figure"><div aria-label="图 1：逻辑类型到 physical kind，再到 C++ 值类型的表示关联。DATE 与 INTEGER 共享基础表示；Type 的真实类继承另见第 2.1 节，Vector 编码负责批数据布局。" class="diagram-scroll" role="region" tabindex="0"><img alt="图 1：逻辑类型到 physical kind，再到 C++ 值类型的表示关联。DATE 与 INTEGER 共享基础表示；Type 的真实类继承另见第 2.1 节，Vector 编码负责批数据布局。" loading="lazy" src="/images/velox-types/layers.svg"/></div><figcaption>图 1：逻辑类型到 physical kind，再到 C++ 值类型的表示关联。DATE 与 INTEGER 共享基础表示；Type 的真实类继承另见第 2.1 节，Vector 编码负责批数据布局。</figcaption></figure>
+<figure class="review-figure"><div aria-label="图 1：逻辑类型到 physical kind，再到 C++ 值类型的表示关联。DATE 与 INTEGER 共享基础表示；Type 的真实类继承另见第 2.1 节，Vector 编码负责批数据布局。" class="diagram-scroll" role="region" tabindex="0"><img alt="图 1：逻辑类型到 physical kind，再到 C++ 值类型的表示关联。DATE 与 INTEGER 共享基础表示；Type 的真实类继承另见第 2.1 节，Vector 编码负责批数据布局。" loading="lazy" src="/images/velox-types/layers.svg"></div><figcaption>图 1：逻辑类型到 physical kind，再到 C++ 值类型的表示关联。DATE 与 INTEGER 共享基础表示；Type 的真实类继承另见第 2.1 节，Vector 编码负责批数据布局。</figcaption></figure>
 <p>这个关联通常是多对一的。DATE 与 INTEGER 都可以进入 INTEGER backing；BIGINT 与多种短 decimal 都可以进入 BIGINT backing。进一步，VARCHAR 与 VARBINARY 虽然是不同 kind，却都关联到 <code>StringView</code>。因此 physical kind 也不能简单定义为“C++ 类型名”或“占几个字节”。</p>
 <p>向下只保留 kind 或 C++ 值类型，会减少类型信息；从 <code>int64_t</code> 无法反推它原来是 BIGINT、<code>DECIMAL(12,2)</code> 还是另一种基于 BIGINT 的逻辑类型。完整 Type 需要在使用这些值的地方继续存在。</p>
 <p><strong><code>Type</code> 的子类不能按“全是逻辑类型”或“全是物理类型”分类。</strong> <code>Type</code> 是统一的类型描述接口；<code>TypeBase&lt;KIND&gt;</code>、<code>CanProvideCustomComparisonType&lt;KIND&gt;</code> 是实现基类，本身不对应一项具体 SQL 类型。<code>IntegerType</code>、<code>DateType</code>、<code>ArrayType</code> 等具体类实现可实例化的类型描述。它们的使用关系是：</p>
@@ -406,7 +404,7 @@ article.post .velox-types-article .tbl-wrap>table{display:table;width:100%;min-w
 </tr>
 </tbody></table></div>
 <p><code>TypePtr</code> 出现在“逻辑类型”和“物理类型描述”两行是源码的实际用法：<strong>载体相同，用途不同。</strong> <code>FunctionSignature</code> 则主要保存类型签名结构与变量，不是把所有签名都预先实例化成 Type 对象。绑定之后才得到具体的逻辑 <code>TypePtr</code>。</p>
-<figure class="review-figure"><div aria-label="图 2：同一列 DATE 在各组件中的类型：逻辑接口保留 DATE，物理类别为 INTEGER，C++ 值类型为 int32_t；函数元数据另外用 INTEGER() 描述实现要求。" class="diagram-scroll" role="region" tabindex="0"><img alt="图 2：同一列 DATE 在各组件中的类型：逻辑接口保留 DATE，物理类别为 INTEGER，C++ 值类型为 int32_t；函数元数据另外用 INTEGER() 描述实现要求。" loading="lazy" src="/images/velox-types/uses.svg"/></div><figcaption>图 2：同一列 DATE 在各组件中的类型：逻辑接口保留 DATE，物理类别为 INTEGER，C++ 值类型为 int32_t；函数元数据另外用 INTEGER() 描述实现要求。</figcaption></figure>
+<figure class="review-figure"><div aria-label="图 2：同一列 DATE 在各组件中的类型：逻辑接口保留 DATE，物理类别为 INTEGER，C++ 值类型为 int32_t；函数元数据另外用 INTEGER() 描述实现要求。" class="diagram-scroll" role="region" tabindex="0"><img alt="图 2：同一列 DATE 在各组件中的类型：逻辑接口保留 DATE，物理类别为 INTEGER，C++ 值类型为 int32_t；函数元数据另外用 INTEGER() 描述实现要求。" loading="lazy" src="/images/velox-types/uses.svg"></div><figcaption>图 2：同一列 DATE 在各组件中的类型：逻辑接口保留 DATE，物理类别为 INTEGER，C++ 值类型为 int32_t；函数元数据另外用 INTEGER() 描述实现要求。</figcaption></figure>
 
 
 
@@ -435,16 +433,16 @@ article.post .velox-types-article .tbl-wrap>table{display:table;width:100%;min-w
 <p>文件格式定义自己的 schema 与物理类型。例如 Parquet 的 <code>INT64 + DECIMAL(12,2)</code> 同时包含基础存储表示和十进制语义。Reader 识别这两部分，构造 Velox 类型，并按照请求 schema 解码或转换数据，最后产出带 Type 的 Vector。</p>
 <p>之后，表达式用这些逻辑类型匹配函数并确定返回类型；函数从 Vector 取出 C++ 值进行计算；Operator 按输入输出 schema 组织结果。写出时，Writer 再把输出 Type 和数据映射到目标格式。逻辑 Type 与值的实现表示在这条路径中持续配合。</p>
 <p>文件物理类型与 Velox physical kind 也不相同。例如 Parquet 的 INT64 时间计数可以读成 Velox TIMESTAMP，计算侧用 <code>Timestamp</code> 值表示，而不是继续把它作为普通 BIGINT。文件 page encoding、Velox Vector encoding 和 SQL 类型转换，分别处理不同的问题。</p>
-<figure class="review-figure"><div aria-label="图 3：从 I/O 到计算的整体关系：文件 schema 映射为 Velox schema，完整类型信息与数据共同进入 Vector、Function 和 Operator。" class="diagram-scroll" role="region" tabindex="0"><img alt="图 3：从 I/O 到计算的整体关系：文件 schema 映射为 Velox schema，完整类型信息与数据共同进入 Vector、Function 和 Operator。" loading="lazy" src="/images/velox-types/pipeline.svg"/></div><figcaption>图 3：从 I/O 到计算的整体关系：文件 schema 映射为 Velox schema，完整类型信息与数据共同进入 Vector、Function 和 Operator。</figcaption></figure>
+<figure class="review-figure"><div aria-label="图 3：从 I/O 到计算的整体关系：文件 schema 映射为 Velox schema，完整类型信息与数据共同进入 Vector、Function 和 Operator。" class="diagram-scroll" role="region" tabindex="0"><img alt="图 3：从 I/O 到计算的整体关系：文件 schema 映射为 Velox schema，完整类型信息与数据共同进入 Vector、Function 和 Operator。" loading="lazy" src="/images/velox-types/pipeline.svg"></div><figcaption>图 3：从 I/O 到计算的整体关系：文件 schema 映射为 Velox schema，完整类型信息与数据共同进入 Vector、Function 和 Operator。</figcaption></figure>
 <p>至此可以确定执行层的边界：<strong>schema、函数签名和结果契约使用逻辑类型；physical kind 连接基础表示与实现选择；C++ 类型承担值访问与计算。</strong> 完整 Velox Type 将逻辑描述与 backing kind 保存在一起，Vector 再把这份描述和一批实际数据连接起来。接下来再看这些关系如何在代码中建立。</p>
 <h2 id="how">二、类型描述、实现关联与转换</h2>
 <p>执行中的类型职责已经确定，接下来可以沿着实现关系阅读代码：先看 Type 如何保存逻辑身份与 backing kind，再看 traits 和工厂如何关联 C++ 类型；随后进入 Vector、函数绑定、算子与 Reader，最后区分类型比较、转换与扩展接口。</p>
 <span class="legacy-anchor" id="velox-type类"></span>
 <h3 id="scalar">2.1 Type 对象如何保存逻辑身份与基础表示</h3>
 <p>最直接的证据是 <a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/type/Type.h#L218">Type.h 的接口注释</a>：<code>name()</code> 返回唯一的逻辑类型名，<code>kindName()</code> 返回底层 physical type 名，多个逻辑类型可以共享后者。下面只摘出与本文有关的成员：</p>
-<figure class="highlight cpp"><pre><code class="language-cpp"><span class="keyword">using</span> TypePtr = std::shared_ptr&lt;<span class="type">const</span> Type&gt;;
+<figure class="highlight cpp cpp-highlight"><pre><code class="language-cpp"><span class="keyword">using</span> TypePtr = std::shared_ptr&lt;<span class="type">const</span> Type&gt;;
 
-<span class="keyword">class</span> <span class="title class_">Type</span> : <span class="keyword">public</span> Tree&lt;<span class="type">const</span> TypePtr&gt;, <span class="keyword">public</span> ISerializable &#123;
+<span class="keyword">class</span> <span class="title class_">Type</span> : <span class="keyword">public</span> Tree&lt;<span class="type">const</span> TypePtr&gt;, <span class="keyword">public</span> ISerializable {
  <span class="keyword">public</span>:
   <span class="function">TypeKind <span class="title">kind</span><span class="params">()</span> <span class="type">const</span></span>;
   <span class="function"><span class="keyword">virtual</span> <span class="type">const</span> <span class="type">char</span>* <span class="title">name</span><span class="params">()</span> <span class="type">const</span> </span>= <span class="number">0</span>;      <span class="comment">// logical type name</span>
@@ -452,15 +450,15 @@ article.post .velox-types-article .tbl-wrap>table{display:table;width:100%;min-w
   <span class="function"><span class="keyword">virtual</span> std::span&lt;<span class="type">const</span> TypeParameter&gt; <span class="title">parameters</span><span class="params">()</span> <span class="type">const</span> </span>= <span class="number">0</span>;
   <span class="function"><span class="type">bool</span> <span class="title">providesCustomComparison</span><span class="params">()</span> <span class="type">const</span></span>;
   <span class="comment">// ...</span>
-&#125;;</code></pre></figure>
+};</code></pre></figure>
 <p><code>TypePtr</code> 指向只读 Type，Type 本身不保存某一行的值，也不拥有某一列的 values buffer。它是一棵可组合的类型树：叶子描述 scalar，ARRAY/MAP/ROW 等节点通过 child type 递归描述结构。DECIMAL 的 precision/scale 是整数参数，不是两个 child type；ROW 的字段名也不是数据。</p>
 <h4 id="type-class-hierarchy">2.1.1 一套 Type 继承树，两种描述用途</h4>
 <p>源码中没有一个名为 <code>LogicalType</code> 的基类和另一个名为 <code>PhysicalType</code> 的基类。这里的核心是同一套 <code>Type</code> 继承树。下图画出本文涉及的真实继承路径；箭头由子类指向父类，别名写在对应模板实例旁，不把别名误画成一个新类。</p>
-<figure class="review-figure"><div aria-label="图 4：Type.h 中的部分实际继承结构。IntegerType 是 ScalarType&lt;INTEGER&gt; 的别名；DateType 继承该类。ARRAY/MAP/ROW 直接走各自的 TypeBase 实例。虚线箭头表示 C++ 继承，不表示 SQL 类型等价或值转换。" class="diagram-scroll" role="region" tabindex="0"><img alt="图 4：Type.h 中的部分实际继承结构。IntegerType 是 ScalarType&lt;INTEGER&gt; 的别名；DateType 继承该类。ARRAY/MAP/ROW 直接走各自的 TypeBase 实例。虚线箭头表示 C++ 继承，不表示 SQL 类型等价或值转换。" loading="lazy" src="/images/velox-types/type-hierarchy.svg"/></div><figcaption>图 4：Type.h 中的部分实际继承结构。IntegerType 是 ScalarType&lt;INTEGER&gt; 的别名；DateType 继承该类。ARRAY/MAP/ROW 直接走各自的 TypeBase 实例。虚线箭头表示 C++ 继承，不表示 SQL 类型等价或值转换。</figcaption></figure>
+<figure class="review-figure"><div aria-label="图 4：Type.h 中的部分实际继承结构。IntegerType 是 ScalarType<INTEGER> 的别名；DateType 继承该类。ARRAY/MAP/ROW 直接走各自的 TypeBase 实例。虚线箭头表示 C++ 继承，不表示 SQL 类型等价或值转换。" class="diagram-scroll" role="region" tabindex="0"><img alt="图 4：Type.h 中的部分实际继承结构。IntegerType 是 ScalarType<INTEGER> 的别名；DateType 继承该类。ARRAY/MAP/ROW 直接走各自的 TypeBase 实例。虚线箭头表示 C++ 继承，不表示 SQL 类型等价或值转换。" loading="lazy" src="/images/velox-types/type-hierarchy.svg"></div><figcaption>图 4：Type.h 中的部分实际继承结构。IntegerType 是 ScalarType&lt;INTEGER&gt; 的别名；DateType 继承该类。ARRAY/MAP/ROW 直接走各自的 TypeBase 实例。虚线箭头表示 C++ 继承，不表示 SQL 类型等价或值转换。</figcaption></figure>
 <p><code>TypeBase&lt;KIND&gt;</code> 把编译期 kind 对应的 traits 暴露成运行时虚函数；<code>CanProvideCustomComparisonType&lt;KIND&gt;</code> 增加针对 NativeType 值的 compare/hash 接口；<code>ScalarType&lt;KIND&gt;</code> 补齐无 child 的标量描述。<code>IntegerType</code> 是 <code>ScalarType&lt;TypeKind::INTEGER&gt;</code> 的别名，<code>BigintType</code> 同理。DATE 通过继承 <code>IntegerType</code> 复用实现；short / long decimal 通过 <code>DecimalType&lt;BIGINT / HUGEINT&gt;</code> 复用对应整数表示。自定义逻辑类型也可沿这些基础类扩展。</p>
 <p>因此，并不是“上面的类是物理类型，下面的类才是逻辑类型”。<code>INTEGER()</code> 自身就是有效的 SQL 逻辑 INTEGER 描述，同时也是代码描述 INTEGER 物理表示时使用的基础 Type。中间实现基类与最终类型对象的用途，必须分别讨论。</p>
 <h4 id="type-object-backing">2.1.2 kind 保存在基类，逻辑差异由子类实现</h4>
-<p><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/type/Type.h#L218"><code>Type</code></a> 实际保存 <code>const TypeKind kind_</code>。其构造函数 <code>Type(TypeKind kind, bool providesCustomComparison = false)</code> 初始化这个字段；<code>kind()</code> 直接返回它。<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/type/Type.h#L406"><code>TypeBase&lt;KIND&gt;</code></a> 的默认构造函数是 <code>TypeBase() : Type&#123;KIND, false&#125; &#123;&#125;</code>，因而把模板参数写入继承来的字段。<code>kindName()</code> 则返回 <code>TypeTraits&lt;KIND&gt;::name</code>。</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/type/Type.h#L218"><code>Type</code></a> 实际保存 <code>const TypeKind kind_</code>。其构造函数 <code>Type(TypeKind kind, bool providesCustomComparison = false)</code> 初始化这个字段；<code>kind()</code> 直接返回它。<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/type/Type.h#L406"><code>TypeBase&lt;KIND&gt;</code></a> 的默认构造函数是 <code>TypeBase() : Type{KIND, false} {}</code>，因而把模板参数写入继承来的字段。<code>kindName()</code> 则返回 <code>TypeTraits&lt;KIND&gt;::name</code>。</p>
 <p>构造 <code>DateType</code> 时，这条继承链最终调用 <code>TypeBase&lt;INTEGER&gt;</code>，所以同一个 DATE 对象里的 <code>kind_</code> 为 INTEGER。<code>DateType</code> 覆盖 <code>name()</code> 返回 DATE，却不覆盖 <code>kind()</code> 或 <code>kindName()</code>；等价判断、格式化与序列化也按 DATE 的身份实现。<strong>这是一个带 INTEGER backing 的 DateType 对象，不是由一个 LogicalType 对象包住另一个 PhysicalType 对象。</strong></p>
 <div class="tbl-wrap"><table>
 <thead>
@@ -560,20 +558,20 @@ article.post .velox-types-article .tbl-wrap>table{display:table;width:100%;min-w
 <p><code>name()</code> 本身也不是完整 schema：两个 decimal 的 name 都是 DECIMAL，仍要检查参数。基本类型通常逻辑名与 backing 名相同，这只是最简单的情况。</p>
 <p>上面的对象关系也可以从基础类接口中看到。<code>TypeBase</code> 的默认 <code>name()</code> 与 <code>kindName()</code> 都取自 traits；具体类型再覆盖逻辑上有差异的成员。下面保留相关接口摘录，并标出中间继承关系：</p>
 
-<figure class="highlight cpp"><pre><code class="language-cpp"><span class="comment">// 结构摘录；省略与本节无关的成员。</span>
+<figure class="highlight cpp cpp-highlight"><pre><code class="language-cpp"><span class="comment">// 结构摘录；省略与本节无关的成员。</span>
 <span class="keyword">template</span> &lt;TypeKind KIND&gt;
-<span class="keyword">class</span> <span class="title class_">TypeBase</span> : <span class="keyword">public</span> Type &#123;
+<span class="keyword">class</span> <span class="title class_">TypeBase</span> : <span class="keyword">public</span> Type {
  <span class="keyword">public</span>:
   <span class="keyword">using</span> NativeType = <span class="keyword">typename</span> TypeTraits&lt;KIND&gt;::NativeType;
-  <span class="function"><span class="type">bool</span> <span class="title">isPrimitiveType</span><span class="params">()</span> <span class="type">const</span> <span class="keyword">override</span> </span>&#123;
+  <span class="function"><span class="type">bool</span> <span class="title">isPrimitiveType</span><span class="params">()</span> <span class="type">const</span> <span class="keyword">override</span> </span>{
     <span class="keyword">return</span> TypeTraits&lt;KIND&gt;::isPrimitiveType;
-  &#125;
-  <span class="function"><span class="type">bool</span> <span class="title">isFixedWidth</span><span class="params">()</span> <span class="type">const</span> <span class="keyword">override</span> </span>&#123;
+  }
+  <span class="function"><span class="type">bool</span> <span class="title">isFixedWidth</span><span class="params">()</span> <span class="type">const</span> <span class="keyword">override</span> </span>{
     <span class="keyword">return</span> TypeTraits&lt;KIND&gt;::isFixedWidth;
-  &#125;
-  <span class="function"><span class="type">const</span> <span class="type">char</span>* <span class="title">kindName</span><span class="params">()</span> <span class="type">const</span> <span class="keyword">override</span> </span>&#123; <span class="keyword">return</span> TypeTraits&lt;KIND&gt;::name; &#125;
-  <span class="function"><span class="type">const</span> <span class="type">char</span>* <span class="title">name</span><span class="params">()</span> <span class="type">const</span> <span class="keyword">override</span> </span>&#123; <span class="keyword">return</span> TypeTraits&lt;KIND&gt;::name; &#125;
-&#125;;
+  }
+  <span class="function"><span class="type">const</span> <span class="type">char</span>* <span class="title">kindName</span><span class="params">()</span> <span class="type">const</span> <span class="keyword">override</span> </span>{ <span class="keyword">return</span> TypeTraits&lt;KIND&gt;::name; }
+  <span class="function"><span class="type">const</span> <span class="type">char</span>* <span class="title">name</span><span class="params">()</span> <span class="type">const</span> <span class="keyword">override</span> </span>{ <span class="keyword">return</span> TypeTraits&lt;KIND&gt;::name; }
+};
 
 <span class="comment">// 继承关系示意。</span>
 <span class="comment">// CanProvideCustomComparisonType&lt;K&gt; : TypeBase&lt;K&gt;</span>
@@ -612,53 +610,53 @@ article.post .velox-types-article .tbl-wrap>table{display:table;width:100%;min-w
 <p>这里按<strong>声明的 precision</strong>选择短/长 decimal，不会因为某一批值恰好很小就把 <code>DECIMAL(30,2)</code> 临时变成短 decimal。类型要在批次之间保持契约稳定，值的统计与编码优化另行处理。</p>
 <p>两列都是 <code>FlatVector&lt;int64_t&gt;</code>，一列是 <code>DECIMAL(10,2)</code>，另一列是 <code>DECIMAL(12,4)</code>，它们并不能直接对 unscaled value 相加。<code>123 + 456</code> 只有在尺度已经一致时才对应期望的十进制运算。后面会看到函数初始化怎样取得 scale 并对齐。</p><h4 id="physical-type-object">2.1.5 physicalType 为什么仍然是 TypePtr</h4>
 <p><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/core/SimpleFunctionMetadata.h#L200"><code>core::TypeAnalysisResults</code></a> 有一个明确命名为 <code>physicalType</code> 的 <code>TypePtr</code> 字段。分析 Date UDF tag 时，代码一方面写出逻辑签名字符串 <code>date</code>，另一方面调用 <code>createScalarType(TypeKind::INTEGER)</code>，得到用于物理签名的 <code>INTEGER()</code>。分析 <code>Array&lt;Date&gt;</code> 时，再把 child 的物理 Type 包装为 <code>ARRAY(INTEGER())</code>。这个结果是<strong>用 Type 对象表示的物理类型树</strong>。</p>
-<figure class="review-figure"><div aria-label="图 5：Date 与 Array&lt;Date&gt; 的函数分析结果。逻辑签名保留 date，physicalType 使用 INTEGER() 或 ARRAY(INTEGER())；实际输入 Vector 仍携带 DATE() 或 ARRAY(DATE())，没有被重标记。" class="diagram-scroll" role="region" tabindex="0"><img alt="图 5：Date 与 Array&lt;Date&gt; 的函数分析结果。逻辑签名保留 date，physicalType 使用 INTEGER() 或 ARRAY(INTEGER())；实际输入 Vector 仍携带 DATE() 或 ARRAY(DATE())，没有被重标记。" loading="lazy" src="/images/velox-types/physical-signature.svg"/></div><figcaption>图 5：Date 与 Array&lt;Date&gt; 的函数分析结果。逻辑签名保留 date，physicalType 使用 INTEGER() 或 ARRAY(INTEGER())；实际输入 Vector 仍携带 DATE() 或 ARRAY(DATE())，没有被重标记。</figcaption></figure>
+<figure class="review-figure"><div aria-label="图 5：Date 与 Array<Date> 的函数分析结果。逻辑签名保留 date，physicalType 使用 INTEGER() 或 ARRAY(INTEGER())；实际输入 Vector 仍携带 DATE() 或 ARRAY(DATE())，没有被重标记。" class="diagram-scroll" role="region" tabindex="0"><img alt="图 5：Date 与 Array<Date> 的函数分析结果。逻辑签名保留 date，physicalType 使用 INTEGER() 或 ARRAY(INTEGER())；实际输入 Vector 仍携带 DATE() 或 ARRAY(DATE())，没有被重标记。" loading="lazy" src="/images/velox-types/physical-signature.svg"></div><figcaption>图 5：Date 与 Array&lt;Date&gt; 的函数分析结果。逻辑签名保留 date，physicalType 使用 INTEGER() 或 ARRAY(INTEGER())；实际输入 Vector 仍携带 DATE() 或 ARRAY(DATE())，没有被重标记。</figcaption></figure>
 <p>例如 <code>ARRAY(DATE())</code> 与 <code>ARRAY(INTEGER())</code> 的顶层 kind 都是 ARRAY，递归 kind 结构也相同；但元素的逻辑身份不同，所以两者不逻辑等价。物理匹配需要遍历整棵 kind 树，而不能只比较一个顶层枚举。复杂 Type 的 child 成员是组合关系，也不是类继承关系。</p>
 <p>这份物理描述用于筛选函数实现。<code>SimpleFunctionRegistry</code> 先让 <code>SignatureBinder</code> 绑定逻辑签名，再通过 <a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/expression/SimpleFunctionRegistry.cpp#L150"><code>physicalTypeMatches()</code></a> 递归检查 kind 与 children，确认参数和返回值满足该实现的物理要求；其中 UNKNOWN physical 占位有通配含义。<strong>物理匹配成功既不替代逻辑签名匹配，也不修改输入 Vector 的逻辑 Type。</strong> 第 2.7 节会继续追踪分析与绑定的具体调用路径。</p>
 <p>下面这个独立示例把继承关系和对象观察放在一起。<code>static_assert</code> 核对的是 C++ 类型关系；函数体中的检查描述运行时预期，并展示相应 API。随文提供<a href="/code/velox-types/type-model-examples.cpp">完整源文件</a>。本次完成了语法与模板实例化检查，未链接执行这些运行时断言；Date / Array&lt;Date&gt; 的物理类型结果也已对照源码中的 <code>TypeAnalysisTest</code>。</p>
-<figure class="highlight cpp"><pre><code class="language-cpp">static_assert(std::is_same_v&lt;
+<figure class="highlight cpp cpp-highlight"><pre><code class="language-cpp"><span class="built_in">static_assert</span>(std::is_same_v&lt;
     IntegerType, ScalarType&lt;TypeKind::INTEGER&gt;&gt;);
-static_assert(std::is_base_of_v&lt;IntegerType, DateType&gt;);
-static_assert(std::is_same_v&lt;
-    TypeTraits&lt;TypeKind::INTEGER&gt;::NativeType, int32_t&gt;);
+<span class="built_in">static_assert</span>(std::is_base_of_v&lt;IntegerType, DateType&gt;);
+<span class="built_in">static_assert</span>(std::is_same_v&lt;
+    TypeTraits&lt;TypeKind::INTEGER&gt;::NativeType, <span class="type">int32_t</span>&gt;);
 
-void inspectTypeModel() &#123;
-  const TypePtr date = DATE();
-  assert(date-&gt;kind() == TypeKind::INTEGER);
-  assert(std::string(date-&gt;name()) == "DATE");
-  assert(std::string(date-&gt;kindName()) == "INTEGER");
-  assert(!date-&gt;equivalent(*INTEGER()));
+<span class="function"><span class="type">void</span> <span class="title">inspectTypeModel</span><span class="params">()</span> </span>{
+  <span class="type">const</span> TypePtr date = <span class="built_in">DATE</span>();
+  <span class="built_in">assert</span>(date-&gt;<span class="built_in">kind</span>() == TypeKind::INTEGER);
+  <span class="built_in">assert</span>(std::<span class="built_in">string</span>(date-&gt;<span class="built_in">name</span>()) == <span class="string">"DATE"</span>);
+  <span class="built_in">assert</span>(std::<span class="built_in">string</span>(date-&gt;<span class="built_in">kindName</span>()) == <span class="string">"INTEGER"</span>);
+  <span class="built_in">assert</span>(!date-&gt;<span class="built_in">equivalent</span>(*<span class="built_in">INTEGER</span>()));
 
-  // C++ 基类引用不会抹去动态对象的逻辑身份。
-  const IntegerType&amp; asInteger = date-&gt;as&lt;TypeKind::INTEGER&gt;();
-  assert(std::string(asInteger.name()) == "DATE");
+  <span class="comment">// C++ 基类引用不会抹去动态对象的逻辑身份。</span>
+  <span class="type">const</span> IntegerType&amp; asInteger = date-&gt;<span class="built_in">as</span>&lt;TypeKind::INTEGER&gt;();
+  <span class="built_in">assert</span>(std::<span class="built_in">string</span>(asInteger.<span class="built_in">name</span>()) == <span class="string">"DATE"</span>);
 
   core::TypeAnalysisResults analysis;
-  core::TypeAnalysis&lt;Array&lt;Date&gt;&gt;&#123;&#125;.run(analysis);
-  assert(analysis.typeAsString() == "array(date)");
-  assert(analysis.physicalType-&gt;equivalent(*ARRAY(INTEGER())));
+  core::TypeAnalysis&lt;Array&lt;Date&gt;&gt;{}.<span class="built_in">run</span>(analysis);
+  <span class="built_in">assert</span>(analysis.<span class="built_in">typeAsString</span>() == <span class="string">"array(date)"</span>);
+  <span class="built_in">assert</span>(analysis.physicalType-&gt;<span class="built_in">equivalent</span>(*<span class="built_in">ARRAY</span>(<span class="built_in">INTEGER</span>())));
 
-  const auto logical = ARRAY(DATE());
-  assert(logical-&gt;kindEquals(analysis.physicalType));
-  assert(!logical-&gt;equivalent(*analysis.physicalType));
-&#125;
+  <span class="type">const</span> <span class="keyword">auto</span> logical = <span class="built_in">ARRAY</span>(<span class="built_in">DATE</span>());
+  <span class="built_in">assert</span>(logical-&gt;<span class="built_in">kindEquals</span>(analysis.physicalType));
+  <span class="built_in">assert</span>(!logical-&gt;<span class="built_in">equivalent</span>(*analysis.physicalType));
+}
 </code></pre></figure>
 
 <h3 id="traits">2.2 TypeTraits 如何关联 kind 与 C++ 类型</h3>
 <p><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/type/TypeKind.h#L40">TypeKind.h</a> 中枚举的关键成员如下，注意没有 DATE 和 DECIMAL：</p>
-<figure class="highlight cpp"><pre><code class="language-cpp"><span class="keyword">enum class</span> <span class="title class_">TypeKind</span> : <span class="type">int8_t</span> &#123;
+<figure class="highlight cpp cpp-highlight"><pre><code class="language-cpp"><span class="keyword">enum class</span> <span class="title class_">TypeKind</span> : <span class="type">int8_t</span> {
   BOOLEAN = <span class="number">0</span>, TINYINT = <span class="number">1</span>, SMALLINT = <span class="number">2</span>, INTEGER = <span class="number">3</span>,
   BIGINT = <span class="number">4</span>, REAL = <span class="number">5</span>, DOUBLE = <span class="number">6</span>, VARCHAR = <span class="number">7</span>,
   VARBINARY = <span class="number">8</span>, TIMESTAMP = <span class="number">9</span>, HUGEINT = <span class="number">10</span>,
   ARRAY = <span class="number">30</span>, MAP = <span class="number">31</span>, ROW = <span class="number">32</span>, UNKNOWN = <span class="number">33</span>,
   FUNCTION = <span class="number">34</span>, OPAQUE = <span class="number">35</span>, INVALID = <span class="number">36</span>
-&#125;;</code></pre></figure>
+};</code></pre></figure>
 <p><code>TypeTraits&lt;KIND&gt;</code> 是以枚举值为非类型模板参数的特化表。编译器知道 KIND 后，就能选中特化，读取其中的别名和常量。这就是这里“萃取 / traits”的含义：信息由库作者显式写进特化，并非运行时扫描任意 C++ 对象。</p>
-<figure class="highlight cpp"><pre><code class="language-cpp"><span class="keyword">template</span> &lt;TypeKind KIND&gt;
-<span class="keyword">struct</span> <span class="title class_">TypeTraits</span> &#123;&#125;;
+<figure class="highlight cpp cpp-highlight"><pre><code class="language-cpp"><span class="keyword">template</span> &lt;TypeKind KIND&gt;
+<span class="keyword">struct</span> <span class="title class_">TypeTraits</span> {};
 
 <span class="keyword">template</span> &lt;&gt;
-<span class="keyword">struct</span> <span class="title class_">TypeTraits</span>&lt;TypeKind::BIGINT&gt; &#123;
+<span class="keyword">struct</span> <span class="title class_">TypeTraits</span>&lt;TypeKind::BIGINT&gt; {
   <span class="keyword">using</span> ImplType = ScalarType&lt;TypeKind::BIGINT&gt;;
   <span class="keyword">using</span> NativeType = <span class="type">int64_t</span>;
   <span class="keyword">using</span> DeepCopiedType = NativeType;
@@ -668,10 +666,10 @@ void inspectTypeModel() &#123;
   <span class="type">static</span> <span class="keyword">constexpr</span> <span class="type">bool</span> isPrimitiveType = <span class="literal">true</span>;
   <span class="type">static</span> <span class="keyword">constexpr</span> <span class="type">bool</span> isFixedWidth = <span class="literal">true</span>;
   <span class="type">static</span> <span class="keyword">constexpr</span> <span class="type">const</span> <span class="type">char</span>* name = <span class="string">"BIGINT"</span>;
-&#125;;
+};
 
 <span class="keyword">template</span> &lt;&gt;
-<span class="keyword">struct</span> <span class="title class_">TypeTraits</span>&lt;TypeKind::ARRAY&gt; &#123;
+<span class="keyword">struct</span> <span class="title class_">TypeTraits</span>&lt;TypeKind::ARRAY&gt; {
   <span class="keyword">using</span> ImplType = ArrayType;
   <span class="keyword">using</span> NativeType = <span class="type">void</span>;
   <span class="keyword">using</span> DeepCopiedType = <span class="type">void</span>;
@@ -681,7 +679,7 @@ void inspectTypeModel() &#123;
   <span class="type">static</span> <span class="keyword">constexpr</span> <span class="type">bool</span> isPrimitiveType = <span class="literal">false</span>;
   <span class="type">static</span> <span class="keyword">constexpr</span> <span class="type">bool</span> isFixedWidth = <span class="literal">false</span>;
   <span class="type">static</span> <span class="keyword">constexpr</span> <span class="type">const</span> <span class="type">char</span>* name = <span class="string">"ARRAY"</span>;
-&#125;;</code></pre></figure>
+};</code></pre></figure>
 <h4 id="31-impltype-与-nativetype-分别是什么">2.2.1 <code>ImplType</code> 与 <code>NativeType</code> 分别是什么</h4>
 <p><code>ImplType</code> 是<strong>类型描述对象</strong>的 C++ 类。<code>ScalarType&lt;BIGINT&gt;</code> 负责实现 BIGINT 这个 schema 节点；它不是一条 SQL BIGINT 值。</p>
 <p><code>NativeType</code> 是<strong>值访问或计算</strong>的 C++ 表示。BIGINT 对应 <code>int64_t</code>，TIMESTAMP 对应 <code>Timestamp</code>。模板函数可以通过 <code>using T = typename TypeTraits&lt;KIND&gt;::NativeType</code> 选取合适的值类型。</p>
@@ -752,28 +750,28 @@ void inspectTypeModel() &#123;
 <h3 id="construction">2.3 类型工厂与 CppToType 的映射路径</h3>
 <p><span class="legacy-anchor" id="如何创建velox-type"></span></p>
 <h4 id="41-已知业务语义时，直接创建完整-type">2.3.1 已知业务语义时，直接创建完整 Type</h4>
-<figure class="highlight cpp"><pre><code class="language-cpp"><span class="keyword">auto</span> id = <span class="built_in">BIGINT</span>();
+<figure class="highlight cpp cpp-highlight"><pre><code class="language-cpp"><span class="keyword">auto</span> id = <span class="built_in">BIGINT</span>();
 <span class="keyword">auto</span> amount = <span class="built_in">DECIMAL</span>(<span class="number">18</span>, <span class="number">4</span>);
 <span class="keyword">auto</span> dates = <span class="built_in">ARRAY</span>(<span class="built_in">DATE</span>());
 <span class="keyword">auto</span> attributes = <span class="built_in">MAP</span>(<span class="built_in">VARCHAR</span>(), <span class="built_in">VARBINARY</span>());
-<span class="keyword">auto</span> row = <span class="built_in">ROW</span>(&#123;<span class="string">"id"</span>, <span class="string">"amount"</span>&#125;, &#123;id, amount&#125;);</code></pre></figure>
+<span class="keyword">auto</span> row = <span class="built_in">ROW</span>({<span class="string">"id"</span>, <span class="string">"amount"</span>}, {id, amount});</code></pre></figure>
 <p>这些工厂创建类型描述，不分配列数据。<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/type/Type.h#L1537">TypeFactory</a> 提供泛型入口。标量通常转发到 <code>ImplType::create()</code>，ARRAY/MAP/ROW 的特化负责接收各自需要的子类型或字段名：</p>
-<figure class="highlight cpp"><pre><code class="language-cpp"><span class="keyword">template</span> &lt;TypeKind KIND&gt;
-<span class="keyword">struct</span> <span class="title class_">TypeFactory</span> &#123;
-  <span class="type">static</span> std::shared_ptr&lt;<span class="type">const</span> <span class="keyword">typename</span> TypeTraits&lt;KIND&gt;::ImplType&gt; <span class="built_in">create</span>() &#123;
+<figure class="highlight cpp cpp-highlight"><pre><code class="language-cpp"><span class="keyword">template</span> &lt;TypeKind KIND&gt;
+<span class="keyword">struct</span> <span class="title class_">TypeFactory</span> {
+  <span class="type">static</span> std::shared_ptr&lt;<span class="type">const</span> <span class="keyword">typename</span> TypeTraits&lt;KIND&gt;::ImplType&gt; <span class="built_in">create</span>() {
     <span class="keyword">return</span> TypeTraits&lt;KIND&gt;::ImplType::<span class="built_in">create</span>();
-  &#125;
-&#125;;
+  }
+};
 
 <span class="keyword">template</span> &lt;&gt;
-<span class="keyword">struct</span> <span class="title class_">TypeFactory</span>&lt;TypeKind::ARRAY&gt; &#123;
-  <span class="function"><span class="type">static</span> ArrayTypePtr <span class="title">create</span><span class="params">(TypePtr elementType)</span> </span>&#123;
+<span class="keyword">struct</span> <span class="title class_">TypeFactory</span>&lt;TypeKind::ARRAY&gt; {
+  <span class="function"><span class="type">static</span> ArrayTypePtr <span class="title">create</span><span class="params">(TypePtr elementType)</span> </span>{
     <span class="keyword">return</span> std::<span class="built_in">make_shared</span>&lt;<span class="type">const</span> ArrayType&gt;(std::<span class="built_in">move</span>(elementType));
-  &#125;
-&#125;;</code></pre></figure>
+  }
+};</code></pre></figure>
 <p>以 BIGINT 为例，<code>TypeFactory&lt;BIGINT&gt;::create()</code> 选出 <code>ScalarType&lt;BIGINT&gt;</code>，然后调用它的 <code>create()</code>。当前基本 ScalarType 使用静态实例，避免反复创建相同的无参数描述。但不能把“所有 Type 都是单例”当作接口保证，带参数类型和嵌套类型需要保存各自的信息。</p>
 <p>把标量工厂和复杂类型工厂连起来，可以直接观察返回的类型描述：</p>
-<figure class="highlight cpp"><pre><code class="language-cpp"><span class="keyword">auto</span> bigIntVT = TypeFactory&lt;TypeKind::BIGINT&gt;::<span class="built_in">create</span>();
+<figure class="highlight cpp cpp-highlight"><pre><code class="language-cpp"><span class="keyword">auto</span> bigIntVT = TypeFactory&lt;TypeKind::BIGINT&gt;::<span class="built_in">create</span>();
 <span class="keyword">auto</span> arrayVT = TypeFactory&lt;TypeKind::ARRAY&gt;::<span class="built_in">create</span>(bigIntVT);
 std::cout &lt;&lt; bigIntVT-&gt;<span class="built_in">toString</span>() &lt;&lt; <span class="string">'\n'</span>; <span class="comment">// BIGINT</span>
 std::cout &lt;&lt; arrayVT-&gt;<span class="built_in">toString</span>() &lt;&lt; <span class="string">'\n'</span>;  <span class="comment">// ARRAY&lt;BIGINT&gt;</span></code></pre></figure>
@@ -782,21 +780,21 @@ std::cout &lt;&lt; arrayVT-&gt;<span class="built_in">toString</span>() &lt;&lt;
 <p><span class="legacy-anchor" id="如何从c-type推导和创建出velox-type"></span></p>
 <h4 id="42-只有-c-类型时，cpptotypet-选择一个约定映射">2.3.2 只有 C++ 类型时，<code>CppToType&lt;T&gt;</code> 选择一个约定映射</h4>
 <p><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/type/CppToType.h#L25">CppToType.h</a> 的主干很短：</p>
-<figure class="highlight cpp"><pre><code class="language-cpp"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;
-<span class="keyword">struct</span> <span class="title class_">CppToType</span> &#123;&#125;;
+<figure class="highlight cpp cpp-highlight"><pre><code class="language-cpp"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;
+<span class="keyword">struct</span> <span class="title class_">CppToType</span> {};
 
 <span class="keyword">template</span> &lt;TypeKind KIND&gt;
-<span class="keyword">struct</span> <span class="title class_">CppToTypeBase</span> : TypeTraits&lt;KIND&gt; &#123;
-  <span class="function"><span class="type">static</span> <span class="keyword">auto</span> <span class="title">create</span><span class="params">()</span> </span>&#123;
+<span class="keyword">struct</span> <span class="title class_">CppToTypeBase</span> : TypeTraits&lt;KIND&gt; {
+  <span class="function"><span class="type">static</span> <span class="keyword">auto</span> <span class="title">create</span><span class="params">()</span> </span>{
     <span class="keyword">return</span> TypeFactory&lt;KIND&gt;::<span class="built_in">create</span>();
-  &#125;
-&#125;;
+  }
+};
 
 <span class="keyword">template</span> &lt;&gt;
-<span class="keyword">struct</span> <span class="title class_">CppToType</span>&lt;<span class="type">int64_t</span>&gt; : CppToTypeBase&lt;TypeKind::BIGINT&gt; &#123;&#125;;</code></pre></figure>
+<span class="keyword">struct</span> <span class="title class_">CppToType</span>&lt;<span class="type">int64_t</span>&gt; : CppToTypeBase&lt;TypeKind::BIGINT&gt; {};</code></pre></figure>
 <p>完整推导过程是：<code>T=int64_t</code> 命中特化 → 继承 <code>CppToTypeBase&lt;BIGINT&gt;</code> → 通过 <code>TypeTraits&lt;BIGINT&gt;</code> 得到 <code>NativeType</code>、<code>isPrimitiveType</code>、<code>typeKind</code> → <code>create()</code> 调用 <code>TypeFactory&lt;BIGINT&gt;</code> → 得到 BIGINT Type 对象。</p>
 <p>这个过程中，前面的特化、别名选择是编译期行为；真正调用 <code>create()</code> 得到 TypePtr 是运行时 API。不能用运行时变量 <code>kind</code> 直接写 <code>TypeTraits&lt;kind&gt;</code>，第 2.6 节会解释分派宏如何跨过这个边界。</p>
-<figure class="highlight cpp"><pre><code class="language-cpp"><span class="built_in">static_assert</span>(CppToType&lt;<span class="type">int64_t</span>&gt;::typeKind == TypeKind::BIGINT);
+<figure class="highlight cpp cpp-highlight"><pre><code class="language-cpp"><span class="built_in">static_assert</span>(CppToType&lt;<span class="type">int64_t</span>&gt;::typeKind == TypeKind::BIGINT);
 <span class="built_in">static_assert</span>(std::is_same_v&lt;
     TypeTraits&lt;TypeKind::BIGINT&gt;::NativeType, <span class="type">int64_t</span>&gt;);
 <span class="keyword">auto</span> type = CppToType&lt;<span class="type">int64_t</span>&gt;::<span class="built_in">create</span>(); <span class="comment">// BIGINT()</span></code></pre></figure>
@@ -804,29 +802,29 @@ std::cout &lt;&lt; arrayVT-&gt;<span class="built_in">toString</span>() &lt;&lt;
 <p><code>INTEGER → int32_t → INTEGER</code> 可以回到基础类型；<code>DATE → int32_t → INTEGER</code> 却丢掉了 DATE。<code>DECIMAL(12,2) → int64_t → BIGINT</code> 同样丢掉 precision、scale 与十进制身份。</p>
 <p>VARCHAR 与 VARBINARY 是两个不同 kind，但 NativeType 都是 <code>StringView</code>。同一个 <code>CppToType&lt;StringView&gt;</code> 不可能同时有两个相同特化；源码明确选择 VARCHAR。<code>std::string</code>、<code>std::string_view</code>、<code>const char*</code>、<code>folly::StringPiece</code> 也映射到 VARCHAR。</p>
 <p>同宽的有符号与无符号整数还会映射到相同 kind，例如 <code>uint64_t</code> 也映射 BIGINT。这是类型适配约定，不能据此认为 SQL BIGINT 获得了完整 unsigned 取值范围，更不是自动检查、转换任意 unsigned 值的算法。</p>
-<figure class="review-figure"><div aria-label="图 6：TypeTraits 与 CppToType 不是互逆函数。逻辑参数一旦只投影成 kind 或 C++ T，通常无法恢复。" class="diagram-scroll" role="region" tabindex="0"><img alt="图 6：TypeTraits 与 CppToType 不是互逆函数。逻辑参数一旦只投影成 kind 或 C++ T，通常无法恢复。" loading="lazy" src="/images/velox-types/traits.svg"/></div><figcaption>图 6：TypeTraits 与 CppToType 不是互逆函数。逻辑参数一旦只投影成 kind 或 C++ T，通常无法恢复。</figcaption></figure>
+<figure class="review-figure"><div aria-label="图 6：TypeTraits 与 CppToType 不是互逆函数。逻辑参数一旦只投影成 kind 或 C++ T，通常无法恢复。" class="diagram-scroll" role="region" tabindex="0"><img alt="图 6：TypeTraits 与 CppToType 不是互逆函数。逻辑参数一旦只投影成 kind 或 C++ T，通常无法恢复。" loading="lazy" src="/images/velox-types/traits.svg"></div><figcaption>图 6：TypeTraits 与 CppToType 不是互逆函数。逻辑参数一旦只投影成 kind 或 C++ T，通常无法恢复。</figcaption></figure>
 <h4 id="44-递归容器特化与一个容易误读的-date-细节">2.3.4 递归容器特化与一个容易误读的 Date 细节</h4>
 <p><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/type/SimpleFunctionApi.h#L25">SimpleFunctionApi.h</a> 额外提供了 UDF tag 的适配，它不在基础 <code>CppToType.h</code> 中：</p>
-<figure class="highlight cpp"><pre><code class="language-cpp"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> ELEMENT&gt;
-<span class="keyword">struct</span> <span class="title class_">CppToType</span>&lt;Array&lt;ELEMENT&gt;&gt; : TypeTraits&lt;TypeKind::ARRAY&gt; &#123;
-  <span class="function"><span class="type">static</span> <span class="keyword">auto</span> <span class="title">create</span><span class="params">()</span> </span>&#123;
+<figure class="highlight cpp cpp-highlight"><pre><code class="language-cpp"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> ELEMENT&gt;
+<span class="keyword">struct</span> <span class="title class_">CppToType</span>&lt;Array&lt;ELEMENT&gt;&gt; : TypeTraits&lt;TypeKind::ARRAY&gt; {
+  <span class="function"><span class="type">static</span> <span class="keyword">auto</span> <span class="title">create</span><span class="params">()</span> </span>{
     <span class="keyword">return</span> <span class="built_in">ARRAY</span>(CppToType&lt;ELEMENT&gt;::<span class="built_in">create</span>());
-  &#125;
-&#125;;
+  }
+};
 
 <span class="keyword">template</span> &lt;&gt;
-<span class="keyword">struct</span> <span class="title class_">CppToType</span>&lt;Date&gt; : CppToTypeBase&lt;TypeKind::INTEGER&gt; &#123;&#125;;</code></pre></figure>
+<span class="keyword">struct</span> <span class="title class_">CppToType</span>&lt;Date&gt; : CppToTypeBase&lt;TypeKind::INTEGER&gt; {};</code></pre></figure>
 <p>于是 <code>CppToType&lt;Array&lt;int64_t&gt;&gt;::create()</code> 递归得到 <code>ARRAY(BIGINT())</code>。这里的 <code>Array&lt;E&gt;</code> 是 Velox 的 UDF tag，不是 <code>std::vector&lt;E&gt;</code>。</p>
 <p>更值得注意的是：**当前 <code>CppToType&lt;Date&gt;::create()</code> 得到 INTEGER，而非 DATE；<code>CppToType&lt;Array&lt;Date&gt;&gt;::create()</code> 也相应得到 ARRAY(INTEGER)**。<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/type/tests/TypeTest.cpp#L975">TypeTest</a> 明确检查了前一行为。构造日期 schema 应显式用 <code>DATE()</code> / <code>ARRAY(DATE())</code>，函数的逻辑签名则通过后面的 <code>SimpleTypeTrait</code>、<code>TypeAnalysis</code> 路径生成。</p>
 <p>也不能把这个行为推广为“所有 tag 的 create 都只返回 backing”：<code>Time</code> / <code>TimeMicroUtc</code> 的特化覆盖 <code>create()</code>，返回对应逻辑 Type；<code>std::shared_ptr&lt;T&gt;</code> 返回带 T 身份的 OpaqueType。<strong>具体映射取决于特化实现，<code>CppToType</code> 不是统一的逻辑类型反射协议。</strong></p>
 <h3 id="complex">2.4 复杂 schema、数据树与 null</h3>
-<figure class="highlight cpp"><pre><code class="language-cpp"><span class="keyword">auto</span> schema = <span class="built_in">ROW</span>(
-    &#123;<span class="string">"user_id"</span>, <span class="string">"events"</span>, <span class="string">"attrs"</span>&#125;,
-    &#123;<span class="built_in">BIGINT</span>(),
-     <span class="built_in">ARRAY</span>(<span class="built_in">ROW</span>(&#123;<span class="string">"ts"</span>, <span class="string">"cost"</span>&#125;, &#123;<span class="built_in">TIMESTAMP</span>(), <span class="built_in">DECIMAL</span>(<span class="number">12</span>, <span class="number">2</span>)&#125;)),
-     <span class="built_in">MAP</span>(<span class="built_in">VARCHAR</span>(), <span class="built_in">VARCHAR</span>())&#125;);</code></pre></figure>
+<figure class="highlight cpp cpp-highlight"><pre><code class="language-cpp"><span class="keyword">auto</span> schema = <span class="built_in">ROW</span>(
+    {<span class="string">"user_id"</span>, <span class="string">"events"</span>, <span class="string">"attrs"</span>},
+    {<span class="built_in">BIGINT</span>(),
+     <span class="built_in">ARRAY</span>(<span class="built_in">ROW</span>({<span class="string">"ts"</span>, <span class="string">"cost"</span>}, {<span class="built_in">TIMESTAMP</span>(), <span class="built_in">DECIMAL</span>(<span class="number">12</span>, <span class="number">2</span>)})),
+     <span class="built_in">MAP</span>(<span class="built_in">VARCHAR</span>(), <span class="built_in">VARCHAR</span>())});</code></pre></figure>
 <p>这棵树描述：每行有 user_id、events、attrs 三个字段；events 的每个元素是一个含 ts/cost 的 ROW；attrs 的 key/value 都是文本。它没有定义这一批有多少行，也没有创建任何 event 或字符串。</p>
-<figure class="review-figure"><div aria-label="图 7：同一个复杂 schema 的类型树与数据结构。字段名、decimal 参数属于 Type；行数、offsets、sizes 和 null 属于 Vector。" class="diagram-scroll" role="region" tabindex="0"><img alt="图 7：同一个复杂 schema 的类型树与数据结构。字段名、decimal 参数属于 Type；行数、offsets、sizes 和 null 属于 Vector。" loading="lazy" src="/images/velox-types/tree.svg"/></div><figcaption>图 7：同一个复杂 schema 的类型树与数据结构。字段名、decimal 参数属于 Type；行数、offsets、sizes 和 null 属于 Vector。</figcaption></figure>
+<figure class="review-figure"><div aria-label="图 7：同一个复杂 schema 的类型树与数据结构。字段名、decimal 参数属于 Type；行数、offsets、sizes 和 null 属于 Vector。" class="diagram-scroll" role="region" tabindex="0"><img alt="图 7：同一个复杂 schema 的类型树与数据结构。字段名、decimal 参数属于 Type；行数、offsets、sizes 和 null 属于 Vector。" loading="lazy" src="/images/velox-types/tree.svg"></div><figcaption>图 7：同一个复杂 schema 的类型树与数据结构。字段名、decimal 参数属于 Type；行数、offsets、sizes 和 null 属于 Vector。</figcaption></figure>
 <p><code>Type::size()</code> 表示子类型个数：ARRAY 是 1，MAP 是 2，ROW 为字段数；<code>BaseVector::size()</code> 才是该向量逻辑行数。某个数组含 100 个元素，不会让 <code>ARRAY(BIGINT())-&gt;size()</code> 变成 100。</p>
 <p>类型树中的 ARRAY 对应数据层的 offsets/sizes 与一个 elements vector；MAP 对应 offsets/sizes、keys vector 和 values vector；ROW 对应按字段排列的 children。嵌套结构递归组合，元素总数可以与外层行数不同。没有必要把每一行数组转换成独立的 <code>std::vector</code> 才能计算。</p>
 <h4 id="null-不写在-typekind-里">2.4.1 null 不写在 TypeKind 里</h4>
@@ -835,22 +833,22 @@ std::cout &lt;&lt; arrayVT-&gt;<span class="built_in">toString</span>() &lt;&lt;
 <p><code>UNKNOWN</code> 是独立的 TypeKind，常用于尚未定型的 null 等场景，不是所有类型的可空包装。在 UDF 里，<code>callNullable</code>、<code>callNullFree</code> 又是调用约定；是否允许某个参数为 null、是否递归没有 null，需要 adapter 检查，不能从 kind 直接推断。</p>
 <h3 id="vectors">2.5 Vector 如何同时保存类型描述和数据</h3>
 <p><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/vector/BaseVector.h#L215">BaseVector</a> 的 <code>type()</code> 返回完整 TypePtr；构造时还缓存 <code>typeKind_</code> 与是否需要自定义比较。逻辑类型与执行所需的基础属性在同一个 Vector 中并存。</p>
-<figure class="highlight cpp"><pre><code class="language-cpp"><span class="comment">// BaseVector 的相关成员与接口，省略其他成员。</span>
+<figure class="highlight cpp cpp-highlight"><pre><code class="language-cpp"><span class="comment">// BaseVector 的相关成员与接口，省略其他成员。</span>
 TypePtr type_;
 <span class="type">const</span> TypeKind typeKind_;
 
-<span class="function"><span class="type">const</span> TypePtr&amp; <span class="title">type</span><span class="params">()</span> <span class="type">const</span> </span>&#123; <span class="keyword">return</span> type_; &#125;
-<span class="function">TypeKind <span class="title">typeKind</span><span class="params">()</span> <span class="type">const</span> </span>&#123; <span class="keyword">return</span> typeKind_; &#125;</code></pre></figure>
+<span class="function"><span class="type">const</span> TypePtr&amp; <span class="title">type</span><span class="params">()</span> <span class="type">const</span> </span>{ <span class="keyword">return</span> type_; }
+<span class="function">TypeKind <span class="title">typeKind</span><span class="params">()</span> <span class="type">const</span> </span>{ <span class="keyword">return</span> typeKind_; }</code></pre></figure>
 <h4 id="61-basevectorcreate-怎样选择具体类">2.5.1 BaseVector::create 的类型分派</h4>
 <p><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/vector/BaseVector.cpp#L417">BaseVector::createInternal</a> 先取 <code>type-&gt;kind()</code>。ROW、ARRAY、MAP 走各自的复杂 Vector 构造，递归传入原来的 child TypePtr；标量走动态分派，选定 <code>TypeTraits&lt;kind&gt;::NativeType</code>，然后创建 <code>FlatVector&lt;T&gt;</code>。</p>
 <p>关键在于它选择 T 后，仍把<strong>原始 TypePtr</strong>传给 FlatVector，而不是从 T 重新构造一个基础类型：</p>
-<figure class="highlight cpp"><pre><code class="language-cpp"><span class="comment">// createEmpty&lt;kind&gt;() 的核心逻辑。</span>
+<figure class="highlight cpp cpp-highlight"><pre><code class="language-cpp"><span class="comment">// createEmpty&lt;kind&gt;() 的核心逻辑。</span>
 <span class="keyword">using</span> T = <span class="keyword">typename</span> TypeTraits&lt;kind&gt;::NativeType;
 <span class="comment">// 分配 values buffer；StringView 还需要相应初始化。</span>
 <span class="keyword">return</span> std::make_shared&lt;FlatVector&lt;T&gt;&gt;(
-    pool, type, <span class="literal">nullptr</span>, size, values, std::vector&lt;BufferPtr&gt;&#123;&#125;);</code></pre></figure>
+    pool, type, <span class="literal">nullptr</span>, size, values, std::vector&lt;BufferPtr&gt;{});</code></pre></figure>
 <p>因此：</p>
-<figure class="highlight cpp"><pre><code class="language-cpp"><span class="keyword">auto</span> dates = BaseVector::<span class="built_in">create</span>(<span class="built_in">DATE</span>(), <span class="number">3</span>, pool);
+<figure class="highlight cpp cpp-highlight"><pre><code class="language-cpp"><span class="keyword">auto</span> dates = BaseVector::<span class="built_in">create</span>(<span class="built_in">DATE</span>(), <span class="number">3</span>, pool);
 <span class="keyword">auto</span> amounts = BaseVector::<span class="built_in">create</span>(<span class="built_in">DECIMAL</span>(<span class="number">12</span>, <span class="number">2</span>), <span class="number">3</span>, pool);
 
 <span class="comment">// dates 的具体值访问类是 FlatVector&lt;int32_t&gt;，type() 仍是 DATE。</span>
@@ -863,14 +861,14 @@ values-&gt;<span class="built_in">set</span>(<span class="number">0</span>, <spa
 <p>对于普通固定宽度数值，values buffer 可按 T 访问。但 <code>FlatVector&lt;bool&gt;</code> 使用专门的 bit 访问逻辑，不能当成一个字节一个 bool 的数组；<code>FlatVector&lt;StringView&gt;</code> 包含字符串视图及用于长字符串的 buffers，StringView 自身的大小不等于字符串 payload 大小。</p>
 <p>复杂列还涉及 offsets、sizes、children 和每层 null。<code>Type::cppSizeInBytes()</code> 或 <code>sizeof(NativeType)</code> 都不能作为整列内存估算公式；实际内存受编码、嵌套元素数量、字符串长度和 buffer 共享情况影响。</p>
 <h4 id="63-dictionary-改变访问路径，不改变-decimal-语义">2.5.3 Dictionary 与 DecodedVector 的访问路径</h4>
-<figure class="review-figure"><div aria-label="图 8：DictionaryVector 仍携带 DECIMAL(12,2)。先映射逻辑行，再检查 null、读取 unscaled value，最后按 scale 解释。" class="diagram-scroll" role="region" tabindex="0"><img alt="图 8：DictionaryVector 仍携带 DECIMAL(12,2)。先映射逻辑行，再检查 null、读取 unscaled value，最后按 scale 解释。" loading="lazy" src="/images/velox-types/vector.svg"/></div><figcaption>图 8：DictionaryVector 仍携带 DECIMAL(12,2)。先映射逻辑行，再检查 null、读取 unscaled value，最后按 scale 解释。</figcaption></figure>
+<figure class="review-figure"><div aria-label="图 8：DictionaryVector 仍携带 DECIMAL(12,2)。先映射逻辑行，再检查 null、读取 unscaled value，最后按 scale 解释。" class="diagram-scroll" role="region" tabindex="0"><img alt="图 8：DictionaryVector 仍携带 DECIMAL(12,2)。先映射逻辑行，再检查 null、读取 unscaled value，最后按 scale 解释。" loading="lazy" src="/images/velox-types/vector.svg"></div><figcaption>图 8：DictionaryVector 仍携带 DECIMAL(12,2)。先映射逻辑行，再检查 null、读取 unscaled value，最后按 scale 解释。</figcaption></figure>
 <p>假设底层值为 <code>[12345, 67890, null]</code>，dictionary indices 为 <code>[1,0,2,1]</code>。逻辑上得到 <code>[678.90,123.45,null,678.90]</code>，而不是 BIGINT 列。包装层还可能有自己的 null bitmap；底层为非 null 不代表外层一定非 null。</p>
 <p><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/vector/DecodedVector.h#L35">DecodedVector</a> 把包装层的索引与 null 规则统一成访问接口。多个 dictionary 的索引可以组合；constant 可形成常量映射。这个过程通常不要求复制全部值、物化成一个新的 FlatVector。lazy 输入是否加载、加载哪些行，则与 decode 的参数和表达式执行路径有关。</p>
 <p>对于已确认 kind 为 BIGINT 的值访问，典型写法是先 decode，再对选中且非 null 的行用 <code>valueAt&lt;int64_t&gt;(row)</code>。这解决编码访问问题，<strong>没有把 DECIMAL cast 成 BIGINT</strong>；后续数学含义仍由原 Type 和运算契约决定。</p>
 <h3 id="dispatch">2.6 运行时 kind 如何选择编译期模板</h3>
 <p><code>type-&gt;kind()</code> 是运行时枚举值，<code>TypeTraits&lt;K&gt;</code> 的 K 必须是编译期常量。动态分派宏做的核心工作，是用 switch 为每个支持的 kind 选择已经编译好的模板实例。</p>
-<figure class="highlight cpp"><pre><code class="language-cpp"><span class="comment">// 等价思路示意；实际宏支持的 kind 集合因宏而异。</span>
-<span class="keyword">switch</span> (vector-&gt;<span class="built_in">typeKind</span>()) &#123;
+<figure class="highlight cpp cpp-highlight"><pre><code class="language-cpp"><span class="comment">// 等价思路示意；实际宏支持的 kind 集合因宏而异。</span>
+<span class="keyword">switch</span> (vector-&gt;<span class="built_in">typeKind</span>()) {
   <span class="keyword">case</span> TypeKind::INTEGER:
     <span class="keyword">return</span> <span class="built_in">visit</span>&lt;TypeKind::INTEGER&gt;(vector);
   <span class="keyword">case</span> TypeKind::BIGINT:
@@ -880,7 +878,7 @@ values-&gt;<span class="built_in">set</span>(<span class="number">0</span>, <spa
   <span class="keyword">default</span>:
     <span class="comment">// 处理其余支持的 kind 或报错。</span>
     <span class="keyword">break</span>;
-&#125;
+}
 
 <span class="comment">// visit&lt;K&gt;() 内部可以写：</span>
 <span class="comment">// using T = typename TypeTraits&lt;K&gt;::NativeType;</span></code></pre></figure>
@@ -891,20 +889,20 @@ values-&gt;<span class="built_in">set</span>(<span class="number">0</span>, <spa
 <p>Velox 既有逐行接口的 Simple Function，也有直接操作向量的 Vector Function。Simple Function 最终通过 adapter 接入向量化表达式执行，不能因为 <code>call()</code> 每次接收一个值，就把它理解成另一套无 schema 的计算引擎。</p>
 <h4 id="81-tag-负责表达签名，resolver-负责形成-c-调用参数">2.7.1 tag 负责表达签名，resolver 负责形成 C++ 调用参数</h4>
 <p><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/type/SimpleFunctionTags.h#L241">SimpleFunctionTags.h</a> 中 <code>Date</code>、<code>Varchar</code>、<code>Varbinary</code> 是 tag 类型，甚至不允许普通调用者随意构造它们。它们的任务是作为模板参数携带语义，而不是装一条数据。</p>
-<figure class="highlight cpp"><pre><code class="language-cpp"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> TExec&gt;
-<span class="keyword">struct</span> <span class="title class_">IdentityDate</span> &#123;
+<figure class="highlight cpp cpp-highlight"><pre><code class="language-cpp"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> TExec&gt;
+<span class="keyword">struct</span> <span class="title class_">IdentityDate</span> {
   <span class="built_in">VELOX_DEFINE_FUNCTION_TYPES</span>(TExec);
 
-  <span class="function"><span class="type">bool</span> <span class="title">call</span><span class="params">(out_type&lt;Date&gt;&amp; out, <span class="type">const</span> arg_type&lt;Date&gt;&amp; in)</span> </span>&#123;
+  <span class="function"><span class="type">bool</span> <span class="title">call</span><span class="params">(out_type&lt;Date&gt;&amp; out, <span class="type">const</span> arg_type&lt;Date&gt;&amp; in)</span> </span>{
     out = in;
     <span class="keyword">return</span> <span class="literal">true</span>;
-  &#125;
-&#125;;
+  }
+};
 
 <span class="comment">// 注册声明的返回类型与参数类型是 Date tag。</span>
-<span class="built_in">registerFunction</span>&lt;IdentityDate, Date, Date&gt;(&#123;<span class="string">"identity_date"</span>&#125;);</code></pre></figure>
+<span class="built_in">registerFunction</span>&lt;IdentityDate, Date, Date&gt;({<span class="string">"identity_date"</span>});</code></pre></figure>
 <p><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/functions/Macros.h#L25">VELOX_DEFINE_FUNCTION_TYPES</a> 定义的别名可化简为：</p>
-<figure class="highlight cpp"><pre><code class="language-cpp"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;
+<figure class="highlight cpp cpp-highlight"><pre><code class="language-cpp"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;
 <span class="keyword">using</span> arg_type = <span class="keyword">typename</span> TExec::<span class="keyword">template</span> resolver&lt;T&gt;::in_type;
 <span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;
 <span class="keyword">using</span> out_type = <span class="keyword">typename</span> TExec::<span class="keyword">template</span> resolver&lt;T&gt;::out_type;</code></pre></figure>
@@ -975,7 +973,7 @@ values-&gt;<span class="built_in">set</span>(<span class="number">0</span>, <spa
 </tbody></table></div>
 <p>输出字符串用 writer，是因为创建 payload 需要和结果 Vector 的内存所有权协作；返回一个指向临时字符串的 view 会产生生命周期问题。Array/Map view 则在读取时桥接复杂 Vector，不必先复制成 STL 容器。</p>
 <p><code>NullableArrayView</code> 表示元素可以为 null；外层参数是否为 null 另由 adapter 的默认 null 行为、<code>callNullable</code> 等决定。<code>null_free_arg_type</code> 会映射到相应 null-free view，前提是执行路径已满足其 null 条件。</p>
-<figure class="review-figure"><div aria-label="图 9：同一个 UDF tag 同时进入签名分析与执行类型解析。Date 的 int32_t 调用参数并不会让函数签名变成 integer。" class="diagram-scroll" role="region" tabindex="0"><img alt="图 9：同一个 UDF tag 同时进入签名分析与执行类型解析。Date 的 int32_t 调用参数并不会让函数签名变成 integer。" loading="lazy" src="/images/velox-types/udf.svg"/></div><figcaption>图 9：同一个 UDF tag 同时进入签名分析与执行类型解析。Date 的 int32_t 调用参数并不会让函数签名变成 integer。</figcaption></figure>
+<figure class="review-figure"><div aria-label="图 9：同一个 UDF tag 同时进入签名分析与执行类型解析。Date 的 int32_t 调用参数并不会让函数签名变成 integer。" class="diagram-scroll" role="region" tabindex="0"><img alt="图 9：同一个 UDF tag 同时进入签名分析与执行类型解析。Date 的 int32_t 调用参数并不会让函数签名变成 integer。" loading="lazy" src="/images/velox-types/udf.svg"></div><figcaption>图 9：同一个 UDF tag 同时进入签名分析与执行类型解析。Date 的 int32_t 调用参数并不会让函数签名变成 integer。</figcaption></figure>
 <h4 id="82-逻辑签名不是简单调用-cpptotypetcreate">2.7.2 TypeAnalysis 生成逻辑与物理签名</h4>
 <p><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/core/SimpleFunctionMetadata.h#L218">SimpleFunctionMetadata</a> 的 <code>TypeAnalysis&lt;T&gt;</code> 根据 <code>SimpleTypeTrait&lt;T&gt;</code> 等信息生成签名描述。对 Date，<code>SimpleTypeTrait&lt;Date&gt;::name</code> 是 DATE，而它继承的基础 kind 是 INTEGER。因此分析同时得到两份信息：逻辑签名 <code>date</code>，以及用于匹配实现的 physical Type <code>INTEGER()</code>。</p>
 <p>递归的 <code>TypeAnalysis&lt;Array&lt;Date&gt;&gt;</code> 相应得到逻辑签名 <code>array(date)</code> 和 physical Type <code>ARRAY(INTEGER())</code>。这与前文 <code>CppToType&lt;Array&lt;Date&gt;&gt;::create()</code> 的行为并不冲突：它们的职责不同。当前 <a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/core/tests/TypeAnalysisTest.cpp#L383">TypeAnalysisTest</a> 对这两项 backing 结果有明确断言。</p>
@@ -998,7 +996,7 @@ resultPrecision = min(38, max(p1 - s1, p2 - s2) + resultScale + 1)</code></pre><
 <p>例如 <code>DECIMAL(12,2)</code> 的 123.45 与 <code>DECIMAL(8,3)</code> 的 6.789 相加，返回 <code>DECIMAL(14,3)</code>。原始整数 12345 先乘 10，得到 123450；另一个整数为 6789；相加得到 130239，按返回 scale=3 解释为 130.239。<strong>普通 C++ 加法负责最后的整数运算，完整 Type 决定它之前的缩放和之后的解释。</strong></p>
 <h4 id="85-vector-function-直接拿到向量与完整输出类型">2.7.5 Vector Function 直接拿到向量与完整输出类型</h4>
 <p><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/expression/VectorFunction.h#L79">VectorFunction::apply</a> 的接口包含：</p>
-<figure class="highlight cpp"><pre><code class="language-cpp"><span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">apply</span><span class="params">(
+<figure class="highlight cpp cpp-highlight"><pre><code class="language-cpp"><span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">apply</span><span class="params">(
     <span class="type">const</span> SelectivityVector&amp; rows,
     std::vector&lt;VectorPtr&gt;&amp; args,
     <span class="type">const</span> TypePtr&amp; outputType,
@@ -1018,7 +1016,7 @@ resultPrecision = min(38, max(p1 - s1, p2 - s2) + resultScale + 1)</code></pre><
 <h4 id="93-算子为什么仍需要逻辑类型：带时区时间的比较">2.8.3 带时区时间的 compare/hash 调用路径</h4>
 <p><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/functions/prestosql/types/TimestampWithTimeZoneType.h#L73">TimestampWithTimeZoneType</a> 以 BIGINT 为 backing，把 UTC 毫秒与 timezone key 打包到 <code>int64_t</code>。低 12 bit 存 timezone key，其余部分承载时间信息。</p>
 <p>同一 UTC 毫秒、不同 timezone key 的两个 packed integer 不同；但这个逻辑类型的比较与 hash 只使用解包后的 UTC 毫秒。因此按它的语义，两个值可以相等，尽管原始整数不相等。</p>
-<figure class="review-figure"><div aria-label="图 10：共享 int64_t 存储不代表可以使用同一套比较。GROUP BY / JOIN 的 hash 与 equality 必须遵循逻辑类型。" class="diagram-scroll" role="region" tabindex="0"><img alt="图 10：共享 int64_t 存储不代表可以使用同一套比较。GROUP BY / JOIN 的 hash 与 equality 必须遵循逻辑类型。" loading="lazy" src="/images/velox-types/operator-semantics.svg"/></div><figcaption>图 10：共享 int64_t 存储不代表可以使用同一套比较。GROUP BY / JOIN 的 hash 与 equality 必须遵循逻辑类型。</figcaption></figure>
+<figure class="review-figure"><div aria-label="图 10：共享 int64_t 存储不代表可以使用同一套比较。GROUP BY / JOIN 的 hash 与 equality 必须遵循逻辑类型。" class="diagram-scroll" role="region" tabindex="0"><img alt="图 10：共享 int64_t 存储不代表可以使用同一套比较。GROUP BY / JOIN 的 hash 与 equality 必须遵循逻辑类型。" loading="lazy" src="/images/velox-types/operator-semantics.svg"></div><figcaption>图 10：共享 int64_t 存储不代表可以使用同一套比较。GROUP BY / JOIN 的 hash 与 equality 必须遵循逻辑类型。</figcaption></figure>
 <p>这个 Type 设置 <code>providesCustomComparison()</code>，提供自己的 <code>compare(value,value)</code> 和 <code>hash(value)</code>。Vector 的比较/hash 路径与 <a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/RowContainer.cpp#L890">RowContainer::hash</a> 会根据该标记选择对应实现；RowContainer 同时保存 Type 与 kind，按 kind 实例化代码，再在需要时调用 Type 提供的语义。</p>
 <p>如果一个新算子只是看到 BIGINT 就直接用 <code>std::hash&lt;int64_t&gt;</code> 和整数相等，它可能错误地把同一时刻分成不同组。类似地，浮点 NaN、嵌套值、null 的比较也有执行语义，不能默认所有值操作都等同原生运算符。</p>
 <p>当前自定义比较支持有范围限制，相关基类只允许指定的 primitive、fixed-width kind。注册一个新名字并不自动使所有类型都支持任意比较实现；应检查对应基类、函数适配和算子访问路径。</p>
@@ -1091,7 +1089,7 @@ resultPrecision = min(38, max(p1 - s1, p2 - s2) + resultScale + 1)</code></pre><
 <li><strong>结果 Vector</strong>：用已绑定的 <code>DECIMAL(15,3)</code> 创建/复用结果 Vector，存入 130239。结果含义是 130.239。</li>
 <li><strong>下游与输出</strong>：Project 的输出 RowType 保存结果列 Type。后续比较、聚合或写出继续使用这一 schema，并在需要时进入各自的 C++ 值操作或格式映射。</li>
 </ol>
-<figure class="review-figure"><div aria-label="图 11：相同的 int64_t 在读取与函数执行两处都受到 Type 参数约束。12345 → 123450 是保值缩放，130239 是新计算结果。" class="diagram-scroll" role="region" tabindex="0"><img alt="图 11：相同的 int64_t 在读取与函数执行两处都受到 Type 参数约束。12345 → 123450 是保值缩放，130239 是新计算结果。" loading="lazy" src="/images/velox-types/decimal.svg"/></div><figcaption>图 11：相同的 int64_t 在读取与函数执行两处都受到 Type 参数约束。12345 → 123450 是保值缩放，130239 是新计算结果。</figcaption></figure>
+<figure class="review-figure"><div aria-label="图 11：相同的 int64_t 在读取与函数执行两处都受到 Type 参数约束。12345 → 123450 是保值缩放，130239 是新计算结果。" class="diagram-scroll" role="region" tabindex="0"><img alt="图 11：相同的 int64_t 在读取与函数执行两处都受到 Type 参数约束。12345 → 123450 是保值缩放，130239 是新计算结果。" loading="lazy" src="/images/velox-types/decimal.svg"></div><figcaption>图 11：相同的 int64_t 在读取与函数执行两处都受到 Type 参数约束。12345 → 123450 是保值缩放，130239 是新计算结果。</figcaption></figure>
 <p>这个例子里没有“先从 Velox logical type 转成 C++ type，计算完成再凭 C++ type 猜回 logical type”的往返。逻辑 Type 在绑定和数据边界一直存在，C++ 类型只提供承载及操作这些值的实现方式。</p>
 <h3 id="comparison">2.11 类型比较、coercion、CAST 与重标记</h3>
 <div class="tbl-wrap"><table>
@@ -1177,7 +1175,7 @@ resultPrecision = min(38, max(p1 - s1, p2 - s2) + resultScale + 1)</code></pre><
 </tbody></table></div>
 <p>ROW 的弱匹配忽略字段名，但递归检查子类型等价；强匹配的字段名当前区分大小写。Opaque 的 weak match 不比较 T 身份，绝不能作为安全转换任意 <code>shared_ptr&lt;T&gt;</code> 的依据。</p>
 <p><code>a == b</code> 如果比较的是两个 TypePtr，判断的是地址；<code>*a == *b</code> 才是类型强相等。某些 Type 使用单例，所以实现内部可做特定地址优化；通用调用者仍应选择符合意图的类型比较接口。</p>
-<figure class="review-figure"><div aria-label="图 12：先确定要比较哪层信息，再选择接口。类型等价与允许转换是两个独立的问题。" class="diagram-scroll" role="region" tabindex="0"><img alt="图 12：先确定要比较哪层信息，再选择接口。类型等价与允许转换是两个独立的问题。" loading="lazy" src="/images/velox-types/comparison.svg"/></div><figcaption>图 12：先确定要比较哪层信息，再选择接口。类型等价与允许转换是两个独立的问题。</figcaption></figure>
+<figure class="review-figure"><div aria-label="图 12：先确定要比较哪层信息，再选择接口。类型等价与允许转换是两个独立的问题。" class="diagram-scroll" role="region" tabindex="0"><img alt="图 12：先确定要比较哪层信息，再选择接口。类型等价与允许转换是两个独立的问题。" loading="lazy" src="/images/velox-types/comparison.svg"></div><figcaption>图 12：先确定要比较哪层信息，再选择接口。类型等价与允许转换是两个独立的问题。</figcaption></figure>
 <p>类型对象的 <code>hashKind()</code> / <code>hash()</code> 也要与这种区分对应。hashKind 按 kind 树计算，允许不同逻辑类型碰撞；hash 与强相等一致，考虑相应参数、ROW 字段名和 opaque 身份。注意 <strong>Type 的无参 <code>hash()</code> 是给类型描述算 hash；自定义 <code>hash(value)</code> 是给 SQL 值算 hash</strong>，两者不是同一个问题。</p>
 <h4 id="122-type-不等价，仍可能允许-coercion">2.11.2 coercion 与公共类型推导</h4>
 <p>INTEGER 与 BIGINT 不等价，但方言可允许无损扩大。<code>DECIMAL(10,2)</code> 与 <code>DECIMAL(12,4)</code> 也不等价，却可能通过缩放进行保值转换。<code>TypeCoercer</code> 处理允许关系、公共类型与代价；函数绑定据此选择候选并记录所需转换。最终还需要执行层对值实施转换。</p>
@@ -1308,7 +1306,7 @@ resultPrecision = min(38, max(p1 - s1, p2 - s2) + resultScale + 1)</code></pre><
 </tr>
 <tr>
 <td>Vector 保存什么 Type，如何按 kind 创建？</td>
-<td><code>vector/BaseVector.&#123;h,cpp&#125;</code>、<code>SimpleVector.h</code></td>
+<td><code>vector/BaseVector.{h,cpp}</code>、<code>SimpleVector.h</code></td>
 </tr>
 <tr>
 <td>dictionary/null 怎样读取？</td>

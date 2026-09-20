@@ -250,7 +250,7 @@
 </tbody></table></div>
 <p>这里有两种 SIMD 并行方式。第一轮让多个输入值各自检查自己的首槽；发生冲突后，再对某一个输入值连续检查多个槽。一次向量操作处理“多个查询”还是“同一查询的多个候选”，决定了 gather、连续加载和 mask 的意义，不能只看寄存器宽度。</p>
 <p>在进入 SIMD 细节前，还要先看表示选择。稠密集合可能适合 bitmask，单值或连续范围也有更直接的测试方式；哈希表示服务于相应的数据分布。后面保留构造、探测、边界回绕和全部 intrinsics 的分析，最后回到这种组合在什么条件下有价值。</p>
-<figure class="review-figure"><div aria-label="图 1：集合分布决定表示方式，SIMD 优化发生在选定表示之后。" class="diagram-scroll" role="region" tabindex="0"><img alt="图 1：集合分布决定表示方式，SIMD 优化发生在选定表示之后。" loading="lazy" src="/images/simd-in-velox-filter/representation.svg"/></div><figcaption>图 1：集合分布决定表示方式，SIMD 优化发生在选定表示之后。</figcaption></figure>
+<figure class="review-figure"><div aria-label="图 1：集合分布决定表示方式，SIMD 优化发生在选定表示之后。" class="diagram-scroll" role="region" tabindex="0"><img alt="图 1：集合分布决定表示方式，SIMD 优化发生在选定表示之后。" loading="lazy" src="/images/simd-in-velox-filter/representation.svg"></div><figcaption>图 1：集合分布决定表示方式，SIMD 优化发生在选定表示之后。</figcaption></figure>
 
 <p>本文于 2026-09-19 对照 Velox <strong>1d1b76567870</strong> 重写。当前代码在 <code>velox/type/Filter.h</code> 与 <code>Filter.cpp</code>；旧文中的直接 AVX2 写法保留为理解指令的背景，正文以 xsimd 和 Velox 的 <code>simd</code> 封装为准。基础指令语义见 <a href="/2021/08/22/simd-basic/">SIMD Basic</a>。</p>
 <p class="detail-reading-note">本文保留原有的逐层实现、代码推导和工程分析，并在对应章节补充 <strong>2026-09-20 源码核对</strong>。下文标为“当前实现补充”的内容依据固定提交；原有代码含流程化简写，旧的文件行号用于还原阅读上下文，查找当前实现请使用补充中的固定源码链接。接口或语义发生变化的地方会在相邻说明中指出。</p><h2 data-original-block="simd-in-velox-filter-0000" data-reading-phase="concepts" id="介绍">2. 介绍</h2><section class="current-supplement" data-reviewed-section="role"><h3 id="role">2.1 当前实现补充 · 它过滤什么，又不负责什么</h3>
@@ -318,47 +318,47 @@ M = 0xc6a4a7935bd1e995</code></pre>
 <p>冲突用线性探测解决；槽中直接存 <code>int64_t</code>。空槽使用 <code>0xdeadbeefbadefeed</code>。当集合本身包含这个值时，它不放进普通槽，而是记录 <code>containsEmptyMarker_</code>，标量查询先单独处理，批量查询退回基类的逐元素测试。</p>
 <p>表尾额外分配 <strong>4 个元素</strong>，复制的是最后一个逻辑槽，不是表头四个槽。这样，在 AVX2 四个 int64 lane 的连续 load 越过逻辑表尾时，不会人为插入一个“空槽终止符”。下一步仍要显式回绕到槽 0。不要把这个固定 padding 直接推广成任意寄存器宽度都足够的证明。</p>
 </section>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="simd-in-velox-filter-0012" data-source-kind="original-reading-fragment"><code class="language-cpp">BigintValuesUsingHashTable::BigintValuesUsingHashTable(
-    int64_t min,
-    int64_t max,
-    const std::vector&lt;int64_t&gt;&amp; values,
-    bool nullAllowed)
-    : Filter(true, nullAllowed, FilterKind::kBigintValuesUsingHashTable),
-      min_(min),
-      max_(max),
-      values_(values) &#123;
-  constexpr int32_t kPaddingElements = 4;
-  VELOX_CHECK(min &lt; max, "min must be less than max");
-  VELOX_CHECK(values.size() &gt; 1, "values must contain at least 2 entries");
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="simd-in-velox-filter-0012" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp">BigintValuesUsingHashTable::<span class="built_in">BigintValuesUsingHashTable</span>(
+    <span class="type">int64_t</span> min,
+    <span class="type">int64_t</span> max,
+    <span class="type">const</span> std::vector&lt;<span class="type">int64_t</span>&gt;&amp; values,
+    <span class="type">bool</span> nullAllowed)
+    : <span class="built_in">Filter</span>(<span class="literal">true</span>, nullAllowed, FilterKind::kBigintValuesUsingHashTable),
+      <span class="built_in">min_</span>(min),
+      <span class="built_in">max_</span>(max),
+      <span class="built_in">values_</span>(values) {
+  <span class="keyword">constexpr</span> <span class="type">int32_t</span> kPaddingElements = <span class="number">4</span>;
+  <span class="built_in">VELOX_CHECK</span>(min &lt; max, <span class="string">"min must be less than max"</span>);
+  <span class="built_in">VELOX_CHECK</span>(values.<span class="built_in">size</span>() &gt; <span class="number">1</span>, <span class="string">"values must contain at least 2 entries"</span>);
 
-  // Size the hash table to be 2+x the entry count, e.g. 10 entries
-  // gets 1 &lt;&lt; log2 of 50 == 32. The filter is expected to fail often so we
-  // wish to increase the chance of hitting empty on first probe.
-  auto size = 1u &lt;&lt; (uint32_t)std::log2(values.size() * 5);
-  hashTable_.resize(size + kPaddingElements);
-  sizeMask_ = size - 1;
-  std::fill(hashTable_.begin(), hashTable_.end(), kEmptyMarker);
-  for (auto value : values) &#123;
-    if (value == kEmptyMarker) &#123;
-      containsEmptyMarker_ = true;
-    &#125; else &#123;
-      auto position = ((value * M) &amp; sizeMask_);
-      for (auto i = position; i &lt; position + size; i++) &#123;
-        uint32_t index = i &amp; sizeMask_;
-        if (hashTable_[index] == kEmptyMarker) &#123;
+  <span class="comment">// Size the hash table to be 2+x the entry count, e.g. 10 entries</span>
+  <span class="comment">// gets 1 &lt;&lt; log2 of 50 == 32. The filter is expected to fail often so we</span>
+  <span class="comment">// wish to increase the chance of hitting empty on first probe.</span>
+  <span class="keyword">auto</span> size = <span class="number">1u</span> &lt;&lt; (<span class="type">uint32_t</span>)std::<span class="built_in">log2</span>(values.<span class="built_in">size</span>() * <span class="number">5</span>);
+  hashTable_.<span class="built_in">resize</span>(size + kPaddingElements);
+  sizeMask_ = size - <span class="number">1</span>;
+  std::<span class="built_in">fill</span>(hashTable_.<span class="built_in">begin</span>(), hashTable_.<span class="built_in">end</span>(), kEmptyMarker);
+  <span class="keyword">for</span> (<span class="keyword">auto</span> value : values) {
+    <span class="keyword">if</span> (value == kEmptyMarker) {
+      containsEmptyMarker_ = <span class="literal">true</span>;
+    } <span class="keyword">else</span> {
+      <span class="keyword">auto</span> position = ((value * M) &amp; sizeMask_);
+      <span class="keyword">for</span> (<span class="keyword">auto</span> i = position; i &lt; position + size; i++) {
+        <span class="type">uint32_t</span> index = i &amp; sizeMask_;
+        <span class="keyword">if</span> (hashTable_[index] == kEmptyMarker) {
           hashTable_[index] = value;
-          break;
-        &#125;
-      &#125;
-    &#125;
-  &#125;
-  // Replicate the last element of hashTable kPaddingEntries times at 'size_' so
-  // that one can load a full vector of elements past the last used index.
-  for (auto i = 0; i &lt; kPaddingElements; ++i) &#123;
-    hashTable_[sizeMask_ + 1 + i] = hashTable_[sizeMask_];
-  &#125;
-  std::sort(values_.begin(), values_.end());
-&#125;
+          <span class="keyword">break</span>;
+        }
+      }
+    }
+  }
+  <span class="comment">// Replicate the last element of hashTable kPaddingEntries times at 'size_' so</span>
+  <span class="comment">// that one can load a full vector of elements past the last used index.</span>
+  <span class="keyword">for</span> (<span class="keyword">auto</span> i = <span class="number">0</span>; i &lt; kPaddingElements; ++i) {
+    hashTable_[sizeMask_ + <span class="number">1</span> + i] = hashTable_[sizeMask_];
+  }
+  std::<span class="built_in">sort</span>(values_.<span class="built_in">begin</span>(), values_.<span class="built_in">end</span>());
+}
 </code></pre>
 <ul>
 <li data-original-block="simd-in-velox-filter-0013">从<code>BigintValuesUsingHashTable</code>这个名字不难看出这个哈希表的数据类型是int64_t，其成员<code>values_</code>就是一个int64_t类型的vector，是构建这个哈希表的数据，<code>min_</code>，<code>max_</code>分别是<code>values_</code>的最小与最大值。</li>
@@ -376,11 +376,11 @@ M = 0xc6a4a7935bd1e995</code></pre>
 <li>比较取回值，生成命中 bitset 和空槽 bitset，把剩余 lane 标为 unresolved。</li>
 </ol>
 <p>以 AVX2 为例，一个 batch 有 4 个 int64 查询，但每个查询可能访问不同缓存行。这里的 SIMD 并不把哈希访问变连续；它让多个查询一起完成下标计算、gather 和比较。</p>
-<figure class="review-figure"><div aria-label="图 2：第一轮在不同查询之间并行；冲突处理切换成一个查询同时比较连续槽。" class="diagram-scroll" role="region" tabindex="0"><img alt="图 2：第一轮在不同查询之间并行；冲突处理切换成一个查询同时比较连续槽。" loading="lazy" src="/images/simd-in-velox-filter/probe.svg"/></div><figcaption>图 2：第一轮在不同查询之间并行；冲突处理切换成一个查询同时比较连续槽。</figcaption></figure>
+<figure class="review-figure"><div aria-label="图 2：第一轮在不同查询之间并行；冲突处理切换成一个查询同时比较连续槽。" class="diagram-scroll" role="region" tabindex="0"><img alt="图 2：第一轮在不同查询之间并行；冲突处理切换成一个查询同时比较连续槽。" loading="lazy" src="/images/simd-in-velox-filter/probe.svg"></div><figcaption>图 2：第一轮在不同查询之间并行；冲突处理切换成一个查询同时比较连续槽。</figcaption></figure>
 <p><code>simd::maskGather</code> 的默认 scale 是 <code>sizeof(T)</code>，int64 即 8。地址含义是 <code>base + index * 8</code> 个字节。禁用 lane 保留 <code>src</code>，不是自动置零。参见 <a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/common/base/SimdUtil.h#L250">maskGather 契约</a>。</p>
 <h4 id="一个必须保留的哨兵边界">3.5.1 一个必须保留的哨兵边界</h4>
 <p>当前快照直接用 <code>result = x == data</code>，没有再与 <code>~outOfRange</code> 合并。若<strong>集合不含哨兵</strong>，而输入 batch 同时有普通范围内的值和 <code>kEmptyMarker</code>，被禁用的哨兵 lane 会保留 <code>allEmpty</code>，从而比较相等。全越界的提前返回也无法覆盖这个混合 batch。</p>
-<p>例如集合 <code>&#123;1, 10, 100, 10000&#125;</code> 和输入 <code>&#123;kEmptyMarker, 1, 10, 100&#125;</code>，可以从这段代码直接推导出哨兵 lane 的标量/SIMD 不一致。因此，<code>containsEmptyMarker_</code> fallback 不能被描述成“已经处理所有哨兵情况”。本文如实记录这一源码边界；没有修改 Velox 实现，也不把阅读现有测试说成已运行整套 FilterTest。</p>
+<p>例如集合 <code>{1, 10, 100, 10000}</code> 和输入 <code>{kEmptyMarker, 1, 10, 100}</code>，可以从这段代码直接推导出哨兵 lane 的标量/SIMD 不一致。因此，<code>containsEmptyMarker_</code> fallback 不能被描述成“已经处理所有哨兵情况”。本文如实记录这一源码边界；没有修改 Velox 实现，也不把阅读现有测试说成已运行整套 FilterTest。</p>
 </section><section class="current-supplement" data-reviewed-section="collision"><h3 id="collision">3.6 当前实现补充 · 冲突阶段：按 lane 串行，按槽 SIMD</h3>
 <p>如果还有 unresolved lane，代码把初始下标加 1 后存到数组，查询值也存到对齐数组。之后每次从 unresolved bitset 取出一个 lane，处理该 lane 的探测链：</p>
 <pre class="detail-trace"><code>value = 当前查询
@@ -394,76 +394,76 @@ index = 初始槽 + 1
          超过 sizeMask 时回到 0</code></pre>
 <p>这个阶段没有让所有未决 lane 持续做 masked gather。它<strong>逐个处理冲突查询</strong>，用连续 load 把一个查询与多个候选槽比较；<code>line.size</code> 决定每次前进几个槽。</p>
 <p>为什么先判断命中，再判断空槽？这张表由线性插入形成，没有删除制造的中间洞。对同一个初始槽，若某值确实存在，探测路径不会先经过空槽再到达它；边界 padding 又不会额外制造空槽。这个推理依赖表的构造规则，不能照搬到有 tombstone、删除或不同探测策略的哈希表。</p>
-<figure class="review-figure"><div aria-label="图 3：表尾 padding 复制末槽；连续 load 与逻辑回绕是两个独立步骤。" class="diagram-scroll" role="region" tabindex="0"><img alt="图 3：表尾 padding 复制末槽；连续 load 与逻辑回绕是两个独立步骤。" loading="lazy" src="/images/simd-in-velox-filter/wrap.svg"/></div><figcaption>图 3：表尾 padding 复制末槽；连续 load 与逻辑回绕是两个独立步骤。</figcaption></figure>
+<figure class="review-figure"><div aria-label="图 3：表尾 padding 复制末槽；连续 load 与逻辑回绕是两个独立步骤。" class="diagram-scroll" role="region" tabindex="0"><img alt="图 3：表尾 padding 复制末槽；连续 load 与逻辑回绕是两个独立步骤。" loading="lazy" src="/images/simd-in-velox-filter/wrap.svg"></div><figcaption>图 3：表尾 padding 复制末槽；连续 load 与逻辑回绕是两个独立步骤。</figcaption></figure>
 <p><code>resultBits</code> 用 bit i 表示输入 lane i，最后通过 <code>fromBitMask</code> 返回 batch_bool。这里压缩的是<strong>比较结果</strong>，不是压缩或搬动原始输入数据。</p>
 </section>
-<pre data-original-block="simd-in-velox-filter-0018"><code class="language-C++">xsimd::batch_bool&lt;int64_t&gt; BigintValuesUsingHashTable::testValues(
-    xsimd::batch&lt;int64_t&gt; x) const &#123; // xsimd::batch&lt;long long, xsimd::fma3&lt;xsimd::avx2&gt;&gt;
-  // outOfRange = &#123;xsimd::batch_bool&lt;long long, xsimd::fma3&lt;xsimd::avx2&gt;&gt;&#125;
-  auto outOfRange = (x &lt; xsimd::broadcast&lt;int64_t&gt;(min_)) |
-      (x &gt; xsimd::broadcast&lt;int64_t&gt;(max_)); //return _mm256_set1_epi64x(val), _mm256_cmpgt_epi64(other, self), _mm256_or_si256
+<pre data-original-block="simd-in-velox-filter-0018" class="cpp-highlight"><code class="language-cpp"><span class="function">xsimd::batch_bool&lt;<span class="type">int64_t</span>&gt; <span class="title">BigintValuesUsingHashTable::testValues</span><span class="params">(
+    xsimd::batch&lt;<span class="type">int64_t</span>&gt; x)</span> <span class="type">const</span> </span>{ <span class="comment">// xsimd::batch&lt;long long, xsimd::fma3&lt;xsimd::avx2&gt;&gt;</span>
+  <span class="comment">// outOfRange = {xsimd::batch_bool&lt;long long, xsimd::fma3&lt;xsimd::avx2&gt;&gt;}</span>
+  <span class="keyword">auto</span> outOfRange = (x &lt; xsimd::<span class="built_in">broadcast</span>&lt;<span class="type">int64_t</span>&gt;(min_)) |
+      (x &gt; xsimd::<span class="built_in">broadcast</span>&lt;<span class="type">int64_t</span>&gt;(max_)); <span class="comment">//return _mm256_set1_epi64x(val), _mm256_cmpgt_epi64(other, self), _mm256_or_si256</span>
 
-  // _mm256_movemask_pd(reinterpret_cast&lt;__m256d&gt;(mask.data))
-  if (simd::toBitMask(outOfRange) == simd::allSetBitMask&lt;int64_t&gt;()) &#123;
-    return xsimd::batch_bool&lt;int64_t&gt;(false);
-  &#125;
-  if (containsEmptyMarker_) &#123;
-    return Filter::testValues(x);
-  &#125;
-  // broadcast _mm256_set1_epi64x
-  auto allEmpty = xsimd::broadcast&lt;int64_t&gt;(kEmptyMarker);
-  // Temporarily casted to unsigned to suppress overflow error.
-  auto indices = simd::reinterpretBatch&lt;int64_t&gt;(
-      simd::reinterpretBatch&lt;uint64_t&gt;(x) * M &amp; sizeMask_);
-  // ~outOfRangne: _mm256_xor_si256
-  // maskGather : _mm256_mask_i64gather_epi64
-  auto data =
-      simd::maskGather(allEmpty, ~outOfRange, hashTable_.data(), indices);
-  // The lanes with kEmptyMarker missed, the lanes matching x hit and the other
-  // lanes must check next positions.
-  auto result = x == data; // _mm256_cmpeq_epi64
-  auto resultBits = simd::toBitMask(result);
-  auto missed = simd::toBitMask(data == allEmpty);
-  static_assert(decltype(result)::size &lt;= 16);
-  // allSetBitMask : bits::lowMask(xsimd::batch_bool&lt;T, A&gt;::size);
-  uint16_t unresolved = simd::allSetBitMask&lt;int64_t&gt;() ^ (resultBits | missed);
-  if (!unresolved) &#123;
-    return result;
-  &#125;
-  constexpr int kAlign = xsimd::default_arch::alignment();
-  constexpr int kArraySize = xsimd::batch&lt;int64_t&gt;::size;
-  alignas(kAlign) int64_t indicesArray[kArraySize];
-  alignas(kAlign) int64_t valuesArray[kArraySize];
-  (indices + 1).store_aligned(indicesArray);
-  // store_aligned -&gt; broadcast -&gt; _mm256_set1_epi64x
-  x.store_aligned(valuesArray);
-  while (unresolved) &#123;
-    auto lane = bits::getAndClearLastSetBit(unresolved);
-    // Loop for each unresolved (not hit and
-    // not empty) until finding hit or empty.
-    int64_t index = indicesArray[lane];
-    int64_t value = valuesArray[lane];
-    auto allValue = xsimd::broadcast&lt;int64_t&gt;(value);
-    for (;;) &#123;
-      // _mm256_loadu_si256
-      auto line = xsimd::load_unaligned(hashTable_.data() + index);
+  <span class="comment">// _mm256_movemask_pd(reinterpret_cast&lt;__m256d&gt;(mask.data))</span>
+  <span class="keyword">if</span> (simd::<span class="built_in">toBitMask</span>(outOfRange) == simd::<span class="built_in">allSetBitMask</span>&lt;<span class="type">int64_t</span>&gt;()) {
+    <span class="keyword">return</span> xsimd::<span class="built_in">batch_bool</span>&lt;<span class="type">int64_t</span>&gt;(<span class="literal">false</span>);
+  }
+  <span class="keyword">if</span> (containsEmptyMarker_) {
+    <span class="keyword">return</span> Filter::<span class="built_in">testValues</span>(x);
+  }
+  <span class="comment">// broadcast _mm256_set1_epi64x</span>
+  <span class="keyword">auto</span> allEmpty = xsimd::<span class="built_in">broadcast</span>&lt;<span class="type">int64_t</span>&gt;(kEmptyMarker);
+  <span class="comment">// Temporarily casted to unsigned to suppress overflow error.</span>
+  <span class="keyword">auto</span> indices = simd::<span class="built_in">reinterpretBatch</span>&lt;<span class="type">int64_t</span>&gt;(
+      simd::<span class="built_in">reinterpretBatch</span>&lt;<span class="type">uint64_t</span>&gt;(x) * M &amp; sizeMask_);
+  <span class="comment">// ~outOfRangne: _mm256_xor_si256</span>
+  <span class="comment">// maskGather : _mm256_mask_i64gather_epi64</span>
+  <span class="keyword">auto</span> data =
+      simd::<span class="built_in">maskGather</span>(allEmpty, ~outOfRange, hashTable_.<span class="built_in">data</span>(), indices);
+  <span class="comment">// The lanes with kEmptyMarker missed, the lanes matching x hit and the other</span>
+  <span class="comment">// lanes must check next positions.</span>
+  <span class="keyword">auto</span> result = x == data; <span class="comment">// _mm256_cmpeq_epi64</span>
+  <span class="keyword">auto</span> resultBits = simd::<span class="built_in">toBitMask</span>(result);
+  <span class="keyword">auto</span> missed = simd::<span class="built_in">toBitMask</span>(data == allEmpty);
+  <span class="built_in">static_assert</span>(<span class="keyword">decltype</span>(result)::size &lt;= <span class="number">16</span>);
+  <span class="comment">// allSetBitMask : bits::lowMask(xsimd::batch_bool&lt;T, A&gt;::size);</span>
+  <span class="type">uint16_t</span> unresolved = simd::<span class="built_in">allSetBitMask</span>&lt;<span class="type">int64_t</span>&gt;() ^ (resultBits | missed);
+  <span class="keyword">if</span> (!unresolved) {
+    <span class="keyword">return</span> result;
+  }
+  <span class="keyword">constexpr</span> <span class="type">int</span> kAlign = xsimd::default_arch::<span class="built_in">alignment</span>();
+  <span class="keyword">constexpr</span> <span class="type">int</span> kArraySize = xsimd::batch&lt;<span class="type">int64_t</span>&gt;::size;
+  <span class="built_in">alignas</span>(kAlign) <span class="type">int64_t</span> indicesArray[kArraySize];
+  <span class="built_in">alignas</span>(kAlign) <span class="type">int64_t</span> valuesArray[kArraySize];
+  (indices + <span class="number">1</span>).<span class="built_in">store_aligned</span>(indicesArray);
+  <span class="comment">// store_aligned -&gt; broadcast -&gt; _mm256_set1_epi64x</span>
+  x.<span class="built_in">store_aligned</span>(valuesArray);
+  <span class="keyword">while</span> (unresolved) {
+    <span class="keyword">auto</span> lane = bits::<span class="built_in">getAndClearLastSetBit</span>(unresolved);
+    <span class="comment">// Loop for each unresolved (not hit and</span>
+    <span class="comment">// not empty) until finding hit or empty.</span>
+    <span class="type">int64_t</span> index = indicesArray[lane];
+    <span class="type">int64_t</span> value = valuesArray[lane];
+    <span class="keyword">auto</span> allValue = xsimd::<span class="built_in">broadcast</span>&lt;<span class="type">int64_t</span>&gt;(value);
+    <span class="keyword">for</span> (;;) {
+      <span class="comment">// _mm256_loadu_si256</span>
+      <span class="keyword">auto</span> line = xsimd::<span class="built_in">load_unaligned</span>(hashTable_.<span class="built_in">data</span>() + index);
 
-      if (simd::toBitMask(line == allValue)) &#123;
-        resultBits |= 1 &lt;&lt; lane;
-        break;
-      &#125;
-      if (simd::toBitMask(line == allEmpty)) &#123;
-        resultBits &amp;= ~(1 &lt;&lt; lane);
-        break;
-      &#125;
+      <span class="keyword">if</span> (simd::<span class="built_in">toBitMask</span>(line == allValue)) {
+        resultBits |= <span class="number">1</span> &lt;&lt; lane;
+        <span class="keyword">break</span>;
+      }
+      <span class="keyword">if</span> (simd::<span class="built_in">toBitMask</span>(line == allEmpty)) {
+        resultBits &amp;= ~(<span class="number">1</span> &lt;&lt; lane);
+        <span class="keyword">break</span>;
+      }
       index += line.size;
-      if (index &gt; sizeMask_) &#123;
-        index = 0;
-      &#125;
-    &#125;
-  &#125;
-  return simd::fromBitMask&lt;int64_t&gt;(resultBits);
-&#125;
+      <span class="keyword">if</span> (index &gt; sizeMask_) {
+        index = <span class="number">0</span>;
+      }
+    }
+  }
+  <span class="keyword">return</span> simd::<span class="built_in">fromBitMask</span>&lt;<span class="type">int64_t</span>&gt;(resultBits);
+}
 </code></pre>
 <ul>
 <li data-original-block="simd-in-velox-filter-0019"><code>xsimd::batch&lt;T, A&gt;</code>是xsimd对SIMD寄存器的封装，其底层data是一个SIMD数据类型，比如<code>xsimd::batch&lt;int64_t&gt;</code>底层数据类型是<code>__m256i</code>，本文默认是avx family指令集，256位寄存器。</li>
@@ -572,7 +572,7 @@ CPUID Flags: AVX</p>
 <p data-original-block="simd-in-velox-filter-0046"><strong>Description</strong>
 Broadcast 64-bit integer a to all elements of dst. This intrinsic may generate the vpbroadcastq.</p>
 <p data-original-block="simd-in-velox-filter-0047"><strong>Operation</strong></p>
-<pre data-original-block="simd-in-velox-filter-0048"><code class="language-C++">FOR j := 0 to 3
+<pre data-original-block="simd-in-velox-filter-0048"><code class="language-plaintext">FOR j := 0 to 3
     i := j*64
     dst[i+63:i] := a[63:0]
 ENDFOR
@@ -587,7 +587,7 @@ CPUID Flags: AVX2</p>
 <p data-original-block="simd-in-velox-filter-0051"><strong>Description</strong>
 Compare packed signed 64-bit integers in a and b for greater-than, and store the results in dst.</p>
 <p data-original-block="simd-in-velox-filter-0052"><strong>Operation</strong></p>
-<pre data-original-block="simd-in-velox-filter-0053"><code class="language-C++">FOR j := 0 to 3
+<pre data-original-block="simd-in-velox-filter-0053"><code class="language-plaintext">FOR j := 0 to 3
     i := j*64
     dst[i+63:i] := ( a[i+63:i] &gt; b[i+63:i] ) ? 0xFFFFFFFFFFFFFFFF : 0
 ENDFOR

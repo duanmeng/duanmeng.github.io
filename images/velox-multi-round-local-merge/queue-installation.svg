@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="1080" viewBox="0 0 1280 1080" role="img" aria-labelledby="title desc">
+<title id="title">MergeSource 怎样安装并连接两个 pipeline</title><desc id="desc">注册连接在构造 producer Driver / CallbackSink 时完成；取连接、start 和数据传递发生在运行阶段</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
+<rect x="0" y="0" width="1280" height="1080" rx="0" fill="white" stroke="none" stroke-width="1"/>
+<rect x="8" y="8" width="1264" height="1064" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<rect x="9" y="9" width="1262" height="94" rx="0" fill="#edf5ff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="103" x2="1271" y2="103" stroke="#d6d3cc" stroke-width="1"/>
+<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">MergeSource 怎样安装并连接两个 pipeline</text>
+<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">注册连接在构造 producer Driver / CallbackSink 时完成；取连接、start 和数据传递发生在运行阶段</text>
+<rect x="30" y="140" width="220" height="87" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="30" y="144" width="4" height="79" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="50" y="174" font-family="DejaVu Sans Mono, Liberation Mono, Consolas, monospace" fill="#111827" font-size="20" text-anchor="start">LocalPlanner</text>
+<text x="50" y="205" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">执行 sink supplier</text>
+<line x1="140" y1="230" x2="140" y2="945" stroke="#8b8b8b" stroke-width="2" stroke-dasharray="7 5"/>
+<rect x="280" y="140" width="220" height="87" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="280" y="144" width="4" height="79" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="300" y="174" font-family="DejaVu Sans Mono, Liberation Mono, Consolas, monospace" fill="#111827" font-size="20" text-anchor="start">Task</text>
+<text x="300" y="205" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">按 group / node 注册</text>
+<line x1="390" y1="230" x2="390" y2="945" stroke="#8b8b8b" stroke-width="2" stroke-dasharray="7 5"/>
+<rect x="530" y="140" width="220" height="87" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="530" y="144" width="4" height="79" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="550" y="174" font-family="DejaVu Sans Mono, Liberation Mono, Consolas, monospace" fill="#111827" font-size="20" text-anchor="start">CallbackSink</text>
+<text x="550" y="205" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">上游 Driver 的尾端</text>
+<line x1="640" y1="230" x2="640" y2="945" stroke="#8b8b8b" stroke-width="2" stroke-dasharray="7 5"/>
+<rect x="780" y="140" width="220" height="87" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<rect x="780" y="144" width="4" height="79" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
+<text x="800" y="174" font-family="DejaVu Sans Mono, Liberation Mono, Consolas, monospace" fill="#111827" font-size="20" text-anchor="start">MergeSource</text>
+<text x="800" y="205" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">同一份 shared 对象</text>
+<line x1="890" y1="230" x2="890" y2="945" stroke="#8b8b8b" stroke-width="2" stroke-dasharray="7 5"/>
+<rect x="1030" y="140" width="220" height="87" rx="4" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+<rect x="1030" y="144" width="4" height="79" rx="0" fill="#15803d" stroke="none" stroke-width="1"/>
+<text x="1050" y="174" font-family="DejaVu Sans Mono, Liberation Mono, Consolas, monospace" fill="#111827" font-size="20" text-anchor="start">LocalMerge</text>
+<text x="1050" y="205" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">下游 Driver 的源端</text>
+<line x1="1140" y1="230" x2="1140" y2="945" stroke="#8b8b8b" stroke-width="2" stroke-dasharray="7 5"/>
+<text x="265.0" y="263" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" text-anchor="middle" paint-order="stroke" stroke="white" stroke-width="5" stroke-linejoin="round">addLocalMergeSource(...)</text>
+<polyline points="140,276 390,276" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="640.0" y="332" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" text-anchor="middle" paint-order="stroke" stroke="white" stroke-width="5" stroke-linejoin="round">创建本地队列并保存 shared_ptr</text>
+<polyline points="390,345 890,345" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="265.0" y="396" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" text-anchor="middle" paint-order="stroke" stroke="white" stroke-width="5" stroke-linejoin="round">返回 shared_ptr&lt;MergeSource&gt;</text>
+<polyline points="390,409 140,409" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="390.0" y="467" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" text-anchor="middle" paint-order="stroke" stroke="white" stroke-width="5" stroke-linejoin="round">构造 CallbackSink：安装 startCb / consumerCb</text>
+<polyline points="140,480 640,480" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="523" y="510" width="240" height="88" rx="4" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
+<rect x="523" y="514" width="4" height="80" rx="0" fill="#c2410c" stroke="none" stroke-width="1"/>
+<text x="543" y="544" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="400" text-anchor="start">闭包捕获同一 source</text>
+<text x="543" y="575" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">started() / enqueue()</text>
+<text x="765.0" y="632" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" text-anchor="middle" paint-order="stroke" stroke="white" stroke-width="5" stroke-linejoin="round">addMergeSources → getLocalMergeSources(group, node)</text>
+<polyline points="1140,645 390,645" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="765.0" y="697" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" text-anchor="middle" paint-order="stroke" stroke="white" stroke-width="5" stroke-linejoin="round">返回已注册的 sources；LocalMerge 保存引用</text>
+<polyline points="390,710 1140,710" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="1015.0" y="767" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" text-anchor="middle" paint-order="stroke" stroke="white" stroke-width="5" stroke-linejoin="round">选中本组 → start()</text>
+<polyline points="1140,780 890,780" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="765.0" y="834" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" text-anchor="middle" paint-order="stroke" stroke="white" stroke-width="5" stroke-linejoin="round">consumerCb → enqueue(batch)</text>
+<polyline points="640,847 890,847" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="1015.0" y="904" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" text-anchor="middle" paint-order="stroke" stroke="white" stroke-width="5" stroke-linejoin="round">SourceStream → next()</text>
+<polyline points="1140,917 890,917" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="40" y="978" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
+<text x="60" y="1007" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">连接键是 splitGroupId + LocalMerge planNodeId；它们让两边找到同一组队列</text>
+<text x="60" y="1032" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">每个 CallbackSink 捕获自己那一路 source；Task 和 LocalMerge 保存共享引用。</text>
+</svg>

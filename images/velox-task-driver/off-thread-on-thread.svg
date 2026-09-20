@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="1450" viewBox="0 0 1280 1450" role="img" aria-labelledby="title desc">
+<title id="title">从 getOutput 空返回，到下一次真正 on-thread</title><desc id="desc">并行执行路径；各列是逻辑参与者，Driver 前后两次执行可以由不同 worker 承担</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#8b8b8b" stroke-width="1.5"/></marker></defs>
+<rect x="0" y="0" width="1280" height="1450" rx="0" fill="white" stroke="none" stroke-width="1"/>
+<rect x="8" y="8" width="1264" height="1434" rx="4" fill="white" stroke="#d6d3cc" stroke-width="1"/>
+<rect x="9" y="9" width="1262" height="94" rx="0" fill="#edf5ff" stroke="none" stroke-width="1"/>
+<line x1="9" y1="103" x2="1271" y2="103" stroke="#d6d3cc" stroke-width="1"/>
+<text x="40" y="49" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="28" font-weight="600" text-anchor="start">从 getOutput 空返回，到下一次真正 on-thread</text>
+<text x="40" y="80" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">并行执行路径；各列是逻辑参与者，Driver 前后两次执行可以由不同 worker 承担</text>
+<rect x="25" y="138" width="220" height="88" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="25" y="142" width="4" height="80" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="45" y="172" font-family="DejaVu Sans Mono, Liberation Mono, Consolas, monospace" fill="#111827" font-size="20" text-anchor="start">Driver</text>
+<text x="45" y="203" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">调用与保存执行状态</text>
+<line x1="135" y1="230" x2="135" y2="1300" stroke="#8b8b8b" stroke-width="2" stroke-dasharray="7 5"/>
+<rect x="280" y="138" width="220" height="88" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="280" y="142" width="4" height="80" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="300" y="172" font-family="DejaVu Sans Mono, Liberation Mono, Consolas, monospace" fill="#111827" font-size="20" text-anchor="start">Operator</text>
+<text x="300" y="203" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">发现等待条件</text>
+<line x1="390" y1="230" x2="390" y2="1300" stroke="#8b8b8b" stroke-width="2" stroke-dasharray="7 5"/>
+<rect x="535" y="138" width="220" height="88" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="535" y="142" width="4" height="80" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="555" y="172" font-family="DejaVu Sans Mono, Liberation Mono, Consolas, monospace" fill="#111827" font-size="20" text-anchor="start">Event producer</text>
+<text x="555" y="203" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">队列 / split / I/O</text>
+<line x1="645" y1="230" x2="645" y2="1300" stroke="#8b8b8b" stroke-width="2" stroke-dasharray="7 5"/>
+<rect x="790" y="138" width="220" height="88" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="790" y="142" width="4" height="80" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="810" y="172" font-family="DejaVu Sans Mono, Liberation Mono, Consolas, monospace" fill="#111827" font-size="20" text-anchor="start">Task</text>
+<text x="810" y="203" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">执行资格与状态锁</text>
+<line x1="900" y1="230" x2="900" y2="1300" stroke="#8b8b8b" stroke-width="2" stroke-dasharray="7 5"/>
+<rect x="1035" y="138" width="220" height="88" rx="4" fill="#f2f7ff" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="1035" y="142" width="4" height="80" rx="0" fill="#1d4ed8" stroke="none" stroke-width="1"/>
+<text x="1055" y="172" font-family="DejaVu Sans Mono, Liberation Mono, Consolas, monospace" fill="#111827" font-size="20" text-anchor="start">Query executor</text>
+<text x="1055" y="203" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">调度 worker</text>
+<line x1="1145" y1="230" x2="1145" y2="1300" stroke="#8b8b8b" stroke-width="2" stroke-dasharray="7 5"/>
+<text x="262.5" y="262" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" text-anchor="middle" paint-order="stroke" stroke="white" stroke-width="5" stroke-linejoin="round">① isBlocked → kNotBlocked</text>
+<polyline points="135,275 390,275" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="262.5" y="324" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" text-anchor="middle" paint-order="stroke" stroke="white" stroke-width="5" stroke-linejoin="round">② getOutput：发现空队列，保存 future</text>
+<polyline points="135,337 390,337" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="262.5" y="386" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" text-anchor="middle" paint-order="stroke" stroke="white" stroke-width="5" stroke-linejoin="round">返回 nullptr</text>
+<polyline points="390,399 135,399" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="262.5" y="448" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" text-anchor="middle" paint-order="stroke" stroke="white" stroke-width="5" stroke-linejoin="round">③ 再次 isBlocked → reason + future</text>
+<polyline points="135,461 390,461" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="30" y="492" width="245" height="104" rx="4" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
+<rect x="30" y="496" width="4" height="96" rx="0" fill="#c2410c" stroke="none" stroke-width="1"/>
+<text x="50" y="526" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="400" text-anchor="start">blockDriver → kBlock</text>
+<text x="50" y="557" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">BlockingState 保留等待</text>
+<text x="50" y="584" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">hasBlockingFuture = true</text>
+<text x="517.5" y="606" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" text-anchor="middle" paint-order="stroke" stroke="white" stroke-width="5" stroke-linejoin="round">退出 runInternal：CancelGuard → Task::leave</text>
+<polyline points="135,619 900,619" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="30" y="645" width="245" height="104" rx="4" fill="#fff7ed" stroke="#c2410c" stroke-width="1"/>
+<rect x="30" y="649" width="4" height="96" rx="0" fill="#c2410c" stroke="none" stroke-width="1"/>
+<text x="50" y="679" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="20" font-weight="400" text-anchor="start">Driver 已 off-thread</text>
+<text x="50" y="710" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">setResume 安装恢复回调</text>
+<text x="50" y="737" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">worker 可运行其他工作</text>
+<text x="390.0" y="775" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" text-anchor="middle" paint-order="stroke" stroke="white" stroke-width="5" stroke-linejoin="round">事件完成 → promise.setValue → continuation</text>
+<polyline points="645,788 135,788" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="517.5" y="838" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" text-anchor="middle" paint-order="stroke" stroke="white" stroke-width="5" stroke-linejoin="round">Task 锁内：清除等待标志，检查 pause</text>
+<polyline points="135,851 900,851" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="517.5" y="900" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" text-anchor="middle" paint-order="stroke" stroke="white" stroke-width="5" stroke-linejoin="round">未暂停：允许重新入队；暂停则等 Task::resume</text>
+<polyline points="900,913 135,913" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="640.0" y="962" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" text-anchor="middle" paint-order="stroke" stroke="white" stroke-width="5" stroke-linejoin="round">Driver::enqueue：isEnqueued = true；executor.add</text>
+<polyline points="135,975 1145,975" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="640.0" y="1032" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" text-anchor="middle" paint-order="stroke" stroke="white" stroke-width="5" stroke-linejoin="round">worker 取出任务 → Driver::run → runInternal</text>
+<polyline points="1145,1045 135,1045" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="517.5" y="1100" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" text-anchor="middle" paint-order="stroke" stroke="white" stroke-width="5" stroke-linejoin="round">Task::enter：检查 terminate / pause / 是否已在线程上</text>
+<polyline points="135,1113 900,1113" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="517.5" y="1168" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" text-anchor="middle" paint-order="stroke" stroke="white" stroke-width="5" stroke-linejoin="round">获准：numThreads++；setThread；真正 on-thread</text>
+<polyline points="900,1181 135,1181" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="262.5" y="1235" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="17" text-anchor="middle" paint-order="stroke" stroke="white" stroke-width="5" stroke-linejoin="round">普通路径从 sink 重新检查，继续推进算子</text>
+<polyline points="135,1248 390,1248" fill="none" stroke="#8b8b8b" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<rect x="40" y="1348" width="1200" height="70" rx="4" fill="#f7f2ea" stroke="#d6d3cc" stroke-width="1"/>
+<text x="60" y="1377" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#111827" font-size="19" font-weight="600" text-anchor="start">reason 决定本次是否退出执行；future 决定何时可以再次申请执行</text>
+<text x="60" y="1402" font-family="Inter, Noto Sans SC, Noto Sans CJK SC, Arial, sans-serif" fill="#4b5563" font-size="17" font-weight="400" text-anchor="start">future ready ≠ 已入队 ≠ 已 on-thread；只有最后一步取得执行资格，算子才重新运行。</text>
+</svg>

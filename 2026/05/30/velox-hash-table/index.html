@@ -279,7 +279,7 @@ body:has(.hashtable-article) #toc-footer .toc-level-2::before { display: none; }
 <p>理解接口时要把两个结果分开：找到行位置与完成上层运算。GROUP BY 找到 group 后还要初始化或更新 accumulator；Join 找到 key 后还可能遍历重复行、应用 join filter、控制输出批次。下面先比较这些使用场景，再进入 ProbeState、布局、编码、SIMD 和并行实现。</p>
 <figure class="ht-figure">
 <div aria-label="图 1，可横向滚动" class="ht-diagram-scroll" role="region" tabindex="0">
-<img alt="输入列经过 VectorHasher 编码，索引返回行指针；聚合状态与 Join payload 都保存在 RowContainer。" loading="lazy" src="/images/velox-hash-table/dataflow.svg"/>
+<img alt="输入列经过 VectorHasher 编码，索引返回行指针；聚合状态与 Join payload 都保存在 RowContainer。" loading="lazy" src="/images/velox-hash-table/dataflow.svg">
 </div>
 <figcaption>图 1：输入列经过 VectorHasher 编码，索引返回行指针；聚合状态与 Join payload 都保存在 RowContainer。 <a href="/images/velox-hash-table/dataflow.svg">打开原图</a></figcaption>
 </figure>
@@ -421,7 +421,7 @@ null-aware 语义                               → ignoreNullKeys 模板参数�
 spill 要删行                                  → tombstone 标记（§11）
 </code></pre>
 <p data-original-block="velox-hash-table-0104"><strong>带着这张"诉求 → 设计"映射往下读，后面每一章都是在回答"上层的哪个需求"。</strong> 这也是本文档把场景概览前置到这里的原因：先建立动机，再看实现，就不会迷失在 SIMD 和位操作的细节里。</p>
-<hr/>
+<hr>
 <h2 data-original-block="velox-hash-table-0000" data-reading-phase="implementation" id="1-整体架构与核心类设计">3. 整体架构与核心类设计</h2><section class="current-supplement" data-reviewed-section="overview"><h3 id="overview">3.1 当前实现补充 · 先建立整体模型：编码、索引、行容器</h3>
 <p><code>BaseHashTable</code> 定义聚合和 Join 使用的接口，<code>HashTable&lt;ignoreNullKeys&gt;</code> 实现具体表结构。每个 key 列有一个 <code>VectorHasher</code>；<code>rows_</code> 拥有一个 <code>RowContainer</code>；合并 Join Build 后，<code>otherTables_</code> 继续拥有其他构建线程的行容器。索引里的指针可以指向其中任意一个行容器，合并时继续保留各行容器的所有权。</p>
 
@@ -483,26 +483,26 @@ spill 要删行                                  → tombstone 标记（§11）
 <li data-corrected="2026-09-20" data-original-block="velox-hash-table-0005">ignoreNullKeys=false 允许保留需要参与分组或 join 语义处理的 null 行。保留 build 行与把 NULL 当作普通等值可匹配值是两件事，null-aware、outer、semi/anti 仍由上层按 SQL 语义处理。</li>
 </ul>
 <p data-original-block="velox-hash-table-0006">两个工厂方法：</p>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0007" data-source-kind="original-reading-fragment"><code class="language-cpp">// 聚合专用
-HashTable::createForAggregation(hashers, accumulators, pool);
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0007" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="comment">// 聚合专用</span>
+HashTable::<span class="built_in">createForAggregation</span>(hashers, accumulators, pool);
 
-// Join build 专用
-HashTable::createForJoin(hashers, dependentTypes, allowDuplicates,
+<span class="comment">// Join build 专用</span>
+HashTable::<span class="built_in">createForJoin</span>(hashers, dependentTypes, allowDuplicates,
                          hasProbedFlag, hasCountFlag,
                          minTableSizeForParallelJoinBuild, pool,
                          bloomFilterMaxSize);
 </code></pre>
 <h3 data-original-block="velox-hash-table-0008" id="12-probestate：单次探测的状态机">3.3 ProbeState：单次探测的状态机</h3>
 <p data-original-block="velox-hash-table-0009"><code>ProbeState</code>（HashTable.cpp:90）是 probe/insert/erase 三种操作的统一内核，以 <strong>值语义</strong> 存在于栈上，不含堆分配，可在寄存器中缓存关键字段：</p>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0010" data-source-kind="original-reading-fragment"><code class="language-cpp">class ProbeState &#123;
-    char*      group_;           // 当前命中的行指针
-    TagVector  wantedTags_;      // broadcast(target_tag) — 16 份 tag 广播
-    TagVector  tagsInTable_;     // 当前 bucket 的 16 个 tag
-    int32_t    row_;             // 当前处理的输入行号
-    int64_t    bucketOffset_;    // 当前 bucket 在 table_ 中的字节偏移
-    MaskType   hits_;            // 16bit bitmask，每 bit 代表一个 slot 是否命中
-    uint8_t    indexInTags_;     // erase 时记录命中位置；insert 时记录第一个 tombstone
-&#125;;
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0010" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="keyword">class</span> <span class="title class_">ProbeState</span> {
+    <span class="type">char</span>*      group_;           <span class="comment">// 当前命中的行指针</span>
+    TagVector  wantedTags_;      <span class="comment">// broadcast(target_tag) — 16 份 tag 广播</span>
+    TagVector  tagsInTable_;     <span class="comment">// 当前 bucket 的 16 个 tag</span>
+    <span class="type">int32_t</span>    row_;             <span class="comment">// 当前处理的输入行号</span>
+    <span class="type">int64_t</span>    bucketOffset_;    <span class="comment">// 当前 bucket 在 table_ 中的字节偏移</span>
+    MaskType   hits_;            <span class="comment">// 16bit bitmask，每 bit 代表一个 slot 是否命中</span>
+    <span class="type">uint8_t</span>    indexInTags_;     <span class="comment">// erase 时记录命中位置；insert 时记录第一个 tombstone</span>
+};
 </code></pre>
 <p data-original-block="velox-hash-table-0011">三个阶段的 API 设计分离了<strong>计算</strong>和<strong>内存访问</strong>，是实现软流水线的基础：</p>
 <div class="tbl-wrap"><table>
@@ -530,17 +530,17 @@ HashTable::createForJoin(hashers, dependentTypes, allowDuplicates,
 </tr>
 </tbody></table></div>
 <h3 data-original-block="velox-hash-table-0024" id="13-hashlookup：probe-的输入输出载体">3.4 HashLookup：probe 的输入输出载体</h3>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0025" data-source-kind="original-reading-fragment"><code class="language-cpp">struct HashLookup &#123;
-    const vector&lt;VectorHasher*&gt;&amp; hashers;   // key 编码器（不拥有）
-    raw_vector&lt;vector_size_t&gt;    rows;       // 本批次需处理的行号列表
-    raw_vector&lt;uint64_t&gt;         hashes;    // 行号 → hash/value_id，index=行号
-    raw_vector&lt;char*&gt;            hits;       // 行号 → 命中的行指针，index=行号
-    vector&lt;vector_size_t&gt;        newGroups;  // groupProbe 新分配的行号
-    raw_vector&lt;uint64_t&gt;         normalizedKeys; // normalized key 缓存
-&#125;;
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0025" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="keyword">struct</span> <span class="title class_">HashLookup</span> {
+    <span class="type">const</span> vector&lt;VectorHasher*&gt;&amp; hashers;   <span class="comment">// key 编码器（不拥有）</span>
+    raw_vector&lt;<span class="type">vector_size_t</span>&gt;    rows;       <span class="comment">// 本批次需处理的行号列表</span>
+    raw_vector&lt;<span class="type">uint64_t</span>&gt;         hashes;    <span class="comment">// 行号 → hash/value_id，index=行号</span>
+    raw_vector&lt;<span class="type">char</span>*&gt;            hits;       <span class="comment">// 行号 → 命中的行指针，index=行号</span>
+    vector&lt;<span class="type">vector_size_t</span>&gt;        newGroups;  <span class="comment">// groupProbe 新分配的行号</span>
+    raw_vector&lt;<span class="type">uint64_t</span>&gt;         normalizedKeys; <span class="comment">// normalized key 缓存</span>
+};
 </code></pre>
 <p data-original-block="velox-hash-table-0026"><code>hashes</code> 和 <code>hits</code> 都以<strong>行号为下标</strong>，而非连续下标。这样 <code>rows</code> 可以是稀疏的（跳过 null key 行），不需要 gather/scatter。</p>
-<hr/>
+<hr>
 <h2 data-original-block="velox-hash-table-0105" data-reading-phase="implementation" id="3-三种-hash-模式">4. 三种 Hash 模式</h2><section class="current-supplement" data-reviewed-section="encoding"><h3 id="encoding">4.1 当前实现补充 · 从 key 到三种表表示</h3>
 <h4 id="value-id-是表内部的编码">4.1.1 Value ID 是表内部的编码</h4>
 <p><code>VectorHasher</code> 有两种 value ID 来源：</p>
@@ -639,7 +639,7 @@ normalizedKey = id0 + R0 * id1 + R0 * R1 * id2 + ...
 <h4 id="编码失效后会重新决策，不一定马上进入-khash">4.1.4 编码失效后会重新决策，不一定马上进入 kHash</h4>
 <figure class="ht-figure">
 <div aria-label="图 2，可横向滚动" class="ht-diagram-scroll" role="region" tabindex="0">
-<img alt="Array 与 NormalizedKey 可以在重新编码后重新选择；进入 kHash 后不再切回 value ID 模式。" loading="lazy" src="/images/velox-hash-table/modes.svg"/>
+<img alt="Array 与 NormalizedKey 可以在重新编码后重新选择；进入 kHash 后不再切回 value ID 模式。" loading="lazy" src="/images/velox-hash-table/modes.svg">
 </div>
 <figcaption>图 2：Array 与 NormalizedKey 可以在重新编码后重新选择；进入 kHash 后不再切回 value ID 模式。 <a href="/images/velox-hash-table/modes.svg">打开原图</a></figcaption>
 </figure>
@@ -658,10 +658,10 @@ normalizedKey = id0 + R0 * id1 + R0 * R1 * id2 + ...
 </div>
 </section>
 <h3 data-original-block="velox-hash-table-0106" id="31-模式枚举与触发条件">4.2 模式枚举与触发条件</h3>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0107" data-source-kind="original-reading-fragment"><code class="language-cpp">enum class HashMode &#123; kArray, kNormalizedKey, kHash &#125;;
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0107" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="keyword">enum class</span> <span class="title class_">HashMode</span> { kArray, kNormalizedKey, kHash };
 </code></pre>
 <p data-corrected="2026-09-20" data-original-block="velox-hash-table-0108">decideHashMode 在需要建立或重新选择表示时读取 range/distinct 统计，按源码中的条件顺序选择可用模式；不是每个 key 插入前都完整计算一次“最优模式”。新的数据让编码失败时，也可能先重新编码再重新选择。</p>
-<pre class="detail-trace" data-original-block="velox-hash-table-0109" data-source-kind="reviewed-pseudocode"><code class="language-cpp">// decideHashMode 的当前分支顺序摘要；值包含 reservePct 的预留估计。
+<pre class="detail-trace" data-original-block="velox-hash-table-0109" data-source-kind="reviewed-pseudocode"><code class="language-plaintext">// decideHashMode 的当前分支顺序摘要；值包含 reservePct 的预留估计。
 更新 disableRangeArrayHash_；特定已建状态先 analyze，失败 -&gt; Hash
 计算每列 range / distinct 大小以及 ranges、distincts、best 的安全乘积
 1. ranges &lt; kArrayHashMaxSize 且未禁用 range Array -&gt; Array（全 range）
@@ -676,7 +676,7 @@ normalizedKey = id0 + R0 * id1 + R0 * R1 * id2 + ...
 </code></pre>
 <p data-original-block="velox-hash-table-0110">决策流程图：</p>
 <div class="fig">
-<figure class="detail-figure" data-original-block="velox-hash-table-0111"><div class="detail-figure-scroll"><img alt="HashMode 决策入口" loading="lazy" src="/images/velox-hash-table/detail-original-01.svg"/></div><figcaption>HashMode 决策入口。已按当前实现修正标注，具体约束见相邻正文。</figcaption></figure>
+<figure class="detail-figure" data-original-block="velox-hash-table-0111"><div class="detail-figure-scroll"><img alt="HashMode 决策入口" loading="lazy" src="/images/velox-hash-table/detail-original-01.svg"></div><figcaption>HashMode 决策入口。已按当前实现修正标注，具体约束见相邻正文。</figcaption></figure>
 <div class="fig-cap"><b>Fig.</b>　decideHashMode() — 阈值递降:能 array 就 array,不行退 normalized-key,最后才 hash</div>
 </div>
 <h3 data-original-block="velox-hash-table-0112" id="32-karray-模式">4.3 kArray 模式</h3>
@@ -707,9 +707,9 @@ normalizedKey = id0 + R0 * id1 + R0 * R1 * id2 + ...
   ...        payload 列
 </code></pre>
 <p data-original-block="velox-hash-table-0127"><code>mixNormalizedKey</code>（HashTable.cpp:442）用 <code>folly::hasher&lt;uint64_t&gt;</code> 把连续分布的 normalized_key 扰动成随机分布，防止大量数据落在相邻 bucket：</p>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0128" data-source-kind="original-reading-fragment"><code class="language-cpp">inline uint64_t mixNormalizedKey(uint64_t k, uint8_t bits) &#123;
-    return folly::hasher&lt;uint64_t&gt;()(k);
-&#125;
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0128" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="function"><span class="keyword">inline</span> <span class="type">uint64_t</span> <span class="title">mixNormalizedKey</span><span class="params">(<span class="type">uint64_t</span> k, <span class="type">uint8_t</span> bits)</span> </span>{
+    <span class="keyword">return</span> folly::<span class="built_in">hasher</span>&lt;<span class="type">uint64_t</span>&gt;()(k);
+}
 </code></pre>
 <h3 data-original-block="velox-hash-table-0129" id="34-khash-模式">4.5 kHash 模式</h3>
 <p data-original-block="velox-hash-table-0130"><strong>适用场景</strong>：高基数 key（如 UUID、字符串、多列大范围整数）。</p>
@@ -717,30 +717,41 @@ normalizedKey = id0 + R0 * id1 + R0 * R1 * id2 + ...
 <p data-original-block="velox-hash-table-0132"><strong>Key 比较</strong>：每次命中时调用 <code>compareKeys()</code>（HashTable.cpp:358），逐列调用 <code>RowContainer::compare()</code>，支持字符串、complex type 的语义比较。</p>
 <h3 data-original-block="velox-hash-table-0133" id="35-模式切换">4.6 模式切换</h3>
 <p data-corrected="2026-09-20" data-original-block="velox-hash-table-0134">Array 和 NormalizedKey 的编码失效后可以先重新分析、重新编码并选择表示，不一定立刻进入 Hash。进入 kHash 后才不再回到 value ID 表示。状态图应区分“重新选择仍可编码模式”和“放弃编码进入 Hash”两件事。</p>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0135" data-source-kind="original-reading-fragment"><code class="language-cpp">// hashRows() 中
-if (!hasher-&gt;computeValueIdsForRows(..., hashes)) &#123;
-    return false;  // 触发上层调用 setHashMode(kHash)
-&#125;
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0135" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="comment">// hashRows() 中</span>
+<span class="keyword">if</span> (!hasher-&gt;<span class="built_in">computeValueIdsForRows</span>(..., hashes)) {
+    <span class="keyword">return</span> <span class="literal">false</span>;  <span class="comment">// 触发上层调用 setHashMode(kHash)</span>
+}
 </code></pre>
-<hr/>
+<hr>
 <h2 data-original-block="velox-hash-table-0136" data-reading-phase="implementation" id="4-内存布局详解">5. 内存布局详解</h2><section class="current-supplement" data-reviewed-section="layout"><h3 id="layout">5.1 当前实现补充 · 索引与 payload：内存实际怎么排</h3>
 <h4 id="128-字节-bucket">5.1.1 字节 Bucket</h4>
 <p><code>kHash</code> 和 <code>kNormalizedKey</code> 共用 bucket 布局：16 字节 tag、16 个 6 字节行指针、16 字节 padding，共 128 字节。<code>static_assert(sizeof(Bucket) == 128)</code> 固化这一大小。在 64 字节 cache line 的平台上，一个 bucket 对应两条 cache line；这不意味着一次 probe 必须读取全部 128 字节。</p>
 <figure class="ht-figure">
 <div aria-label="图 3，可横向滚动" class="ht-diagram-scroll" role="region" tabindex="0">
-<img alt="Bucket 的字节布局及 6-byte 指针访问。读取 tag 筛候选，随后按需要取行指针和 payload。" loading="lazy" src="/images/velox-hash-table/bucket.svg"/>
+<img alt="Bucket 的字节布局及 6-byte 指针访问。读取 tag 筛候选，随后按需要取行指针和 payload。" loading="lazy" src="/images/velox-hash-table/bucket.svg">
 </div>
 <figcaption>图 4：Bucket 的字节布局及 6-byte 指针访问。读取 tag 筛候选，随后按需要取行指针和 payload。 <a href="/images/velox-hash-table/bucket.svg">打开原图</a></figcaption>
 </figure>
 <p>tag 的编码为：</p>
-<figure class="highlight cpp"><div class="tbl-wrap"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 源码摘录：BaseHashTable::hashTag</span></span><br/><span class="line"><span class="keyword">return</span> <span class="built_in">static_cast</span>&lt;<span class="type">uint8_t</span>&gt;(hash &gt;&gt; <span class="number">38</span>) | <span class="number">0x80</span>;</span><br/></pre></td></tr></table></div></figure><ul>
+<figure class="highlight cpp cpp-highlight"><div class="tbl-wrap"><table><tbody><tr><td class="code"><pre><code class="language-cpp"><span class="comment">// 源码摘录：BaseHashTable::hashTag</span>
+<span class="keyword">return</span> <span class="built_in">static_cast</span>&lt;<span class="type">uint8_t</span>&gt;(hash &gt;&gt; <span class="number">38</span>) | <span class="number">0x80</span>;
+</code></pre></td></tr></tbody></table></div></figure><ul>
 <li><code>0x00</code>：empty，当前 bucket 中的候选比较完后可终止继续探测。</li>
 <li><code>0x7f</code>：tombstone，不能当作 empty 终止探测。</li>
 <li><code>0x80..0xff</code>：有效 tag，携带 hash 的 bit 38..44。转为 <code>uint8_t</code> 会留下 8 bit，其中最高位被强制设为 1，因此最终只有 7 bit 来自 hash。</li>
 </ul>
 <p>Tag 相同只表示候选命中，仍要比较 normalized key 或原始 key。把 tag 连续存放的价值是能一次载入 16 个 tag，再用 SIMD 比较生成候选 mask。候选指针可能与 tag 同处第一条 cache line，也可能在第二条。实际传输仍以平台的 cache line 为单位。</p>
 <h4 id="6-字节指针为什么要保留相邻两字节">5.1.2 字节指针为什么要保留相邻两字节</h4>
-<figure class="highlight cpp"><div class="tbl-wrap"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 源码摘录：Bucket::pointerAt</span></span><br/><span class="line"><span class="keyword">return</span> <span class="built_in">reinterpret_cast</span>&lt;<span class="type">char</span>*&gt;(</span><br/><span class="line">    *<span class="built_in">reinterpret_cast</span>&lt;<span class="type">uintptr_t</span>*&gt;(&amp;pointers_[kPointerSize * slotIndex]) &amp;</span><br/><span class="line">    kPointerMask);</span><br/><span class="line"></span><br/><span class="line"><span class="comment">// 源码摘录：Bucket::setPointer</span></span><br/><span class="line"><span class="keyword">auto</span>* <span class="type">const</span> slot =</span><br/><span class="line">    <span class="built_in">reinterpret_cast</span>&lt;<span class="type">uintptr_t</span>*&gt;(&amp;pointers_[slotIndex * kPointerSize]);</span><br/><span class="line">*slot = (*slot &amp; ~kPointerMask) | <span class="built_in">reinterpret_cast</span>&lt;<span class="type">uintptr_t</span>&gt;(pointer);</span><br/></pre></td></tr></table></div></figure><p>实现从 6 字节槽的起点读写一个 8 字节 word。高两字节通常属于<strong>下一个指针槽</strong>；最后一槽的高两字节落在 padding 内。读取后 mask 掉它们，写入时保留它们。写入时保留高位，保护了相邻槽的内容。</p>
+<figure class="highlight cpp cpp-highlight"><div class="tbl-wrap"><table><tbody><tr><td class="code"><pre><code class="language-cpp"><span class="comment">// 源码摘录：Bucket::pointerAt</span>
+<span class="keyword">return</span> <span class="built_in">reinterpret_cast</span>&lt;<span class="type">char</span>*&gt;(
+    *<span class="built_in">reinterpret_cast</span>&lt;<span class="type">uintptr_t</span>*&gt;(&amp;pointers_[kPointerSize * slotIndex]) &amp;
+    kPointerMask);
+
+<span class="comment">// 源码摘录：Bucket::setPointer</span>
+<span class="keyword">auto</span>* <span class="type">const</span> slot =
+    <span class="built_in">reinterpret_cast</span>&lt;<span class="type">uintptr_t</span>*&gt;(&amp;pointers_[slotIndex * kPointerSize]);
+*slot = (*slot &amp; ~kPointerMask) | <span class="built_in">reinterpret_cast</span>&lt;<span class="type">uintptr_t</span>&gt;(pointer);
+</code></pre></td></tr></tbody></table></div></figure><p>实现从 6 字节槽的起点读写一个 8 字节 word。高两字节通常属于<strong>下一个指针槽</strong>；最后一槽的高两字节落在 padding 内。读取后 mask 掉它们，写入时保留它们。写入时保留高位，保护了相邻槽的内容。</p>
 <p>这种布局依赖当前实现的 48-bit 指针表示及目标平台的访问约定。移植到其他地址布局时，需要重新核对这些假设。</p>
 <h4 id="bucket-地址和-slot-编号来自不同的计算">5.1.3 Bucket 地址和 slot 编号来自不同的计算</h4>
 <pre class="detail-trace"><code>流程示意：
@@ -768,15 +779,15 @@ row → key 字段
 <div class="official-hash-addition" data-official-integration="layout">
 <h4 id="official-layout-walkthrough">5.1.5 从整张索引到一个 bucket：跟着数字走一遍</h4>
 <p>官方文档将桶式索引画成一维数组，这个视角有助于区分容量与地址。<code>capacity</code> 是槽位总数，<code>numBuckets = capacity / 16</code>；一个 bucket 是 128 字节，所以索引字节数为 <code>capacity × 8</code>。容量为 2²⁰ 时，有 65536 个 bucket，索引占 8 MiB。这里计算的是索引本体，不包括 RowContainer、VectorHasher 字典、重复链 payload 和分配管理开销；也不适用于不使用 bucket 的 kArray 布局。</p>
-<figure class="ht-figure"><div class="ht-diagram-scroll" role="region" tabindex="0" aria-label="布局导读：容量、bucket 字节偏移、tag 与行指针各表达不同的信息。"><img alt="布局导读：容量、bucket 字节偏移、tag 与行指针各表达不同的信息。" loading="lazy" src="/images/velox-hash-table/official-layout-example.svg"/></div><figcaption>布局导读：容量、bucket 字节偏移、tag 与行指针各表达不同的信息。 <a href="/images/velox-hash-table/official-layout-example.svg">打开 SVG 原图</a></figcaption></figure>
+<figure class="ht-figure"><div class="ht-diagram-scroll" role="region" tabindex="0" aria-label="布局导读：容量、bucket 字节偏移、tag 与行指针各表达不同的信息。"><img alt="布局导读：容量、bucket 字节偏移、tag 与行指针各表达不同的信息。" loading="lazy" src="/images/velox-hash-table/official-layout-example.svg"></div><figcaption>布局导读：容量、bucket 字节偏移、tag 与行指针各表达不同的信息。 <a href="/images/velox-hash-table/official-layout-example.svg">打开 SVG 原图</a></figcaption></figure>
 <p>每个容量槽摊销 8 字节，来自 1 字节 tag、6 字节压缩指针和均摊的 1 字节 padding。16 字节 padding 让 bucket 满足 128 字节布局，也保证最后一个 6 字节指针槽从槽起点进行 8 字节访问时仍落在 bucket 内。它不是存业务 key 的空间。若没有 tombstone，按约 70% 占用估算，每个 distinct key 的索引摊销约为 8 / 0.7 ≈ 11.43 字节；重复 Join 行还会占 RowContainer，只是不会各自消耗一个新的 distinct-key 索引槽。</p>
 <p>用官方给出的 hash 数值 <code>0x5bca7c69b794f8ce</code> 做一次计算，tag 是 0xf1，bucket 的<strong>字节偏移</strong>是 1374336，bucket 编号才是 10737。本文统一把最低有效位编号为 bit 0：容量 2²⁰ 时，bucketOffsetMask 是 0x7fff80，使用 hash bit 7..22。文档所说从“第 8 位”取 bucket 位，在这个例子中应理解为把最低位叫第 1 位；不能在 C++ 代码中机械改成右移 8 位。</p>
-<p class="detail-code-label">C++ 数值示例：仅验证布局寻址算术，使用 static_assert 做编译期检查。</p><figure class="highlight cpp"><pre><code class="language-cpp"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstdint&gt;</span></span>
+<p class="detail-code-label">C++ 数值示例：仅验证布局寻址算术，使用 static_assert 做编译期检查。</p><figure class="highlight cpp cpp-highlight"><pre><code class="language-cpp"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstdint&gt;</span></span>
 
-<span class="keyword">constexpr</span> <span class="type">uint64_t</span> capacity = <span class="type">uint64_t</span>&#123;<span class="number">1</span>&#125; &lt;&lt; <span class="number">20</span>;
+<span class="keyword">constexpr</span> <span class="type">uint64_t</span> capacity = <span class="type">uint64_t</span>{<span class="number">1</span>} &lt;&lt; <span class="number">20</span>;
 <span class="keyword">constexpr</span> <span class="type">uint64_t</span> byteSize = capacity * <span class="number">8</span>;
 <span class="keyword">constexpr</span> <span class="type">uint64_t</span> hash = <span class="number">0x5bca7c69b794f8ce</span>ULL;
-<span class="keyword">constexpr</span> <span class="type">uint64_t</span> bucketMask = (byteSize - <span class="number">1</span>) &amp; ~<span class="type">uint64_t</span>&#123;<span class="number">127</span>&#125;;
+<span class="keyword">constexpr</span> <span class="type">uint64_t</span> bucketMask = (byteSize - <span class="number">1</span>) &amp; ~<span class="type">uint64_t</span>{<span class="number">127</span>};
 <span class="keyword">constexpr</span> <span class="type">uint64_t</span> offset = hash &amp; bucketMask;
 <span class="keyword">constexpr</span> <span class="type">uint64_t</span> bucket = offset / <span class="number">128</span>;
 <span class="keyword">constexpr</span> <span class="type">uint8_t</span> tag = <span class="built_in">static_cast</span>&lt;<span class="type">uint8_t</span>&gt;(hash &gt;&gt; <span class="number">38</span>) | <span class="number">0x80</span>;
@@ -790,7 +801,7 @@ row → key 字段
 <p>得到 bucket 后，slot 仍需通过当前 tags 的候选和空位 mask 选择。原 hash 不能独立决定某 key 最后落在第几个槽：碰撞、已有 key、tombstone 和先前插入顺序都会影响结果。低 7 位被地址掩码清零，是为了得到 128 字节对齐的字节偏移，不是在为这个 key 预先分配桶内 slot。</p>
 <h4 id="official-insert-walkthrough">5.1.6 空桶、半满桶、满桶：布局怎样参与插入</h4>
 <p>先看没有删除历史、没有并行分区边界干扰的基础过程。这与官方文档的三种插入情形对应，后面的 ProbeState、tombstone 和 parallel build 章节再补齐工程分支。</p>
-<figure class="ht-figure"><div class="ht-diagram-scroll" role="region" tabindex="0" aria-label="插入导读：先做 tag 与 key 的候选检查，再决定复用行、使用空槽或前往下一桶。"><img alt="插入导读：先做 tag 与 key 的候选检查，再决定复用行、使用空槽或前往下一桶。" loading="lazy" src="/images/velox-hash-table/official-insert-cases.svg"/></div><figcaption>插入导读：先做 tag 与 key 的候选检查，再决定复用行、使用空槽或前往下一桶。 <a href="/images/velox-hash-table/official-insert-cases.svg">打开 SVG 原图</a></figcaption></figure>
+<figure class="ht-figure"><div class="ht-diagram-scroll" role="region" tabindex="0" aria-label="插入导读：先做 tag 与 key 的候选检查，再决定复用行、使用空槽或前往下一桶。"><img alt="插入导读：先做 tag 与 key 的候选检查，再决定复用行、使用空槽或前往下一桶。" loading="lazy" src="/images/velox-hash-table/official-insert-cases.svg"></div><figcaption>插入导读：先做 tag 与 key 的候选检查，再决定复用行、使用空槽或前往下一桶。 <a href="/images/velox-hash-table/official-insert-cases.svg">打开 SVG 原图</a></figcaption></figure>
 <p><strong>空桶：</strong>16 个 tag 都是 empty，没有候选 key，新项放进可用槽，同时写入 tag 与指向 RowContainer 的指针。真正的 key 和 payload 在索引外保存，因此扩容时可重新安排索引，而不必跟着迁移全部行。</p>
 <p><strong>半满桶：</strong>先用 SIMD 比较 tags。没有相同 tag，就不用访问那些行的 key；有一个或多个 tag 相同，就逐个取指针并进行真正的 key 比较。所有候选都不匹配，才能使用空槽。对于聚合，找到相同 key 返回已有 group，后续更新 accumulator；对于允许重复的 Join build，通常将重复行关联到已有 key 的链上。Semi / Anti 等可选择去重或其他重复处理，不能把“相同 key 一律挂链”作为所有表的通则。</p>
 <p><strong>满桶：</strong>满不代表这次插入必须立即去下一桶，仍可能在本桶找到相同 key。只有确认没有匹配且没有终止用的 empty，才沿 <code>nextBucketOffset</code> 以 128 字节为步长前进，末尾回绕。保留空槽不仅为新 key 预留空间，也让未命中探测能结束，避免持续遍历整个索引。</p>
@@ -809,7 +820,7 @@ row → key 字段
 <h3 data-original-block="velox-hash-table-0140" id="42-khash--knormalizedkey-模式：bucket-结构">5.3 kHash / kNormalizedKey 模式：Bucket 结构</h3>
 <p data-original-block="velox-hash-table-0141">这是 Velox HashTable 设计中最精彩的部分，直接借鉴了 F14（folly）的 bucket 思想：</p>
 <div class="fig">
-<figure class="detail-figure" data-original-block="velox-hash-table-0142"><div class="detail-figure-scroll"><img alt="Bucket 的 128 字节布局" loading="lazy" src="/images/velox-hash-table/detail-original-02.svg"/></div><figcaption>Bucket 的 128 字节布局。已按当前实现修正标注，具体约束见相邻正文。</figcaption></figure>
+<figure class="detail-figure" data-original-block="velox-hash-table-0142"><div class="detail-figure-scroll"><img alt="Bucket 的 128 字节布局" loading="lazy" src="/images/velox-hash-table/detail-original-02.svg"></div><figcaption>Bucket 的 128 字节布局。已按当前实现修正标注，具体约束见相邻正文。</figcaption></figure>
 <div class="fig-cap"><b>Fig.</b>　Bucket = 128 bytes = 2 × cache line:tags 与 pointers 各 16 槽,SIMD 扫 tags</div>
 </div>
 <p data-original-block="velox-hash-table-0143"><strong>tags 数组（16 字节，对齐到 128 字节边界）</strong>：</p>
@@ -819,9 +830,9 @@ tag = 0x7F        → 已删除（kTombstoneTag，高位=0，与空槽可区分�
 tag = hash &gt;&gt; 38 | 0x80  → 有效槽（高位强制为 1，7bit 有效位）
 </code></pre>
 <p data-original-block="velox-hash-table-0146"><code>hashTag()</code> 实现：</p>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0147" data-source-kind="original-reading-fragment"><code class="language-cpp">static uint8_t hashTag(uint64_t hash) &#123;
-    return static_cast&lt;uint8_t&gt;(hash &gt;&gt; 38) | 0x80;
-&#125;
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0147" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="function"><span class="type">static</span> <span class="type">uint8_t</span> <span class="title">hashTag</span><span class="params">(<span class="type">uint64_t</span> hash)</span> </span>{
+    <span class="keyword">return</span> <span class="built_in">static_cast</span>&lt;<span class="type">uint8_t</span>&gt;(hash &gt;&gt; <span class="number">38</span>) | <span class="number">0x80</span>;
+}
 </code></pre>
 <p data-original-block="velox-hash-table-0148">取 hash 的第 38-44 位（7 bits）作为 tag，原因：</p>
 <ul>
@@ -867,23 +878,23 @@ tag = hash &gt;&gt; 38 | 0x80  → 有效槽（高位强制为 1，7bit 有效�
 <p data-original-block="velox-hash-table-0170"><strong>连锁收益</strong>：该不变式使 §7.10 中 SSE2 的 <code>PMOVMSKB</code> 优化成为可能——<code>PMOVMSKB</code> 本质上提取每字节的最高位，<code>bit7 = 0</code> 表示空/tombstone，<code>bit7 = 1</code> 表示有效，省去一次显式 <code>PCMPEQB</code> 比较。</p>
 <p data-original-block="velox-hash-table-0171"><strong>pointers 数组（96 字节）</strong>：</p>
 <p data-corrected="2026-09-20" data-original-block="velox-hash-table-0172">每个槽保存 6 字节指针位型，代码据此截取低 48 位。这个紧凑表示依赖其支持的分配地址范围，不能推广成所有 x86-64 用户地址永远只有低 48 位；启用更宽虚拟地址空间时仍需满足实现的地址约束。</p>
-<pre data-original-block="velox-hash-table-0173" data-source-kind="original-reading-fragment"><code class="language-cpp">static constexpr uint8_t  kPointerSignificantBits = 48;
-static constexpr uint64_t kPointerMask = bits::lowMask(48);  // 0x0000FFFFFFFFFFFF
-static constexpr int32_t  kPointerSize = 6;
+<pre data-original-block="velox-hash-table-0173" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="type">static</span> <span class="keyword">constexpr</span> <span class="type">uint8_t</span>  kPointerSignificantBits = <span class="number">48</span>;
+<span class="type">static</span> <span class="keyword">constexpr</span> <span class="type">uint64_t</span> kPointerMask = bits::<span class="built_in">lowMask</span>(<span class="number">48</span>);  <span class="comment">// 0x0000FFFFFFFFFFFF</span>
+<span class="type">static</span> <span class="keyword">constexpr</span> <span class="type">int32_t</span>  kPointerSize = <span class="number">6</span>;
 </code></pre>
 <p data-original-block="velox-hash-table-0174">读取指针：</p>
-<pre data-original-block="velox-hash-table-0175" data-source-kind="original-reading-fragment"><code class="language-cpp">char* pointerAt(int32_t slotIndex) &#123;
-    return reinterpret_cast&lt;char*&gt;(
-        *reinterpret_cast&lt;uintptr_t*&gt;(&amp;pointers_[kPointerSize * slotIndex])
+<pre data-original-block="velox-hash-table-0175" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="function"><span class="type">char</span>* <span class="title">pointerAt</span><span class="params">(<span class="type">int32_t</span> slotIndex)</span> </span>{
+    <span class="keyword">return</span> <span class="built_in">reinterpret_cast</span>&lt;<span class="type">char</span>*&gt;(
+        *<span class="built_in">reinterpret_cast</span>&lt;<span class="type">uintptr_t</span>*&gt;(&amp;pointers_[kPointerSize * slotIndex])
         &amp; kPointerMask);
-&#125;
+}
 </code></pre>
 <p data-corrected="2026-09-20" data-original-block="velox-hash-table-0176">实现从 6 字节槽起点读一个 8 字节 word：前 15 个槽的高两字节通常属于下一个指针槽，最后一个槽则落在 padding。掩码去掉本槽之外的位；这依赖特定布局与目标平台，不是允许普通 C++ 程序任意跨对象或未对齐访问的通用规则。</p>
 <p data-corrected="2026-09-20" data-original-block="velox-hash-table-0177">写入时必须保留所访问 word 的高两字节，因为它们通常是下一个指针槽的内容；最后一槽才对应 padding。这是保护当前相邻数据的必要操作，不只是为未来扩展预留。</p>
-<pre data-original-block="velox-hash-table-0178" data-source-kind="original-reading-fragment"><code class="language-cpp">void setPointer(int32_t slotIndex, void* pointer) &#123;
-    auto* slot = reinterpret_cast&lt;uintptr_t*&gt;(&amp;pointers_[slotIndex * kPointerSize]);
-    *slot = (*slot &amp; ~kPointerMask) | reinterpret_cast&lt;uintptr_t&gt;(pointer);
-&#125;
+<pre data-original-block="velox-hash-table-0178" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="function"><span class="type">void</span> <span class="title">setPointer</span><span class="params">(<span class="type">int32_t</span> slotIndex, <span class="type">void</span>* pointer)</span> </span>{
+    <span class="keyword">auto</span>* slot = <span class="built_in">reinterpret_cast</span>&lt;<span class="type">uintptr_t</span>*&gt;(&amp;pointers_[slotIndex * kPointerSize]);
+    *slot = (*slot &amp; ~kPointerMask) | <span class="built_in">reinterpret_cast</span>&lt;<span class="type">uintptr_t</span>&gt;(pointer);
+}
 </code></pre>
 <p data-original-block="velox-hash-table-0179"><strong>内存节省计算</strong>：</p>
 <ul>
@@ -892,15 +903,15 @@ static constexpr int32_t  kPointerSize = 6;
 <li data-original-block="velox-hash-table-0182">等效：每槽从 8 字节压缩到 8 字节（tag + pointer 合计），但 tag 独立存放使 SIMD 一次扫描 16 个 tag 成为可能</li>
 </ul>
 <p data-original-block="velox-hash-table-0183"><strong>bucket 在 table_ 中的寻址</strong>：</p>
-<pre data-original-block="velox-hash-table-0184" data-source-kind="original-reading-fragment"><code class="language-cpp">// hash → bucket 字节偏移
-int64_t bucketOffset(uint64_t hash) const &#123;
-    return hash &amp; bucketOffsetMask_;
-    // bucketOffsetMask_ = sizeMask_ &amp; ~(kBucketSize - 1)
-    //                   = (capacity_*8 - 1) &amp; ~127
-&#125;
+<pre data-original-block="velox-hash-table-0184" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="comment">// hash → bucket 字节偏移</span>
+<span class="function"><span class="type">int64_t</span> <span class="title">bucketOffset</span><span class="params">(<span class="type">uint64_t</span> hash)</span> <span class="type">const</span> </span>{
+    <span class="keyword">return</span> hash &amp; bucketOffsetMask_;
+    <span class="comment">// bucketOffsetMask_ = sizeMask_ &amp; ~(kBucketSize - 1)</span>
+    <span class="comment">//                   = (capacity_*8 - 1) &amp; ~127</span>
+}
 
-// slot 在 bucket 内的索引（0-15）
-int32_t slotIndex = index &amp; (sizeof(TagVector) - 1);  // index &amp; 15
+<span class="comment">// slot 在 bucket 内的索引（0-15）</span>
+<span class="type">int32_t</span> slotIndex = index &amp; (<span class="built_in">sizeof</span>(TagVector) - <span class="number">1</span>);  <span class="comment">// index &amp; 15</span>
 </code></pre>
 <p data-original-block="velox-hash-table-0185"><strong>整体 table_ 内存示意</strong>（假设 4 个 bucket）：</p>
 <pre class="detail-trace" data-original-block="velox-hash-table-0186"><code>table_:
@@ -911,20 +922,20 @@ int32_t slotIndex = index &amp; (sizeof(TagVector) - 1);  // index &amp; 15
 </code></pre>
 <h3 data-original-block="velox-hash-table-0187" id="43-rowcontainer-中的行布局（knormalizedkey-模式）">5.4 RowContainer 中的行布局（kNormalizedKey 模式）</h3>
 <div class="fig">
-<figure class="detail-figure" data-original-block="velox-hash-table-0188"><div class="detail-figure-scroll"><img alt="RowContainer 行内布局" loading="lazy" src="/images/velox-hash-table/detail-original-03.svg"/></div><figcaption>RowContainer 行内布局。已按当前实现修正标注，具体约束见相邻正文。</figcaption></figure>
+<figure class="detail-figure" data-original-block="velox-hash-table-0188"><div class="detail-figure-scroll"><img alt="RowContainer 行内布局" loading="lazy" src="/images/velox-hash-table/detail-original-03.svg"></div><figcaption>RowContainer 行内布局。已按当前实现修正标注，具体约束见相邻正文。</figcaption></figure>
 <div class="fig-cap"><b>Fig.</b>　RowContainer 行布局:normalized_key 在负偏移,join build 末尾挂 next-row 指针</div>
 </div>
 <p data-original-block="velox-hash-table-0189"><code>RowContainer::normalizedKey()</code> 静态方法：</p>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0190" data-source-kind="original-reading-fragment"><code class="language-cpp">static inline normalized_key_t&amp; normalizedKey(char* group) &#123;
-    return *reinterpret_cast&lt;normalized_key_t*&gt;(
-        group - sizeof(normalized_key_t));
-&#125;
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0190" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="function"><span class="type">static</span> <span class="keyword">inline</span> <span class="type">normalized_key_t</span>&amp; <span class="title">normalizedKey</span><span class="params">(<span class="type">char</span>* group)</span> </span>{
+    <span class="keyword">return</span> *<span class="built_in">reinterpret_cast</span>&lt;<span class="type">normalized_key_t</span>*&gt;(
+        group - <span class="built_in">sizeof</span>(<span class="type">normalized_key_t</span>));
+}
 </code></pre>
-<hr/>
+<hr>
 <h3 data-original-block="velox-hash-table-0191" id="44-全局视角：列-→-索引-→-行-的三段式混合布局">5.5 全局视角：列 → 索引 → 行 的三段式混合布局</h3>
 <p data-original-block="velox-hash-table-0192">把前三小节拼起来看，kNormalizedKey / kHash 模式下整个数据通路其实是<strong>三种不同布局的拼接</strong>，而不是单一的"行存"或"列存"。这是这套设计最值得玩味的地方。</p>
 <div class="fig">
-<figure class="detail-figure" data-original-block="velox-hash-table-0193"><div class="detail-figure-scroll"><img alt="列输入、目录与行 Payload" loading="lazy" src="/images/velox-hash-table/detail-original-04.svg"/></div><figcaption>列输入、目录与行 Payload。已按当前实现修正标注，具体约束见相邻正文。</figcaption></figure>
+<figure class="detail-figure" data-original-block="velox-hash-table-0193"><div class="detail-figure-scroll"><img alt="列输入、目录与行 Payload" loading="lazy" src="/images/velox-hash-table/detail-original-04.svg"></div><figcaption>列输入、目录与行 Payload。已按当前实现修正标注，具体约束见相邻正文。</figcaption></figure>
 <div class="fig-cap"><b>Fig.</b>　列 → 索引 → 行:列存算 hash、Bucket 数组做目录、RowContainer 存行</div>
 </div>
 <p data-original-block="velox-hash-table-0194"><strong>关键认知：hash 表目录里不存任何列数据，它只存 <code>(tag, 6 字节指针)</code>。</strong> 真正的 payload 永远在 RowContainer 的行里。所以"hash 表是列式的"这个说法并不准确——它是一个<strong>指针索引</strong>；唯一沾"列式"边的是 bucket <em>内部</em> 把 16 个 tag 打包在一起的 SoA 微布局，那是为 SIMD 服务的，不是一个列存数据模型。</p>
@@ -971,7 +982,7 @@ int32_t slotIndex = index &amp; (sizeof(TagVector) - 1);  // index &amp; 15
 <li data-original-block="velox-hash-table-0220"><strong>全行存</strong>：算 hash 时跨行跳读 → 向量化失效，进表变慢；且若把整行塞进 bucket，bucket 装不下 16 个槽，SIMD 扫 tag 也就无从谈起。</li>
 </ul>
 <p data-corrected="2026-09-20" data-original-block="velox-hash-table-0221">这里压缩的是 6-byte，即 48-bit 指针表示。列式输入、紧凑目录和行式 payload 各自匹配不同访问模式；压缩目录降低工作集，但不保证全部驻留 cache。</p>
-<hr/>
+<hr>
 <h2 data-original-block="velox-hash-table-0222" data-reading-phase="implementation" id="5-vectorhasher：key-编码引擎">6. VectorHasher：Key 编码引擎</h2>
 <p data-original-block="velox-hash-table-0223"><code>VectorHasher</code>（<code>velox/exec/VectorHasher.h</code>）是 HashTable 和向量化数据之间的桥梁，每个 key 列对应一个 VectorHasher 实例。</p>
 <h3 data-original-block="velox-hash-table-0224" id="51-两种编码模式">6.1 两种编码模式</h3>
@@ -985,13 +996,13 @@ int32_t slotIndex = index &amp; (sizeof(TagVector) - 1);  // index &amp; 15
 <p data-original-block="velox-hash-table-0230">适用于稀疏整数、小基数整数。用内部 <code>F14FastSet</code> 维护 <code>value → sequential_id</code> 的映射。</p>
 <h3 data-original-block="velox-hash-table-0231" id="52-computevalueids：向量输入-→-value_id-数组">6.2 computeValueIds()：向量输入 → value_id 数组</h3>
 <p data-original-block="velox-hash-table-0232">在 <code>prepareForGroupProbe()</code> 中调用：</p>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0233" data-source-kind="original-reading-fragment"><code class="language-cpp">for (auto i = 0; i &lt; hashers.size(); ++i) &#123;
-    if (mode != kHash) &#123;
-        hasher-&gt;computeValueIds(rows, lookup.hashes);  // 直接写 hash 数组
-    &#125; else &#123;
-        hasher-&gt;hash(rows, i &gt; 0, lookup.hashes);     // 混入前面列的 hash
-    &#125;
-&#125;
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0233" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="keyword">for</span> (<span class="keyword">auto</span> i = <span class="number">0</span>; i &lt; hashers.<span class="built_in">size</span>(); ++i) {
+    <span class="keyword">if</span> (mode != kHash) {
+        hasher-&gt;<span class="built_in">computeValueIds</span>(rows, lookup.hashes);  <span class="comment">// 直接写 hash 数组</span>
+    } <span class="keyword">else</span> {
+        hasher-&gt;<span class="built_in">hash</span>(rows, i &gt; <span class="number">0</span>, lookup.hashes);     <span class="comment">// 混入前面列的 hash</span>
+    }
+}
 </code></pre>
 <p data-original-block="velox-hash-table-0234"><strong>当多列 key 都用 value_id 时</strong>，各列的 value_id 通过 <code>multiplier_</code> 进行位置编码：</p>
 <pre class="detail-trace" data-original-block="velox-hash-table-0235"><code>hash[row] = id_col0 * 1
@@ -1002,17 +1013,17 @@ int32_t slotIndex = index &amp; (sizeof(TagVector) - 1);  // index &amp; 15
 <p data-original-block="velox-hash-table-0236"><code>multiplier_</code> 在 <code>enableValueRange</code> / <code>enableValueIds</code> 时被设置为前面所有列的 range 乘积，实现了多列 key 的<strong>无碰撞编码</strong>。</p>
 <h3 data-original-block="velox-hash-table-0237" id="53-lookupvalueids：join-probe-专用">6.3 lookupValueIds()：join probe 专用</h3>
 <p data-original-block="velox-hash-table-0238">join probe 时，probe 侧的 key 值必须能映射到 build 侧已知的 value_id，否则该行一定不命中，可以提前剪枝：</p>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0239" data-source-kind="original-reading-fragment"><code class="language-cpp">hashers_[i]-&gt;lookupValueIds(*key, rows, lookup.scratchMemory, lookup.hashes);
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0239" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp">hashers_[i]-&gt;<span class="built_in">lookupValueIds</span>(*key, rows, lookup.scratchMemory, lookup.hashes);
 </code></pre>
 <p data-original-block="velox-hash-table-0240">如果某个 probe key 的值在 build 侧 <code>uniqueValues_</code> 中找不到，该行会从 <code>rows</code> 中移除，完全跳过 hash 探测。这是 kNormalizedKey 模式下的<strong>提前剪枝</strong>优化。</p>
 <h3 data-original-block="velox-hash-table-0241" id="54-merge：并行-build-后的-vectorhasher-合并">6.4 merge()：并行 build 后的 VectorHasher 合并</h3>
 <p data-original-block="velox-hash-table-0242">并行 build 时，每个子表的 VectorHasher 独立收集 <code>uniqueValues_</code>，<code>prepareJoinTable()</code> 时调用 <code>merge()</code> 把所有子表的 VectorHasher 合并到主表：</p>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0243" data-source-kind="original-reading-fragment"><code class="language-cpp">for (auto&amp; other : otherTables_) &#123;
-    hashers_[i]-&gt;merge(*other-&gt;hashers_[i], vectorHasherMaxNumDistinct);
-&#125;
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0243" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="keyword">for</span> (<span class="keyword">auto</span>&amp; other : otherTables_) {
+    hashers_[i]-&gt;<span class="built_in">merge</span>(*other-&gt;hashers_[i], vectorHasherMaxNumDistinct);
+}
 </code></pre>
 <p data-original-block="velox-hash-table-0244">合并后重新分配 value_id，触发完整的 <code>decideHashMode()</code>。</p>
-<hr/>
+<hr>
 <h2 data-original-block="velox-hash-table-0245" data-reading-phase="implementation" id="6-simd-技巧专章">7. SIMD 技巧专章</h2><section class="current-supplement" data-reviewed-section="probe"><h3 id="probe">7.1 当前实现补充 · 一次探测怎样执行，怎样重叠访存</h3>
 <h4 id="hashlookup-中哪些数组按输入行号索引">7.1.1 HashLookup 中哪些数组按输入行号索引</h4>
 <p><code>rows</code> 是本批要处理的输入行号列表，可能稀疏；<code>hashes</code>、<code>hits</code>、<code>normalizedKeys</code> 都以<strong>原始输入行号</strong>为下标。<code>newGroups</code> 记录 <code>groupProbe</code> 本次新建 group 对应的输入行号，Join Probe 不使用它。</p>
@@ -1055,7 +1066,7 @@ int32_t slotIndex = index &amp; (sizeof(TagVector) - 1);  // index &amp; 15
 <h4 id="4-路--64-路流水线是指令交错，不是线程">7.1.3 路 / 64 路流水线是指令交错，不是线程</h4>
 <figure class="ht-figure">
 <div aria-label="图 4，可横向滚动" class="ht-diagram-scroll" role="region" tabindex="0">
-<img alt="先为多行发出预取，再分阶段推进 probe；图中位置表达程序顺序，不表示实测 cycle 或缓存命中时刻。" loading="lazy" src="/images/velox-hash-table/pipeline.svg"/>
+<img alt="先为多行发出预取，再分阶段推进 probe；图中位置表达程序顺序，不表示实测 cycle 或缓存命中时刻。" loading="lazy" src="/images/velox-hash-table/pipeline.svg">
 </div>
 <figcaption>图 8：先为多行发出预取，再分阶段推进 probe；图中位置表达程序顺序，不表示实测 cycle 或缓存命中时刻。 <a href="/images/velox-hash-table/pipeline.svg">打开原图</a></figcaption>
 </figure>
@@ -1076,76 +1087,76 @@ int32_t slotIndex = index &amp; (sizeof(TagVector) - 1);  // index &amp; 15
 </section>
 <h3 data-original-block="velox-hash-table-0246" id="61-平台抽象：tagvector">7.2 平台抽象：TagVector</h3>
 <p data-original-block="velox-hash-table-0247">Velox 通过 xsimd 抽象了 SSE2 / NEON 差异：</p>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0248" data-source-kind="original-reading-fragment"><code class="language-cpp">#if XSIMD_WITH_SSE2
-using TagVector = xsimd::batch&lt;uint8_t, xsimd::sse2&gt;;   // 128bit，16×uint8
-#elif XSIMD_WITH_NEON
-using TagVector = xsimd::batch&lt;uint8_t, xsimd::neon&gt;;   // 128bit，16×uint8
-#endif
-using MaskType = uint16_t;  // 16 slots → 16 bit mask
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0248" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="meta">#<span class="keyword">if</span> XSIMD_WITH_SSE2</span>
+<span class="keyword">using</span> TagVector = xsimd::batch&lt;<span class="type">uint8_t</span>, xsimd::sse2&gt;;   <span class="comment">// 128bit，16×uint8</span>
+<span class="meta">#<span class="keyword">elif</span> XSIMD_WITH_NEON</span>
+<span class="keyword">using</span> TagVector = xsimd::batch&lt;<span class="type">uint8_t</span>, xsimd::neon&gt;;   <span class="comment">// 128bit，16×uint8</span>
+<span class="meta">#<span class="keyword">endif</span></span>
+<span class="keyword">using</span> MaskType = <span class="type">uint16_t</span>;  <span class="comment">// 16 slots → 16 bit mask</span>
 </code></pre>
 <p data-original-block="velox-hash-table-0249"><code>loadTags()</code>（HashTable.h:487）有意禁用 TSAN，因为并行 build 阶段不同线程写入不相交的 bucket 范围，但 TSAN 无法分析这种模式：</p>
-<pre data-original-block="velox-hash-table-0250" data-source-kind="original-reading-fragment"><code class="language-cpp">__attribute__((__no_sanitize__("thread")))
-static TagVector loadTags(uint8_t* tags, int64_t tagIndex) &#123;
-    auto src = tags + tagIndex;
-#if XSIMD_WITH_SSE2
-    return TagVector(_mm_loadu_si128(reinterpret_cast&lt;__m128i const*&gt;(src)));
-#elif XSIMD_WITH_NEON
-    return TagVector(vld1q_u8(src));
-#endif
-&#125;
+<pre data-original-block="velox-hash-table-0250" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp">__attribute__((__no_sanitize__(<span class="string">"thread"</span>)))
+<span class="function"><span class="type">static</span> TagVector <span class="title">loadTags</span><span class="params">(<span class="type">uint8_t</span>* tags, <span class="type">int64_t</span> tagIndex)</span> </span>{
+    <span class="keyword">auto</span> src = tags + tagIndex;
+<span class="meta">#<span class="keyword">if</span> XSIMD_WITH_SSE2</span>
+    <span class="keyword">return</span> <span class="built_in">TagVector</span>(_mm_loadu_si128(<span class="built_in">reinterpret_cast</span>&lt;__m128i <span class="type">const</span>*&gt;(src)));
+<span class="meta">#<span class="keyword">elif</span> XSIMD_WITH_NEON</span>
+    <span class="keyword">return</span> <span class="built_in">TagVector</span>(<span class="built_in">vld1q_u8</span>(src));
+<span class="meta">#<span class="keyword">endif</span></span>
+}
 </code></pre>
 <h3 data-original-block="velox-hash-table-0251" id="62-技巧-1：16-way-tag-并行比较（核心-simd-优化）">7.3 技巧 1：16-way Tag 并行比较（核心 SIMD 优化）</h3>
 <p data-original-block="velox-hash-table-0252"><strong>问题</strong>：传统开放地址 hash 表每次 probe 需要逐个检查 slot 的 tag，单次 probe 最坏需要 16 次比较（一个满 bucket）。</p>
 <p data-original-block="velox-hash-table-0253"><strong>解法</strong>：将 16 个 tag 打包成 16 字节向量，用一条 SIMD 指令同时比较 16 个：</p>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0254" data-source-kind="original-reading-fragment"><code class="language-cpp">// preProbe: 将目标 tag 广播成 16 份
-wantedTags_ = BaseHashTable::TagVector::broadcast(hashTag(hash));
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0254" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="comment">// preProbe: 将目标 tag 广播成 16 份</span>
+wantedTags_ = BaseHashTable::TagVector::<span class="built_in">broadcast</span>(<span class="built_in">hashTag</span>(hash));
 
-// firstProbe: 加载 16 个 tag，一次比较
-tagsInTable_ = loadTags(table_, bucketOffset_);
-hits_ = simd::toBitMask(tagsInTable_ == wantedTags_);
-//       ↑ 一条 PCMPEQB + PMOVMSKB 指令（SSE2）
-//         结果是 16bit bitmask，第 i bit = 1 表示 slot i 的 tag 匹配
+<span class="comment">// firstProbe: 加载 16 个 tag，一次比较</span>
+tagsInTable_ = <span class="built_in">loadTags</span>(table_, bucketOffset_);
+hits_ = simd::<span class="built_in">toBitMask</span>(tagsInTable_ == wantedTags_);
+<span class="comment">//       ↑ 一条 PCMPEQB + PMOVMSKB 指令（SSE2）</span>
+<span class="comment">//         结果是 16bit bitmask，第 i bit = 1 表示 slot i 的 tag 匹配</span>
 </code></pre>
 <p data-original-block="velox-hash-table-0255"><strong>x86 SSE2 汇编等价</strong>：</p>
 <pre data-original-block="velox-hash-table-0256"><code class="language-asm">PCMPEQB  xmm1, xmm0    ; 16字节并行比较，生成 0xFF/0x00 掩码
 PMOVMSKB eax, xmm1     ; 提取每字节最高位 → 16bit 整数
 </code></pre>
 <p data-original-block="velox-hash-table-0257"><strong>处理命中的 bitmask</strong>：</p>
-<pre data-original-block="velox-hash-table-0258" data-source-kind="original-reading-fragment"><code class="language-cpp">while (hits_ &gt; 0) &#123;
-    const int32_t hit = bits::getAndClearLastSetBit(hits_);
-    // hit = trailing zero count = 命中的 slot 索引
-    group_ = table.row(bucketOffset_, hit);
-    __builtin_prefetch(group_ + firstKey);  // 立即 prefetch payload
-&#125;
+<pre data-original-block="velox-hash-table-0258" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="keyword">while</span> (hits_ &gt; <span class="number">0</span>) {
+    <span class="type">const</span> <span class="type">int32_t</span> hit = bits::<span class="built_in">getAndClearLastSetBit</span>(hits_);
+    <span class="comment">// hit = trailing zero count = 命中的 slot 索引</span>
+    group_ = table.<span class="built_in">row</span>(bucketOffset_, hit);
+    __builtin_prefetch(group_ + firstKey);  <span class="comment">// 立即 prefetch payload</span>
+}
 </code></pre>
 <p data-corrected="2026-09-20" data-original-block="velox-hash-table-0259">getAndClearLastSetBit 取最低置位并清除它；编译器可能使用 BSF/TZCNT 与清位指令或等价序列，取决于目标 ISA 和优化。源码算法不保证固定生成 BSF+BTC，也不提供固定周期数。</p>
 <h3 data-original-block="velox-hash-table-0260" id="63-技巧-2：4-路-probestate-软流水线">7.4 技巧 2：4-路 ProbeState 软流水线</h3>
 <p data-corrected="2026-09-20" data-original-block="velox-hash-table-0261">单次 probe 可能受缓存未命中与依赖链限制。预取到可使用数据的时间取决于缓存层级、CPU、内存系统和请求排队；下面时序只表示程序依赖，不表示实测的固定 cycle。</p>
 <p data-original-block="velox-hash-table-0262"><strong>解法</strong>：创建 4 个独立的 <code>ProbeState</code>，把"触发 prefetch"和"使用数据"分离到不同 probe 的执行中：</p>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0263" data-source-kind="original-reading-fragment"><code class="language-cpp">// groupProbe() 中的 4-路流水：
-for (; probeIndex + 4 &lt;= numProbes; probeIndex += 4) &#123;
-    // 阶段1：4个 probe 同时 preProbe（触发4个 prefetch）
-    state1.preProbe(*this, lookup.hashes[rows[probeIndex+0]], rows[probeIndex+0]);
-    state2.preProbe(*this, lookup.hashes[rows[probeIndex+1]], rows[probeIndex+1]);
-    state3.preProbe(*this, lookup.hashes[rows[probeIndex+2]], rows[probeIndex+2]);
-    state4.preProbe(*this, lookup.hashes[rows[probeIndex+3]], rows[probeIndex+3]);
-    // ↑ 此时4个 bucket 的 cache line 开始并发加载
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0263" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="comment">// groupProbe() 中的 4-路流水：</span>
+<span class="keyword">for</span> (; probeIndex + <span class="number">4</span> &lt;= numProbes; probeIndex += <span class="number">4</span>) {
+    <span class="comment">// 阶段1：4个 probe 同时 preProbe（触发4个 prefetch）</span>
+    state1.<span class="built_in">preProbe</span>(*<span class="keyword">this</span>, lookup.hashes[rows[probeIndex+<span class="number">0</span>]], rows[probeIndex+<span class="number">0</span>]);
+    state2.<span class="built_in">preProbe</span>(*<span class="keyword">this</span>, lookup.hashes[rows[probeIndex+<span class="number">1</span>]], rows[probeIndex+<span class="number">1</span>]);
+    state3.<span class="built_in">preProbe</span>(*<span class="keyword">this</span>, lookup.hashes[rows[probeIndex+<span class="number">2</span>]], rows[probeIndex+<span class="number">2</span>]);
+    state4.<span class="built_in">preProbe</span>(*<span class="keyword">this</span>, lookup.hashes[rows[probeIndex+<span class="number">3</span>]], rows[probeIndex+<span class="number">3</span>]);
+    <span class="comment">// ↑ 此时4个 bucket 的 cache line 开始并发加载</span>
 
-    // 阶段2：4个 probe 同时 firstProbe（此时 cache line 已返回）
-    state1.firstProbe&lt;kInsert&gt;(*this, 0);
-    state2.firstProbe&lt;kInsert&gt;(*this, 0);
-    state3.firstProbe&lt;kInsert&gt;(*this, 0);
-    state4.firstProbe&lt;kInsert&gt;(*this, 0);
+    <span class="comment">// 阶段2：4个 probe 同时 firstProbe（此时 cache line 已返回）</span>
+    state1.<span class="built_in">firstProbe</span>&lt;kInsert&gt;(*<span class="keyword">this</span>, <span class="number">0</span>);
+    state2.<span class="built_in">firstProbe</span>&lt;kInsert&gt;(*<span class="keyword">this</span>, <span class="number">0</span>);
+    state3.<span class="built_in">firstProbe</span>&lt;kInsert&gt;(*<span class="keyword">this</span>, <span class="number">0</span>);
+    state4.<span class="built_in">firstProbe</span>&lt;kInsert&gt;(*<span class="keyword">this</span>, <span class="number">0</span>);
 
-    // 阶段3：完整 probe（可能跨 bucket）
-    fullProbe&lt;false&gt;(lookup, state1, false);
-    fullProbe&lt;false&gt;(lookup, state2, true);   // extraCheck=true：重新加载
-    fullProbe&lt;false&gt;(lookup, state3, true);
-    fullProbe&lt;false&gt;(lookup, state4, true);
-&#125;
+    <span class="comment">// 阶段3：完整 probe（可能跨 bucket）</span>
+    <span class="built_in">fullProbe</span>&lt;<span class="literal">false</span>&gt;(lookup, state1, <span class="literal">false</span>);
+    <span class="built_in">fullProbe</span>&lt;<span class="literal">false</span>&gt;(lookup, state2, <span class="literal">true</span>);   <span class="comment">// extraCheck=true：重新加载</span>
+    <span class="built_in">fullProbe</span>&lt;<span class="literal">false</span>&gt;(lookup, state3, <span class="literal">true</span>);
+    <span class="built_in">fullProbe</span>&lt;<span class="literal">false</span>&gt;(lookup, state4, <span class="literal">true</span>);
+}
 </code></pre>
 <p data-original-block="velox-hash-table-0264">时序示意图：</p>
-<pre class="detail-trace" data-original-block="velox-hash-table-0265" data-source-kind="reviewed-pseudocode"><code class="language-cpp">// 仅画程序顺序；每列不代表固定 CPU cycle 或数据必然到达 L1。
+<pre class="detail-trace" data-original-block="velox-hash-table-0265" data-source-kind="reviewed-pseudocode"><code class="language-plaintext">// 仅画程序顺序；每列不代表固定 CPU cycle 或数据必然到达 L1。
 阶段       A                 B                      C
 state1    preProbe           firstProbe             fullProbe
 state2    preProbe           firstProbe                  fullProbe
@@ -1156,63 +1167,63 @@ state4    preProbe           firstProbe                            fullProbe
 </code></pre>
 <h3 data-original-block="velox-hash-table-0266" id="64-技巧-3：64-路-prefetch（normalized-key--join-insert）">7.5 技巧 3：64-路 prefetch（Normalized Key / Join Insert）</h3>
 <p data-original-block="velox-hash-table-0267">kNormalizedKey 模式的 join probe 和 insert 使用更大的批次（64路）：</p>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0268" data-source-kind="original-reading-fragment"><code class="language-cpp">constexpr int32_t kPrefetchSize = 64;
-ProbeState states[kPrefetchSize];  // 栈上 64 个状态
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0268" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="keyword">constexpr</span> <span class="type">int32_t</span> kPrefetchSize = <span class="number">64</span>;
+ProbeState states[kPrefetchSize];  <span class="comment">// 栈上 64 个状态</span>
 
-for (; probeIndex + kPrefetchSize &lt;= numProbes; probeIndex += kPrefetchSize) &#123;
-    // 批次1：64个 preProbe，64个 prefetch 同时发射
-    for (int32_t i = 0; i &lt; kPrefetchSize; ++i) &#123;
-        states[i].preProbe(*this, hashes[rows[probeIndex + i]], rows[probeIndex + i]);
-    &#125;
-    // 批次2：64个 firstProbe
-    for (int32_t i = 0; i &lt; kPrefetchSize; ++i) &#123;
-        states[i].firstProbe(*this, kKeyOffset);
-    &#125;
-    // 批次3：64个 fullProbe
-    for (int32_t i = 0; i &lt; kPrefetchSize; ++i) &#123;
-        hits[states[i].row()] = states[i].joinNormalizedKeyFullProbe(*this, keys);
-    &#125;
-&#125;
+<span class="keyword">for</span> (; probeIndex + kPrefetchSize &lt;= numProbes; probeIndex += kPrefetchSize) {
+    <span class="comment">// 批次1：64个 preProbe，64个 prefetch 同时发射</span>
+    <span class="keyword">for</span> (<span class="type">int32_t</span> i = <span class="number">0</span>; i &lt; kPrefetchSize; ++i) {
+        states[i].<span class="built_in">preProbe</span>(*<span class="keyword">this</span>, hashes[rows[probeIndex + i]], rows[probeIndex + i]);
+    }
+    <span class="comment">// 批次2：64个 firstProbe</span>
+    <span class="keyword">for</span> (<span class="type">int32_t</span> i = <span class="number">0</span>; i &lt; kPrefetchSize; ++i) {
+        states[i].<span class="built_in">firstProbe</span>(*<span class="keyword">this</span>, kKeyOffset);
+    }
+    <span class="comment">// 批次3：64个 fullProbe</span>
+    <span class="keyword">for</span> (<span class="type">int32_t</span> i = <span class="number">0</span>; i &lt; kPrefetchSize; ++i) {
+        hits[states[i].<span class="built_in">row</span>()] = states[i].<span class="built_in">joinNormalizedKeyFullProbe</span>(*<span class="keyword">this</span>, keys);
+    }
+}
 </code></pre>
 <p data-original-block="velox-hash-table-0269">64-路比 4-路更适合 normalized key 场景，因为 normalized key 的比较在 row payload 的负偏移 -8 处，该地址通常不在 tag 的 cache line 内，需要额外一次内存访问，更长的 in-flight 深度才能有效隐藏延迟。</p>
 <h3 data-original-block="velox-hash-table-0270" id="65-技巧-4：adaptiveprefetch（自适应预取步长）">7.6 技巧 4：AdaptivePrefetch（自适应预取步长）</h3>
 <p data-original-block="velox-hash-table-0271"><code>hashRows()</code> 在 kNormalizedKey 模式下重新哈希已有行时，读取 <code>RowContainer::normalizedKey(rows[i])</code>，地址分布随机，需要预取：</p>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0272" data-source-kind="original-reading-fragment"><code class="language-cpp">AdaptivePrefetch prefetch(numRows);
-for (int32_t i = 0; i &lt; numRows; ++i) &#123;
-    if (auto ahead = prefetch.lookAhead()) &#123;
-        __builtin_prefetch(rows[i + ahead] - sizeof(normalized_key_t));
-    &#125;
-    hashes[i] = mixNormalizedKey(RowContainer::normalizedKey(rows[i]), sizeBits_);
-&#125;
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0272" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="function">AdaptivePrefetch <span class="title">prefetch</span><span class="params">(numRows)</span></span>;
+<span class="keyword">for</span> (<span class="type">int32_t</span> i = <span class="number">0</span>; i &lt; numRows; ++i) {
+    <span class="keyword">if</span> (<span class="keyword">auto</span> ahead = prefetch.<span class="built_in">lookAhead</span>()) {
+        __builtin_prefetch(rows[i + ahead] - <span class="built_in">sizeof</span>(<span class="type">normalized_key_t</span>));
+    }
+    hashes[i] = <span class="built_in">mixNormalizedKey</span>(RowContainer::<span class="built_in">normalizedKey</span>(rows[i]), sizeBits_);
+}
 </code></pre>
 <p data-corrected="2026-09-20" data-original-block="velox-hash-table-0273">预取距离随循环耗时、数据局部性和微架构变化。AdaptivePrefetch 用短窗口计时配合假设延迟估算距离，再限制范围；它不是直接检测当前数据位于 L2，也不保证某层缓存对应固定最优步长。</p>
 <p data-original-block="velox-hash-table-0274"><strong>算法：前 16 次迭代计时，一次性定出步长</strong></p>
 <p data-original-block="velox-hash-table-0275"><code>AdaptivePrefetch</code>（<code>AdaptivePrefetch.h</code>）的实现分两个阶段：</p>
-<pre data-original-block="velox-hash-table-0276" data-source-kind="original-reading-fragment"><code class="language-cpp">class AdaptivePrefetch &#123;
-    static constexpr int32_t kMeasurementIterations = 16;   // 采样迭代次数
-    static constexpr int32_t kMinLookAhead = 4;             // 步长下限
-    static constexpr int32_t kMaxLookAhead = 32;            // 步长上限
-    static constexpr int64_t kAssumedDramLatencyNs = 100;   // 假设 DRAM 延迟 100ns
-    static constexpr int64_t kCoefficient = 4;              // 并发飞行的 miss 数
+<pre data-original-block="velox-hash-table-0276" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="keyword">class</span> <span class="title class_">AdaptivePrefetch</span> {
+    <span class="type">static</span> <span class="keyword">constexpr</span> <span class="type">int32_t</span> kMeasurementIterations = <span class="number">16</span>;   <span class="comment">// 采样迭代次数</span>
+    <span class="type">static</span> <span class="keyword">constexpr</span> <span class="type">int32_t</span> kMinLookAhead = <span class="number">4</span>;             <span class="comment">// 步长下限</span>
+    <span class="type">static</span> <span class="keyword">constexpr</span> <span class="type">int32_t</span> kMaxLookAhead = <span class="number">32</span>;            <span class="comment">// 步长上限</span>
+    <span class="type">static</span> <span class="keyword">constexpr</span> <span class="type">int64_t</span> kAssumedDramLatencyNs = <span class="number">100</span>;   <span class="comment">// 假设 DRAM 延迟 100ns</span>
+    <span class="type">static</span> <span class="keyword">constexpr</span> <span class="type">int64_t</span> kCoefficient = <span class="number">4</span>;              <span class="comment">// 并发飞行的 miss 数</span>
 
-    int32_t lookAhead() &#123;
-        if (iteration_ == kMeasurementIterations) &#123;
-            computeLookAhead();   // 第 16 次时计算步长，之后固定
-        &#125;
+    <span class="function"><span class="type">int32_t</span> <span class="title">lookAhead</span><span class="params">()</span> </span>{
+        <span class="keyword">if</span> (iteration_ == kMeasurementIterations) {
+            <span class="built_in">computeLookAhead</span>();   <span class="comment">// 第 16 次时计算步长，之后固定</span>
+        }
         ++iteration_;
-        if (iteration_ + lookAhead_ &gt; numIterations_) &#123;
-            return 0;             // 接近末尾时归零，防止越界 prefetch
-        &#125;
-        return lookAhead_;
-    &#125;
+        <span class="keyword">if</span> (iteration_ + lookAhead_ &gt; numIterations_) {
+            <span class="keyword">return</span> <span class="number">0</span>;             <span class="comment">// 接近末尾时归零，防止越界 prefetch</span>
+        }
+        <span class="keyword">return</span> lookAhead_;
+    }
 
-    void computeLookAhead() &#123;
-        auto elapsedNs = /* 从构造到现在的纳秒数 */;
-        lookAhead_ = std::clamp(
+    <span class="function"><span class="type">void</span> <span class="title">computeLookAhead</span><span class="params">()</span> </span>{
+        <span class="keyword">auto</span> elapsedNs = <span class="comment">/* 从构造到现在的纳秒数 */</span>;
+        lookAhead_ = std::<span class="built_in">clamp</span>(
             kCoefficient * kAssumedDramLatencyNs * kMeasurementIterations / elapsedNs,
             kMinLookAhead, kMaxLookAhead);
-    &#125;
-&#125;;
+    }
+};
 </code></pre>
 <p data-original-block="velox-hash-table-0277"><strong>步长公式推导</strong>：</p>
 <pre class="detail-trace" data-original-block="velox-hash-table-0278"><code>lookAhead = kCoefficient × kAssumedDramLatencyNs × kMeasurementIterations / elapsed_ns
@@ -1232,75 +1243,75 @@ for (int32_t i = 0; i &lt; numRows; ++i) &#123;
 <p data-original-block="velox-hash-table-0286">结果始终被 clamp 在 <code>[4, 32]</code>，避免步长过小（prefetch 无效）或过大（prefetch 过于激进占用带宽）。</p>
 <h3 data-original-block="velox-hash-table-0287" id="66-技巧-5：karray-模式下的-avx2-gather">7.7 技巧 5：kArray 模式下的 AVX2 Gather</h3>
 <p data-original-block="velox-hash-table-0288"><code>arrayGroupProbe()</code> 在 AVX2 可用且行号连续时走向量化快路径：</p>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0289" data-source-kind="original-reading-fragment"><code class="language-cpp">if (process::hasAvx2() &amp;&amp; simd::isDense(rows, numProbes)) &#123;
-    constexpr int32_t kWidth = xsimd::batch&lt;int64_t&gt;::size;  // 4（AVX2）
-    for (i = start; i &lt;= end; i += kWidth) &#123;
-        // hashes[i..i+3] 中存放了 value_id（array 下标）
-        // 用 gather 一次从 table_[] 加载 4 个指针
-        auto loaded = simd::gather(
-            reinterpret_cast&lt;const int64_t*&gt;(table_),
-            reinterpret_cast&lt;const int64_t*&gt;(hashes + i));
-        loaded.store_unaligned(reinterpret_cast&lt;int64_t*&gt;(groups + i));
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0289" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="keyword">if</span> (process::<span class="built_in">hasAvx2</span>() &amp;&amp; simd::<span class="built_in">isDense</span>(rows, numProbes)) {
+    <span class="keyword">constexpr</span> <span class="type">int32_t</span> kWidth = xsimd::batch&lt;<span class="type">int64_t</span>&gt;::size;  <span class="comment">// 4（AVX2）</span>
+    <span class="keyword">for</span> (i = start; i &lt;= end; i += kWidth) {
+        <span class="comment">// hashes[i..i+3] 中存放了 value_id（array 下标）</span>
+        <span class="comment">// 用 gather 一次从 table_[] 加载 4 个指针</span>
+        <span class="keyword">auto</span> loaded = simd::<span class="built_in">gather</span>(
+            <span class="built_in">reinterpret_cast</span>&lt;<span class="type">const</span> <span class="type">int64_t</span>*&gt;(table_),
+            <span class="built_in">reinterpret_cast</span>&lt;<span class="type">const</span> <span class="type">int64_t</span>*&gt;(hashes + i));
+        loaded.<span class="built_in">store_unaligned</span>(<span class="built_in">reinterpret_cast</span>&lt;<span class="type">int64_t</span>*&gt;(groups + i));
 
-        // 检测哪些是 nullptr（miss）
-        auto misses = simd::toBitMask(loaded == allZero);
-        // ...处理 miss
-    &#125;
-&#125;
+        <span class="comment">// 检测哪些是 nullptr（miss）</span>
+        <span class="keyword">auto</span> misses = simd::<span class="built_in">toBitMask</span>(loaded == allZero);
+        <span class="comment">// ...处理 miss</span>
+    }
+}
 </code></pre>
 <p data-original-block="velox-hash-table-0290">等价于 <code>_mm256_i64gather_epi64</code>，4 个随机地址一次性发起，让 CPU 的内存子系统并发处理。</p>
 <h3 data-original-block="velox-hash-table-0291" id="67-技巧-6：listjoinresults-快路径的-simd-filter">7.8 技巧 6：listJoinResults 快路径的 SIMD Filter</h3>
 <p data-original-block="velox-hash-table-0292">当 join 无重复 key（<code>!hasDuplicates_</code>）且行大小可估算时，走 <code>listJoinResultsFastPath()</code>：</p>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0293" data-source-kind="original-reading-fragment"><code class="language-cpp">constexpr int32_t kWidth = xsimd::batch&lt;int64_t&gt;::size;
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0293" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="keyword">constexpr</span> <span class="type">int32_t</span> kWidth = xsimd::batch&lt;<span class="type">int64_t</span>&gt;::size;
 
-for (; i + kWidth &lt;= numRows &amp;&amp; numOut &lt; simdOutLimit; i += kWidth) &#123;
-    // gather：按 sourceRows[i..i+3] 的行号，从 hits[] 数组中取出命中指针
-    auto indices  = simd::loadGatherIndices&lt;int64_t, int32_t&gt;(sourceRows + i);
-    auto hitWords = simd::gather(sourceHits, indices);
+<span class="keyword">for</span> (; i + kWidth &lt;= numRows &amp;&amp; numOut &lt; simdOutLimit; i += kWidth) {
+    <span class="comment">// gather：按 sourceRows[i..i+3] 的行号，从 hits[] 数组中取出命中指针</span>
+    <span class="keyword">auto</span> indices  = simd::<span class="built_in">loadGatherIndices</span>&lt;<span class="type">int64_t</span>, <span class="type">int32_t</span>&gt;(sourceRows + i);
+    <span class="keyword">auto</span> hitWords = simd::<span class="built_in">gather</span>(sourceHits, indices);
 
-    // 检测 miss（nullptr）
-    auto misses = includeMisses ? 0 : simd::toBitMask(hitWords == 0);
+    <span class="comment">// 检测 miss（nullptr）</span>
+    <span class="keyword">auto</span> misses = includeMisses ? <span class="number">0</span> : simd::<span class="built_in">toBitMask</span>(hitWords == <span class="number">0</span>);
 
-    if (!misses) &#123;
-        // 全部命中：直接 store，无分支
-        hitWords.store_unaligned(resultHits + numOut);
-        indices.store_unaligned(resultRows + numOut);
+    <span class="keyword">if</span> (!misses) {
+        <span class="comment">// 全部命中：直接 store，无分支</span>
+        hitWords.<span class="built_in">store_unaligned</span>(resultHits + numOut);
+        indices.<span class="built_in">store_unaligned</span>(resultRows + numOut);
         numOut += kWidth;
-    &#125; else &#123;
-        // 有 miss：用 simd::filter 压缩（PSHUFB 实现）
-        auto matches = misses ^ bits::lowMask(kWidth);
-        simd::filter&lt;int64_t&gt;(hitWords, matches, ...).store_unaligned(...);
-        simd::filter&lt;int32_t&gt;(indices, matches, ...).store_unaligned(...);
+    } <span class="keyword">else</span> {
+        <span class="comment">// 有 miss：用 simd::filter 压缩（PSHUFB 实现）</span>
+        <span class="keyword">auto</span> matches = misses ^ bits::<span class="built_in">lowMask</span>(kWidth);
+        simd::<span class="built_in">filter</span>&lt;<span class="type">int64_t</span>&gt;(hitWords, matches, ...).<span class="built_in">store_unaligned</span>(...);
+        simd::<span class="built_in">filter</span>&lt;<span class="type">int32_t</span>&gt;(indices, matches, ...).<span class="built_in">store_unaligned</span>(...);
         numOut += __builtin_popcount(matches);
-    &#125;
-&#125;
+    }
+}
 </code></pre>
 <p data-corrected="2026-09-20" data-original-block="velox-hash-table-0294">simd::filter 按有效元素 mask 组织紧凑输出，其实现随元素宽度和目标架构选择 shuffle/permute 等操作。它不是所有目标上一条固定指令的别名，也不能只凭接口名推断整个循环无分支。</p>
 <h3 data-original-block="velox-hash-table-0295" id="68-技巧-7：simd-查找并行-build-的分区边界">7.9 技巧 7：SIMD 查找并行 Build 的分区边界</h3>
 <p data-corrected="2026-09-20" data-original-block="velox-hash-table-0296">findPartition 用 SIMD 成批比较边界并从比较位图找到目标分区。它使用的是向量边界扫描/选择逻辑，不能仅因要找一个区间就称作传统二分查找。</p>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0297" data-source-kind="original-reading-fragment"><code class="language-cpp">constexpr int32_t kBatch = xsimd::batch&lt;PartitionBoundIndexType&gt;::size;
-auto indexVector = xsimd::batch&lt;PartitionBoundIndexType&gt;::broadcast(index);
-for (auto i = 1; i &lt; numPartitions; i += kBatch) &#123;
-    auto bits = simd::toBitMask(
-        indexVector &lt; xsimd::batch&lt;PartitionBoundIndexType&gt;::load_unaligned(bounds + i));
-    if (bits) &#123;
-        return i + __builtin_ctz(bits) - 1;
-    &#125;
-&#125;
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0297" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="keyword">constexpr</span> <span class="type">int32_t</span> kBatch = xsimd::batch&lt;PartitionBoundIndexType&gt;::size;
+<span class="keyword">auto</span> indexVector = xsimd::batch&lt;PartitionBoundIndexType&gt;::<span class="built_in">broadcast</span>(index);
+<span class="keyword">for</span> (<span class="keyword">auto</span> i = <span class="number">1</span>; i &lt; numPartitions; i += kBatch) {
+    <span class="keyword">auto</span> bits = simd::<span class="built_in">toBitMask</span>(
+        indexVector &lt; xsimd::batch&lt;PartitionBoundIndexType&gt;::<span class="built_in">load_unaligned</span>(bounds + i));
+    <span class="keyword">if</span> (bits) {
+        <span class="keyword">return</span> i + __builtin_ctz(bits) - <span class="number">1</span>;
+    }
+}
 </code></pre>
 <p data-original-block="velox-hash-table-0298">一次比较 <code>kBatch</code>（4~8）个边界值，用 <code>ctz</code>（count trailing zeros）立即得到第一个大于 <code>index</code> 的位置。</p>
 <h3 data-original-block="velox-hash-table-0299" id="69-技巧-8：insertforgroupby-中针对-sse2-vs-非-sse2-的编译期分支">7.10 技巧 8：insertForGroupBy 中针对 SSE2 vs 非 SSE2 的编译期分支</h3>
 <p data-original-block="velox-hash-table-0300">rehash 期间 <code>insertForGroupBy()</code>（HashTable.cpp:1327）的空槽检测有一个微妙的平台差异：</p>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0301" data-source-kind="original-reading-fragment"><code class="language-cpp">MaskType free =
-    ~simd::toBitMask(
-#if XSIMD_WITH_SSE2
-        // SSE2 上 PMOVMSKB 直接提取每字节最高位（0=empty, 因为 tag=0）
-        // 无需构造 batch_bool，直接从 TagVector 提取 bitmask 更快
-        BaseHashTable::TagVector::batch_bool_type(tagsInTable)
-#else
-        // 其他架构用显式比较
-        tagsInTable != TagVector::broadcast(ProbeState::kEmptyTag)
-#endif
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0301" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp">MaskType free =
+    ~simd::<span class="built_in">toBitMask</span>(
+<span class="meta">#<span class="keyword">if</span> XSIMD_WITH_SSE2</span>
+        <span class="comment">// SSE2 上 PMOVMSKB 直接提取每字节最高位（0=empty, 因为 tag=0）</span>
+        <span class="comment">// 无需构造 batch_bool，直接从 TagVector 提取 bitmask 更快</span>
+        BaseHashTable::TagVector::<span class="built_in">batch_bool_type</span>(tagsInTable)
+<span class="meta">#<span class="keyword">else</span></span>
+        <span class="comment">// 其他架构用显式比较</span>
+        tagsInTable != TagVector::<span class="built_in">broadcast</span>(ProbeState::kEmptyTag)
+<span class="meta">#<span class="keyword">endif</span></span>
     ) &amp; ProbeState::kFullMask;
 </code></pre>
 <p data-original-block="velox-hash-table-0302">在 SSE2 上，<code>PMOVMSKB</code> 本质上是把每字节最高位提取出来：</p>
@@ -1318,29 +1329,29 @@ tag ≥ 0x80  → bit7 = 1  → 有效槽
      └── == kEmptyTag    →  free    bitmask    // 哪些 slot 是空的（可写入）
 </code></pre>
 <p data-original-block="velox-hash-table-0309"><strong><code>hits_</code>：探测/删除时使用</strong></p>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0310" data-source-kind="original-reading-fragment"><code class="language-cpp">// ProbeState::firstProbe()
-hits_ = simd::toBitMask(tagsInTable_ == wantedTags_);
-// 作用：找出 tag 匹配的 slot，候选命中集合
-// 后续：遍历 hits_，逐个加载 row 指针比较 key
-while (hits_ &gt; 0) &#123;
-    int32_t slot = bits::getAndClearLastSetBit(hits_);  // BSF 取最低 bit
-    group_ = table.row(bucketOffset_, slot);
-    // ... compareKeys(group_)
-&#125;
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0310" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="comment">// ProbeState::firstProbe()</span>
+hits_ = simd::<span class="built_in">toBitMask</span>(tagsInTable_ == wantedTags_);
+<span class="comment">// 作用：找出 tag 匹配的 slot，候选命中集合</span>
+<span class="comment">// 后续：遍历 hits_，逐个加载 row 指针比较 key</span>
+<span class="keyword">while</span> (hits_ &gt; <span class="number">0</span>) {
+    <span class="type">int32_t</span> slot = bits::<span class="built_in">getAndClearLastSetBit</span>(hits_);  <span class="comment">// BSF 取最低 bit</span>
+    group_ = table.<span class="built_in">row</span>(bucketOffset_, slot);
+    <span class="comment">// ... compareKeys(group_)</span>
+}
 </code></pre>
 <p data-original-block="velox-hash-table-0311"><strong><code>free</code>：插入时使用</strong></p>
-<pre data-original-block="velox-hash-table-0312" data-source-kind="original-reading-fragment"><code class="language-cpp">// fullProbe&lt;kInsert&gt; 中
-MaskType free = ~simd::toBitMask(tagsInTable_ != kEmpty) &amp; kFullMask;
-// 作用：找出空槽，确定可以写入的位置
-if (free) &#123;
-    int32_t slot = bits::getAndClearLastSetBit(free);  // 取第一个空槽
-    // 先处理 hits_（有无重复 key）
-    // 若无重复，写入 tag + pointer 到 slot
-    table.bucketAt(bucketOffset_)-&gt;setTag(slot, tag);
-    table.bucketAt(bucketOffset_)-&gt;setPointer(slot, newRow);
-&#125; else &#123;
-    // bucket 全满 → nextBucketOffset() 跳下一个 bucket 继续探测
-&#125;
+<pre data-original-block="velox-hash-table-0312" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="comment">// fullProbe&lt;kInsert&gt; 中</span>
+MaskType free = ~simd::<span class="built_in">toBitMask</span>(tagsInTable_ != kEmpty) &amp; kFullMask;
+<span class="comment">// 作用：找出空槽，确定可以写入的位置</span>
+<span class="keyword">if</span> (free) {
+    <span class="type">int32_t</span> slot = bits::<span class="built_in">getAndClearLastSetBit</span>(free);  <span class="comment">// 取第一个空槽</span>
+    <span class="comment">// 先处理 hits_（有无重复 key）</span>
+    <span class="comment">// 若无重复，写入 tag + pointer 到 slot</span>
+    table.<span class="built_in">bucketAt</span>(bucketOffset_)-&gt;<span class="built_in">setTag</span>(slot, tag);
+    table.<span class="built_in">bucketAt</span>(bucketOffset_)-&gt;<span class="built_in">setPointer</span>(slot, newRow);
+} <span class="keyword">else</span> {
+    <span class="comment">// bucket 全满 → nextBucketOffset() 跳下一个 bucket 继续探测</span>
+}
 </code></pre>
 <p data-original-block="velox-hash-table-0313"><strong>两者在同一次 <code>fullProbe</code> 中协同工作</strong>：</p>
 <pre class="detail-trace" data-original-block="velox-hash-table-0314"><code>对每个 bucket 循环：
@@ -1376,7 +1387,7 @@ if (free) &#123;
 </tr>
 </tbody></table></div>
 <p data-original-block="velox-hash-table-0329">两者都通过 <code>getAndClearLastSetBit()</code>（BSF）逐个取出，共享同一套 bitmask 迭代基础设施。</p>
-<hr/>
+<hr>
 <h2 data-original-block="velox-hash-table-0330" data-reading-phase="implementation" id="7-聚合场景：group-probe">8. 聚合场景：Group Probe</h2><section class="current-supplement" data-reviewed-section="aggregation"><h3 id="aggregation">8.1 当前实现补充 · 聚合：定位 group，再初始化和更新状态</h3>
 <pre class="detail-trace"><code>流程示意：GroupingSet::addInputForActiveRows
   prepareForGroupProbe
@@ -1411,95 +1422,95 @@ groupProbe(lookup, spillBit)
 对所有命中行更新 accumulator（sum/count/...）
 </code></pre>
 <h3 data-original-block="velox-hash-table-0333" id="72-prepareforgroupprobe-详解">8.3 prepareForGroupProbe 详解</h3>
-<p class="detail-code-label">当前源码摘录（1d1b76567870）：<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/HashTable.cpp#L2633">velox/exec/HashTable.cpp:2633</a>。省略外围声明；此片段未作为独立程序编译。</p><pre data-original-block="velox-hash-table-0334" data-source-kind="verified-source-excerpt"><code class="language-cpp">void HashTable&lt;ignoreNullKeys&gt;::prepareForGroupProbe(
+<p class="detail-code-label">当前源码摘录（1d1b76567870）：<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/HashTable.cpp#L2633">velox/exec/HashTable.cpp:2633</a>。省略外围声明；此片段未作为独立程序编译。</p><pre data-original-block="velox-hash-table-0334" data-source-kind="verified-source-excerpt" class="cpp-highlight"><code class="language-cpp"><span class="type">void</span> HashTable&lt;ignoreNullKeys&gt;::<span class="built_in">prepareForGroupProbe</span>(
     HashLookup&amp; lookup,
-    const RowVectorPtr&amp; input,
+    <span class="type">const</span> RowVectorPtr&amp; input,
     SelectivityVector&amp; rows,
-    int8_t spillInputStartPartitionBit) &#123;
-  checkHashBitsOverlap(spillInputStartPartitionBit);
-  auto&amp; hashers = lookup.hashers;
+    <span class="type">int8_t</span> spillInputStartPartitionBit) {
+  <span class="built_in">checkHashBitsOverlap</span>(spillInputStartPartitionBit);
+  <span class="keyword">auto</span>&amp; hashers = lookup.hashers;
 
-  for (auto&amp; hasher : hashers) &#123;
-    auto key = input-&gt;childAt(hasher-&gt;channel())-&gt;loadedVector();
-    hasher-&gt;decode(*key, rows);
-  &#125;
+  <span class="keyword">for</span> (<span class="keyword">auto</span>&amp; hasher : hashers) {
+    <span class="keyword">auto</span> key = input-&gt;<span class="built_in">childAt</span>(hasher-&gt;<span class="built_in">channel</span>())-&gt;<span class="built_in">loadedVector</span>();
+    hasher-&gt;<span class="built_in">decode</span>(*key, rows);
+  }
 
-  if constexpr (ignoreNullKeys) &#123;
-    // A null in any of the keys disables the row.
-    deselectRowsWithNulls(hashers, rows);
-  &#125;
+  <span class="function"><span class="keyword">if</span> <span class="title">constexpr</span> <span class="params">(ignoreNullKeys)</span> </span>{
+    <span class="comment">// A null in any of the keys disables the row.</span>
+    <span class="built_in">deselectRowsWithNulls</span>(hashers, rows);
+  }
 
-  lookup.reset(rows.end());
+  lookup.<span class="built_in">reset</span>(rows.<span class="built_in">end</span>());
 
-  bool rehash = false;
-  const auto mode = hashMode();
-  for (auto i = 0; i &lt; hashers.size(); ++i) &#123;
-    auto&amp; hasher = hashers[i];
-    if (mode != BaseHashTable::HashMode::kHash) &#123;
-      if (!hasher-&gt;computeValueIds(rows, lookup.hashes)) &#123;
-        rehash = true;
-      &#125;
-    &#125; else &#123;
-      hasher-&gt;hash(rows, i &gt; 0, lookup.hashes);
-    &#125;
-  &#125;
+  <span class="type">bool</span> rehash = <span class="literal">false</span>;
+  <span class="type">const</span> <span class="keyword">auto</span> mode = <span class="built_in">hashMode</span>();
+  <span class="keyword">for</span> (<span class="keyword">auto</span> i = <span class="number">0</span>; i &lt; hashers.<span class="built_in">size</span>(); ++i) {
+    <span class="keyword">auto</span>&amp; hasher = hashers[i];
+    <span class="keyword">if</span> (mode != BaseHashTable::HashMode::kHash) {
+      <span class="keyword">if</span> (!hasher-&gt;<span class="built_in">computeValueIds</span>(rows, lookup.hashes)) {
+        rehash = <span class="literal">true</span>;
+      }
+    } <span class="keyword">else</span> {
+      hasher-&gt;<span class="built_in">hash</span>(rows, i &gt; <span class="number">0</span>, lookup.hashes);
+    }
+  }
 
-  if (rehash || capacity() == 0) &#123;
-    if (mode != BaseHashTable::HashMode::kHash) &#123;
-      decideHashMode(input-&gt;size(), spillInputStartPartitionBit);
-      // Do not forward 'ignoreNullKeys' to avoid redundant evaluation of
-      // deselectRowsWithNulls.
-      prepareForGroupProbe(lookup, input, rows, spillInputStartPartitionBit);
-      return;
-    &#125;
-  &#125;
+  <span class="keyword">if</span> (rehash || <span class="built_in">capacity</span>() == <span class="number">0</span>) {
+    <span class="keyword">if</span> (mode != BaseHashTable::HashMode::kHash) {
+      <span class="built_in">decideHashMode</span>(input-&gt;<span class="built_in">size</span>(), spillInputStartPartitionBit);
+      <span class="comment">// Do not forward 'ignoreNullKeys' to avoid redundant evaluation of</span>
+      <span class="comment">// deselectRowsWithNulls.</span>
+      <span class="built_in">prepareForGroupProbe</span>(lookup, input, rows, spillInputStartPartitionBit);
+      <span class="keyword">return</span>;
+    }
+  }
 
-  populateLookupRows(rows, lookup.rows);
-&#125;
+  <span class="built_in">populateLookupRows</span>(rows, lookup.rows);
+}
 </code></pre>
 <h3 data-original-block="velox-hash-table-0335" id="73-arraygroupprobe：karray-快路径">8.4 arrayGroupProbe：kArray 快路径</h3>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0336" data-source-kind="original-reading-fragment"><code class="language-cpp">void HashTable&lt;ignoreNullKeys&gt;::arrayGroupProbe(HashLookup&amp; lookup) &#123;
-    // AVX2 快路径：行号连续 + AVX2 可用
-    if (process::hasAvx2() &amp;&amp; simd::isDense(rows, numProbes)) &#123;
-        for (i = start; i &lt;= end; i += kWidth) &#123;
-            auto loaded = simd::gather(table_, hashes + i);  // 按 value_id gather
-            loaded.store_unaligned(groups + i);
-            auto misses = simd::toBitMask(loaded == allZero);
-            if (LIKELY(!misses)) continue;
-            // 处理 miss：insertEntry() 新建行
-            for (auto miss = 0; miss &lt; kWidth; ++miss) &#123;
-                if (!groups[i + miss]) &#123;
-                    groups[i + miss] = insertEntry(lookup, hashes[i+miss], i+miss);
-                &#125;
-            &#125;
-        &#125;
-    &#125;
-    // 标量尾处理
-    for (; i &lt; numProbes; ++i) &#123;
-        uint64_t index = hashes[rows[i]];
-        char* group = table_[index];
-        if (UNLIKELY(!group)) &#123;
-            group = insertEntry(lookup, index, rows[i]);
-        &#125;
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0336" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="type">void</span> HashTable&lt;ignoreNullKeys&gt;::<span class="built_in">arrayGroupProbe</span>(HashLookup&amp; lookup) {
+    <span class="comment">// AVX2 快路径：行号连续 + AVX2 可用</span>
+    <span class="keyword">if</span> (process::<span class="built_in">hasAvx2</span>() &amp;&amp; simd::<span class="built_in">isDense</span>(rows, numProbes)) {
+        <span class="keyword">for</span> (i = start; i &lt;= end; i += kWidth) {
+            <span class="keyword">auto</span> loaded = simd::<span class="built_in">gather</span>(table_, hashes + i);  <span class="comment">// 按 value_id gather</span>
+            loaded.<span class="built_in">store_unaligned</span>(groups + i);
+            <span class="keyword">auto</span> misses = simd::<span class="built_in">toBitMask</span>(loaded == allZero);
+            <span class="keyword">if</span> (<span class="built_in">LIKELY</span>(!misses)) <span class="keyword">continue</span>;
+            <span class="comment">// 处理 miss：insertEntry() 新建行</span>
+            <span class="keyword">for</span> (<span class="keyword">auto</span> miss = <span class="number">0</span>; miss &lt; kWidth; ++miss) {
+                <span class="keyword">if</span> (!groups[i + miss]) {
+                    groups[i + miss] = <span class="built_in">insertEntry</span>(lookup, hashes[i+miss], i+miss);
+                }
+            }
+        }
+    }
+    <span class="comment">// 标量尾处理</span>
+    <span class="keyword">for</span> (; i &lt; numProbes; ++i) {
+        <span class="type">uint64_t</span> index = hashes[rows[i]];
+        <span class="type">char</span>* group = table_[index];
+        <span class="keyword">if</span> (<span class="built_in">UNLIKELY</span>(!group)) {
+            group = <span class="built_in">insertEntry</span>(lookup, index, rows[i]);
+        }
         groups[rows[i]] = group;
-    &#125;
-&#125;
+    }
+}
 </code></pre>
 <h3 data-original-block="velox-hash-table-0337" id="74-groupprobe-khash-路径">8.5 groupProbe kHash 路径</h3>
 <p data-original-block="velox-hash-table-0338">kHash 模式下，<code>fullProbe&lt;false&gt;</code> 模板参数 <code>isJoin=false</code>，insert 时调用 <code>insertEntry()</code>：</p>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0339" data-source-kind="original-reading-fragment"><code class="language-cpp">char* HashTable&lt;ignoreNullKeys&gt;::insertEntry(
-    HashLookup&amp; lookup, uint64_t index, vector_size_t row) &#123;
-    char* group = rows_-&gt;newRow();          // 从 RowContainer 分配新行
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0339" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="type">char</span>* HashTable&lt;ignoreNullKeys&gt;::<span class="built_in">insertEntry</span>(
+    HashLookup&amp; lookup, <span class="type">uint64_t</span> index, <span class="type">vector_size_t</span> row) {
+    <span class="type">char</span>* group = rows_-&gt;<span class="built_in">newRow</span>();          <span class="comment">// 从 RowContainer 分配新行</span>
     lookup.hits[row] = group;
-    storeKeys(lookup, row);                 // 把 key 列写入行
-    storeRowPointer(index, lookup.hashes[row], group);  // 写 tag + 指针到 bucket
-    if (hashMode_ == kNormalizedKey) &#123;
-        RowContainer::normalizedKey(group) = lookup.normalizedKeys[row];
-    &#125;
+    <span class="built_in">storeKeys</span>(lookup, row);                 <span class="comment">// 把 key 列写入行</span>
+    <span class="built_in">storeRowPointer</span>(index, lookup.hashes[row], group);  <span class="comment">// 写 tag + 指针到 bucket</span>
+    <span class="keyword">if</span> (hashMode_ == kNormalizedKey) {
+        RowContainer::<span class="built_in">normalizedKey</span>(group) = lookup.normalizedKeys[row];
+    }
     ++numDistinct_;
-    lookup.newGroups.push_back(row);        // 记录新行，供上层初始化 accumulator
-    return group;
-&#125;
+    lookup.newGroups.<span class="built_in">push_back</span>(row);        <span class="comment">// 记录新行，供上层初始化 accumulator</span>
+    <span class="keyword">return</span> group;
+}
 </code></pre>
 <h3 data-original-block="velox-hash-table-0340" id="75-newgroups-的语义">8.6 newGroups 的语义</h3>
 <p data-original-block="velox-hash-table-0341"><code>lookup.newGroups</code> 是 <code>groupProbe</code> 相对 <code>joinProbe</code> 独有的输出。上层（<code>GroupingSet::addInput</code>）用它区分：</p>
@@ -1507,7 +1518,7 @@ groupProbe(lookup, spillBit)
 <li data-corrected="2026-09-20" data-original-block="velox-hash-table-0342">newGroups 标出本批新建的 group 行，GroupingSet 先调用 aggregate 的初始化接口建立合法中间态，再按批次执行更新。不能将全部 aggregate 的初始化统一说成直接写入当前输入的第一个值；null、count、复杂中间态各有规则。</li>
 <li data-original-block="velox-hash-table-0343">其余命中行：在已有 accumulator 上累加</li>
 </ul>
-<hr/>
+<hr>
 <h2 data-original-block="velox-hash-table-0344" data-reading-phase="implementation" id="8-join-场景：build-与-probe">9. Join 场景：Build 与 Probe</h2><section class="current-supplement" data-reviewed-section="join"><h3 id="join">9.1 当前实现补充 · Join：保存行、建立索引、展开重复链</h3>
 <h4 id="常规建表与输入阶段去重">9.1.1 常规建表与输入阶段去重</h4>
 <p>常规 Join Build 先把各输入批次写入自己的 RowContainer，并收集 key 的 range / distinct 统计。收齐输入后，最后一个 build driver 收集其他表，执行 <code>prepareJoinTable</code>，合并必要的 VectorHasher 信息、选择模式并建立索引，最后通过 <code>HashJoinBridge::setHashTable</code> 发布。</p>
@@ -1533,11 +1544,19 @@ Bucket：保留入口，把新行插到入口之后
 <h4 id="找到入口不等于已经生成-join-结果">9.1.3 找到入口不等于已经生成 Join 结果</h4>
 <p><code>prepareForJoinProbe</code> 准备 ID/hash，<code>joinProbe</code> 给每个选中的输入行写入第一个匹配的 build 行指针。随后 <code>listJoinResults</code> 展开结果，并受输出数组容量和 <code>maxBytes</code> 控制。</p>
 <p>当前 <code>listJoinResults</code> 有三条路径：</p>
-<figure class="highlight cpp"><div class="tbl-wrap"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 源码摘录：分发条件；参数列表省略</span></span><br/><span class="line"><span class="keyword">if</span> (iter.estimatedRowSize.<span class="built_in">has_value</span>() &amp;&amp; !hasDuplicates_) {</span><br/><span class="line">  <span class="keyword">return</span> <span class="built_in">listJoinResultsFastPath</span>(...);</span><br/><span class="line">}</span><br/><span class="line"><span class="keyword">if</span> (nextOffset_ == <span class="number">0</span> || !hasDuplicates_) {</span><br/><span class="line">  <span class="keyword">return</span> <span class="built_in">listJoinResultsSingleHit</span>(...);</span><br/><span class="line">}</span><br/><span class="line"><span class="keyword">return</span> <span class="built_in">listJoinResultsInterleaved</span>(...);</span><br/></pre></td></tr></table></div></figure><p>第一条路径对命中指针进行批量 gather / filter；第二条处理每个 probe 行至多一个结果的情况；第三条才负责重复链。行大小预算依据投影的 build 列大小计算，不能直接等同于最终序列化输出的总字节数。</p>
+<figure class="highlight cpp cpp-highlight"><div class="tbl-wrap"><table><tbody><tr><td class="code"><pre><code class="language-cpp"><span class="comment">// 源码摘录：分发条件；参数列表省略</span>
+<span class="keyword">if</span> (iter.estimatedRowSize.<span class="built_in">has_value</span>() &amp;&amp; !hasDuplicates_) {
+  <span class="keyword">return</span> <span class="built_in">listJoinResultsFastPath</span>(...);
+}
+<span class="keyword">if</span> (nextOffset_ == <span class="number">0</span> || !hasDuplicates_) {
+  <span class="keyword">return</span> <span class="built_in">listJoinResultsSingleHit</span>(...);
+}
+<span class="keyword">return</span> <span class="built_in">listJoinResultsInterleaved</span>(...);
+</code></pre></td></tr></tbody></table></div></figure><p>第一条路径对命中指针进行批量 gather / filter；第二条处理每个 probe 行至多一个结果的情况；第三条才负责重复链。行大小预算依据投影的 build 列大小计算，不能直接等同于最终序列化输出的总字节数。</p>
 <h4 id="重复链的-8-路交错遍历">9.1.4 重复链的 8 路交错遍历</h4>
 <figure class="ht-figure">
 <div aria-label="图 5，可横向滚动" class="ht-diagram-scroll" role="region" tabindex="0">
-<img alt="以 3 条链示意最多 8 条链的交错访问：只有当前头 slot 直接输出，其余 slot 最多暂存 8 个结果，依次轮到它们输出。" loading="lazy" src="/images/velox-hash-table/chains.svg"/>
+<img alt="以 3 条链示意最多 8 条链的交错访问：只有当前头 slot 直接输出，其余 slot 最多暂存 8 个结果，依次轮到它们输出。" loading="lazy" src="/images/velox-hash-table/chains.svg">
 </div>
 <figcaption>图 9：以 3 条链示意最多 8 条链的交错访问：只有当前头 slot 直接输出，其余 slot 最多暂存 8 个结果，依次轮到它们输出。 <a href="/images/velox-hash-table/chains.svg">打开原图</a></figcaption>
 </figure>
@@ -1556,7 +1575,7 @@ Bucket：保留入口，把新行插到入口之后
 <p>源码：<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/HashTable.cpp#L2133">结果分发与交错遍历</a>、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/HashTable.h#L194">JoinResultIterator 状态</a>、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/HashProbe.cpp#L1404">filter 后设置 probed flag</a>、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/tests/HashTableTest.cpp#L981">交错遍历测试</a>。</p>
 </section>
 <h3 data-original-block="velox-hash-table-0345" id="81-join-build-全流程">9.2 Join Build 全流程</h3>
-<pre class="detail-trace" data-original-block="velox-hash-table-0346" data-source-kind="reviewed-pseudocode"><code class="language-cpp">// 常规 Join build 主干；去重 / counting 分支另有输入期索引处理。
+<pre class="detail-trace" data-original-block="velox-hash-table-0346" data-source-kind="reviewed-pseudocode"><code class="language-plaintext">// 常规 Join build 主干；去重 / counting 分支另有输入期索引处理。
 HashBuild::addInput -&gt; 通过 RowContainer 保存 keys 与 payload
 HashBuild::noMoreInput -&gt; peer barrier -&gt; 最后到达者 finishHashBuild
   合并 peer 的 partial table / 行状态
@@ -1566,129 +1585,129 @@ HashBuild::noMoreInput -&gt; peer barrier -&gt; 最后到达者 finishHashBuild
 </code></pre>
 <p data-corrected="2026-09-20" data-original-block="velox-hash-table-0347">常规 Join build 先保存输入行，收齐 peer 状态后统一分析编码并构造最终索引，有利于利用完整分布信息。某些去重和 counting 路径在输入阶段就建立相应状态；“必须收齐才能建立任何索引”并不是接口的普遍限制。</p>
 <h3 data-original-block="velox-hash-table-0348" id="82-insertforjoin：重复-key-的链表处理">9.3 insertForJoin：重复 key 的链表处理</h3>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0349" data-source-kind="original-reading-fragment"><code class="language-cpp">void HashTable&lt;ignoreNullKeys&gt;::insertForJoin(
-    char** groups, const uint64_t* hashes, int32_t numGroups,
-    TableInsertPartitionInfo* partitionInfo) &#123;
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0349" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="type">void</span> HashTable&lt;ignoreNullKeys&gt;::<span class="built_in">insertForJoin</span>(
+    <span class="type">char</span>** groups, <span class="type">const</span> <span class="type">uint64_t</span>* hashes, <span class="type">int32_t</span> numGroups,
+    TableInsertPartitionInfo* partitionInfo) {
 
-    if (hashMode_ == kArray) &#123;
-        for (auto i = 0; i &lt; numGroups; ++i) &#123;
-            arrayPushRow(groups[i], hashes[i]);  // 可能形成链表
-        &#125;
-        return;
-    &#125;
-    // kNormalizedKey 或 kHash：带 prefetch 的 buildFullProbe
-    if (hashMode_ == kNormalizedKey) &#123;
-        insertForJoinWithPrefetch&lt;true&gt;(groups, hashes, numGroups, partitionInfo);
-    &#125; else &#123;
-        insertForJoinWithPrefetch&lt;false&gt;(groups, hashes, numGroups, partitionInfo);
-    &#125;
-&#125;
+    <span class="keyword">if</span> (hashMode_ == kArray) {
+        <span class="keyword">for</span> (<span class="keyword">auto</span> i = <span class="number">0</span>; i &lt; numGroups; ++i) {
+            <span class="built_in">arrayPushRow</span>(groups[i], hashes[i]);  <span class="comment">// 可能形成链表</span>
+        }
+        <span class="keyword">return</span>;
+    }
+    <span class="comment">// kNormalizedKey 或 kHash：带 prefetch 的 buildFullProbe</span>
+    <span class="keyword">if</span> (hashMode_ == kNormalizedKey) {
+        <span class="built_in">insertForJoinWithPrefetch</span>&lt;<span class="literal">true</span>&gt;(groups, hashes, numGroups, partitionInfo);
+    } <span class="keyword">else</span> {
+        <span class="built_in">insertForJoinWithPrefetch</span>&lt;<span class="literal">false</span>&gt;(groups, hashes, numGroups, partitionInfo);
+    }
+}
 </code></pre>
 <p data-original-block="velox-hash-table-0350"><code>arrayPushRow()</code>（HashTable.cpp:1394）处理 kArray 模式下的重复 key：</p>
-<pre data-original-block="velox-hash-table-0351" data-source-kind="original-reading-fragment"><code class="language-cpp">bool HashTable&lt;ignoreNullKeys&gt;::arrayPushRow(char* row, int32_t index) &#123;
-    auto existing = table_[index];
-    if (nextOffset_) &#123;
-        // allowDuplicates=true：头插法建链表
-        nextRow(row) = existing;      // 新行的 next → 旧行
-        if (existing) hasDuplicates_.set();
-    &#125; else if (existing) &#123;
-        // allowDuplicates=false（left semi / anti join）：直接计数或丢弃
-        if (rows_-&gt;countOffset() &gt; 0) &#123;
-            rows_-&gt;addCount(existing, rows_-&gt;count(row));
-        &#125;
-        return false;
-    &#125;
-    table_[index] = row;  // 新行成为链表头
-    return existing == nullptr;
-&#125;
+<pre data-original-block="velox-hash-table-0351" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="type">bool</span> HashTable&lt;ignoreNullKeys&gt;::<span class="built_in">arrayPushRow</span>(<span class="type">char</span>* row, <span class="type">int32_t</span> index) {
+    <span class="keyword">auto</span> existing = table_[index];
+    <span class="keyword">if</span> (nextOffset_) {
+        <span class="comment">// allowDuplicates=true：头插法建链表</span>
+        <span class="built_in">nextRow</span>(row) = existing;      <span class="comment">// 新行的 next → 旧行</span>
+        <span class="keyword">if</span> (existing) hasDuplicates_.<span class="built_in">set</span>();
+    } <span class="keyword">else</span> <span class="keyword">if</span> (existing) {
+        <span class="comment">// allowDuplicates=false（left semi / anti join）：直接计数或丢弃</span>
+        <span class="keyword">if</span> (rows_-&gt;<span class="built_in">countOffset</span>() &gt; <span class="number">0</span>) {
+            rows_-&gt;<span class="built_in">addCount</span>(existing, rows_-&gt;<span class="built_in">count</span>(row));
+        }
+        <span class="keyword">return</span> <span class="literal">false</span>;
+    }
+    table_[index] = row;  <span class="comment">// 新行成为链表头</span>
+    <span class="keyword">return</span> existing == <span class="literal">nullptr</span>;
+}
 </code></pre>
 <p data-original-block="velox-hash-table-0352"><code>pushNext()</code>（kHash/kNormalizedKey 的重复处理）：</p>
-<pre data-original-block="velox-hash-table-0353" data-source-kind="original-reading-fragment"><code class="language-cpp">void HashTable&lt;ignoreNullKeys&gt;::pushNext(char* row, char* next) &#123;
-    hasDuplicates_.set();
-    auto previousNext = nextRow(row);  // row 原来的 next
-    nextRow(row) = next;               // row → next（头插到 row 之后）
-    nextRow(next) = previousNext;      // next → 原来的 next
-&#125;
+<pre data-original-block="velox-hash-table-0353" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="type">void</span> HashTable&lt;ignoreNullKeys&gt;::<span class="built_in">pushNext</span>(<span class="type">char</span>* row, <span class="type">char</span>* next) {
+    hasDuplicates_.<span class="built_in">set</span>();
+    <span class="keyword">auto</span> previousNext = <span class="built_in">nextRow</span>(row);  <span class="comment">// row 原来的 next</span>
+    <span class="built_in">nextRow</span>(row) = next;               <span class="comment">// row → next（头插到 row 之后）</span>
+    <span class="built_in">nextRow</span>(next) = previousNext;      <span class="comment">// next → 原来的 next</span>
+}
 </code></pre>
 <p data-original-block="velox-hash-table-0354">重复 key 形成单链表，链表头存储在 hash 槽中：</p>
 <pre class="detail-trace" data-original-block="velox-hash-table-0355"><code>hash slot → row_A ─next→ row_B ─next→ row_C ─next→ nullptr
 </code></pre>
 <h3 data-original-block="velox-hash-table-0356" id="83-prepareforjoinprobe：probe-侧的快速剪枝">9.4 prepareForJoinProbe：probe 侧的快速剪枝</h3>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0357" data-source-kind="original-reading-fragment"><code class="language-cpp">void HashTable&lt;ignoreNullKeys&gt;::prepareForJoinProbe(...) &#123;
-    // Step 1: 解码 + 去 null（可选，首次调用时做）
-    if (decodeAndRemoveNulls) &#123;
-        for (auto&amp; hasher : hashers) hasher-&gt;decode(*key, rows);
-        deselectRowsWithNulls(hashers, rows);
-    &#125;
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0357" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="type">void</span> HashTable&lt;ignoreNullKeys&gt;::<span class="built_in">prepareForJoinProbe</span>(...) {
+    <span class="comment">// Step 1: 解码 + 去 null（可选，首次调用时做）</span>
+    <span class="keyword">if</span> (decodeAndRemoveNulls) {
+        <span class="keyword">for</span> (<span class="keyword">auto</span>&amp; hasher : hashers) hasher-&gt;<span class="built_in">decode</span>(*key, rows);
+        <span class="built_in">deselectRowsWithNulls</span>(hashers, rows);
+    }
 
-    // Step 2: 计算 hash 或 value_id
-    for (auto i = 0; i &lt; hashers.size(); ++i) &#123;
-        if (mode != kHash) &#123;
-            // lookupValueIds：如果 probe 值不在 build 侧 value_id 集合中
-            // 则直接将该行从 rows 移除（剪枝）
-            hashers_[i]-&gt;lookupValueIds(*key, rows, scratchMemory, lookup.hashes);
-        &#125; else &#123;
-            hasher-&gt;hash(rows, i &gt; 0, lookup.hashes);
-        &#125;
-    &#125;
-    populateLookupRows(rows, lookup.rows);
-&#125;
+    <span class="comment">// Step 2: 计算 hash 或 value_id</span>
+    <span class="keyword">for</span> (<span class="keyword">auto</span> i = <span class="number">0</span>; i &lt; hashers.<span class="built_in">size</span>(); ++i) {
+        <span class="keyword">if</span> (mode != kHash) {
+            <span class="comment">// lookupValueIds：如果 probe 值不在 build 侧 value_id 集合中</span>
+            <span class="comment">// 则直接将该行从 rows 移除（剪枝）</span>
+            hashers_[i]-&gt;<span class="built_in">lookupValueIds</span>(*key, rows, scratchMemory, lookup.hashes);
+        } <span class="keyword">else</span> {
+            hasher-&gt;<span class="built_in">hash</span>(rows, i &gt; <span class="number">0</span>, lookup.hashes);
+        }
+    }
+    <span class="built_in">populateLookupRows</span>(rows, lookup.rows);
+}
 </code></pre>
 <p data-original-block="velox-hash-table-0358"><code>lookupValueIds</code> 的剪枝效果在 TPCH Q3/Q5 等 selective join 场景非常显著——build 侧只有特定日期范围的订单，probe 侧日期范围不在其中的行可以立即跳过。</p>
 <h3 data-original-block="velox-hash-table-0359" id="84-joinprobe-与-listjoinresults">9.5 joinProbe 与 listJoinResults</h3>
 <p data-original-block="velox-hash-table-0360"><code>joinProbe()</code> 只填 <code>hits[]</code>，不处理链表（一个 probe key 可能匹配多行）：</p>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0361" data-source-kind="original-reading-fragment"><code class="language-cpp">void HashTable&lt;ignoreNullKeys&gt;::joinProbe(HashLookup&amp; lookup) &#123;
-    // 每种模式找第一个命中行，存入 hits[row]
-    // 链表的后续节点由 listJoinResults 负责遍历
-&#125;
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0361" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="type">void</span> HashTable&lt;ignoreNullKeys&gt;::<span class="built_in">joinProbe</span>(HashLookup&amp; lookup) {
+    <span class="comment">// 每种模式找第一个命中行，存入 hits[row]</span>
+    <span class="comment">// 链表的后续节点由 listJoinResults 负责遍历</span>
+}
 </code></pre>
 <p data-original-block="velox-hash-table-0362"><code>listJoinResults()</code>（HashTable.cpp:2085）分批生成输出，支持流量控制（<code>maxBytes</code>）：</p>
-<pre data-original-block="velox-hash-table-0363" data-source-kind="original-reading-fragment"><code class="language-cpp">int32_t HashTable&lt;ignoreNullKeys&gt;::listJoinResults(
-    JoinResultIterator&amp; iter, bool includeMisses,
-    folly::Range&lt;vector_size_t*&gt; inputRows,
-    folly::Range&lt;char**&gt; hits, uint64_t maxBytes) &#123;
+<pre data-original-block="velox-hash-table-0363" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="type">int32_t</span> HashTable&lt;ignoreNullKeys&gt;::<span class="built_in">listJoinResults</span>(
+    JoinResultIterator&amp; iter, <span class="type">bool</span> includeMisses,
+    folly::Range&lt;<span class="type">vector_size_t</span>*&gt; inputRows,
+    folly::Range&lt;<span class="type">char</span>**&gt; hits, <span class="type">uint64_t</span> maxBytes) {
 
-    // 无重复 key + 行大小可估算 → 走 SIMD 快路径
-    if (iter.estimatedRowSize.has_value() &amp;&amp; !hasDuplicates_) &#123;
-        return listJoinResultsFastPath(...);
-    &#125;
+    <span class="comment">// 无重复 key + 行大小可估算 → 走 SIMD 快路径</span>
+    <span class="keyword">if</span> (iter.estimatedRowSize.<span class="built_in">has_value</span>() &amp;&amp; !hasDuplicates_) {
+        <span class="keyword">return</span> <span class="built_in">listJoinResultsFastPath</span>(...);
+    }
 
-    while (iter.lastRowIndex &lt; iter.rows-&gt;size()) &#123;
-        if (!iter.nextHit) &#123;
-            iter.nextHit = (*iter.hits)[row];  // 从 hits[] 取链表头
-            if (!iter.nextHit) &#123;
-                if (includeMisses) &#123; /* LEFT JOIN: 输出 null */ &#125;
-                continue;
-            &#125;
-        &#125;
-        while (iter.nextHit) &#123;
-            // prefetch 下一个链表节点
-            if (nextOffset_) &#123;
-                auto next = nextRow(iter.nextHit);
-                if (next) __builtin_prefetch(next + nextOffset_);
-            &#125;
-            // 输出当前命中
+    <span class="keyword">while</span> (iter.lastRowIndex &lt; iter.rows-&gt;<span class="built_in">size</span>()) {
+        <span class="keyword">if</span> (!iter.nextHit) {
+            iter.nextHit = (*iter.hits)[row];  <span class="comment">// 从 hits[] 取链表头</span>
+            <span class="keyword">if</span> (!iter.nextHit) {
+                <span class="keyword">if</span> (includeMisses) { <span class="comment">/* LEFT JOIN: 输出 null */</span> }
+                <span class="keyword">continue</span>;
+            }
+        }
+        <span class="keyword">while</span> (iter.nextHit) {
+            <span class="comment">// prefetch 下一个链表节点</span>
+            <span class="keyword">if</span> (nextOffset_) {
+                <span class="keyword">auto</span> next = <span class="built_in">nextRow</span>(iter.nextHit);
+                <span class="keyword">if</span> (next) __builtin_prefetch(next + nextOffset_);
+            }
+            <span class="comment">// 输出当前命中</span>
             inputRows[numOut] = row;
             hits[numOut]      = iter.nextHit;
-            iter.nextHit      = nextRow(iter.nextHit);  // 跟链表前进
+            iter.nextHit      = <span class="built_in">nextRow</span>(iter.nextHit);  <span class="comment">// 跟链表前进</span>
             ++numOut;
-            if (numOut &gt;= maxOut || totalBytes &gt;= maxBytes) return numOut;
-        &#125;
-    &#125;
-&#125;
+            <span class="keyword">if</span> (numOut &gt;= maxOut || totalBytes &gt;= maxBytes) <span class="keyword">return</span> numOut;
+        }
+    }
+}
 </code></pre>
 <p data-corrected="2026-09-20" data-original-block="velox-hash-table-0364">includeMisses 控制结果枚举是否保留未命中的 probe 行；它支持 left/full 等需要 probe 补行的上层逻辑。Right join 的未匹配 build 行通过另外的 build 侧扫描产生，不能把 includeMisses 直接等同于 LEFT/RIGHT OUTER 的统一开关。</p>
 <h3 data-original-block="velox-hash-table-0365" id="85-rightfull-outer-join：listnotprobedrows">9.6 Right/Full Outer Join：listNotProbedRows</h3>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0366" data-source-kind="original-reading-fragment"><code class="language-cpp">// 遍历 RowContainer，返回没有被 probe 过的行（build 侧无匹配行）
-int32_t listNotProbedRows(RowsIterator* iter, int32_t maxRows, ...);
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0366" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="comment">// 遍历 RowContainer，返回没有被 probe 过的行（build 侧无匹配行）</span>
+<span class="function"><span class="type">int32_t</span> <span class="title">listNotProbedRows</span><span class="params">(RowsIterator* iter, <span class="type">int32_t</span> maxRows, ...)</span></span>;
 </code></pre>
 <p data-corrected="2026-09-20" data-original-block="velox-hash-table-0367">probed 标志需要在 key 候选通过额外 join filter、满足相应 join 匹配条件后设置。仅有哈希/键查找命中不等于最终匹配；过早标记会让 right/full 的未匹配 build 行漏输出。</p>
-<hr/>
+<hr>
 <h2 data-original-block="velox-hash-table-0368" data-reading-phase="implementation" id="9-并行-join-build">10. 并行 Join Build</h2><section class="current-supplement" data-reviewed-section="parallel"><h3 id="parallel">10.1 当前实现补充 · 并行 Join Build：分区写同一张索引</h3>
 <p>有 executor、多个输入行容器、处于非 Array 模式，且每个分区的容量估计足够大时，<code>rehash</code> 可进入 <code>parallelJoinBuild</code>。判断使用 <code>capacity_ / (1 + otherTables_.size())</code> 与配置阈值比较，不是直接统计每个分区实际行数。Array 在当前实现中不走这条路径；这并不等于 O(1) 寻址的数据结构没有并行化空间。</p>
 <figure class="ht-figure">
 <div aria-label="图 6，可横向滚动" class="ht-diagram-scroll" role="region" tabindex="0">
-<img alt="不同任务写入同一索引的不相交 bucket 区间，越界探测的行暂存为 overflow，等待所有分区完成后串行补入。" loading="lazy" src="/images/velox-hash-table/parallel.svg"/>
+<img alt="不同任务写入同一索引的不相交 bucket 区间，越界探测的行暂存为 overflow，等待所有分区完成后串行补入。" loading="lazy" src="/images/velox-hash-table/parallel.svg">
 </div>
 <figcaption>图 10：不同任务写入同一索引的不相交 bucket 区间，越界探测的行暂存为 overflow，等待所有分区完成后串行补入。 <a href="/images/velox-hash-table/parallel.svg">打开原图</a></figcaption>
 </figure>
@@ -1705,14 +1724,14 @@ int32_t listNotProbedRows(RowsIterator* iter, int32_t maxRows, ...);
 <p>源码：<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/HashTable.cpp#L1003">并行入口与同步</a>、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/HashTable.cpp#L1208">findPartition / partitionRows</a>、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/HashTable.cpp#L1255">分区插入</a>、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/HashTable.cpp#L966">Bloom filter 条件</a>。</p>
 </section>
 <h3 data-original-block="velox-hash-table-0369" id="91-触发条件">10.2 触发条件</h3>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0370" data-source-kind="original-reading-fragment"><code class="language-cpp">bool HashTable&lt;ignoreNullKeys&gt;::canApplyParallelJoinBuild() const &#123;
-    return isJoinBuild_                          // 必须是 join build
-        &amp;&amp; buildExecutor_ != nullptr            // 有可用的线程池
-        &amp;&amp; hashMode_ != kArray                  // array 模式无需并行（本身就是 O(1)）
-        &amp;&amp; !otherTables_.empty()               // 有多个子表（多线程 build 时）
-        &amp;&amp; (capacity_ / (1 + otherTables_.size())) &gt; minTableSizeForParallelJoinBuild_;
-        // 每个分区足够大才值得并行（默认 1000 行）
-&#125;
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0370" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="type">bool</span> HashTable&lt;ignoreNullKeys&gt;::<span class="built_in">canApplyParallelJoinBuild</span>() <span class="type">const</span> {
+    <span class="keyword">return</span> isJoinBuild_                          <span class="comment">// 必须是 join build</span>
+        &amp;&amp; buildExecutor_ != <span class="literal">nullptr</span>            <span class="comment">// 有可用的线程池</span>
+        &amp;&amp; hashMode_ != kArray                  <span class="comment">// array 模式无需并行（本身就是 O(1)）</span>
+        &amp;&amp; !otherTables_.<span class="built_in">empty</span>()               <span class="comment">// 有多个子表（多线程 build 时）</span>
+        &amp;&amp; (capacity_ / (<span class="number">1</span> + otherTables_.<span class="built_in">size</span>())) &gt; minTableSizeForParallelJoinBuild_;
+        <span class="comment">// 每个分区足够大才值得并行（默认 1000 行）</span>
+}
 </code></pre>
 <h3 data-original-block="velox-hash-table-0371" id="92-三阶段并行协议">10.3 三阶段并行协议</h3>
 <p data-original-block="velox-hash-table-0372"><strong>阶段一：行分区（并行）</strong></p>
@@ -1723,10 +1742,10 @@ int32_t listNotProbedRows(RowsIterator* iter, int32_t maxRows, ...);
 结果：rowPartitions[i][j] = row j 属于第几号分区
 </code></pre>
 <p data-original-block="velox-hash-table-0374"><strong>分区划分原则</strong>：</p>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0375" data-source-kind="original-reading-fragment"><code class="language-cpp">for (auto i = 0; i &lt; numPartitions; ++i) &#123;
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0375" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="keyword">for</span> (<span class="keyword">auto</span> i = <span class="number">0</span>; i &lt; numPartitions; ++i) {
     buildPartitionBounds_[i] =
-        bits::roundUp(((sizeMask_ + 1) / numPartitions) * i, kBucketSize);
-&#125;
+        bits::<span class="built_in">roundUp</span>(((sizeMask_ + <span class="number">1</span>) / numPartitions) * i, kBucketSize);
+}
 </code></pre>
 <p data-original-block="velox-hash-table-0376">分区边界以总 bucket 空间为基础计算，再按 <code>kBucketSize</code>（128 字节）向上对齐；最后一个边界是整个表的末尾。对齐舍入后各分区不必严格等大。正确性的关键是不重叠且以 bucket 为单位划分，让此阶段的线程只修改自己拥有的 bucket。</p>
 <p data-original-block="velox-hash-table-0377"><strong>阶段二：分区内 build（并行）</strong></p>
@@ -1740,12 +1759,12 @@ int32_t listNotProbedRows(RowsIterator* iter, int32_t maxRows, ...);
 </code></pre>
 <p data-original-block="velox-hash-table-0379"><strong>线程安全保证</strong>：同一时刻，对 hash 槽的写操作严格在各自的 bucket 范围内，天然无竞争。</p>
 <p data-original-block="velox-hash-table-0380"><strong>阶段三：overflow 串行回填</strong></p>
-<pre data-original-block="velox-hash-table-0381" data-source-kind="original-reading-fragment"><code class="language-cpp">for (auto i = 0; i &lt; numPartitions; ++i) &#123;
-    auto&amp; overflows = overflowPerPartition[i];
-    auto&amp; overflowHashes = overflowHashesPerPartition[i];
-    // 复用阶段二保存的 hash，不重新计算
-    insertForJoin(overflows.data(), overflowHashes.data(), overflows.size(), nullptr);
-&#125;
+<pre data-original-block="velox-hash-table-0381" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="keyword">for</span> (<span class="keyword">auto</span> i = <span class="number">0</span>; i &lt; numPartitions; ++i) {
+    <span class="keyword">auto</span>&amp; overflows = overflowPerPartition[i];
+    <span class="keyword">auto</span>&amp; overflowHashes = overflowHashesPerPartition[i];
+    <span class="comment">// 复用阶段二保存的 hash，不重新计算</span>
+    <span class="built_in">insertForJoin</span>(overflows.<span class="built_in">data</span>(), overflowHashes.<span class="built_in">data</span>(), overflows.<span class="built_in">size</span>(), <span class="literal">nullptr</span>);
+}
 </code></pre>
 <p data-original-block="velox-hash-table-0382">overflow 的产生原因：线性探测时，某个 key 的冲突链延伸超过了本分区的 bucket 范围边界。这些行必须等所有分区都完成后才能串行插入，以避免跨分区写冲突。</p>
 <h3 data-original-block="velox-hash-table-0383" id="93-bloom-filter-并行构建（可选）">10.4 Bloom Filter 并行构建（可选）</h3>
@@ -1765,7 +1784,7 @@ int32_t listNotProbedRows(RowsIterator* iter, int32_t maxRows, ...);
 同步：folly::makeGuard + syncWorkItems() 等待所有 AsyncSource 完成
 </code></pre>
 <p data-original-block="velox-hash-table-0389">每个异步任务包装为 <code>AsyncSource&lt;bool&gt;</code>，主线程在 <code>sync</code> guard 析构时统一等待，并收集 <code>CpuWallTiming</code>。</p>
-<hr/>
+<hr>
 <h2 data-original-block="velox-hash-table-0390" data-reading-phase="implementation" id="10-rehash-机制">11. Rehash 机制</h2><section class="current-supplement" data-reviewed-section="rebuild"><h3 id="rebuild">11.1 当前实现补充 · 扩容、重新编码与删除是三件不同的事</h3>
 <h4 id="rehash-重建索引，不搬动-payload">11.1.1 Rehash 重建索引，不搬动 payload</h4>
 <p><code>allocateTables</code> 从 MemoryPool 分配连续的索引内存并清零，按容量计算 mask 和 bucket 数。<code>rehash</code> 遍历当前表及其他行容器，重新把行指针放入索引；已有 payload 行不因索引扩容而迁移。</p>
@@ -1773,7 +1792,15 @@ int32_t listNotProbedRows(RowsIterator* iter, int32_t maxRows, ...);
 <p>如果启用了 spill，bucket index 使用的位还要与 spill partition 位域分开。源码的 <code>checkHashBitsOverlap</code> 检查这件事，避免同一 spill 分区只覆盖索引中的一小段位置。</p>
 <h4 id="扩容阈值要把括号写对">11.1.2 扩容阈值要把括号写对</h4>
 <p>源码是：</p>
-<figure class="highlight cpp"><div class="tbl-wrap"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 源码摘录，两个重载组合起来使用</span></span><br/><span class="line"><span class="function"><span class="type">static</span> <span class="type">uint64_t</span> <span class="title">rehashSize</span><span class="params">(<span class="type">int64_t</span> size)</span> </span>{</span><br/><span class="line">  <span class="keyword">return</span> size * kHashTableLoadFactor;</span><br/><span class="line">}</span><br/><span class="line"></span><br/><span class="line"><span class="function"><span class="type">uint64_t</span> <span class="title">rehashSize</span><span class="params">()</span> <span class="type">const</span> </span>{</span><br/><span class="line">  <span class="keyword">return</span> <span class="built_in">rehashSize</span>(capacity_ - numTombstones_);</span><br/><span class="line">}</span><br/></pre></td></tr></table></div></figure><p>即约为 **<code>0.7 × (capacity - tombstones)</code>**，返回整数时发生转换；不是 <code>0.7 × capacity - tombstones</code>。<code>checkSize</code> 比较新 distinct 估计与该阈值，再分配新索引并重建。初始索引至少 2048 槽，结合已有规模和新批次做预估。</p>
+<figure class="highlight cpp cpp-highlight"><div class="tbl-wrap"><table><tbody><tr><td class="code"><pre><code class="language-cpp"><span class="comment">// 源码摘录，两个重载组合起来使用</span>
+<span class="function"><span class="type">static</span> <span class="type">uint64_t</span> <span class="title">rehashSize</span><span class="params">(<span class="type">int64_t</span> size)</span> </span>{
+  <span class="keyword">return</span> size * kHashTableLoadFactor;
+}
+
+<span class="function"><span class="type">uint64_t</span> <span class="title">rehashSize</span><span class="params">()</span> <span class="type">const</span> </span>{
+  <span class="keyword">return</span> <span class="built_in">rehashSize</span>(capacity_ - numTombstones_);
+}
+</code></pre></td></tr></tbody></table></div></figure><p>即约为 **<code>0.7 × (capacity - tombstones)</code>**，返回整数时发生转换；不是 <code>0.7 × capacity - tombstones</code>。<code>checkSize</code> 比较新 distinct 估计与该阈值，再分配新索引并重建。初始索引至少 2048 槽，结合已有规模和新批次做预估。</p>
 <h4 id="tombstone-保护跨-bucket-的探测链">11.1.3 Tombstone 保护跨 bucket 的探测链</h4>
 <p>删除时先通过 hash 定位到目标行指针。若所在 bucket 已经有 empty，<code>eraseHit</code> 可把该槽设为 empty；否则设成 <code>0x7f</code>，让可能越过该 bucket 的查找继续前进。判断单位是整个 tag group，不是只看被删除槽的相邻一个位置。</p>
 <p>插入遇到 tombstone 后要先记住它，继续查找同 key；直到能确认没有匹配时才复用它。这避免把一个原本已有的 key 插成两个索引项。</p>
@@ -1792,102 +1819,102 @@ int32_t listNotProbedRows(RowsIterator* iter, int32_t maxRows, ...);
 </div>
 </section>
 <h3 data-original-block="velox-hash-table-0391" id="101-触发时机">11.2 触发时机</h3>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0392" data-source-kind="original-reading-fragment"><code class="language-cpp">void HashTable&lt;ignoreNullKeys&gt;::checkSize(
-    int32_t numNew, bool initNormalizedKeys, int8_t spillBit) &#123;
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0392" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="type">void</span> HashTable&lt;ignoreNullKeys&gt;::<span class="built_in">checkSize</span>(
+    <span class="type">int32_t</span> numNew, <span class="type">bool</span> initNormalizedKeys, <span class="type">int8_t</span> spillBit) {
 
-    const int64_t newNumDistincts = numNew + numDistinct_;
+    <span class="type">const</span> <span class="type">int64_t</span> newNumDistincts = numNew + numDistinct_;
 
-    if (table_ == nullptr || capacity_ == 0) &#123;
-        // 首次分配：预估初始大小
-        const auto newSize = newHashTableEntries(numDistinct_, numNew);
-        allocateTables(newSize, spillBit);
-        if (numDistinct_ &gt; 0) rehash(initNormalizedKeys, spillBit);
+    <span class="keyword">if</span> (table_ == <span class="literal">nullptr</span> || capacity_ == <span class="number">0</span>) {
+        <span class="comment">// 首次分配：预估初始大小</span>
+        <span class="type">const</span> <span class="keyword">auto</span> newSize = <span class="built_in">newHashTableEntries</span>(numDistinct_, numNew);
+        <span class="built_in">allocateTables</span>(newSize, spillBit);
+        <span class="keyword">if</span> (numDistinct_ &gt; <span class="number">0</span>) <span class="built_in">rehash</span>(initNormalizedKeys, spillBit);
 
-    &#125; else if (newNumDistincts &gt; rehashSize()) &#123;
-        // 超过负载因子：扩容
-        const auto newCapacity = bits::nextPowerOfTwo(
-            std::max(newNumDistincts, capacity_ - numTombstones_) + 1);
-        allocateTables(newCapacity, spillBit);
-        rehash(initNormalizedKeys, spillBit);
-    &#125;
-&#125;
+    } <span class="keyword">else</span> <span class="keyword">if</span> (newNumDistincts &gt; <span class="built_in">rehashSize</span>()) {
+        <span class="comment">// 超过负载因子：扩容</span>
+        <span class="type">const</span> <span class="keyword">auto</span> newCapacity = bits::<span class="built_in">nextPowerOfTwo</span>(
+            std::<span class="built_in">max</span>(newNumDistincts, capacity_ - numTombstones_) + <span class="number">1</span>);
+        <span class="built_in">allocateTables</span>(newCapacity, spillBit);
+        <span class="built_in">rehash</span>(initNormalizedKeys, spillBit);
+    }
+}
 </code></pre>
 <p data-corrected="2026-09-20" data-original-block="velox-hash-table-0393">当前阈值约为 0.7 × (capacity − numTombstones)，注意 tombstone 在括号内。Tombstone 占据探测路径且影响有效槽空间，重建会清理它；数值比较应按源码的整数计算和边界处理读取。</p>
 <p data-original-block="velox-hash-table-0394">tombstone 槽计入负载是因为它们会减慢 probe（必须跳过），累积过多时应触发 rehash 清除。</p>
 <p data-original-block="velox-hash-table-0395"><strong>初始大小估算</strong>：</p>
-<pre data-original-block="velox-hash-table-0396" data-source-kind="original-reading-fragment"><code class="language-cpp">static uint64_t newHashTableEntries(uint64_t numDistincts, uint64_t numNew) &#123;
-    auto numNewEntries = std::max(
-        (uint64_t)2048,
-        bits::nextPowerOfTwo(numNew * 2 + numDistincts));  // 初始预估 2×
-    if (numDistincts + numNew &gt; rehashSize(numNewEntries)) &#123;
-        numNewEntries *= 2;
-    &#125;
-    return numNewEntries;
-&#125;
+<pre data-original-block="velox-hash-table-0396" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="function"><span class="type">static</span> <span class="type">uint64_t</span> <span class="title">newHashTableEntries</span><span class="params">(<span class="type">uint64_t</span> numDistincts, <span class="type">uint64_t</span> numNew)</span> </span>{
+    <span class="keyword">auto</span> numNewEntries = std::<span class="built_in">max</span>(
+        (<span class="type">uint64_t</span>)<span class="number">2048</span>,
+        bits::<span class="built_in">nextPowerOfTwo</span>(numNew * <span class="number">2</span> + numDistincts));  <span class="comment">// 初始预估 2×</span>
+    <span class="keyword">if</span> (numDistincts + numNew &gt; <span class="built_in">rehashSize</span>(numNewEntries)) {
+        numNewEntries *= <span class="number">2</span>;
+    }
+    <span class="keyword">return</span> numNewEntries;
+}
 </code></pre>
 <p data-original-block="velox-hash-table-0397">最小 2048 槽（避免频繁 rehash），新批次数据量的 2 倍作为初始预估（假设下一批次数据量相当）。</p>
 <h3 data-original-block="velox-hash-table-0398" id="102-allocatetables：表内存管理">11.3 allocateTables：表内存管理</h3>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0399" data-source-kind="original-reading-fragment"><code class="language-cpp">void HashTable&lt;ignoreNullKeys&gt;::allocateTables(uint64_t size, int8_t spillBit) &#123;
-    VELOX_CHECK(bits::isPowerOfTwo(size));  // 必须是 2 的幂
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0399" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="type">void</span> HashTable&lt;ignoreNullKeys&gt;::<span class="built_in">allocateTables</span>(<span class="type">uint64_t</span> size, <span class="type">int8_t</span> spillBit) {
+    <span class="built_in">VELOX_CHECK</span>(bits::<span class="built_in">isPowerOfTwo</span>(size));  <span class="comment">// 必须是 2 的幂</span>
     capacity_ = size;
-    const uint64_t byteSize = capacity_ * tableSlotSize();  // capacity_ * 8
-    VELOX_CHECK_EQ(byteSize % kBucketSize, 0);  // 必须是 bucket 大小的整数倍
+    <span class="type">const</span> <span class="type">uint64_t</span> byteSize = capacity_ * <span class="built_in">tableSlotSize</span>();  <span class="comment">// capacity_ * 8</span>
+    <span class="built_in">VELOX_CHECK_EQ</span>(byteSize % kBucketSize, <span class="number">0</span>);  <span class="comment">// 必须是 bucket 大小的整数倍</span>
 
-    numTombstones_ = 0;          // 新表无 tombstone
-    sizeMask_ = byteSize - 1;
+    numTombstones_ = <span class="number">0</span>;          <span class="comment">// 新表无 tombstone</span>
+    sizeMask_ = byteSize - <span class="number">1</span>;
     numBuckets_ = byteSize / kBucketSize;
-    sizeBits_ = __builtin_popcountll(sizeMask_);  // 有效 bit 数（用于 mix）
-    checkHashBitsOverlap(spillBit);   // 检查 bucket index 位域不与 spill 位域重叠
+    sizeBits_ = __builtin_popcountll(sizeMask_);  <span class="comment">// 有效 bit 数（用于 mix）</span>
+    <span class="built_in">checkHashBitsOverlap</span>(spillBit);   <span class="comment">// 检查 bucket index 位域不与 spill 位域重叠</span>
 
-    bucketOffsetMask_ = sizeMask_ &amp; ~(kBucketSize - 1);
+    bucketOffsetMask_ = sizeMask_ &amp; ~(kBucketSize - <span class="number">1</span>);
 
-    // 从 MemoryPool 分配 contiguous 内存（整页对齐）
-    const auto numPages = memory::AllocationTraits::numPages(size * tableSlotSize());
-    rows_-&gt;pool()-&gt;allocateContiguous(numPages, tableAllocation_);
-    table_ = tableAllocation_.data&lt;char*&gt;();
-    ::memset(table_, 0, capacity_ * sizeof(char*));  // 清零（全部空槽）
-&#125;
+    <span class="comment">// 从 MemoryPool 分配 contiguous 内存（整页对齐）</span>
+    <span class="type">const</span> <span class="keyword">auto</span> numPages = memory::AllocationTraits::<span class="built_in">numPages</span>(size * <span class="built_in">tableSlotSize</span>());
+    rows_-&gt;<span class="built_in">pool</span>()-&gt;<span class="built_in">allocateContiguous</span>(numPages, tableAllocation_);
+    table_ = tableAllocation_.<span class="built_in">data</span>&lt;<span class="type">char</span>*&gt;();
+    ::<span class="built_in">memset</span>(table_, <span class="number">0</span>, capacity_ * <span class="built_in">sizeof</span>(<span class="type">char</span>*));  <span class="comment">// 清零（全部空槽）</span>
+}
 </code></pre>
 <p data-original-block="velox-hash-table-0400"><strong>Spill 位域不重叠检查</strong>：</p>
 <p data-original-block="velox-hash-table-0401">当 spill 启用时，hash 值的高位用于分区（<code>spillInputStartPartitionBit</code> 指定起始 bit），bucket 索引用低位。两者重叠会导致同一 spill 分区的数据只落入少数 bucket，造成严重不均匀：</p>
-<pre data-original-block="velox-hash-table-0402" data-source-kind="original-reading-fragment"><code class="language-cpp">void HashTable&lt;ignoreNullKeys&gt;::checkHashBitsOverlap(int8_t spillBit) &#123;
-    if (spillBit != kNoSpillInputStartPartitionBit &amp;&amp; hashMode() != kArray) &#123;
-        VELOX_CHECK_LT(sizeBits_ - 1, spillBit,
-            "size bits must be lower than spill partition bits");
-    &#125;
-&#125;
+<pre data-original-block="velox-hash-table-0402" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="type">void</span> HashTable&lt;ignoreNullKeys&gt;::<span class="built_in">checkHashBitsOverlap</span>(<span class="type">int8_t</span> spillBit) {
+    <span class="keyword">if</span> (spillBit != kNoSpillInputStartPartitionBit &amp;&amp; <span class="built_in">hashMode</span>() != kArray) {
+        <span class="built_in">VELOX_CHECK_LT</span>(sizeBits_ - <span class="number">1</span>, spillBit,
+            <span class="string">"size bits must be lower than spill partition bits"</span>);
+    }
+}
 </code></pre>
 <h3 data-original-block="velox-hash-table-0403" id="103-rehash-过程">11.4 rehash 过程</h3>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0404" data-source-kind="original-reading-fragment"><code class="language-cpp">void HashTable&lt;ignoreNullKeys&gt;::rehash(bool initNormalizedKeys, int8_t spillBit) &#123;
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0404" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="type">void</span> HashTable&lt;ignoreNullKeys&gt;::<span class="built_in">rehash</span>(<span class="type">bool</span> initNormalizedKeys, <span class="type">int8_t</span> spillBit) {
     ++numRehashes_;
 
-    // 优先走并行 build
-    if (canApplyParallelJoinBuild()) &#123;
-        parallelJoinBuild();
-        return;
-    &#125;
+    <span class="comment">// 优先走并行 build</span>
+    <span class="keyword">if</span> (<span class="built_in">canApplyParallelJoinBuild</span>()) {
+        <span class="built_in">parallelJoinBuild</span>();
+        <span class="keyword">return</span>;
+    }
 
-    raw_vector&lt;uint64_t&gt; hashes(pool_);
-    hashes.resize(kHashBatchSize);
-    char* groups[kHashBatchSize];
+    <span class="function">raw_vector&lt;<span class="type">uint64_t</span>&gt; <span class="title">hashes</span><span class="params">(pool_)</span></span>;
+    hashes.<span class="built_in">resize</span>(kHashBatchSize);
+    <span class="type">char</span>* groups[kHashBatchSize];
 
-    // 遍历所有子表（this + otherTables_）的 RowContainer
-    for (int32_t i = 0; i &lt;= otherTables_.size(); ++i) &#123;
+    <span class="comment">// 遍历所有子表（this + otherTables_）的 RowContainer</span>
+    <span class="keyword">for</span> (<span class="type">int32_t</span> i = <span class="number">0</span>; i &lt;= otherTables_.<span class="built_in">size</span>(); ++i) {
         RowContainerIterator iterator;
-        int32_t numGroups;
-        auto* table = tableAt(i);
-        do &#123;
-            numGroups = table-&gt;rows()-&gt;listRows(&amp;iterator, kHashBatchSize, groups);
-            if (!insertBatch(groups, numGroups, hashes,
-                             initNormalizedKeys || i != 0)) &#123;
-                // value_id 映射失败 → 强制切换到 kHash
-                VELOX_CHECK_NE(hashMode_, kHash);
-                setHashMode(kHash, 0, spillBit);
-                return;  // setHashMode 内部会重新 checkSize + rehash
-            &#125;
-        &#125; while (numGroups &gt; 0);
-    &#125;
-&#125;
+        <span class="type">int32_t</span> numGroups;
+        <span class="keyword">auto</span>* table = <span class="built_in">tableAt</span>(i);
+        <span class="keyword">do</span> {
+            numGroups = table-&gt;<span class="built_in">rows</span>()-&gt;<span class="built_in">listRows</span>(&amp;iterator, kHashBatchSize, groups);
+            <span class="keyword">if</span> (!<span class="built_in">insertBatch</span>(groups, numGroups, hashes,
+                             initNormalizedKeys || i != <span class="number">0</span>)) {
+                <span class="comment">// value_id 映射失败 → 强制切换到 kHash</span>
+                <span class="built_in">VELOX_CHECK_NE</span>(hashMode_, kHash);
+                <span class="built_in">setHashMode</span>(kHash, <span class="number">0</span>, spillBit);
+                <span class="keyword">return</span>;  <span class="comment">// setHashMode 内部会重新 checkSize + rehash</span>
+            }
+        } <span class="keyword">while</span> (numGroups &gt; <span class="number">0</span>);
+    }
+}
 </code></pre>
 <p data-original-block="velox-hash-table-0405"><strong><code>initNormalizedKeys</code> 的含义</strong>：</p>
 <ul>
@@ -1910,7 +1937,7 @@ setHashMode(kNormalizedKey):
     capacity_ = 0
     checkSize(numNew, ...)
 </code></pre>
-<hr/>
+<hr>
 <h2 data-original-block="velox-hash-table-0411" data-reading-phase="implementation" id="11-erase-与-tombstone">12. Erase 与 Tombstone</h2>
 <h3 data-original-block="velox-hash-table-0412" id="111-tombstone-的必要性">12.1 tombstone 的必要性</h3>
 <p data-original-block="velox-hash-table-0413">开放地址 hash 表中，删除一个已有条目不能简单地置空，因为这会截断正在查找的探测链。标准做法是写入 tombstone（逻辑删除标记）：</p>
@@ -1944,55 +1971,55 @@ setHashMode(kNormalizedKey):
 </tbody></table></div>
 <p data-original-block="velox-hash-table-0430">tombstone 的高位为 0（与有效 tag 的高位 1 区分），但不等于 0x00（与空槽区分）。</p>
 <h3 data-original-block="velox-hash-table-0431" id="112-erasehit：写入-tombstone-或直接清空">12.2 eraseHit：写入 tombstone 或直接清空</h3>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0432" data-source-kind="original-reading-fragment"><code class="language-cpp">template &lt;typename Table&gt;
-void ProbeState::eraseHit(Table&amp; table, int64_t&amp; numTombstones) &#123;
-    const auto kEmptyGroup = BaseHashTable::TagVector::broadcast(kEmptyTag);
-    // 检查当前 bucket 是否有空槽
-    const bool hasEmptyGroup = simd::any(tagsInTable_ == kEmptyGroup);
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0432" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> Table&gt;
+<span class="function"><span class="type">void</span> <span class="title">ProbeState::eraseHit</span><span class="params">(Table&amp; table, <span class="type">int64_t</span>&amp; numTombstones)</span> </span>{
+    <span class="type">const</span> <span class="keyword">auto</span> kEmptyGroup = BaseHashTable::TagVector::<span class="built_in">broadcast</span>(kEmptyTag);
+    <span class="comment">// 检查当前 bucket 是否有空槽</span>
+    <span class="type">const</span> <span class="type">bool</span> hasEmptyGroup = simd::<span class="built_in">any</span>(tagsInTable_ == kEmptyGroup);
 
-    table.bucketAt(bucketOffset_)-&gt;setTag(
+    table.<span class="built_in">bucketAt</span>(bucketOffset_)-&gt;<span class="built_in">setTag</span>(
         indexInTags_,
-        hasEmptyGroup ? 0 : kTombstoneTag);  // 有空槽→置空，无空槽→tombstone
+        hasEmptyGroup ? <span class="number">0</span> : kTombstoneTag);  <span class="comment">// 有空槽→置空，无空槽→tombstone</span>
     numTombstones += !hasEmptyGroup;
-&#125;
+}
 </code></pre>
 <p data-original-block="velox-hash-table-0433"><strong>关键优化</strong>：如果 bucket 内已有空槽，说明这条探测链在这里可以"自然终止"，此时删除后的槽可以直接置空（而非 tombstone）——因为任何从这个 bucket 之前开始的探测，遇到空槽都会停止，不存在被截断的链。</p>
 <h3 data-original-block="velox-hash-table-0434" id="113-erase-完整流程">12.3 erase 完整流程</h3>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0435" data-source-kind="original-reading-fragment"><code class="language-cpp">void HashTable&lt;ignoreNullKeys&gt;::erase(folly::Range&lt;char**&gt; rows) &#123;
-    // Step 1: 重新计算被删除行的 hash
-    for (int32_t i = 0; i &lt; hashers_.size(); ++i) &#123;
-        if (hashMode_ == kHash) &#123;
-            rows_-&gt;hash(i, rows, i &gt; 0, hashes.data());
-        &#125; else &#123;
-            hasher-&gt;computeValueIdsForRows(..., hashes);
-        &#125;
-    &#125;
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0435" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="type">void</span> HashTable&lt;ignoreNullKeys&gt;::<span class="built_in">erase</span>(folly::Range&lt;<span class="type">char</span>**&gt; rows) {
+    <span class="comment">// Step 1: 重新计算被删除行的 hash</span>
+    <span class="keyword">for</span> (<span class="type">int32_t</span> i = <span class="number">0</span>; i &lt; hashers_.<span class="built_in">size</span>(); ++i) {
+        <span class="keyword">if</span> (hashMode_ == kHash) {
+            rows_-&gt;<span class="built_in">hash</span>(i, rows, i &gt; <span class="number">0</span>, hashes.<span class="built_in">data</span>());
+        } <span class="keyword">else</span> {
+            hasher-&gt;<span class="built_in">computeValueIdsForRows</span>(..., hashes);
+        }
+    }
 
-    // Step 2: 对 kNormalizedKey 模式，mix hash
-    if (hashMode_ == kNormalizedKey) &#123;
-        for (auto i = 0; i &lt; numRows; ++i) &#123;
-            hashes[i] = mixNormalizedKey(hashes[i], sizeBits_);
-        &#125;
-    &#125;
+    <span class="comment">// Step 2: 对 kNormalizedKey 模式，mix hash</span>
+    <span class="keyword">if</span> (hashMode_ == kNormalizedKey) {
+        <span class="keyword">for</span> (<span class="keyword">auto</span> i = <span class="number">0</span>; i &lt; numRows; ++i) {
+            hashes[i] = <span class="built_in">mixNormalizedKey</span>(hashes[i], sizeBits_);
+        }
+    }
 
-    // Step 3: 通过 ProbeState::kErase 操作找到并删除 hash 槽
+    <span class="comment">// Step 3: 通过 ProbeState::kErase 操作找到并删除 hash 槽</span>
     ProbeState state;
-    for (auto i = 0; i &lt; numRows; ++i) &#123;
-        state.preProbe(*this, hashes[i], i);
-        state.firstProbe&lt;kErase&gt;(*this, 0);
-        state.fullProbe&lt;kErase&gt;(*this, 0,
-            [&amp;](const char* group, int32_t row) &#123; return rows[row] == group; &#125;,
+    <span class="keyword">for</span> (<span class="keyword">auto</span> i = <span class="number">0</span>; i &lt; numRows; ++i) {
+        state.<span class="built_in">preProbe</span>(*<span class="keyword">this</span>, hashes[i], i);
+        state.<span class="built_in">firstProbe</span>&lt;kErase&gt;(*<span class="keyword">this</span>, <span class="number">0</span>);
+        state.<span class="built_in">fullProbe</span>&lt;kErase&gt;(*<span class="keyword">this</span>, <span class="number">0</span>,
+            [&amp;](<span class="type">const</span> <span class="type">char</span>* group, <span class="type">int32_t</span> row) { <span class="keyword">return</span> rows[row] == group; },
             ...);
-    &#125;
+    }
 
     numDistinct_ -= numRows;
 
-    // Step 4: 从 RowContainer 删除行（释放 payload 内存）
-    rows_-&gt;eraseRows(rows);
-&#125;
+    <span class="comment">// Step 4: 从 RowContainer 删除行（释放 payload 内存）</span>
+    rows_-&gt;<span class="built_in">eraseRows</span>(rows);
+}
 </code></pre>
 <p data-corrected="2026-09-20" data-original-block="velox-hash-table-0436">erase 是维护单项删除与探测链的能力。当前 HashBuild 和 HashProbe 的主要 spill reclaim 路径使用 clear(true) 清理整张索引及相应状态；本节保留 erase 的算法分析，但不把它当成当前分区 spill 的调用事实。</p>
-<hr/>
+<hr>
 <h2 data-original-block="velox-hash-table-0437" data-reading-phase="implementation" id="12-与上层算子的接口">13. 与上层算子的接口</h2>
 <h3 data-original-block="velox-hash-table-0438" id="121-聚合算子（groupingset--hashaggregation）">13.1 聚合算子（GroupingSet / HashAggregation）</h3>
 <pre class="detail-trace" data-original-block="velox-hash-table-0439"><code>GroupingSet::addInput(batch)
@@ -2006,11 +2033,11 @@ GroupingSet::extractResult()
     → 提取 key 列 + accumulator 结果
 </code></pre>
 <p data-original-block="velox-hash-table-0440"><strong>部分 flush（partial group by）</strong>：</p>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0441" data-source-kind="original-reading-fragment"><code class="language-cpp">// 不释放 table_，仅清空 RowContainer 内容和 numDistinct_
-hashTable_-&gt;clear(/*freeTable=*/false);
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0441" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="comment">// 不释放 table_，仅清空 RowContainer 内容和 numDistinct_</span>
+hashTable_-&gt;<span class="built_in">clear</span>(<span class="comment">/*freeTable=*/</span><span class="literal">false</span>);
 </code></pre>
 <h3 data-original-block="velox-hash-table-0442" id="122-join-build-算子（hashbuild）">13.2 Join Build 算子（HashBuild）</h3>
-<pre class="detail-trace" data-original-block="velox-hash-table-0443" data-source-kind="reviewed-pseudocode"><code class="language-cpp">HashBuild::addInput(batch)
+<pre class="detail-trace" data-original-block="velox-hash-table-0443" data-source-kind="reviewed-pseudocode"><code class="language-plaintext">HashBuild::addInput(batch)
   保存输入行；是否同时建立去重 / counting 状态取决于 join 模式
 HashBuild::noMoreInput / finishHashBuild
   peer barrier -&gt; 协调者合并局部状态
@@ -2079,42 +2106,42 @@ HashProbe::getOutput() after probe done:
 <td data-original-block="velox-hash-table-0465">HashTableCache 命中情况</td>
 </tr>
 </tbody></table></div>
-<hr/>
+<hr>
 <h2 data-original-block="velox-hash-table-0630" data-reading-phase="implementation" id="14-代码品味：值得学习的工程细节">14. 代码品味：值得学习的工程细节</h2>
 <p data-original-block="velox-hash-table-0631">前面 12 章讲了<strong>做什么</strong>和<strong>为什么</strong>。本章只谈<strong>怎么写</strong>——从代码 craft 的角度，挑出 Velox HashTable 实现中最值得学习的写法习惯，每条都对应到源码中的具体位点。</p>
 <h3 data-original-block="velox-hash-table-0632" id="141-使非法状态不可表达（make-illegal-states-unrepresentable）">14.1 使非法状态不可表达（make illegal states unrepresentable）</h3>
 <p data-original-block="velox-hash-table-0633"><code>hashTag()</code> 的 <code>| 0x80</code> 是教科书级例子：</p>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0634" data-source-kind="original-reading-fragment"><code class="language-cpp">return static_cast&lt;uint8_t&gt;(hash &gt;&gt; 38) | 0x80;
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0634" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="keyword">return</span> <span class="built_in">static_cast</span>&lt;<span class="type">uint8_t</span>&gt;(hash &gt;&gt; <span class="number">38</span>) | <span class="number">0x80</span>;
 </code></pre>
 <p data-original-block="velox-hash-table-0635">不写成 <code>if (tag == 0 || tag == 0x7F) tag = 0x80;</code>——而是让有效 tag 的值域<strong>根本不可能</strong>与特殊标记重叠。整个 probe 循环里再也不需要"这个 tag 是不是 special 值"的检查，因为类型本身已经保证了。</p>
 <p data-original-block="velox-hash-table-0636"><strong>通用启示</strong>：遇到要加 if-check 才能保证正确性的地方，先问：能不能让那个 if 永远为真？通过类型/编码层面把不可能性"焊死"，是最经济的"检查"。</p>
 <h3 data-original-block="velox-hash-table-0637" id="142-单向状态转移">14.2 单向状态转移</h3>
 <p data-corrected="2026-09-20" data-original-block="velox-hash-table-0638">模式并非固定三级单向降级链。Array/NormalizedKey 可在重新分析与编码后重新选择；进入 Hash 才退出 value ID 优化并不再切回。应把这一终态约束与可重新决策的编码阶段分开建模。</p>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0639" data-source-kind="original-reading-fragment"><code class="language-cpp">// setHashMode 没有 kHash → kArray 的路径
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0639" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="comment">// setHashMode 没有 kHash → kArray 的路径</span>
 </code></pre>
 <p data-corrected="2026-09-20" data-original-block="velox-hash-table-0640">简化点是进入 Hash 后无需维持回到编码模式的路径；Array 与 NormalizedKey 之间及重新编码的条件仍需完整分析，不能用一个假定的三条单向边图替代实际决策。</p>
 <p data-original-block="velox-hash-table-0641">类似地，<code>hasDuplicates_</code> 是 once-set flag——一旦发现重复 key 就置 1，再也不清空。读到这种"单调标志"几乎可以放心当不变量用。</p>
 <h3 data-original-block="velox-hash-table-0642" id="143-模板单态化代替运行时分支">14.3 模板单态化代替运行时分支</h3>
 <p data-original-block="velox-hash-table-0643"><code>fullProbe&lt;Operation op&gt;(...)</code> 一份源码，编译期展开成三份独立二进制：</p>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0644" data-source-kind="original-reading-fragment"><code class="language-cpp">fullProbe&lt;kProbe&gt;(...)
-fullProbe&lt;kInsert&gt;(...)
-fullProbe&lt;kErase&gt;(...)
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0644" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="built_in">fullProbe</span>&lt;kProbe&gt;(...)
+<span class="built_in">fullProbe</span>&lt;kInsert&gt;(...)
+<span class="built_in">fullProbe</span>&lt;kErase&gt;(...)
 </code></pre>
 <p data-original-block="velox-hash-table-0645">源码统一，CPU 上跑的是无分支的特化路径。比 <code>switch(op)</code> 漂亮的是：连分支预测错失的可能性都没有了。</p>
 <p data-original-block="velox-hash-table-0646"><code>HashTable&lt;bool ignoreNullKeys&gt;</code> 同样手法——<code>if constexpr (ignoreNullKeys)</code> 让无关代码<strong>彻底消失</strong>，而不是变成永不执行的死分支。Profiler 看到的指令完全是这条路径实际跑的代码，没有死分支干扰分析。</p>
 <h3 data-original-block="velox-hash-table-0647" id="144-api-切分匹配硬件，而非代码可读性">14.4 API 切分匹配硬件，而非代码可读性</h3>
 <p data-original-block="velox-hash-table-0648"><code>ProbeState</code> 切成三个阶段：</p>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0649" data-source-kind="original-reading-fragment"><code class="language-cpp">preProbe(hash, row);    // 触发 prefetch，不读
-firstProbe(firstKey);   // 读 16 个 tag，做 SIMD 比较
-fullProbe&lt;op&gt;(...);     // 比 key，可能跨桶
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0649" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="built_in">preProbe</span>(hash, row);    <span class="comment">// 触发 prefetch，不读</span>
+<span class="built_in">firstProbe</span>(firstKey);   <span class="comment">// 读 16 个 tag，做 SIMD 比较</span>
+<span class="built_in">fullProbe</span>&lt;op&gt;(...);     <span class="comment">// 比 key，可能跨桶</span>
 </code></pre>
 <p data-original-block="velox-hash-table-0650">如果只看代码可读性，合并成一个 <code>probe()</code> 调用更短。但<strong>这种切分是为了让调用方能在中间插入别的工作</strong>——4-路软流水线就是把 <code>state1.preProbe(); state2.preProbe(); ... ; state1.firstProbe(); ...</code> 交错起来。</p>
 <p data-original-block="velox-hash-table-0651"><strong>接口边界要切在能让上层做有用事情的位置</strong>，不是切在"代码上看着干净"的位置。</p>
 <h3 data-original-block="velox-hash-table-0652" id="145-值语义的状态机栈对象">14.5 值语义的状态机栈对象</h3>
 <p data-original-block="velox-hash-table-0653">当前相关批量探测路径将 ProbeState 放在局部对象或固定大小局部数组中，保存 key、bucket 地址及探测中间态，以便分阶段推进。这里的分配方式属于调用点，不是 ProbeState 类型天然保证永不分配在堆上的性质。</p>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0654" data-source-kind="original-reading-fragment"><code class="language-cpp">ProbeState state1, state2, state3, state4;  // 全在栈
-state1.preProbe(...);
-// ...
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0654" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp">ProbeState state1, state2, state3, state4;  <span class="comment">// 全在栈</span>
+state1.<span class="built_in">preProbe</span>(...);
+<span class="comment">// ...</span>
 </code></pre>
 <p data-corrected="2026-09-20" data-original-block="velox-hash-table-0655">ProbeState 把单次探测状态集中在局部对象中，避免为每次探测单独分配堆对象。字段的寄存器分配由编译器决定，多路交错和寄存器压力可能导致部分状态在栈上；不能仅用 sizeof 推断全部字段始终放在寄存器。</p>
 <h3 data-original-block="velox-hash-table-0656" id="146-命名映射动词，读起来像故事">14.6 命名映射动词，读起来像故事</h3>
@@ -2128,11 +2155,11 @@ decideHashMode       canApplyParallelJoinBuild
 <p data-original-block="velox-hash-table-0660">CLAUDE.md 里写过："Start comments with active verbs."——代码也一样，每个函数名应该读起来像一个动作。</p>
 <h3 data-original-block="velox-hash-table-0661" id="147-注释只解释为什么，不解释什么">14.7 注释只解释"为什么"，不解释"什么"</h3>
 <p data-original-block="velox-hash-table-0662">最典型的例子：</p>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0663" data-source-kind="original-reading-fragment"><code class="language-cpp">__attribute__((__no_sanitize__("thread")))
-static TagVector loadTags(uint8_t* tags, int64_t tagIndex) &#123;
-  // 并行 build 时各线程写不相交的 bucket 范围，但 TSAN 无法理解这种模式
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0663" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp">__attribute__((__no_sanitize__(<span class="string">"thread"</span>)))
+<span class="function"><span class="type">static</span> TagVector <span class="title">loadTags</span><span class="params">(<span class="type">uint8_t</span>* tags, <span class="type">int64_t</span> tagIndex)</span> </span>{
+  <span class="comment">// 并行 build 时各线程写不相交的 bucket 范围，但 TSAN 无法理解这种模式</span>
   ...
-&#125;
+}
 </code></pre>
 <p data-original-block="velox-hash-table-0664">注释里没有"加载 16 个 tag"——这从函数名就看得出来。<strong>注释解释的是 <code>__no_sanitize__</code> 这个非常规属性为什么必须加</strong>。</p>
 <p data-original-block="velox-hash-table-0665">另一个例子是 6-byte 指针的"越界读"：注释告诉你<strong>为什么这看似越界的代码是安全的</strong>——这是审稿人最容易标红的代码模式，作者主动给出豁免理由。</p>
@@ -2140,44 +2167,44 @@ static TagVector loadTags(uint8_t* tags, int64_t tagIndex) &#123;
 <p data-original-block="velox-hash-table-0667"><code>AdaptivePrefetch.h</code> 全文 <strong>71 行</strong>，一个类，5 个常量，3 个方法。它没有跑去管"prefetch 什么地址"，调用方自己决定。<strong>职责单一到一句话能讲完</strong>：根据前 16 次迭代实测耗时，决定一个固定步长。</p>
 <p data-original-block="velox-hash-table-0668">这种"小到不可分割"的类比一个塞满 helper 方法的 <code>PrefetchUtils.h</code> 强一万倍——CLAUDE.md 里被明确禁止："Never name a file or class <code>*Utils</code>, <code>*Helpers</code>, or <code>*Common</code>."</p>
 <h3 data-original-block="velox-hash-table-0669" id="149-魔法数字一律命名化">14.9 魔法数字一律命名化</h3>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0670" data-source-kind="original-reading-fragment"><code class="language-cpp">static constexpr int32_t kBucketSize = 128;
-static constexpr int32_t kPointerSize = 6;
-static constexpr int64_t kAssumedDramLatencyNs = 100;
-static constexpr int32_t kPrefetchSize = 64;
-static constexpr int32_t kHashBatchSize = 1024;
-static constexpr double  kHashTableLoadFactor = 0.7;
-static constexpr uint64_t kArrayHashMaxSize = 2L &lt;&lt; 20;
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0670" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="type">static</span> <span class="keyword">constexpr</span> <span class="type">int32_t</span> kBucketSize = <span class="number">128</span>;
+<span class="type">static</span> <span class="keyword">constexpr</span> <span class="type">int32_t</span> kPointerSize = <span class="number">6</span>;
+<span class="type">static</span> <span class="keyword">constexpr</span> <span class="type">int64_t</span> kAssumedDramLatencyNs = <span class="number">100</span>;
+<span class="type">static</span> <span class="keyword">constexpr</span> <span class="type">int32_t</span> kPrefetchSize = <span class="number">64</span>;
+<span class="type">static</span> <span class="keyword">constexpr</span> <span class="type">int32_t</span> kHashBatchSize = <span class="number">1024</span>;
+<span class="type">static</span> <span class="keyword">constexpr</span> <span class="type">double</span>  kHashTableLoadFactor = <span class="number">0.7</span>;
+<span class="type">static</span> <span class="keyword">constexpr</span> <span class="type">uint64_t</span> kArrayHashMaxSize = <span class="number">2L</span> &lt;&lt; <span class="number">20</span>;
 </code></pre>
 <p data-corrected="2026-09-20" data-original-block="velox-hash-table-0671">kBucketSize、kHashTableLoadFactor 和 kAssumedDramLatencyNs 等命名常量让布局、阈值与假设更清楚。它们是值得学习的具体写法，不应扩大成整个文件绝不存在数字字面量的保证；尤其 Assumed 明确表示估计值而非硬件实测。</p>
 <h3 data-original-block="velox-hash-table-0672" id="1410-失败模式编码进返回值，而非异常">14.10 失败模式编码进返回值，而非异常</h3>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0673" data-source-kind="original-reading-fragment"><code class="language-cpp">bool computeValueIds(rows, hashes);
-// 返回 false 表示"value_id 空间满了，请切到 kHash"
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0673" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="function"><span class="type">bool</span> <span class="title">computeValueIds</span><span class="params">(rows, hashes)</span></span>;
+<span class="comment">// 返回 false 表示"value_id 空间满了，请切到 kHash"</span>
 
-bool insertBatch(groups, num, hashes, init);
-// 返回 false 表示"需要降级 hashMode 重来"
+<span class="function"><span class="type">bool</span> <span class="title">insertBatch</span><span class="params">(groups, num, hashes, init)</span></span>;
+<span class="comment">// 返回 false 表示"需要降级 hashMode 重来"</span>
 </code></pre>
 <p data-original-block="velox-hash-table-0674">没有抛异常，没有 out-param 错误码——<strong>就一个 bool</strong>，调用方按"成功 / 该换种思路了"二分处理。</p>
 <p data-original-block="velox-hash-table-0675">异常在 hot path 上既贵又难以推理；error code 又比 bool 重。当语义就是二元的（成功/换种思路）时，bool 是最诚实的接口。</p>
 <h3 data-original-block="velox-hash-table-0676" id="1411-不为不存在的情况加防御性代码">14.11 不为不存在的情况加防御性代码</h3>
 <p data-original-block="velox-hash-table-0677"><code>pushNext()</code> 的实现：</p>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0678" data-source-kind="original-reading-fragment"><code class="language-cpp">void pushNext(char* row, char* next) &#123;
-  hasDuplicates_.set();
-  auto previousNext = nextRow(row);
-  nextRow(row) = next;
-  nextRow(next) = previousNext;
-&#125;
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0678" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="function"><span class="type">void</span> <span class="title">pushNext</span><span class="params">(<span class="type">char</span>* row, <span class="type">char</span>* next)</span> </span>{
+  hasDuplicates_.<span class="built_in">set</span>();
+  <span class="keyword">auto</span> previousNext = <span class="built_in">nextRow</span>(row);
+  <span class="built_in">nextRow</span>(row) = next;
+  <span class="built_in">nextRow</span>(next) = previousNext;
+}
 </code></pre>
 <p data-original-block="velox-hash-table-0679"><strong>没有</strong> <code>if (row == nullptr) return;</code>，<strong>没有</strong> <code>assert(next != row)</code>，<strong>没有</strong> <code>VELOX_CHECK(nextOffset_ &gt; 0)</code>。因为调用方上下文已经保证：调到 <code>pushNext</code> 时一定是已经命中了 row，next 是新行，nextOffset_ 一定是正的。</p>
 <p data-original-block="velox-hash-table-0680">这不是偷懒，而是<strong>对调用契约的尊重</strong>。每一个不必要的 check 都是在告诉读者"这里其实不放心"，反而让真正需要 check 的地方失去信号。</p>
 <p data-corrected="2026-09-20" data-original-block="velox-hash-table-0681">CHECK/DCHECK 同时承担内部不变量、输入边界和状态诊断；选择位置需要平衡后果、可观察性与热路径成本，不能概括为发布版 CHECK 永远不出现在内部热路径。</p>
 <h3 data-original-block="velox-hash-table-0682" id="1412-if-constexpr-让特性消失而非禁用">14.12 if constexpr 让特性"消失"而非"禁用"</h3>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0683" data-source-kind="original-reading-fragment"><code class="language-cpp">template &lt;bool ignoreNullKeys&gt;
-void prepareForGroupProbe(...) &#123;
-  if constexpr (ignoreNullKeys) &#123;
-    deselectRowsWithNulls(hashers, rows);
-  &#125;
-  // ...
-&#125;
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0683" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="keyword">template</span> &lt;<span class="type">bool</span> ignoreNullKeys&gt;
+<span class="function"><span class="type">void</span> <span class="title">prepareForGroupProbe</span><span class="params">(...)</span> </span>{
+  <span class="function"><span class="keyword">if</span> <span class="title">constexpr</span> <span class="params">(ignoreNullKeys)</span> </span>{
+    <span class="built_in">deselectRowsWithNulls</span>(hashers, rows);
+  }
+  <span class="comment">// ...</span>
+}
 </code></pre>
 <p data-corrected="2026-09-20" data-original-block="velox-hash-table-0684">if constexpr 可按 ignoreNullKeys 的模板值移除另一分支；在 ignoreNullKeys=true 路径中，跳过 null 的逻辑恰好是需要保留的部分。是否最终产生独立函数调用还受内联与优化影响，不能把 true 特化解释成删除 deselectRowsWithNulls。</p>
 <h3 data-original-block="velox-hash-table-0685" id="1413-一句话总结">14.13 一句话总结</h3>
@@ -2185,27 +2212,27 @@ void prepareForGroupProbe(...) &#123;
 <p data-original-block="velox-hash-table-0686"><strong>品味好的代码不是没有 trick，而是每个 trick 都有一行能写下的理由。</strong></p>
 </blockquote>
 <p data-original-block="velox-hash-table-0687">Velox HashTable 用了大量看似"花哨"的手法（template 单态化、越界读 + mask、模式不可回退、栈上状态机）。但每一处都能用一行话讲清楚为什么这么写、不这么写会失去什么。<strong>不存在"反正能 work"的代码，也不存在"以防万一"的代码</strong>——这是它真正值得学习的地方。</p>
-<hr/>
+<hr>
 <h2 data-original-block="velox-hash-table-0688" data-reading-phase="implementation" id="15-位操作精解">15. 位操作精解</h2>
 <p data-original-block="velox-hash-table-0689">HashTable 的实现里位操作出现频率极高——hash 切片、容量掩码、bitmask 迭代、压缩指针读写都靠位操作支撑。本章把分散在各处的位技巧梳理成 6 类，每类从源码找具体调用点对照。</p>
 <h3 data-original-block="velox-hash-table-0690" id="151-位域提取：从单个整数切出多块信息">15.1 位域提取：从单个整数切出多块信息</h3>
 <p data-original-block="velox-hash-table-0691">64-bit hash 同时承载 tag 和 bucket 索引两份信息：</p>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0692" data-source-kind="original-reading-fragment"><code class="language-cpp">// 取 hash 的 bit 38-44 做 tag
-static uint8_t hashTag(uint64_t hash) &#123;
-    return static_cast&lt;uint8_t&gt;(hash &gt;&gt; 38) | 0x80;
-&#125;
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0692" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="comment">// 取 hash 的 bit 38-44 做 tag</span>
+<span class="function"><span class="type">static</span> <span class="type">uint8_t</span> <span class="title">hashTag</span><span class="params">(<span class="type">uint64_t</span> hash)</span> </span>{
+    <span class="keyword">return</span> <span class="built_in">static_cast</span>&lt;<span class="type">uint8_t</span>&gt;(hash &gt;&gt; <span class="number">38</span>) | <span class="number">0x80</span>;
+}
 
-// 取 hash 的低位（bit 7~22 当 capacity=2^20）做 bucket 偏移
-int64_t bucketOffset(uint64_t hash) const &#123;
-    return hash &amp; bucketOffsetMask_;
-&#125;
+<span class="comment">// 取 hash 的低位（bit 7~22 当 capacity=2^20）做 bucket 偏移</span>
+<span class="function"><span class="type">int64_t</span> <span class="title">bucketOffset</span><span class="params">(<span class="type">uint64_t</span> hash)</span> <span class="type">const</span> </span>{
+    <span class="keyword">return</span> hash &amp; bucketOffsetMask_;
+}
 
-// 取 bucket 内的 slot 索引（bit 0-3）
-int32_t slotIndex = index &amp; (sizeof(TagVector) - 1);  // &amp; 15
+<span class="comment">// 取 bucket 内的 slot 索引（bit 0-3）</span>
+<span class="type">int32_t</span> slotIndex = index &amp; (<span class="built_in">sizeof</span>(TagVector) - <span class="number">1</span>);  <span class="comment">// &amp; 15</span>
 </code></pre>
 <p data-original-block="velox-hash-table-0693"><strong>位图</strong>：</p>
 <div class="fig">
-<figure class="detail-figure" data-original-block="velox-hash-table-0694"><div class="detail-figure-scroll"><img alt="hash 位段与桶内槽位" loading="lazy" src="/images/velox-hash-table/detail-original-05.svg"/></div><figcaption>hash 位段与桶内槽位。已按当前实现修正标注，具体约束见相邻正文。</figcaption></figure>
+<figure class="detail-figure" data-original-block="velox-hash-table-0694"><div class="detail-figure-scroll"><img alt="hash 位段与桶内槽位" loading="lazy" src="/images/velox-hash-table/detail-original-05.svg"></div><figcaption>hash 位段与桶内槽位。已按当前实现修正标注，具体约束见相邻正文。</figcaption></figure>
 <div class="fig-cap"><b>Fig.</b>　64-bit hash 位域:同一个 hash 切出 tag / bucket / slot 三段</div>
 </div>
 <p data-original-block="velox-hash-table-0695"><strong>为什么 tag 与 bucket 必须用不同位段？</strong></p>
@@ -2213,60 +2240,60 @@ int32_t slotIndex = index &amp; (sizeof(TagVector) - 1);  // &amp; 15
 <p data-original-block="velox-hash-table-0697">取 bit 38-44 与 bit 7-22 让 tag 和 bucket 落在 hash 的不同位段，统计独立。</p>
 <h3 data-original-block="velox-hash-table-0698" id="152-2-的幂技巧：模运算的零开销实现">15.2 2 的幂技巧：模运算的零开销实现</h3>
 <p data-original-block="velox-hash-table-0699">整张 hash 表的容量始终是 2 的幂，这是位操作能用的根本前提：</p>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0700" data-source-kind="original-reading-fragment"><code class="language-cpp">VELOX_CHECK(bits::isPowerOfTwo(size));
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0700" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="built_in">VELOX_CHECK</span>(bits::<span class="built_in">isPowerOfTwo</span>(size));
 </code></pre>
 <h4 data-original-block="velox-hash-table-0701" id="1421-x--n---1-等价于-x--n（当-n-是-2-的幂）">15.2.1 x &amp; (n - 1) 等价于 x % n（当 n 是 2 的幂）</h4>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0702" data-source-kind="original-reading-fragment"><code class="language-cpp">sizeMask_ = byteSize - 1;            // 全 1 mask
-int32_t slotIndex = index &amp; 15;      // 对 16 取模
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0702" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp">sizeMask_ = byteSize - <span class="number">1</span>;            <span class="comment">// 全 1 mask</span>
+<span class="type">int32_t</span> slotIndex = index &amp; <span class="number">15</span>;      <span class="comment">// 对 16 取模</span>
 </code></pre>
 <p data-corrected="2026-09-20" data-original-block="velox-hash-table-0703">对无符号值及非零的 2 的幂除数，x % n 可等价写为 x &amp; (n−1)。编译器知道常量 n 时常会自动做这个变换；变量除法与位与的实际延迟依赖 CPU，不能对所有 % 表达式赋予固定周期。</p>
 <h4 data-original-block="velox-hash-table-0704" id="1422-x--n---1-等价于向下对齐到-n-的倍数">15.2.2 x &amp; ~(N - 1) 等价于"向下对齐到 N 的倍数"</h4>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0705" data-source-kind="original-reading-fragment"><code class="language-cpp">bucketOffsetMask_ = sizeMask_ &amp; ~(kBucketSize - 1);
-// 等价于：抹掉低 7 bit，保留 128 字节对齐
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0705" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp">bucketOffsetMask_ = sizeMask_ &amp; ~(kBucketSize - <span class="number">1</span>);
+<span class="comment">// 等价于：抹掉低 7 bit，保留 128 字节对齐</span>
 </code></pre>
 <h4 data-original-block="velox-hash-table-0706" id="1423-bitsnextpoweroftwo-与-popcount">15.2.3 bits::nextPowerOfTwo 与 popcount</h4>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0707" data-source-kind="original-reading-fragment"><code class="language-cpp">sizeBits_ = __builtin_popcountll(sizeMask_);
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0707" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp">sizeBits_ = __builtin_popcountll(sizeMask_);
 </code></pre>
 <p data-original-block="velox-hash-table-0708"><code>sizeMask_</code> 是全 1，<code>popcount</code> 等于有效 bit 数（如 capacity=2^20 时 sizeBits_=23）。这个值用在 <code>mixNormalizedKey</code> 里做位混淆。</p>
 <h4 data-original-block="velox-hash-table-0709" id="1424-ispoweroftwo-的位操作判定">15.2.4 isPowerOfTwo 的位操作判定</h4>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0710" data-source-kind="original-reading-fragment"><code class="language-cpp">bool isPowerOfTwo(uint64_t x) &#123; return x &amp;&amp; !(x &amp; (x - 1)); &#125;
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0710" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="function"><span class="type">bool</span> <span class="title">isPowerOfTwo</span><span class="params">(<span class="type">uint64_t</span> x)</span> </span>{ <span class="keyword">return</span> x &amp;&amp; !(x &amp; (x - <span class="number">1</span>)); }
 </code></pre>
 <p data-corrected="2026-09-20" data-original-block="velox-hash-table-0711">对无符号 x，判断 2 的幂必须同时满足 x != 0 与 (x &amp; (x−1)) == 0；只检查后一项会把 0 也接纳。减一及移位例子应明确类型宽度，避免在普通 C++ 中引入有符号溢出或超宽移位。</p>
 <h4 data-original-block="velox-hash-table-0712" id="1425-向上对齐：bitsroundupx-k">15.2.5 向上对齐：bits::roundUp(x, k)</h4>
 <p data-original-block="velox-hash-table-0713">当 k 是 2 的幂：</p>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0714" data-source-kind="original-reading-fragment"><code class="language-cpp">roundUp(x, k) = (x + k - 1) &amp; ~(k - 1)
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0714" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="built_in">roundUp</span>(x, k) = (x + k - <span class="number">1</span>) &amp; ~(k - <span class="number">1</span>)
 </code></pre>
 <p data-original-block="velox-hash-table-0715">并行 build 的分区边界用它对齐到 <code>kBucketSize</code>：</p>
-<pre data-original-block="velox-hash-table-0716" data-source-kind="original-reading-fragment"><code class="language-cpp">buildPartitionBounds_[i] = bits::roundUp((sizeMask_ + 1) / N * i, kBucketSize);
+<pre data-original-block="velox-hash-table-0716" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp">buildPartitionBounds_[i] = bits::<span class="built_in">roundUp</span>((sizeMask_ + <span class="number">1</span>) / N * i, kBucketSize);
 </code></pre>
 <h3 data-original-block="velox-hash-table-0717" id="153-位域写入：保留无关位">15.3 位域写入：保留无关位</h3>
 <p data-original-block="velox-hash-table-0718">6 字节指针存储要写 6 字节进 8 字节的空间，但不能破坏隔壁的 2 字节：</p>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0719" data-source-kind="original-reading-fragment"><code class="language-cpp">void setPointer(int32_t slotIndex, void* pointer) &#123;
-    auto* slot = reinterpret_cast&lt;uintptr_t*&gt;(&amp;pointers_[slotIndex * 6]);
-    *slot = (*slot &amp; ~kPointerMask) | reinterpret_cast&lt;uintptr_t&gt;(pointer);
-    //       ↑保留 mask 外的位          ↑写入 mask 内的位
-&#125;
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0719" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="function"><span class="type">void</span> <span class="title">setPointer</span><span class="params">(<span class="type">int32_t</span> slotIndex, <span class="type">void</span>* pointer)</span> </span>{
+    <span class="keyword">auto</span>* slot = <span class="built_in">reinterpret_cast</span>&lt;<span class="type">uintptr_t</span>*&gt;(&amp;pointers_[slotIndex * <span class="number">6</span>]);
+    *slot = (*slot &amp; ~kPointerMask) | <span class="built_in">reinterpret_cast</span>&lt;<span class="type">uintptr_t</span>&gt;(pointer);
+    <span class="comment">//       ↑保留 mask 外的位          ↑写入 mask 内的位</span>
+}
 </code></pre>
 <p data-original-block="velox-hash-table-0720"><code>*slot &amp; ~kPointerMask</code> 取出高 2 字节的原始值；<code>| ptr</code> 把指针填进低 6 字节。这是<strong>典型的位字段写入模式</strong>，适用于任何需要在共享 word 里更新部分 bit 的场景。</p>
 <p data-original-block="velox-hash-table-0721">对比简单写入：</p>
-<pre data-original-block="velox-hash-table-0722" data-source-kind="original-reading-fragment"><code class="language-cpp">*slot = (uintptr_t)pointer;  // ❌ 会把隔壁 2 字节写成 0
-memcpy(slot, &amp;pointer, 6);   // ✅ 但每次走函数调用
+<pre data-original-block="velox-hash-table-0722" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp">*slot = (<span class="type">uintptr_t</span>)pointer;  <span class="comment">// ❌ 会把隔壁 2 字节写成 0</span>
+<span class="built_in">memcpy</span>(slot, &amp;pointer, <span class="number">6</span>);   <span class="comment">// ✅ 但每次走函数调用</span>
 </code></pre>
 <p data-corrected="2026-09-20" data-original-block="velox-hash-table-0723">表达式读取并保留高两字节，合并新指针后还需写回。实际汇编可折叠内存操作，取决于编译器与目标；不能仅数 load/and/or 而遗漏 store，也不能没有测量就宣称最快。</p>
 <h3 data-original-block="velox-hash-table-0724" id="154-bitmask-迭代：从-simd-结果逐个取命中">15.4 Bitmask 迭代：从 SIMD 结果逐个取命中</h3>
 <p data-original-block="velox-hash-table-0725">SIMD 比较返回 16-bit 整数，每 bit 对应一个 slot。逐个取出每个命中 slot 是位操作的密集舞台：</p>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0726" data-source-kind="original-reading-fragment"><code class="language-cpp">while (hits_ &gt; 0) &#123;
-    int32_t hit = bits::getAndClearLastSetBit(hits_);
-    // 处理 slot hit
-&#125;
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0726" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="keyword">while</span> (hits_ &gt; <span class="number">0</span>) {
+    <span class="type">int32_t</span> hit = bits::<span class="built_in">getAndClearLastSetBit</span>(hits_);
+    <span class="comment">// 处理 slot hit</span>
+}
 </code></pre>
 <h4 data-original-block="velox-hash-table-0727" id="1441-getandclearlastsetbit-拆解">15.4.1 getAndClearLastSetBit 拆解</h4>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0728" data-source-kind="original-reading-fragment"><code class="language-cpp">template &lt;typename T&gt;
-int32_t getAndClearLastSetBit(T&amp; bits) &#123;
-    int32_t bit = __builtin_ctzll(bits);  // 找最低 set bit 的位置
-    bits &amp;= bits - 1;                      // 清最低 set bit
-    return bit;
-&#125;
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0728" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;
+<span class="function"><span class="type">int32_t</span> <span class="title">getAndClearLastSetBit</span><span class="params">(T&amp; bits)</span> </span>{
+    <span class="type">int32_t</span> bit = __builtin_ctzll(bits);  <span class="comment">// 找最低 set bit 的位置</span>
+    bits &amp;= bits - <span class="number">1</span>;                      <span class="comment">// 清最低 set bit</span>
+    <span class="keyword">return</span> bit;
+}
 </code></pre>
 <p data-original-block="velox-hash-table-0729">虽然名字是 "last"，实际取的是<strong>最低位</strong>（<code>ctz</code> = count trailing zeros）。</p>
 <h4 data-original-block="velox-hash-table-0730" id="1442-bits--bits---1-清最低-set-bit（kernighans-trick）">15.4.2 bits &amp; (bits - 1) 清最低 set bit（Kernighan's trick）</h4>
@@ -2321,13 +2348,13 @@ uint16_t bits = PMOVMSKB(mask)          // 取每字节最高位 → 16-bit scal
 <p data-original-block="velox-hash-table-0756"><strong>这正好与 tag 的 <code>| 0x80</code> 设计协同</strong>：tag 高位恒为 1 时（有效），<code>PMOVMSKB(tags)</code> 直接给出"哪些 slot 有效"，省去一次与 0x00 的显式比较（§7.10 的优化）。</p>
 <h3 data-original-block="velox-hash-table-0757" id="156-最高位作为类型标签">15.6 最高位作为类型标签</h3>
 <p data-original-block="velox-hash-table-0758"><code>tag &amp; 0x80</code> / <code>PMOVMSKB</code> 在 Velox HashTable 里至少有三处用法：</p>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0759" data-source-kind="original-reading-fragment"><code class="language-cpp">// 1. 编码层面保证不变式（§4.2）
-return (hash &gt;&gt; 38) | 0x80;          // hashTag 永远 &gt;= 0x80
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0759" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="comment">// 1. 编码层面保证不变式（§4.2）</span>
+<span class="keyword">return</span> (hash &gt;&gt; <span class="number">38</span>) | <span class="number">0x80</span>;          <span class="comment">// hashTag 永远 &gt;= 0x80</span>
 
-// 2. SIMD 批量提取所有有效槽（§6.9）
-free = ~PMOVMSKB(tags) &amp; kFullMask;
+<span class="comment">// 2. SIMD 批量提取所有有效槽（§6.9）</span>
+free = ~<span class="built_in">PMOVMSKB</span>(tags) &amp; kFullMask;
 
-// 3. 与 PCMPEQB 协同：tag 高位恒 1 → PMOVMSKB 直接区分有效/无效
+<span class="comment">// 3. 与 PCMPEQB 协同：tag 高位恒 1 → PMOVMSKB 直接区分有效/无效</span>
 </code></pre>
 <p data-original-block="velox-hash-table-0760">最高位可承载一个标记，但前提是表示中确实有可借用的位，且不会与有效数据冲突。<code>&amp; 0x80</code>、无符号右移和有符号比较可以表达相应测试；它们的生成指令、延迟和吞吐随类型、编译器、目标 CPU 及上下文变化，不能统一承诺只需 1 cycle。</p>
 <h3 data-original-block="velox-hash-table-0761" id="157-散落的位掩码构造">15.7 散落的位掩码构造</h3>
@@ -2382,13 +2409,13 @@ free = ~PMOVMSKB(tags) &amp; kFullMask;
 <li data-original-block="velox-hash-table-0789">用 <code>std::bitset&lt;N&gt;(value).to_string()</code> 打印 bit 模式，比 hex 直观</li>
 <li data-original-block="velox-hash-table-0790">关键 mask 用 <code>static_assert</code> 固化语义：</li>
 </ol>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0791" data-source-kind="original-reading-fragment"><code class="language-cpp">static_assert((kPointerMask &amp; 0xFFFF000000000000) == 0,
-              "kPointerMask must not touch high 16 bits");
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0791" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="built_in">static_assert</span>((kPointerMask &amp; <span class="number">0xFFFF000000000000</span>) == <span class="number">0</span>,
+              <span class="string">"kPointerMask must not touch high 16 bits"</span>);
 </code></pre>
 <ol start="3">
 <li data-original-block="velox-hash-table-0792">位段提取永远写成命名函数（<code>hashTag()</code>、<code>bucketOffset()</code>），不在调用点直接写 <code>&gt;&gt; 38 | 0x80</code>——否则一年后没人记得"38"是什么</li>
 </ol>
-<hr/>
+<hr>
 <h2 data-original-block="velox-hash-table-0466" data-reading-phase="design" id="13-设计哲学与架构精髓">16. 设计哲学与架构精髓</h2>
 <p data-original-block="velox-hash-table-0467">前面的实现章节逐层拆解了数据结构、执行路径与工程细节。本章自上而下回到设计层面，回答一个核心问题：<strong>为什么是这套架构而不是别的？</strong></p>
 <h3 data-original-block="velox-hash-table-0468" id="131-六条贯穿全局的设计原则">16.1 六条贯穿全局的设计原则</h3>
@@ -2404,7 +2431,7 @@ free = ~PMOVMSKB(tags) &amp; kFullMask;
 <p data-original-block="velox-hash-table-0478"><code>ProbeState::fullProbe&lt;op&gt;</code> 模板是 probe / insert / erase 三种操作的共享内核。<code>&lt;op&gt;</code> 模板参数让编译器为每种用途生成独立的二进制路径，但源码只有一份。<code>HashTable&lt;ignoreNullKeys&gt;</code> 通过模板让 null-aware join 与普通 join 在编译期完全分离，<code>if constexpr (ignoreNullKeys)</code> 让无关分支彻底消失。</p>
 <p data-original-block="velox-hash-table-0479"><strong>（6）列向量 ↔ 行容器的桥接（Vector/Row Bridge）</strong></p>
 <p data-original-block="velox-hash-table-0480">输入和输出使用 Vector，当前 HashTable 的 payload 则由 RowContainer 保存成行，便于按 key 取得同一行的多个字段和稳定行地址。<code>VectorHasher</code> 负责 key 的 hash、value_id 与编码统计；保存输入行由 HashBuild / GroupingSet 等调用方与 RowContainer 完成。行式 payload 是本实现为 Join / Aggregation 选择的布局，并不是所有 hash table 必须满足的条件；其他设计也可分离 key、payload 或采用列式存储。</p>
-<hr/>
+<hr>
 <h3 data-original-block="velox-hash-table-0481" id="132-决定整体结构的几个关键约束">16.2 决定整体结构的几个关键约束</h3>
 <div class="tbl-wrap"><table>
 <thead>
@@ -2443,7 +2470,7 @@ free = ~PMOVMSKB(tags) &amp; kFullMask;
 </tr>
 </tbody></table></div>
 <p data-original-block="velox-hash-table-0498">每一个约束都映射到一个或多个具体设计点，反过来也能从设计点逆向理解约束。</p>
-<hr/>
+<hr>
 <h3 data-original-block="velox-hash-table-0499" id="133-几个核心决策的为什么">16.3 几个核心决策的"为什么"</h3>
 <h4 data-original-block="velox-hash-table-0500" id="a-为什么选开放地址，而非链表法？">16.3.1 A. 为什么选开放地址，而非链表法？</h4>
 <p data-original-block="velox-hash-table-0501"><strong>链表法</strong>（每个 hash 槽 → entry 链表）：</p>
@@ -2530,7 +2557,7 @@ free = ~PMOVMSKB(tags) &amp; kFullMask;
 <p data-corrected="2026-09-20" data-original-block="velox-hash-table-0552">6-byte 表示要求所保存指针落在实现允许的低 48 位地址范围。x86-64 可存在更宽的虚拟地址空间，5-level paging 也不会自动使高于 48 位的用户地址消失；这里描述的是该数据结构的地址假设，不是架构永远保证高 16 位为零。</p>
 <h4 data-original-block="velox-hash-table-0553" id="e-为什么-hashmode-需要三档？">16.3.5 E. 为什么 hashMode 需要三档？</h4>
 <p data-original-block="velox-hash-table-0554">数据库 group by / join 的 key 基数分布是典型的<strong>双峰</strong>：</p>
-<pre class="detail-trace" data-original-block="velox-hash-table-0555" data-source-kind="reviewed-pseudocode"><code class="language-cpp">模式           关键条件 / 收益
+<pre class="detail-trace" data-original-block="velox-hash-table-0555" data-source-kind="reviewed-pseudocode"><code class="language-plaintext">模式           关键条件 / 收益
 Array          编码域和空间估计合适时直接寻址
 NormalizedKey  64 位编码可表示时简化 key 比较
 Hash           通用 key 处理，或命中成本启发式分支
@@ -2572,7 +2599,7 @@ Hash           通用 key 处理，或命中成本启发式分支
 <h4 data-original-block="velox-hash-table-0578" id="i-为什么-erase-写-tombstone-而非置空？">16.3.9 I. 为什么 erase 写 Tombstone 而非置空？</h4>
 <p data-original-block="velox-hash-table-0579">开放地址表中，key A 探测时可能因 bucket 满而跨入下一个 bucket。如果中间某个槽（含 key B）被简单置空，A 的探测在这里就误判为 miss —— 即使 A 实际存在于更远的 bucket。</p>
 <p data-original-block="velox-hash-table-0580">Tombstone 是"已删除但探测应继续"的标记。<code>eraseHit()</code> 的优化是：如果当前 bucket 还有空槽，说明探测链本来就在这个 bucket 内自然终止，删除后置空与置 tombstone 等价——此时选择置空，避免 tombstone 累积（§12.2）。</p>
-<hr/>
+<hr>
 <h3 data-original-block="velox-hash-table-0581" id="134-多层并发：从指令级到任务级">16.4 多层并发：从指令级到任务级</h3>
 <p data-original-block="velox-hash-table-0582">Velox HashTable 的"并行"在<strong>五个层次</strong>同时展开，每层独立优化、互不冲突：</p>
 <div class="tbl-wrap"><table>
@@ -2616,7 +2643,7 @@ Hash           通用 key 处理，或命中成本启发式分支
 </tr>
 </tbody></table></div>
 <p data-corrected="2026-09-20" data-original-block="velox-hash-table-0607">这些机制可在不同层次配合，但收益不能相乘或预设固定倍数。瓶颈可能转移到带宽、重排、分区不均或结果物化；端到端加速需要固定 CPU、数据、查询和基线的实测。</p>
-<hr/>
+<hr>
 <h3 data-original-block="velox-hash-table-0608" id="135-借鉴、创新与权衡">16.5 借鉴、创新与权衡</h3>
 <p data-original-block="velox-hash-table-0609"><strong>直接借鉴</strong>：</p>
 <ul>
@@ -2639,7 +2666,7 @@ Hash           通用 key 处理，或命中成本启发式分支
 <li data-original-block="velox-hash-table-0622"><strong>吞吐 vs 内存</strong>：Tombstone 占用槽位拖累 probe，通过把 numTombstones 计入负载因子触发 rehash 来限制累积</li>
 <li data-original-block="velox-hash-table-0623"><strong>代码复杂度 vs 性能</strong>：软流水线增加代码复杂度，用模板和 helper 类（ProbeState）局部化复杂度</li>
 </ul>
-<hr/>
+<hr>
 <h3 data-original-block="velox-hash-table-0624" id="136-一句话总结">16.6 一句话总结</h3>
 <blockquote>
 <p data-original-block="velox-hash-table-0625"><strong>数据决定形态，硬件决定布局，组合决定性能。</strong></p>
@@ -2650,7 +2677,7 @@ Hash           通用 key 处理，或命中成本启发式分支
 <li data-original-block="velox-hash-table-0628"><strong>组合决定性能</strong>：SIMD + 软流水线 + prefetch + partition 并行，五层叠加才是最终吞吐</li>
 </ul>
 <p data-original-block="velox-hash-table-0629">每一项决策单看都是已知技巧，但能够把六条设计原则、五个并发层次、三种 hash 模式、九项 SIMD 技巧<strong>正交地组合在一份不到 3000 行的实现里</strong>——这才是 Velox HashTable 真正优雅的地方。</p>
-<hr/>
+<hr>
 <h2 data-original-block="velox-hash-table-0793" data-reading-phase="design" id="16-五个维度的设计品味总览">17. 五个维度的设计品味总览</h2><section class="current-supplement" data-reviewed-section="verification"><h3 id="verification">17.1 当前实现补充 · 读代码时应保留的边界与验证入口</h3>
 <h4 id="把正确性不变量和性能推断分开">17.1.1 把正确性不变量和性能推断分开</h4>
 <div class="tbl-wrap"><table>
@@ -2741,7 +2768,7 @@ Hash           通用 key 处理，或命中成本启发式分支
 <li data-original-block="velox-hash-table-0796"><strong>代码品味</strong>：落到具体代码，工程师用什么手法把这个决策表达得既正确又优雅？</li>
 </ul>
 <p data-original-block="velox-hash-table-0797">五个维度不是孤立的——它们最终都收敛到同一句话：<strong>让数据结构的形态贴合硬件的脾气</strong>。</p>
-<hr/>
+<hr>
 <h3 data-original-block="velox-hash-table-0798" id="161-位操作（bit-operations）">17.2 位操作（Bit Operations）</h3>
 <p data-original-block="velox-hash-table-0799"><strong>架构品味：把"语义"压进"比特"，省下的不只是空间，更是访存带宽。</strong></p>
 <p data-original-block="velox-hash-table-0800">HashTable 不把"这个 slot 是空 / 满 / 删除"存成一个 <code>enum</code>（4 字节），而是压进一个 8-bit 的 tag（§5.3）。理由是带宽：16 个 tag 打包成 16 字节正好能被一条 SSE 指令一次性吃进寄存器（§7.3）。指针压到 6 字节而非 8 字节（§5.3），是因为 实现要求这些指针可用低 48 位表示；并非所有 x86-64 地址模式都天然满足——省下的 2 字节 × 16 让整个 Bucket 卡进 128 字节边界。<strong>位操作在这里不是抠门，是为了让数据结构整体落进"2 cache line"这个硬性预算。</strong></p>
@@ -2781,19 +2808,19 @@ Hash           通用 key 处理，或命中成本启发式分支
 </tr>
 </tbody></table></div>
 <p data-original-block="velox-hash-table-0822"><strong>贯穿的工程纪律</strong>：最高位（MSB）被复用为"类型标签"（§15.6）——tag 的 bit 7、PMOVMSKB 的结果都把 MSB 当作"有效/无效"的开关，这让 SIMD→scalar 的桥接（§7.10）用 movemask 提取位图；它仍有指令与依赖成本。</p>
-<hr/>
+<hr>
 <h3 data-original-block="velox-hash-table-0823" id="162-内存布局（memory-layout）">17.3 内存布局（Memory Layout）</h3>
 <p data-original-block="velox-hash-table-0824"><strong>架构品味：布局不是被动结果，而是主动设计的第一公民。</strong></p>
 <p data-original-block="velox-hash-table-0825">Bucket = 128 字节 = 2 cache line，是整个数据结构的"原子"（§5.3）。关键决策是 <strong>tag 与 pointer 分区存放</strong>（SoA 而非 AoS）：16 个 tag 连续打包在前 16 字节，16 个指针连续排在后面。如果按"tag+pointer 交错"（AoS）存，SIMD 扫 tag 时会把一堆无关的指针字节也拽进寄存器，浪费带宽。SoA 让"先扫 tag，命中后才读指针"这个两阶段访问各自局部性最大化。</p>
 <p data-original-block="velox-hash-table-0826"><strong>代码品味：用偏移常量和 <code>reinterpret_cast</code> 把布局表达得无歧义，而非靠 struct padding 碰运气。</strong></p>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0827" data-source-kind="original-reading-fragment"><code class="language-cpp">// tag 区与 pointer 区的边界由常量精确定义，不依赖编译器 padding：
-static constexpr int32_t kBucketSize = 128;
-static constexpr uint8_t kSlotsPerBucket = 16;
-// tag 在 [0, 16)，pointer 在 [16, 16 + 16*6)，尾部 16 字节 padding 凑齐 128。
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0827" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="comment">// tag 区与 pointer 区的边界由常量精确定义，不依赖编译器 padding：</span>
+<span class="type">static</span> <span class="keyword">constexpr</span> <span class="type">int32_t</span> kBucketSize = <span class="number">128</span>;
+<span class="type">static</span> <span class="keyword">constexpr</span> <span class="type">uint8_t</span> kSlotsPerBucket = <span class="number">16</span>;
+<span class="comment">// tag 在 [0, 16)，pointer 在 [16, 16 + 16*6)，尾部 16 字节 padding 凑齐 128。</span>
 </code></pre>
 <p data-original-block="velox-hash-table-0828">布局的"自证"通过 <code>static_assert</code> 固化（§15.7）：mask 不许碰高 16 位、Bucket 大小必须是 2 的幂——把不变量写进编译期，而不是寄望于 code review 发现。</p>
 <p data-original-block="velox-hash-table-0829"><strong>与位操作的耦合</strong>：内存布局的"省"全靠位操作的"挤"——指针压缩、tag 打包都是位级手法，二者是一体两面。</p>
-<hr/>
+<hr>
 <h3 data-original-block="velox-hash-table-0830" id="163-访存模式（memory-access-patterns）">17.4 访存模式（Memory Access Patterns）</h3>
 <p data-original-block="velox-hash-table-0831"><strong>架构品味：承认 DRAM 延迟无法消除，把全部精力投向"掩盖"它。</strong></p>
 <p data-original-block="velox-hash-table-0832">HashTable 通过多条独立查找重叠访存等待。代价要区分 L1 / L2 / LLC miss 与真正访问 DRAM；以下是源码中的处理层次，不是固定延迟或加速倍数的测量：</p>
@@ -2808,7 +2835,7 @@ static constexpr uint8_t kSlotsPerBucket = 16;
 <pre class="detail-trace" data-original-block="velox-hash-table-0837"><code>lookAhead = clamp(4 × 100ns × 16 / elapsed_ns, 4, 32)
 </code></pre>
 <p data-original-block="velox-hash-table-0838"><strong>与内存布局的耦合</strong>：访存模式之所以高效，前提是布局让"扫 tag"只碰一条 cache line——SoA 布局（§17.3）和预取流水线（本节）配合才有意义。</p>
-<hr/>
+<hr>
 <h3 data-original-block="velox-hash-table-0839" id="164-simd（数据并行）">17.5 SIMD（数据并行）</h3>
 <p data-original-block="velox-hash-table-0840"><strong>架构品味：用一条指令的宽度，换探测路径上的分支消除。</strong></p>
 <p data-original-block="velox-hash-table-0841">标量哈希表探测内层是"逐 slot 比较 + 分支"，每次比较都可能分支误判。HashTable 把一个 Bucket 的 16 个 tag 一次性载入 XMM 寄存器，用 <code>PCMPEQB</code> 做 16 路并行字节比较，再用 <code>PMOVMSKB</code> 压成一个 16-bit mask（§7.3）。<strong>16 次比较 + 16 次分支，比较与位图提取可用两条核心指令表达，此外仍有加载、候选迭代、key 比较及控制流。</strong></p>
@@ -2843,7 +2870,7 @@ static constexpr uint8_t kSlotsPerBucket = 16;
 </tr>
 </tbody></table></div>
 <p data-original-block="velox-hash-table-0858"><strong>与位操作 / 布局的耦合</strong>：SIMD 能成立，根因有两个——tag 的 <code>| 0x80</code> 不变量（§17.2）让 PMOVMSKB 的 MSB 直接区分有效/无效；SoA 布局（§17.3）让 16 个 tag 物理连续，才能一条指令载入。<strong>SIMD 是位操作和布局共同喂出来的能力，不是孤立的优化。</strong></p>
-<hr/>
+<hr>
 <h3 data-original-block="velox-hash-table-0859" id="165-多线程编程范式（concurrency-paradigm）">17.6 多线程编程范式（Concurrency Paradigm）</h3>
 <p data-original-block="velox-hash-table-0860"><strong>架构品味：避免锁，靠"分区 + 合并"把并行 build 拆成无共享的独立子问题。</strong></p>
 <p data-original-block="velox-hash-table-0861">并行 join build（§10）不在一张共享表上加锁，而是 partition-then-merge：</p>
@@ -2855,11 +2882,11 @@ static constexpr uint8_t kSlotsPerBucket = 16;
 <p data-original-block="velox-hash-table-0864"><strong>代码品味：用模板把"并行"与"串行"路径在编译期分开，运行期不付多余判断。</strong></p>
 <p data-original-block="velox-hash-table-0865"><code>HashTable&lt;ignoreNullKeys&gt;</code> 的模板参数（§14.3）和 <code>fullProbe&lt;op&gt;</code> 的操作分发（§7.4）让 build / probe / erase 各自单态化。并行 build 的每个阶段是独立函数，状态通过参数显式传递而非共享可变状态——这让线程边界上的数据流一目了然，也是"值语义优先"（§14.5）在并发场景的延伸。</p>
 <p data-original-block="velox-hash-table-0866"><strong>与访存模式的耦合</strong>：分区的另一个收益是局部性——索引写入按 bucket 范围隔离；行读取、共享元数据和 cache 边界仍需分析，不能保证完全没有共享或 cache 干扰。<strong>多线程范式和访存模式在这里是同一个决策的两面：分区既消除竞争，又改善局部性。</strong></p>
-<hr/>
+<hr>
 <h3 data-original-block="velox-hash-table-0867" id="166-五维一体：一个决策的五个投影">17.7 五维一体：一个决策的五个投影</h3>
 <p data-original-block="velox-hash-table-0868">最后回到本章开头那句话。五个维度看似独立，实则是<strong>同一套"硬件意识"在不同切面上的投影</strong>：</p>
 <div class="fig">
-<figure class="detail-figure" data-original-block="velox-hash-table-0869"><div class="detail-figure-scroll"><img alt="五个相互配合的设计维度" loading="lazy" src="/images/velox-hash-table/detail-original-06.svg"/></div><figcaption>五个相互配合的设计维度。已按当前实现修正标注，具体约束见相邻正文。</figcaption></figure>
+<figure class="detail-figure" data-original-block="velox-hash-table-0869"><div class="detail-figure-scroll"><img alt="五个相互配合的设计维度" loading="lazy" src="/images/velox-hash-table/detail-original-06.svg"></div><figcaption>五个相互配合的设计维度。已按当前实现修正标注，具体约束见相邻正文。</figcaption></figure>
 <div class="fig-cap"><b>Fig.</b>　五维一体:一个"贴合硬件"的决策在五个维度上的投影</div>
 </div>
 <p data-original-block="velox-hash-table-0870">它们彼此咬合，拆掉任何一环另一环就失去意义：</p>
@@ -2869,7 +2896,7 @@ static constexpr uint8_t kSlotsPerBucket = 16;
 <li data-original-block="velox-hash-table-0873">没有 <strong>分区</strong>（15.5），并行 build 既要加锁，又会污染彼此的 <strong>cache</strong>（15.3）。</li>
 </ul>
 <p data-original-block="velox-hash-table-0874"><strong>一句话总结</strong>：HashTable 的优雅不在某一个聪明的技巧，而在于位操作、布局、访存、SIMD、并发这五件事被设计成<strong>互相成全</strong>——每个决策都同时在多个维度上买单和收益。这是"系统级品味"区别于"局部优化"的根本所在。</p>
-<hr/>
+<hr>
 <h2 data-reading-phase="design" id="design-tradeoffs">18. 从探测成本回看表示选择与复杂度</h2><p>前面的位操作、SIMD、预取和分区协议，分别改变一次查找中的不同成本。评价它们需要先明确目标：减少无效候选、减少真实 key 与 payload 的访问、重叠独立访存，或减少并行建表的写入争用。代码短、分支少或技巧多，本身都不是性能结论。</p>
 <div class="tbl-wrap"><table>
 <thead>
@@ -3023,8 +3050,8 @@ static constexpr uint8_t kSlotsPerBucket = 16;
 </tbody></table></div>
 <h2 data-original-block="velox-hash-table-0903" data-reading-phase="reference" id="附录：类型模板实例化">20. 附录：类型模板实例化</h2>
 <p data-original-block="velox-hash-table-0904"><code>HashTable</code> 有两个显式实例：</p>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0905" data-source-kind="original-reading-fragment"><code class="language-cpp">template class HashTable&lt;true&gt;;   // ignoreNullKeys=true（聚合 / inner join）
-template class HashTable&lt;false&gt;;  // ignoreNullKeys=false（null-aware join）
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-hash-table-0905" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp"><span class="keyword">template</span> <span class="keyword">class</span> <span class="title class_">HashTable</span>&lt;<span class="literal">true</span>&gt;;   <span class="comment">// ignoreNullKeys=true（聚合 / inner join）</span>
+<span class="keyword">template</span> <span class="keyword">class</span> <span class="title class_">HashTable</span>&lt;<span class="literal">false</span>&gt;;  <span class="comment">// ignoreNullKeys=false（null-aware join）</span>
 </code></pre>
 <p data-original-block="velox-hash-table-0906">编译时分离两种路径，null key 的处理逻辑通过 <code>if constexpr (ignoreNullKeys)</code> 完全在编译期消除，无运行时开销。</p>
 <div class="detail-source-note" id="accuracy-audit-20260920"><p><strong>源码核对（2026-09-20）</strong>：本轮按 Velox <code>1d1b76567870</code> 核对关键接口、控制流、默认值与边界条件。当前源码摘录附固定版本链接；流程伪代码用于说明分支，不是可直接编译的程序。未对全文示例做独立编译或性能复测。涉及宿主集成与历史实验的数据，按各节标注的来源理解。</p><ul><li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/AdaptivePrefetch.h#L34">velox/exec/AdaptivePrefetch.h:34</a></li><li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/HashBuild.cpp#L372">velox/exec/HashBuild.cpp:372</a></li><li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/HashBuild.cpp#L904">velox/exec/HashBuild.cpp:904,944,983</a></li><li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/HashTable.cpp#L1003">velox/exec/HashTable.cpp:1003,1751</a></li><li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/HashTable.cpp#L1751">velox/exec/HashTable.cpp:1751</a></li><li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/HashTable.cpp#L2633">velox/exec/HashTable.cpp:2633</a></li><li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/HashTable.h#L890">velox/exec/HashTable.h:890</a></li><li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/VectorHasher.h#L47">velox/exec/VectorHasher.h:47</a></li></ul></div></div>

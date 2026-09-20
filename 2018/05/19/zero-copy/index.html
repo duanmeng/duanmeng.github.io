@@ -192,14 +192,14 @@
 
   <div class="content" itemprop="articleBody">
     
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
+
+
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=Noto+Serif+SC:wght@400;500;600&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&amp;family=Noto+Serif+SC:wght@400;500;600&amp;family=DM+Mono:ital,wght@0,400;0,500;1,400&amp;display=swap" rel="stylesheet">
 <style>
   :root{
     --paper:#f5f0e8; --paper-2:#ede8df; --ink:#0c0e1a; --border:#d4cdc0;
@@ -273,8 +273,8 @@
   .post-body .hljs-emphasis{font-style:italic;}
   .post-body .hljs-strong{font-weight:600;}
 </style>
-</head>
-<body>
+
+
 <div class="wrap">
   <header class="masthead">
     <div class="top-bar"><span>LINUX · STORAGE</span><span>2018-05-19</span></div>
@@ -287,11 +287,11 @@
 <pre><code class="language-java">File.read(fileDesc, buf, len);
 Socket.send(socket, buf, len);
 </code></pre>
-<div class="tbl-wrap"><table><tr>
+<div class="tbl-wrap"><table><tbody><tr>
 <td><img src="https://s3.us.cloud-object-storage.appdomain.cloud/developer/default/articles/j-zerocopy/images/figure1.gif" width="380" height="220"></td>
 <td>  </td>
 <td><img src="https://s3.us.cloud-object-storage.appdomain.cloud/developer/default/articles/j-zerocopy/images/figure2.gif" width="380" height="220"></td>
-</tr></table></div>
+</tr></tbody></table></div>
 
 <p>然而，如上面两图所示，实际上发生了4次拷贝（copy），4次上下文切换（context switch）和2次系统调用（system call）：</p>
 <ol>
@@ -300,19 +300,19 @@ Socket.send(socket, buf, len);
 <li><strong><code>send()</code></strong> 套接字调用导致上下文从用户模式切换到内核模式。执行第三次复制，将数据再次放入内核地址空间缓冲区。不过这一次，数据被放入另一个缓冲区（Socket buffer），该缓冲区与目标套接字相关联。</li>
 <li><strong><code>send()</code></strong> 系统调用返回，创建第四次上下文切换。独立且异步地，当DMA引擎将数据从内核缓冲区传递到协议引擎时（NIC buffer），会发生第四次复制。</li>
 </ol>
-<p><font color='red'><b>上述4个步骤，每个步骤会有一次拷贝，一次上下文切换，步骤1，3有一次系统调用</b></font></p>
+<p><font color="red"><b>上述4个步骤，每个步骤会有一次拷贝，一次上下文切换，步骤1，3有一次系统调用</b></font></p>
 <h2 id="zero-copy初步">Zero Copy初步</h2>
 <p>上面流程可以看到，应用程序除了缓存数据并将其传输回套接字缓冲区外什么都不做。相反，数据可以直接从读取缓冲区传输到套接字缓冲区。 Java的transferTo，C/C++的sendfile方法可以做到这一点。</p>
 <pre><code class="language-java">public void transferTo(long position, long count, WritableByteChannel target);
 </code></pre>
-<pre><code class="language-cpp">#include &lt;sys/socket.h&gt;
-ssize_t sendfile(int out_fd, int in_fd, off_t *offset, size_t count);
+<pre class="cpp-highlight"><code class="language-cpp"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/socket.h&gt;</span></span>
+<span class="function"><span class="type">ssize_t</span> <span class="title">sendfile</span><span class="params">(<span class="type">int</span> out_fd, <span class="type">int</span> in_fd, <span class="type">off_t</span> *offset, <span class="type">size_t</span> count)</span></span>;
 </code></pre>
-<div class="tbl-wrap"><table><tr>
+<div class="tbl-wrap"><table><tbody><tr>
 <td><img src="https://s3.us.cloud-object-storage.appdomain.cloud/developer/default/articles/j-zerocopy/images/figure3.gif" width="380" height="220"></td>
 <td>  </td>
 <td><img src="https://s3.us.cloud-object-storage.appdomain.cloud/developer/default/articles/j-zerocopy/images/figure4.gif" width="380" height="220"></td>
-</tr></table></div>
+</tr></tbody></table></div>
 
 <p>以Java的transferTo为例，上述流程可以被优化为2步：</p>
 <ol>
@@ -326,7 +326,7 @@ ssize_t sendfile(int out_fd, int in_fd, off_t *offset, size_t count);
 <li><code>transferTo</code>/<code>sendFile</code>方法导致文件内容被DMA引擎复制到内核缓冲区中</li>
 <li>没有数据被复制到套接字缓冲区中。相反，只有包含有关数据位置和长度信息的描述符才会附加到套接字缓冲区。DMA引擎将数据直接从内核缓冲区传递到协议引擎，从而消除了剩余的最终CPU拷贝</li>
 </ol>
-<p><font color='red'><b>上述2个步骤，每个步骤会有一次拷贝（DMA），一次系统调用，总共两次拷贝，两次系统调用！</b></font></p>
+<p><font color="red"><b>上述2个步骤，每个步骤会有一次拷贝（DMA），一次系统调用，总共两次拷贝，两次系统调用！</b></font></p>
 <h2 id="references">References</h2>
 <ul>
 <li><a target="_blank" rel="noopener" href="https://developer.ibm.com/articles/j-zerocopy/">https://developer.ibm.com/articles/j-zerocopy/</a></li>
@@ -341,8 +341,8 @@ ssize_t sendfile(int out_fd, int in_fd, off_t *offset, size_t count);
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script>document.querySelectorAll('.post-body pre code[class*="language-"]').forEach(function(el){try{hljs.highlightElement(el);}catch(e){}});</script>
-</body>
-</html>
+
+
 
   </div>
 </article>

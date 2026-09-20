@@ -263,11 +263,11 @@
 </tbody></table></div>
 <p>数据在这套系统中同时具有逻辑含义和具体表示。Type 描述 schema 与执行所需的类型信息，Vector 组织一批值及其编码，表达式与算子按选中行处理这些值，Task/Driver 协调运行与等待。后面的组件分析都可以放回这条执行链中理解。</p>
 <p>本文同时保留论文的原始动机、实验与历史背景，以及固定源码快照的实现补充。论文展示的是特定系统和负载下的结果；当前接口和工程细节以相应源码补充为准，二者不能合并成一项对所有宿主的性能承诺。</p>
-<figure class="review-figure"><div aria-label="图 1：Velox 的复用边界；宿主控制计划和生命周期，执行层通过接口访问存储与交换。" class="diagram-scroll" role="region" tabindex="0"><img alt="图 1：Velox 的复用边界；宿主控制计划和生命周期，执行层通过接口访问存储与交换。" loading="lazy" src="/images/velox-depp-intro/architecture.svg"/></div><figcaption>图 1：Velox 的复用边界；宿主控制计划和生命周期，执行层通过接口访问存储与交换。</figcaption></figure>
+<figure class="review-figure"><div aria-label="图 1：Velox 的复用边界；宿主控制计划和生命周期，执行层通过接口访问存储与交换。" class="diagram-scroll" role="region" tabindex="0"><img alt="图 1：Velox 的复用边界；宿主控制计划和生命周期，执行层通过接口访问存储与交换。" loading="lazy" src="/images/velox-depp-intro/architecture.svg"></div><figcaption>图 1：Velox 的复用边界；宿主控制计划和生命周期，执行层通过接口访问存储与交换。</figcaption></figure>
 
 <p>这篇文章最初是 2022 年 Velox 论文的阅读笔记。2026-09-19 重构后，正文按 <strong>Velox 1d1b76567870</strong> 解释当前实现；论文的动机和实验单独保留为历史背景。</p>
 <p class="detail-reading-note">本文保留原有的逐层实现、代码推导和工程分析，并在对应章节补充 <strong>2026-09-20 源码核对</strong>。下文标为“当前实现补充”的内容依据固定提交；原有代码含流程化简写，旧的文件行号用于还原阅读上下文，查找当前实现请使用补充中的固定源码链接。接口或语义发生变化的地方会在相邻说明中指出。</p><p class="detail-source-note">本文保留早期论文与设计介绍中的全部背景、例子和实验讨论。历史能力、实验性 Codegen 与性能数字以当时论文为语境；各章的源码核对说明 2026-09-20 固定提交中的对应实现，不能把历史实验当成本机复测。</p>
-<p data-original-block="velox-depp-intro-0000"><div class="detail-figure-scroll"><img alt="stack-transform：根据原图完整重绘，正文说明当前语义" data-original-block="velox-depp-intro-0001" src="/images/velox-depp-intro/detail-stack-transform.svg"/></div></p>
+<p data-original-block="velox-depp-intro-0000"></p><div class="detail-figure-scroll"><img alt="stack-transform：根据原图完整重绘，正文说明当前语义" data-original-block="velox-depp-intro-0001" src="/images/velox-depp-intro/detail-stack-transform.svg"></div><p></p>
 <h2 data-original-block="velox-depp-intro-0002" data-reading-phase="concepts" id="what-is-velox">2. Velox 的定位与基本能力</h2>
 <p data-original-block="velox-depp-intro-0003">Velox是Meta开发的扩展性强，高性能的C++执行引擎加速库，提供可重用、可扩展、高性能且与方言无关的数据处理组件，用于构建执行引擎和增强数据管理系统。该库在很大程度上依赖向量化和适应性，并从根本上设计为支持对复杂数据类型的高效计算，因为这些类型在现代工作负载中非常普遍。Velox被用于Meta内部的批处理，流处理，交互式查询，和机器学习组件（Presto, Spark, PyTorch, XStream, F3, FBETL等）。Velox不提供语言前端，比如SQL，Dataframe等，它使用一个充分优化后的查询计划作为输入，然后使用local host的资源执行。Velox虽然不提供全局优化器，但是它执行时应用了大量的自适应（adaptive）技术，比如filter，conjunct reordering, dynamic filter pushdown和adaptive column prefetching等，总而言之它主要关注数据面（data-plane），上层引擎（Presto，Spark等）主要负责控制面（control-plane）。Velox在以下方面提供了优势：</p>
 <ul>
@@ -470,7 +470,7 @@ Velox函数库提供了与流行的 SQL 方言兼容的函数包（目前，用�
 and floats）或可变大小的元素（例如，strings, arrays, maps, and
 structs/rows）。</p>
 <p data-original-block="velox-depp-intro-0082">
-</p><div align="center"><a><div class="detail-figure-scroll"><img alt="row-vector：根据原图完整重绘，正文说明当前语义" data-original-block="velox-depp-intro-0083" src="/images/velox-depp-intro/detail-row-vector.svg"/></div></a></div>
+</p><div align="center"><a><div class="detail-figure-scroll"><img alt="row-vector：根据原图完整重绘，正文说明当前语义" data-original-block="velox-depp-intro-0083" src="/images/velox-depp-intro/detail-row-vector.svg"></div></a></div>
 <p data-original-block="velox-depp-intro-0084">Vectors也可以以任意方式嵌套（例如，包含字符串和其他原始类型的结构的数组的数组），并可以利用不同的编码格式，如flat,
 dictionary, constant, sequence/RLE, 和bias (frame of reference)。所有向量数据都使用Velox缓冲区存储，这些缓冲区是从内存池分配的连续内存片段，可以进行子类化以支持不同的所有权模式（例如，拥有和缓冲区视图）。所有向量和缓冲区都是引用计数的，一个单独的缓冲区可以被多个向量引用；自然，只有单一引用的数据是可变的，但任何向量和缓冲区都可以通过写时复制变得可写。</p><p class="detail-source-note"><strong>源码核对：</strong>唯一引用是可写性的重要条件之一；view、外部只读 buffer 和子向量仍要检查。ensureWritable 等接口按选中行与类型准备可写输出，不是任意裸写都会自动触发透明 COW。</p>
 <p data-original-block="velox-depp-intro-0085">此外，Velox提供了Lazy Vectors的概念，这些向量只在首次使用时填充。Lazy Vectors在如连接和投影中的条件等基数减少操作中非常有用，其中，根据操作的选择性，可以完全避免物化，或将其限制在少数有效的行中。当从远程存储（如S3或HDFS）读取向量数据时，这个特性特别有用，因为它可以为稀疏访问的列优化掉整个IO操作。Lazy Vectors还提供了对加载数据运行回调的支持，这可以用于在不必物化中间向量的情况下推下计算（如聚合）。</p>
@@ -480,16 +480,16 @@ dictionary, constant, sequence/RLE, 和bias (frame of reference)。所有向量�
 <li data-original-block="velox-depp-intro-0088"><strong>字符串</strong></li>
 </ul>
 <p data-original-block="velox-depp-intro-0089">Arrow使用传统的variable-sized elements布局来表示字符串，这包括一个包含字符串内容的缓冲区，以及一个表示字符串大小的长度缓冲区或一个标记字符串开始位置的偏移缓冲区，但在Velox的布局中，字符串向量也由两个缓冲区组成，一个用于元数据，每个字符串元素包含16字节，另一个用于存储字符串的数据。字符串元数据类被称为StringView，定义如下：</p>
-<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-depp-intro-0090" data-source-kind="original-reading-fragment"><code class="language-cpp">strcut StringView &#123;
-    uint32_t size_;
-    char prefix_[4];
-    union &#123;
-        char inlined[8];
-        const char* data;
-    &#125;
-&#125;
+<p class="detail-code-label">代码阅读片段：保留省略与上下文；文件行号来自原稿，当前接口及差异见本节源码核对。</p><pre data-original-block="velox-depp-intro-0090" data-source-kind="original-reading-fragment" class="cpp-highlight"><code class="language-cpp">strcut StringView {
+    <span class="type">uint32_t</span> size_;
+    <span class="type">char</span> prefix_[<span class="number">4</span>];
+    <span class="keyword">union</span> {
+        <span class="type">char</span> inlined[<span class="number">8</span>];
+        <span class="type">const</span> <span class="type">char</span>* data;
+    }
+}
 </code></pre>
-<p data-original-block="velox-depp-intro-0091"><a><div class="detail-figure-scroll"><img alt="string-vector：根据原图完整重绘，正文说明当前语义" data-original-block="velox-depp-intro-0092" src="/images/velox-depp-intro/detail-string-vector.svg"/></div></a></p>
+<p data-original-block="velox-depp-intro-0091"><a></a></p><div class="detail-figure-scroll"><a><img alt="string-vector：根据原图完整重绘，正文说明当前语义" data-original-block="velox-depp-intro-0092" src="/images/velox-depp-intro/detail-string-vector.svg"></a></div><p></p>
 <p data-original-block="velox-depp-intro-0093">StringViews总是内联存储一个小的（4字节）前缀，专注于短路失败的比较(short-circuiting failed comparisons)以加速诸如过滤和排序等操作。此外，最大为12字节的小字符串完全内联，不需要访问次级缓冲区。这种布局还允许某些字符串操作，如𝑡𝑟𝑖𝑚()和𝑠𝑢𝑏𝑠𝑡𝑟()，通过仅更新元数据指针来执行零复制。</p>
 <ul>
 <li data-original-block="velox-depp-intro-0094"><p><strong>支持乱序写入</strong>
@@ -501,8 +501,8 @@ Velox向量还添加了在数据仓库工作负载中常见的两种编码格式
 </ul>
 <p data-original-block="velox-depp-intro-0098">Velox vector对scalar type和complex type的物理布局本质是一样的，都包含一个value buffer连续存放实际的value，null buffer标识value是否为null，比如下面的FlatVector<int32_t>与ArrayVector。</int32_t></p><p class="detail-source-note"><strong>源码核对：</strong>FlatVector 的固定宽度 values 与 ArrayVector 的 offsets/sizes/child 是不同物理布局。ArrayVector 的父级 null 与 child null 也分开，不能把复杂类型理解为和标量一样只有一块连续 value buffer。ROW 则由 child vectors 表达字段，下面的图分别展示这些差异。</p>
 <div align="center"><div class="tbl-wrap"><table><tbody><tr>
-<td data-original-block="velox-depp-intro-0099"><div class="detail-figure-scroll"><img alt="flat-vector：根据原图完整重绘，正文说明当前语义" data-original-block="velox-depp-intro-0100" src="/images/velox-depp-intro/detail-flat-vector.svg"/></div></td>
-<td data-original-block="velox-depp-intro-0101"><div class="detail-figure-scroll"><img alt="array-out-of-order：根据原图完整重绘，正文说明当前语义" data-original-block="velox-depp-intro-0102" src="/images/velox-depp-intro/detail-array-out-of-order.svg"/></div></td>
+<td data-original-block="velox-depp-intro-0099"><div class="detail-figure-scroll"><img alt="flat-vector：根据原图完整重绘，正文说明当前语义" data-original-block="velox-depp-intro-0100" src="/images/velox-depp-intro/detail-flat-vector.svg"></div></td>
+<td data-original-block="velox-depp-intro-0101"><div class="detail-figure-scroll"><img alt="array-out-of-order：根据原图完整重绘，正文说明当前语义" data-original-block="velox-depp-intro-0102" src="/images/velox-depp-intro/detail-array-out-of-order.svg"></div></td>
 </tr></tbody></table></div></div>
 <h3 data-original-block="velox-depp-intro-0103" id="expression">4.4 Expression</h3>
 <p data-original-block="velox-depp-intro-0104">Velox的expression evaluation引擎可以被用在3种场景：</p>
@@ -526,7 +526,7 @@ Velox向量还添加了在数据仓库工作负载中常见的两种编码格式
 </ul>
 <h4 data-original-block="velox-depp-intro-0117" id="expression-trees">4.4.1 Expression Trees</h4><section class="current-supplement" data-reviewed-section="expressions"><h3 id="expressions">4.5 当前实现补充 · 表达式：按选中行求值，利用编码和共享结果</h3>
 <p>表达式求值接收一组输入向量和选中行集合。<code>SelectivityVector</code> 表示哪些逻辑行需要计算；<code>ExprSet</code> 管理一组已构造的执行表达式。以 <code>f(a) + f(a)</code> 为例，可共享的子表达式不必机械地重复计算，但共享和缓存需要满足表达式确定性、输入映射、已求值行等条件。</p>
-<figure class="review-figure"><div aria-label="图 2：选中行、编码和 null 参与表达式执行；优化必须保留函数语义。" class="diagram-scroll" role="region" tabindex="0"><img alt="图 2：选中行、编码和 null 参与表达式执行；优化必须保留函数语义。" loading="lazy" src="/images/velox-depp-intro/expression.svg"/></div><figcaption>图 2：选中行、编码和 null 参与表达式执行；优化必须保留函数语义。</figcaption></figure>
+<figure class="review-figure"><div aria-label="图 2：选中行、编码和 null 参与表达式执行；优化必须保留函数语义。" class="diagram-scroll" role="region" tabindex="0"><img alt="图 2：选中行、编码和 null 参与表达式执行；优化必须保留函数语义。" loading="lazy" src="/images/velox-depp-intro/expression.svg"></div><figcaption>图 2：选中行、编码和 null 参与表达式执行；优化必须保留函数语义。</figcaption></figure>
 <p><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/expression/Expr.h#L167">Expr 的求值入口</a>、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/expression/Expr.h#L500">编码 peeling</a>、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/expression/Expr.h#L569">共享结果与 memoization</a> 体现了几类优化：</p>
 <ul>
 <li>对可剥离的 constant/dictionary 包装，在底层值上求值，再恢复输出映射。</li>
@@ -577,7 +577,7 @@ Velox向量还添加了在数据仓库工作负载中常见的两种编码格式
 </tr>
 <tr>
 <td align="left" data-original-block="velox-depp-intro-0137">CallTypedExpr</td>
-<td align="left" data-original-block="velox-depp-intro-0138">- CastExpr if function name is “cast”;<br/>- ConjunctExpr if function name is “and” or “or”;<br/>- SwitchExpr if function name is “if” or “switch”;<br/>- CoalesceExpr if function name is “coalesce”<br/>- TryExpr if function name is “try”;<br/>- Expr if function name is none of the above.</td>
+<td align="left" data-original-block="velox-depp-intro-0138">- CastExpr if function name is “cast”;<br>- ConjunctExpr if function name is “and” or “or”;<br>- SwitchExpr if function name is “if” or “switch”;<br>- CoalesceExpr if function name is “coalesce”<br>- TryExpr if function name is “try”;<br>- Expr if function name is none of the above.</td>
 </tr>
 <tr>
 <td align="left" data-original-block="velox-depp-intro-0139">CastTypedExpr</td>
@@ -609,13 +609,13 @@ Velox向量还添加了在数据仓库工作负载中常见的两种编码格式
 <li data-original-block="velox-depp-intro-0156">nulls传递expression，且有输入为null</li>
 </ul>
 <p data-original-block="velox-depp-intro-0157">Velox的开发者文档对<a target="_blank" rel="noopener" href="https://facebookincubator.github.io/velox/develop/expression-evaluation.html">Expression的优化描述</a>更详细，可以对照看一下。
-<div class="detail-figure-scroll"><img alt="expression-evaluation：根据原图完整重绘，正文说明当前语义" data-original-block="velox-depp-intro-0158" src="/images/velox-depp-intro/detail-expression-evaluation.svg"/></div></p>
+</p><div class="detail-figure-scroll"><img alt="expression-evaluation：根据原图完整重绘，正文说明当前语义" data-original-block="velox-depp-intro-0158" src="/images/velox-depp-intro/detail-expression-evaluation.svg"></div><p></p>
 <h4 data-original-block="velox-depp-intro-0159" id="code-generation">4.5.3 Code Generation</h4>
 <p data-original-block="velox-depp-intro-0160">Velox还提供了对通过代码生成（codegen）进行表达式求值的实验性支持。启用时，执行时将整个表达式树重写为C++函数的源代码，并将其写入源文件，使用常规编译器（如gcc或clang）将其编译为共享库。然后，将共享库动态链接到主进程，并在求值时使用它，而不是使用向量化的解释路径。考虑到代码生成过程涉及完整的编译器调用，编译时间通常很长（在某些情况下长达10秒），并且不适用于短期查询或交互式工作负载。相反，我们最初的评估重点是大型ETL查询（执行时间为几小时到几天），以及表达式树固定的用例。截至目前，Velox中的代码生成支持仍处于实验阶段。权衡编译延迟、降低开发人员生产力和可调试性，以及在向量化和基于代码生成的评估路径之间探索运行时适应性的工作是未来研究的开放问题和方向。</p><p class="detail-source-note"><strong>源码核对：</strong>本段完整保留早期论文的实验设计与取舍。当前快照不能据此推断默认表达式路径会调用系统编译器；常规执行仍应从 ExprSet/Expr 与函数实现追踪。实验能力的存在、维护状态和启用方式需要针对具体版本单独核对。</p>
 <h3 data-original-block="velox-depp-intro-0161" id="function">4.6 Function</h3>
 <p data-original-block="velox-depp-intro-0162">Velox提供了API让开发者定制（主要是velox社区实现各类prestosql或者sparksql的functions，aggregate functions），scalar functions和aggregate functions。作为一个向量化引擎，Velox的scalar function API可以是向量化的，即输入参数是batch-by-batch的vectors，还包括 nullability buffers，active rows（bitmap），并可以利用vectors内置的null buffer，length buffer和key buffer等实现常量时间复杂度的is_null(), cardinality()和keys()等操作。</p>
 <p data-original-block="velox-depp-intro-0163">Simple Function Framework 让开发者以逐行调用形式实现函数，由框架负责批量遍历、输入解码、null 处理与输出写入。声明中的类型 tag 通过 resolver 映射为 C++ 输入视图 / 输出 writer：例如 VARCHAR 输入使用 StringView，ARRAY 输入使用 ArrayView，输出使用相应 Writer，并不是把所有非标量值先转换成 std::string / std::vector。输入视图可避免某些额外物化，但输出增长和变长数据写入仍可能分配或复制；框架也不承诺自动把任意 scalar 函数变成 SIMD 指令。ASCII 专用路径则是满足输入和函数语义条件时的另一类特化。</p>
-<p data-original-block="velox-depp-intro-0164"><a><div class="detail-figure-scroll"><img alt="simple-function：根据原图完整重绘，正文说明当前语义" data-original-block="velox-depp-intro-0165" src="/images/velox-depp-intro/detail-simple-function.svg"/></div></a></p>
+<p data-original-block="velox-depp-intro-0164"><a></a></p><div class="detail-figure-scroll"><a><img alt="simple-function：根据原图完整重绘，正文说明当前语义" data-original-block="velox-depp-intro-0165" src="/images/velox-depp-intro/detail-simple-function.svg"></a></div><p></p>
 <h3 data-original-block="velox-depp-intro-0166" id="operators">4.7 Operators</h3><section class="current-supplement" data-reviewed-section="execution"><h3 id="execution">4.8 当前实现补充 · 控制平面：计划变成 Pipeline、Driver、Operator</h3>
 <p><code>LocalPlanner</code> 遍历 PlanNode，把不能在同一个流水线上顺序推进的边界拆开，形成 DriverFactory。每个 factory 描述一条 pipeline；运行时创建一个或多个 Driver，每个 Driver 拥有自己的 Operator 实例。参见 <a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/LocalPlanner.cpp#L299">计划拆分</a>、<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/exec/LocalPlanner.cpp#L514">Driver 实例化</a>。</p>
 <p>Pipeline 是拓扑结构，Driver 是运行实例，executor thread 是执行它的线程。Driver 遇到等待输入、输出背压或 join build 未完成时，可以保存 future 并让出 executor，之后由回调重新调度；不能把 Driver 数直接当成常驻线程数。</p>
@@ -625,7 +625,7 @@ Velox向量还添加了在数据仓库工作负载中常见的两种编码格式
 <p data-original-block="velox-depp-intro-0167">Velox查询计划由一棵PlanNode树组成，例如Filter、Project、TableScan、Aggregation、HashJoin、Exchange等，描述了要执行的计算过程。为了执行查询计划，计划节点首先被转换为运算符（Operator）。转换通常是一对一的，但也有一些例外，例如（a）Filter节点后跟Project节点被合并为单个FilterProject运算符，以及（b）具有两个或多个子节点的计划节点被转换为多个运算符，例如，HashJoin节点被转换为一对运算符，HashProbe和HashBuild，详细转换参见<a target="_blank" rel="noopener" href="https://facebookincubator.github.io/velox/develop/operators.html">这里</a>。。</p>
 <p data-original-block="velox-depp-intro-0168">Velox的顶层执行概念是<strong>Task</strong>，它是分布式执行中的函数传输单元，对应于查询计划片段以及其运算符树。任务以<code>TableScan</code>或<code>Exchange（shuffle）</code>源作为输入开始，并以另一个<code>Exchange</code>结束。任务的运算符树被分解为一个或多个线性子树，称为<code>Pipeline</code>：例如，<code>HashProbe</code>和<code>HashBuild</code>分别映射到一个<code>Pipeline</code>。每个<code>Pipeline</code>具有一个或多个执行线程，称为<code>Driver</code>，每个<code>Driver</code>都有自己的状态。<code>Driver</code>可以在线程上运行或不运行，这取决于它们是否有工作要执行。<code>Driver</code>之所以可能让出线程，有很多原因，例如，因为其消费者尚未消费数据，其源<code>Exhange</code>尚未产生数据，或者<code>Scan</code>正在等待文件扫描。与传统的Volcano迭代器树模型相比，这种模型更方便进行线程上下文切换，因为状态是可恢复的，无需在堆栈上构建控制流。最后，任务可以随时被其他Velox执行器取消或暂停。能够暂停任务在强制执行优先级、检查点状态、强制另一个任务溢出或其他协调活动的情况下非常方便。</p><p class="detail-source-note"><strong>源码核对：</strong>Driver 是一条 pipeline 的执行实例，持有独立 Operator 状态；它可在 executor 线程间迁移，不能直接等同 OS 线程。Task 输入输出也不必都为 Exchange：Values、connector source、结果 consumer 等都可构成边界。普通 pause/future 等待与仲裁保栈 suspended 是不同路径。</p>
 <p data-original-block="velox-depp-intro-0169">所有运算符实现了相同的基本API，包括添加一批向量作为输入、获取一批向量作为输出、检查运算符是否准备好接受更多输入数据以及通知不再添加数据的方法；后者可以用于通知阻塞排序或聚合刷新其内部状态并开始生成输出。尽管Velox已经提供了一套广泛使用的运算符，但该库还允许引擎开发人员添加包含特定于引擎的业务逻辑的自定义运算符，例如基于流的流处理聚合。</p>
-<p data-original-block="velox-depp-intro-0170"><a><div class="detail-figure-scroll"><img alt="task-join-plan：根据原图完整重绘，正文说明当前语义" data-original-block="velox-depp-intro-0171" src="/images/velox-depp-intro/detail-task-join-plan.svg"/></div></a></p>
+<p data-original-block="velox-depp-intro-0170"><a></a></p><div class="detail-figure-scroll"><a><img alt="task-join-plan：根据原图完整重绘，正文说明当前语义" data-original-block="velox-depp-intro-0171" src="/images/velox-depp-intro/detail-task-join-plan.svg"></a></div><p></p>
 <h4 data-original-block="velox-depp-intro-0172" id="table-scans-filter-and-project">4.8.1 Table Scans, Filter, and Project</h4><section class="current-supplement" data-reviewed-section="io"><h3 id="io">4.9 当前实现补充 · Connector、过滤下推与 Exchange</h3>
 <p><code>TableScan</code> 从 Task 获取 split，把 connector-specific split 交给 <code>DataSource</code>，后者产出 RowVector。<a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/1d1b765678702e6b5d1b3c582373c618813c3c85/velox/connectors/Connector.h#L338">DataSource</a> 的 <code>next</code> 接口可以返回数据、split 结束，或表示异步等待；调用方必须区分这些状态。</p>
 <p>过滤下推可能在元数据、row group/stripe、解码和向量表达式等不同阶段发生。某个谓词能够转成 Filter，不等于每种 connector 都支持相同的下推，更不等于 residual filter 可以无条件删掉。Hash join 的 dynamic filter 同样受 join 类型、hash mode、spill 状态和上游能力限制。</p>
@@ -644,7 +644,7 @@ Velox向量还添加了在数据仓库工作负载中常见的两种编码格式
 <h3 data-original-block="velox-depp-intro-0178" id="memory-management">4.10 Memory Management</h3><section class="current-supplement" data-reviewed-section="resources"><h3 id="resources">4.11 当前实现补充 · 资源管理：内存回收会进入执行流程</h3>
 <p>QueryCtx 汇集 query 配置、pool、executor、spill executor 等资源。未传入 pool 时，Velox 可以创建 query root；宿主也可以传入带限制的 root。Task 和 Operator 在其下建立资源层次。</p>
 <p>内存管理至少区分 used、reserved、capacity 与进程 RSS。MemoryArbitrator 调整 root pool 之间的容量；释放对象、释放预留和缩小 root capacity 是不同操作。要回收算子状态，reclaimer 可能暂停 Task 并触发 spill；这会与 Operator 的可回收区间、future 和生命周期相互作用。</p>
-<figure class="review-figure"><div aria-label="图 3：回收从 pool 进入算子，spill 完成后才能释放对应状态；容量变化不是单纯的 malloc/free。" class="diagram-scroll" role="region" tabindex="0"><img alt="图 3：回收从 pool 进入算子，spill 完成后才能释放对应状态；容量变化不是单纯的 malloc/free。" loading="lazy" src="/images/velox-depp-intro/resources.svg"/></div><figcaption>图 3：回收从 pool 进入算子，spill 完成后才能释放对应状态；容量变化不是单纯的 malloc/free。</figcaption></figure>
+<figure class="review-figure"><div aria-label="图 3：回收从 pool 进入算子，spill 完成后才能释放对应状态；容量变化不是单纯的 malloc/free。" class="diagram-scroll" role="region" tabindex="0"><img alt="图 3：回收从 pool 进入算子，spill 完成后才能释放对应状态；容量变化不是单纯的 malloc/free。" loading="lazy" src="/images/velox-depp-intro/resources.svg"></div><figcaption>图 3：回收从 pool 进入算子，spill 完成后才能释放对应状态；容量变化不是单纯的 malloc/free。</figcaption></figure>
 <p>Spill 也不只是“写文件”：HashJoin 需要分区匹配与恢复，Aggregation 需要保存可合并中间态，OrderBy 需要保留有序 run 并归并。达到限制、无法回收或恢复后仍放不下时，查询仍可能失败；支持 spill 不等于无限内存。</p>
 <p>详见 <a href="/2026/03/02/velox-memory-pool-arbitration/">Memory Pool and Arbitrator</a> 和 <a href="/2025/11/30/velox-spiller/">Spiller</a>。</p>
 </section>

@@ -31,7 +31,7 @@
 <meta property="og:image" content="https://duanmeng.github.io/images/nimble-design/figure-16.svg">
 <meta property="og:image" content="https://duanmeng.github.io/images/nimble-design/figure-17.svg">
 <meta property="article:published_time" content="2026-09-19T12:30:00.000Z">
-<meta property="article:modified_time" content="2026-09-19T12:32:36.678Z">
+<meta property="article:modified_time" content="2026-09-20T10:31:19.439Z">
 <meta property="article:author" content="duanmeng">
 <meta property="article:tag" content="Nimble">
 <meta property="article:tag" content="Velox">
@@ -435,7 +435,7 @@ streamRange    = [absoluteOffset, absoluteOffset + byteSize)</code></pre>
   stream_offsets : EncodedStream[C]
   stream_sizes   : EncodedStream[C]
 
-EncodedStream &#123; data : bytes &#125;
+EncodedStream { data : bytes }
 offsets[j] 编码的是 [stripe0 的 stream j offset, stripe1 的 stream j offset, ...]
 每个子 encoding 有 G 个 uint32 值；sizes[j] 同理。</code></pre>
 <p id="doxcn2itUuUH3f4qIlkmxp7NaXe">默认仍为 raw。实验性 kStreamMajor 使用 SGL1 标识，把同一 stream 跨 stripes 的 offsets / sizes 分别编码，默认在 Constant、Trivial、FBW 中选择；reader 构造 EncodingView 后用 readAt(localStripe) 点查。子 encoding 不做妨碍直接 view 的通用压缩；整个 metadata section 的压缩是另一层决策。这样有机会利用位置/大小的相似性，但增加了编码头、view 对象和初始化。它改变的是 metadata 的表示，不是把列值跨 stripe 共用字典或统一编码；旧 reader 是否支持该布局必须单独确认。</p>
@@ -503,17 +503,17 @@ offsets[j] 编码的是 [stripe0 的 stream j offset, stripe1 的 stream j offse
 <h3 id="doxcnNsOYM8ZUvrd9GjUZqoRbx3">3.2 用一个数组例子解释行域</h3>
 <p id="doxcnm8S19foFYSgWgqXaO7RD4d">图 2｜从四条数组行得到两条物理 streams，再以顶层 [1, 4) 为例换算 elements 的 [2, 3)。lengths 的 Nullable 子编码与 elements stream 的行域不同。</p>
 <figure class="nimble-figure" id="doxcnmvneuQsM7HmT4R5PNSU0cf"><div class="nimble-diagram-scroll" tabindex="0" role="region" aria-label="可横向滚动的 Nimble SVG 配图"><img src="/images/nimble-design/figure-08.svg" alt="Nimble 设计解读，原文第 8 张配图" loading="lazy"></div></figure><p id="doxcnPLgUMwq7TSUXGqXAoY0nuh">假设根 ROW 全非空，某字段为 ARRAY&lt;STRING&gt;，四条顶层行如下：</p>
-<pre id="doxcn14D8bfFboIuqC7Hx4cLH8f"><code class="language-plaintext">row 0: [&quot;aa&quot;, &quot;bb&quot;]
+<pre id="doxcn14D8bfFboIuqC7Hx4cLH8f"><code class="language-plaintext">row 0: ["aa", "bb"]
 row 1: null
 row 2: []
-row 3: [&quot;cc&quot;]
+row 3: ["cc"]
 
 物理 lengths stream 的逻辑值：[2, null, 0, 1]
 若使用 Nullable：
   non-null flags child = [true, false, true, true]  （4 个）
   lengths values child = [2, 0, 1]                  （3 个）
 
-elements stream = [&quot;aa&quot;, &quot;bb&quot;, &quot;cc&quot;]              （3 个）</code></pre>
+elements stream = ["aa", "bb", "cc"]              （3 个）</code></pre>
 <p id="doxcnWXqxZ6e9tyCkMq2EBsZDCc">null 数组与空数组不同：前者在 lengths 的 nullable 结构里标记 null，后者是合法长度 0。读取顶层 row 3 时，elements 的起点不是 3，而是之前 lengths 的累计和 2。若 element 本身允许 null，还会在 elements stream 内出现自己的 Nullable；父数组 null 和元素 null 是两层不同的状态。</p>
 <p id="doxcnjgwYYF6xxmalG7EbX3R2mg">因此，skip / slice 一个复杂列，不能对所有 stream 都直接套用同一个 <code>offset, length</code>
 。父 ROW 的非空计数、ARRAY/MAP 的长度求和、FlatMap 的 in-map true 计数，都可能改变子 stream 的范围。</p>
@@ -779,13 +779,13 @@ VALUE_COUNT、NULL_COUNT、LOGICAL_SIZE、PHYSICAL_SIZE 按 schema 统计节点�
 <p id="doxcnIM6JEKk5W2ix8K1v18DFcf">chunk index 是 stream 目录之后的下一层定位信息。<code>columnar.chunk.stats</code>
  的根表 ChunkStats 持有 stripe_indexes:[MetadataSection]，与 Footer.stripe_groups 按 group ID 对齐；某项 size=0 表示该组没有索引。加载目标组后得到 StripeChunkStats，其结构如下。enableChunkIndex 在此快照默认 false；即使启用，组也可能因平均 chunk 数不足而省略。</p>
 <p id="doxcn60AXj6YQAbPnjJXlB7aKNb">图 4.5｜从 columnar.chunk.stats 根目录，按 group ID 找到 StripeChunkStats，再按 (stripe, stream) 切出 chunk 记录。counts、rows、offsets 分属不同索引域，逐层展开如下。</p>
-<figure class="nimble-figure" id="doxcn676PkKt2WFsNhVqDdskdef"><div class="nimble-diagram-scroll" tabindex="0" role="region" aria-label="可横向滚动的 Nimble SVG 配图"><img src="/images/nimble-design/figure-12.svg" alt="Nimble 设计解读，原文第 12 张配图" loading="lazy"></div></figure><pre id="doxcnzNPkgzw06KONVCqfc3jugf"><code class="language-plaintext">StripeChunkStats &#123;
+<figure class="nimble-figure" id="doxcn676PkKt2WFsNhVqDdskdef"><div class="nimble-diagram-scroll" tabindex="0" role="region" aria-label="可横向滚动的 Nimble SVG 配图"><img src="/images/nimble-design/figure-12.svg" alt="Nimble 设计解读，原文第 12 张配图" loading="lazy"></div></figure><pre id="doxcnzNPkgzw06KONVCqfc3jugf"><code class="language-plaintext">StripeChunkStats {
   stream_count: uint32
   stream_chunk_counts: [uint32]
   stream_chunk_rows: [uint32]
   stream_chunk_offsets: [uint32]
   stream_chunk_null_counts: [uint32]  // 可缺失
-&#125;</code></pre>
+}</code></pre>
 <p id="doxcng0sRBZUptH9XT3cM1bZev0">这几组数组有<b>不同的累计范围</b>
 。stream_chunk_counts 是把组内（stripe, stream）按 stripe-major 展平后的累计 chunk 数；它划分每个 stream 的 chunk 记录切片。stream_chunk_rows 在每个 stream 切片内记录累计行终点，到了下一个 stream 重新从它自己的行域计数。stream_chunk_offsets 同样相对各自 stream 的起点，而非文件或 stripe 起点。null counts 若不存在，表示未知，不能当成 0。</p>
 <pre id="doxcnwatbCsenLF1a7OqjFvG80c"><code class="language-plaintext">i = localStripe * stream_count + streamId
@@ -905,7 +905,7 @@ absoluteChunkOffset = stripeOffset + relativeStreamOffset + chunkOffset</code></
 <p id="doxcnY7JL0D14XaRZ0ac4JJ6EOd">factory 将逻辑类型映射为 codec 使用的 physical type；浮点类型的一些通用路径操作的是位表示，而 ALP 等转换需要恢复浮点语义。这不是随意把 float 做数值强转成整数，开发嵌套 codec 时尤其要正确处理 logical / physical type。</p>
 <p id="doxcner5h6O73EB2DnmAXy43cRc">Statistics 提供 unique counts、min/max、重复 run 信息、字符串总长度和分布等数据，其中不少信息是按需计算并缓存。它是写时选择的临时统计，不等于文件中持久化的 columnar.vectorized_stats，也不是 decoder 初始化时必须重建的成本模型。</p>
 <h3 id="doxcnpMZd75f6oGzWxognpxU8Xc">5.3 默认策略是“估算大小 × 读成本权重”</h3>
-<pre id="doxcnlDQRxb92U1W46NGyOBbkCb"><code class="language-C++">for each candidate encoding:
+<pre id="doxcnlDQRxb92U1W46NGyOBbkCb"><code class="language-plaintext">for each candidate encoding:
     estimatedSize = estimateSize(candidate, values, statistics, options)
     if candidate is compatible:
         cost = estimatedSize × readFactor
@@ -1079,21 +1079,21 @@ exactWidth = bitsRequired(max(values) - base)
 <p id="doxcnziHBh9GZEqNYhnc0XOTbth">这里先由 Nullable 去掉 null，再由 Dictionary 消除完整字符串重复，FSST 再压缩不同字符串之间的重复子串，FixedBitWidth 压缩各类索引/长度。不同层利用的是不同规律，所以可以相互补充。但每层也增加 header、metadata、初始化和临时内存成本，层数更多并不自动更优。</p>
 <p id="doxcnCc5olUdpTaJCSowvlFHRyg">Dictionary 的 alphabet 与 indices 保存在同一个外层 encoding 内，并不是在 tablet 目录中创建两个额外物理 streams。普通 Dictionary 的字典作用域是这一 encoding/chunk；不能假设自动共享到整条 stripe 或整个文件。SharedDictionary 是另一套需要额外 scope / catalog / alphabet 解析的实验性机制。</p>
 <h3 id="doxcnDEvvcE85JOZ4tM96Sa1tId">6.3 encodeNested 如何把递归连接起来</h3>
-<pre id="doxcnCOHtEvz2o5rV3H7q2YRryh"><code class="language-cpp">// 概念化摘录：省略模板转换和错误处理。
-auto alphabetBytes = selection.encodeNested&lt;T&gt;(
+<pre id="doxcnCOHtEvz2o5rV3H7q2YRryh" class="cpp-highlight"><code class="language-cpp"><span class="comment">// 概念化摘录：省略模板转换和错误处理。</span>
+<span class="keyword">auto</span> alphabetBytes = selection.<span class="built_in">encodeNested</span>&lt;T&gt;(
     EncodingIdentifiers::Dictionary::Alphabet,
     alphabet, scratchBuffer, options);
 
-auto indexBytes = selection.encodeNested&lt;uint32_t&gt;(
+<span class="keyword">auto</span> indexBytes = selection.<span class="built_in">encodeNested</span>&lt;<span class="type">uint32_t</span>&gt;(
     EncodingIdentifiers::Dictionary::Indices,
     indices, scratchBuffer, options);
 
-// encodeNested 内部：
-auto childPolicy = parentPolicy.create&lt;ChildT&gt;(
+<span class="comment">// encodeNested 内部：</span>
+<span class="keyword">auto</span> childPolicy = parentPolicy.<span class="built_in">create</span>&lt;ChildT&gt;(
     parentEncodingType, nestedIdentifier);
-auto statistics = Statistics&lt;ChildT&gt;::create(childValues);
-auto decision = childPolicy.select(childValues, statistics, options);
-return EncodingFactory::encode(decision, childValues, buffer, options);</code></pre>
+<span class="keyword">auto</span> statistics = Statistics&lt;ChildT&gt;::<span class="built_in">create</span>(childValues);
+<span class="keyword">auto</span> decision = childPolicy.<span class="built_in">select</span>(childValues, statistics, options);
+<span class="keyword">return</span> EncodingFactory::<span class="built_in">encode</span>(decision, childValues, buffer, options);</code></pre>
 <p id="doxcn5ouz4MrAqEw2FagZyhOHfc"><code>NestedEncodingIdentifier</code>
  表示子节点的语义角色，例如 Alphabet、Indices、Lengths、Nulls。相同的 uint32 序列类型，可能因为处于不同父节点/角色而需要不同策略；identifier 让配置、capture/replay 和嵌套选择能准确定位它。</p>
 <p id="doxcn0Y6jngVWIxeGvWcdRVJsVc">默认 manual policy 创建子策略时会从继承的候选集合中去掉父编码类型，并按个别 codec 的规则限制候选。沿路径缩小候选空间既抑制无意义的重复嵌套，也帮助递归收敛；它是默认策略的机制，不是文件格式规定所有编码树一律不能出现相同 codec。</p>
@@ -1361,13 +1361,13 @@ materialize(2, out)      → out = [1002, 1001]，游标到 5</code></pre>
 </table>
 </div>
 <p id="doxcnVkDr2tFVqAtBYNr2L620re">FBW 的实现可以直接说明接口与内核的分工。公共接口负责输出类型解释与游标推进，真正的位提取交给 FixedBitArray 的批量方法；函数名 materialize 本身不意味着逐行调用，也不决定是否使用 SIMD。</p>
-<pre id="doxcnK58J2NSx5Swpwt8W5oEDIc"><code class="language-cpp">template &lt;typename T&gt;
-void FixedBitWidthEncoding&lt;T&gt;::materialize(
-    uint32_t rowCount, void* buffer) &#123;
-  fixedBitArray_.bulkGetWithBaseline(
-      row_, rowCount, static_cast&lt;physicalType*&gt;(buffer), baseline_);
+<pre id="doxcnK58J2NSx5Swpwt8W5oEDIc" class="cpp-highlight"><code class="language-cpp"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;
+<span class="type">void</span> FixedBitWidthEncoding&lt;T&gt;::<span class="built_in">materialize</span>(
+    <span class="type">uint32_t</span> rowCount, <span class="type">void</span>* buffer) {
+  fixedBitArray_.<span class="built_in">bulkGetWithBaseline</span>(
+      row_, rowCount, <span class="built_in">static_cast</span>&lt;physicalType*&gt;(buffer), baseline_);
   row_ += rowCount;
-&#125;</code></pre>
+}</code></pre>
 <p id="doxcncvVhZyhby6Gle6DishJzFe">BBP 的 materialize 则循环计算 blockIndex、blockOffset 和本块可读行数，再调用 materializeBlockRange。例如默认 1024 行一块，从位置 1016 读取 32 行，会拆成前块 8 行和后块 24 行。此快照从块中部读取 packed 数据时，会先解出该块到请求终点的前缀，再复制目标区间；因此<b>产出 n 行不保证内核只处理 n 行</b>
 。raw 块、常量块及其他读取入口有各自的实现，性能需要按实际路径判断。</p>
 <p id="doxcnMoG5TaZMBJGlPkxkcIwdSg">还有一种常见调用发生在构造阶段：BBP 通过 readMetadataStream 为 baselines、bitWidths、blockOffsets 创建子 decoder，再 materialize 到内部数组；Dictionary 也会先 materialize alphabet。这些调用恢复的是 decoder 工作所需的辅助数据，不是向查询输出整列。</p>
@@ -1678,15 +1678,15 @@ slice(offset=1, length=2)
 <p id="doxcnSXZaut3K8yefWT6z889TBf">沿用第 3 章数组例子，切顶层 <code>[1, 4)</code>
 ：</p>
 <pre id="doxcnI79iQW4yvMQMJgJyL4Wzff"><code class="language-plaintext">原 lengths = [2, null, 0, 1]
-原 elements = [&quot;aa&quot;, &quot;bb&quot;, &quot;cc&quot;]
+原 elements = ["aa", "bb", "cc"]
 
 顶层 slice [1, 4)
   lengths slice = [null, 0, 1]
   child offset  = sum(切片前的有效 lengths) = 2
   child length  = sum(切片内的有效 lengths) = 1
-  elements slice [2, 3) = [&quot;cc&quot;]
+  elements slice [2, 3) = ["cc"]
 
-输出三条顶层行：null、[]、[&quot;cc&quot;]</code></pre>
+输出三条顶层行：null、[]、["cc"]</code></pre>
 <p id="doxcnXdKwUGqi1A4NYd9kQ3QFVD">对于 ROW，要计算前缀和范围内非空父行数；对于 FlatMap，先映射 map non-null range，再按各 key 的 in-map true counts 映射到 value range。因此，父结构的 rank/count/sum 与子 encoding 的 slice 是相互配合的，而不是把所有 stream 的 byte arrays 按同一个比例裁剪。</p>
 <p id="doxcnImDd21JR4FluQeuwyj4VHg">当前还有明确的范围限制：完整 payload 重载接受 kSerialization / kProjection，明确拒绝 kTablet，以免 chunk framing 和 fixed/varint row-count 格式被错误标记；raw-stream 重载有额外格式选项。schema 递归分派支持 Scalar、TimestampMicroNano、ROW、ARRAY、MAP、FlatMap，而 ArrayWithOffsets / SlidingWindowMap 尚未进入这一 sliceType 支持路径。不能把“schema 能表达”直接等同于“slicer 已覆盖”。</p>
 <h3 id="doxcncmFpoTfv0ft1rsSTrTxBJc">9.5 SliceEncoding 是另一种取舍：延后工作，不一定缩小输入</h3>

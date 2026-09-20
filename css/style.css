@@ -1595,6 +1595,48 @@ article .content .caption {
 .highlight .deletion {
   background: #f3e2dc;
 }
+body .cpp-highlight {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+}
+body .cpp-highlight pre,
+body .cpp-highlight code,
+body .cpp-highlight span {
+  font-family: inherit;
+}
+body .cpp-highlight code {
+  white-space: pre;
+  overflow-wrap: normal;
+}
+body .cpp-highlight.cpp-highlight {
+  color: #302e2b;
+}
+body .cpp-highlight.cpp-highlight .keyword,
+body .cpp-highlight.cpp-highlight .literal {
+  color: #9c3b20;
+  font-weight: 600;
+  background: transparent;
+}
+body .cpp-highlight.cpp-highlight .type,
+body .cpp-highlight.cpp-highlight .built_in {
+  color: #665094;
+  background: transparent;
+}
+body .cpp-highlight.cpp-highlight .string {
+  color: #3f6f4b;
+  background: transparent;
+}
+body .cpp-highlight.cpp-highlight .number {
+  color: #805b21;
+  background: transparent;
+}
+body .cpp-highlight.cpp-highlight .comment {
+  color: #7c776f;
+  font-weight: 400;
+}
+body .cpp-highlight.cpp-highlight .title {
+  color: #355c72;
+  background: transparent;
+}
 pre {
   overflow-x: auto;
   padding: 10px 15px;
