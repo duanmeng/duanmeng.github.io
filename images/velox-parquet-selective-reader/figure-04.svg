@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1360" height="850" viewBox="0 0 1360 850">
+<defs><marker id="arrow" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" refX="11" refY="5" orient="auto"><path d="M0,0 L11,5 L0,10 Z" fill="#657386"/></marker><marker id="arrow-blue" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" refX="11" refY="5" orient="auto"><path d="M0,0 L11,5 L0,10 Z" fill="#4078bd"/></marker><style>text{font-family:'Noto Sans SC','Noto Sans CJK SC',Inter,Arial,sans-serif} .mono{font-family:SFMono-Regular,Consolas,'Liberation Mono',monospace}</style></defs>
+<rect width="1360" height="850" fill="#fff"/>
+<text x="48" y="54" font-size="30" font-weight="700" fill="#1f2d3d">Parquet 的物理布局：水平 RowGroup，垂直 ColumnChunk</text>
+<text x="48" y="88" font-size="18" fill="#657386">footer 保存 schema、位置和统计；数据页位于各 ColumnChunk 内。</text>
+<line x1="48" y1="110" x2="1312" y2="110" stroke="#dce3ea" stroke-width="2"/>
+<text x="55" y="155" font-size="22" font-weight="700" fill="#1f2d3d" text-anchor="start" class="">Parquet file</text>
+<text x="55" y="183" font-size="19" font-weight="600" fill="#657386" text-anchor="start" class="">RowGroup 0</text>
+<rect x="180" y="195" width="260" height="170" rx="8" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="198" y="226" font-size="20" font-weight="700" fill="#326cae" text-anchor="start" class="">ColumnChunk A</text>
+<text x="198" y="256" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">Page 0</text>
+<text x="198" y="283" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">Page 1</text>
+<rect x="198" y="300" width="100" height="38" rx="4" fill="#fff" stroke="#4078bd"/><rect x="310" y="300" width="100" height="38" rx="4" fill="#fff" stroke="#4078bd"/>
+<rect x="500" y="195" width="260" height="170" rx="8" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="518" y="226" font-size="20" font-weight="700" fill="#2e7963" text-anchor="start" class="">ColumnChunk B</text>
+<text x="518" y="256" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">Page 0</text>
+<text x="518" y="283" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">Page 1</text>
+<rect x="518" y="300" width="100" height="38" rx="4" fill="#fff" stroke="#39826d"/><rect x="630" y="300" width="100" height="38" rx="4" fill="#fff" stroke="#39826d"/>
+<rect x="820" y="195" width="260" height="170" rx="8" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
+<text x="838" y="226" font-size="20" font-weight="700" fill="#65537f" text-anchor="start" class="">ColumnChunk C</text>
+<text x="838" y="256" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">Page 0</text>
+<text x="838" y="283" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">Page 1</text>
+<rect x="838" y="300" width="100" height="38" rx="4" fill="#fff" stroke="#8d76b7"/><rect x="950" y="300" width="100" height="38" rx="4" fill="#fff" stroke="#8d76b7"/>
+<text x="55" y="423" font-size="19" font-weight="600" fill="#657386" text-anchor="start" class="">RowGroup 1</text>
+<rect x="180" y="435" width="260" height="170" rx="8" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="198" y="466" font-size="20" font-weight="700" fill="#326cae" text-anchor="start" class="">ColumnChunk A</text>
+<text x="198" y="496" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">Page 0</text>
+<text x="198" y="523" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">Page 1</text>
+<rect x="198" y="540" width="100" height="38" rx="4" fill="#fff" stroke="#4078bd"/><rect x="310" y="540" width="100" height="38" rx="4" fill="#fff" stroke="#4078bd"/>
+<rect x="500" y="435" width="260" height="170" rx="8" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="518" y="466" font-size="20" font-weight="700" fill="#2e7963" text-anchor="start" class="">ColumnChunk B</text>
+<text x="518" y="496" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">Page 0</text>
+<text x="518" y="523" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">Page 1</text>
+<rect x="518" y="540" width="100" height="38" rx="4" fill="#fff" stroke="#39826d"/><rect x="630" y="540" width="100" height="38" rx="4" fill="#fff" stroke="#39826d"/>
+<rect x="820" y="435" width="260" height="170" rx="8" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
+<text x="838" y="466" font-size="20" font-weight="700" fill="#65537f" text-anchor="start" class="">ColumnChunk C</text>
+<text x="838" y="496" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">Page 0</text>
+<text x="838" y="523" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">1 page only</text>
+<rect x="838" y="540" width="100" height="38" rx="4" fill="#fff" stroke="#8d76b7"/><rect x="950" y="540" width="100" height="38" rx="4" fill="#fff" stroke="#8d76b7"/>
+<rect x="1100" y="195" width="200" height="410" rx="8" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.5"/>
+<text x="1118" y="226" font-size="20" font-weight="700" fill="#877951" text-anchor="start" class="">Footer</text>
+<text x="1118" y="256" font-size="15" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">schema</text>
+<text x="1118" y="283" font-size="15" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">RowGroup offsets</text>
+<text x="1118" y="310" font-size="15" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">ColumnChunk offsets</text>
+<text x="1118" y="337" font-size="15" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">min / max</text>
+<text x="1118" y="364" font-size="15" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">encodings</text>
+<text x="180" y="695" font-size="18" font-weight="400" fill="#657386" text-anchor="start" class="">一个 RowGroup 是行的水平切片；每列在该 RowGroup 中形成一个 ColumnChunk。</text>
+<text x="180" y="730" font-size="18" font-weight="400" fill="#657386" text-anchor="start" class="">Page 数量取决于数据、编码效果与 writer 配置。</text>
+</svg>

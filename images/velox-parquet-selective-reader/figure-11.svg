@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1360" height="950" viewBox="0 0 1360 950">
+<defs><marker id="arrow" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" refX="11" refY="5" orient="auto"><path d="M0,0 L11,5 L0,10 Z" fill="#657386"/></marker><marker id="arrow-blue" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" refX="11" refY="5" orient="auto"><path d="M0,0 L11,5 L0,10 Z" fill="#4078bd"/></marker><style>text{font-family:'Noto Sans SC','Noto Sans CJK SC',Inter,Arial,sans-serif} .mono{font-family:SFMono-Regular,Consolas,'Liberation Mono',monospace}</style></defs>
+<rect width="1360" height="950" fill="#fff"/>
+<text x="48" y="54" font-size="30" font-weight="700" fill="#1f2d3d">PageReader：把批次 RowSet 切成 page-local RowSet</text>
+<text x="48" y="88" font-size="18" fill="#657386">跨页读取要同时处理 page 定位、行号 rebias、编码切换、null 拼接与 output row 修正。</text>
+<line x1="48" y1="110" x2="1312" y2="110" stroke="#dce3ea" stroke-width="2"/>
+<rect x="55" y="150" width="385" height="135" rx="8" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.5"/>
+<text x="73" y="181" font-size="20" font-weight="700" fill="#877951" text-anchor="start" class="">1 目标行</text>
+<text x="73" y="211" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">visitorRows=[5,8,210,215]</text>
+<line x1="440" y1="218" x2="485" y2="218" stroke="#657386" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="485" y="150" width="385" height="135" rx="8" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="503" y="181" font-size="20" font-weight="700" fill="#326cae" text-anchor="start" class="">2 定位 page</text>
+<text x="503" y="211" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">seekToPage(rowZero)</text>
+<line x1="870" y1="218" x2="915" y2="218" stroke="#657386" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="915" y="150" width="385" height="135" rx="8" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="933" y="181" font-size="20" font-weight="700" fill="#2e7963" text-anchor="start" class="">3 页内切片</text>
+<text x="933" y="211" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">[5,8] / [210,215]</text>
+<rect x="55" y="360" width="385" height="135" rx="8" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
+<text x="73" y="391" font-size="20" font-weight="700" fill="#65537f" text-anchor="start" class="">4 rebias + skip</text>
+<text x="73" y="421" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">第二页 → [0,5]</text>
+<line x1="440" y1="428" x2="485" y2="428" stroke="#657386" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="485" y="360" width="385" height="135" rx="8" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="503" y="391" font-size="20" font-weight="700" fill="#326cae" text-anchor="start" class="">5 Decoder + Visitor</text>
+<text x="503" y="421" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">decode / filter / extract</text>
+<line x1="870" y1="428" x2="915" y2="428" stroke="#657386" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="915" y="360" width="385" height="135" rx="8" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="933" y="391" font-size="20" font-weight="700" fill="#2e7963" text-anchor="start" class="">6 写回</text>
+<text x="933" y="421" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">compact values + nulls</text>
+<rect x="55" y="610" width="385" height="190" rx="8" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
+<text x="73" y="641" font-size="20" font-weight="700" fill="#65537f" text-anchor="start" class="">编码边界</text>
+<text x="73" y="671" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">page 可从 dictionary 切到 plain</text>
+<text x="73" y="698" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">重建 filter cache</text>
+<text x="73" y="725" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">必要时 dedictionarize</text>
+<text x="73" y="752" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">清理 dictionary state</text>
+<rect x="488" y="610" width="385" height="190" rx="8" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="506" y="641" font-size="20" font-weight="700" fill="#326cae" text-anchor="start" class="">null 边界</text>
+<text x="506" y="671" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">每页单独解析 definition levels</text>
+<text x="506" y="698" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">多页用 BitConcatenation 拼接</text>
+<text x="506" y="725" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">fast path 与 compact path 来源不同</text>
+<text x="506" y="752" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">最终 setNulls 到 reader</text>
+<rect x="920" y="610" width="385" height="190" rx="8" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="938" y="641" font-size="20" font-weight="700" fill="#2e7963" text-anchor="start" class="">行号边界</text>
+<text x="938" y="671" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">visitorRows 基于 batch</text>
+<text x="938" y="698" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">pageRows 基于 decoder 当前点</text>
+<text x="938" y="725" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">rowNumberBias 修正 outputRows</text>
+<text x="938" y="752" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">firstUnvisited 维护 skip 基准</text>
+<text x="55" y="880" font-size="18" font-weight="400" fill="#657386" text-anchor="start" class="">页级跳过可以减少 page 解码；是否减少底层 storage bytes，还取决于预取、coalescing、cache 与压缩页边界。</text>
+</svg>

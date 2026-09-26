@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1360" height="920" viewBox="0 0 1360 920">
+<defs><marker id="arrow" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" refX="11" refY="5" orient="auto"><path d="M0,0 L11,5 L0,10 Z" fill="#657386"/></marker><marker id="arrow-blue" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" refX="11" refY="5" orient="auto"><path d="M0,0 L11,5 L0,10 Z" fill="#4078bd"/></marker><style>text{font-family:'Noto Sans SC','Noto Sans CJK SC',Inter,Arial,sans-serif} .mono{font-family:SFMono-Regular,Consolas,'Liberation Mono',monospace}</style></defs>
+<rect width="1360" height="920" fill="#fff"/>
+<text x="48" y="54" font-size="30" font-weight="700" fill="#1f2d3d">Vector tree、reader tree 与类层次是三种不同视角</text>
+<text x="48" y="88" font-size="18" fill="#657386">顶层 ROW 是逻辑根；叶子 reader 对应文件 leaf column，复杂 reader 负责结构和 level。</text>
+<line x1="48" y1="110" x2="1312" y2="110" stroke="#dce3ea" stroke-width="2"/>
+<rect x="55" y="145" width="390" height="105" rx="8" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.5"/>
+<text x="73" y="176" font-size="20" font-weight="700" fill="#877951" text-anchor="start" class="">Velox type</text>
+<text x="73" y="206" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">ROW(BIGINT c0, MAP(VARCHAR, DOUBLE) c1)</text>
+<rect x="55" y="320" width="170" height="100" rx="8" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="73" y="351" font-size="14" font-weight="700" fill="#326cae" text-anchor="start" class="">BIGINT Vector</text>
+<text x="73" y="381" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">leaf values</text>
+<rect x="270" y="320" width="175" height="100" rx="8" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="288" y="351" font-size="15" font-weight="700" fill="#2e7963" text-anchor="start" class="">MapVector</text>
+<text x="288" y="381" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">offsets / sizes</text>
+<rect x="210" y="485" width="170" height="100" rx="8" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
+<text x="228" y="516" font-size="13" font-weight="700" fill="#65537f" text-anchor="start" class="">VARCHAR Vector</text>
+<text x="228" y="546" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">keys</text>
+<rect x="405" y="485" width="170" height="100" rx="8" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="423" y="516" font-size="13" font-weight="700" fill="#326cae" text-anchor="start" class="">DOUBLE Vector</text>
+<text x="423" y="546" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">values</text>
+<path d="M250 250 L140 320" fill="none" stroke="#657386" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<path d="M250 250 L355 320" fill="none" stroke="#657386" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<path d="M355 420 L295 485" fill="none" stroke="#657386" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<path d="M355 420 L490 485" fill="none" stroke="#657386" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<rect x="700" y="145" width="390" height="105" rx="8" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="718" y="176" font-size="20" font-weight="700" fill="#2e7963" text-anchor="start" class="">top-level StructColumnReader</text>
+<text x="718" y="206" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">ParquetRowReader::columnReader_</text>
+<rect x="650" y="320" width="230" height="100" rx="8" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="668" y="351" font-size="14" font-weight="700" fill="#326cae" text-anchor="start" class="">IntegerColumnReader</text>
+<text x="668" y="381" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">c0</text>
+<rect x="925" y="320" width="230" height="100" rx="8" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="943" y="351" font-size="14" font-weight="700" fill="#2e7963" text-anchor="start" class="">MapColumnReader</text>
+<text x="943" y="381" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">c1</text>
+<rect x="870" y="485" width="205" height="100" rx="8" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
+<text x="888" y="516" font-size="13" font-weight="700" fill="#65537f" text-anchor="start" class="">StringColumnReader</text>
+<text x="888" y="546" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">map keys</text>
+<rect x="1100" y="485" width="205" height="100" rx="8" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="1118" y="516" font-size="12" font-weight="700" fill="#326cae" text-anchor="start" class="">FloatingPointReader</text>
+<text x="1118" y="546" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">map values</text>
+<path d="M895 250 L765 320" fill="none" stroke="#657386" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<path d="M895 250 L1040 320" fill="none" stroke="#657386" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<path d="M1040 420 L970 485" fill="none" stroke="#657386" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<path d="M1040 420 L1200 485" fill="none" stroke="#657386" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<rect x="360" y="690" width="640" height="120" rx="8" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.5"/>
+<text x="378" y="721" font-size="20" font-weight="700" fill="#877951" text-anchor="start" class="">类层次</text>
+<text x="378" y="751" font-size="15" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">SelectiveColumnReader → struct base / scalar readers</text>
+<text x="378" y="778" font-size="15" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">Parquet StructColumnReader 复用通用流程并实现 RowGroup 定位</text>
+</svg>

@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1360" height="850" viewBox="0 0 1360 850">
+<defs><marker id="arrow" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" refX="11" refY="5" orient="auto"><path d="M0,0 L11,5 L0,10 Z" fill="#657386"/></marker><marker id="arrow-blue" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" refX="11" refY="5" orient="auto"><path d="M0,0 L11,5 L0,10 Z" fill="#4078bd"/></marker><style>text{font-family:'Noto Sans SC','Noto Sans CJK SC',Inter,Arial,sans-serif} .mono{font-family:SFMono-Regular,Consolas,'Liberation Mono',monospace}</style></defs>
+<rect width="1360" height="850" fill="#fff"/>
+<text x="48" y="54" font-size="30" font-weight="700" fill="#1f2d3d">从 split 到 RowVector：SelectiveReader 位于哪一层</text>
+<text x="48" y="88" font-size="18" fill="#657386">Driver 是可调度的推进状态；文件读取发生在 TableScan 的 DataSource 路径中。</text>
+<line x1="48" y1="110" x2="1312" y2="110" stroke="#dce3ea" stroke-width="2"/>
+<rect x="50" y="145" width="210" height="120" rx="8" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.5"/>
+<text x="68" y="176" font-size="20" font-weight="700" fill="#877951" text-anchor="start" class="">Driver</text>
+<text x="68" y="206" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">一串 Operator 实例</text>
+<text x="68" y="233" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">在 executor 线程上推进</text>
+<rect x="310" y="145" width="210" height="120" rx="8" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="328" y="176" font-size="20" font-weight="700" fill="#326cae" text-anchor="start" class="">TableScan</text>
+<text x="328" y="206" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">请求 split / batch</text>
+<text x="328" y="233" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">消费 RowVector</text>
+<rect x="570" y="145" width="230" height="120" rx="8" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="588" y="176" font-size="20" font-weight="700" fill="#2e7963" text-anchor="start" class="">FileDataSource</text>
+<text x="588" y="206" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">pushdown filter</text>
+<text x="588" y="233" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">remaining filter</text>
+<rect x="850" y="145" width="230" height="120" rx="8" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
+<text x="868" y="176" font-size="20" font-weight="700" fill="#65537f" text-anchor="start" class="">FileSplitReader</text>
+<text x="868" y="206" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">格式无关控制层</text>
+<text x="868" y="233" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">prepareSplit / next</text>
+<line x1="260" y1="205" x2="310" y2="205" stroke="#657386" stroke-width="2" marker-end="url(#arrow)"/>
+<line x1="520" y1="205" x2="570" y2="205" stroke="#657386" stroke-width="2" marker-end="url(#arrow)"/>
+<line x1="800" y1="205" x2="850" y2="205" stroke="#657386" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="170" y="355" width="250" height="135" rx="8" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="188" y="386" font-size="20" font-weight="700" fill="#326cae" text-anchor="start" class="">ParquetReader</text>
+<text x="188" y="416" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">ReaderBase</text>
+<text x="188" y="443" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">footer / schema / RowGroup</text>
+<rect x="555" y="355" width="270" height="135" rx="8" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="573" y="386" font-size="20" font-weight="700" fill="#2e7963" text-anchor="start" class="">ParquetRowReader</text>
+<text x="573" y="416" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">columnReader_</text>
+<text x="573" y="443" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">next(size, output)</text>
+<rect x="960" y="355" width="240" height="135" rx="8" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
+<text x="978" y="386" font-size="20" font-weight="700" fill="#65537f" text-anchor="start" class="">RowVector</text>
+<text x="978" y="416" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">过滤后输出行</text>
+<text x="978" y="443" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">children 可含 LazyVector</text>
+<path d="M965 265 L965 315 L295 315 L295 355" fill="none" stroke="#657386" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<path d="M965 265 L965 320 L690 320 L690 355" fill="none" stroke="#657386" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<line x1="825" y1="422" x2="960" y2="422" stroke="#657386" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="370" y="595" width="310" height="130" rx="8" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="388" y="626" font-size="16" font-weight="700" fill="#2e7963" text-anchor="start" class="">top-level StructColumnReader</text>
+<text x="388" y="656" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">递归 child readers</text>
+<text x="388" y="683" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">read → getValues</text>
+<rect x="780" y="595" width="310" height="130" rx="8" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
+<text x="798" y="626" font-size="20" font-weight="700" fill="#65537f" text-anchor="start" class="">PageReader + Decoder</text>
+<text x="798" y="656" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">RowSet / ColumnVisitor</text>
+<text x="798" y="683" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">page 内稀疏读取</text>
+<line x1="690" y1="490" x2="545" y2="595" stroke="#657386" stroke-width="2" marker-end="url(#arrow)"/>
+<line x1="680" y1="660" x2="780" y2="660" stroke="#657386" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="50" y="800" font-size="18" font-weight="400" fill="#657386" text-anchor="start" class="">阻塞时 Driver 可以 off-thread；future 满足后重新排队。Reader 并不等于独占线程。</text>
+</svg>

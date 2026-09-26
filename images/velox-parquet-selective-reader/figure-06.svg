@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1360" height="900" viewBox="0 0 1360 900">
+<defs><marker id="arrow" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" refX="11" refY="5" orient="auto"><path d="M0,0 L11,5 L0,10 Z" fill="#657386"/></marker><marker id="arrow-blue" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" refX="11" refY="5" orient="auto"><path d="M0,0 L11,5 L0,10 Z" fill="#4078bd"/></marker><style>text{font-family:'Noto Sans SC','Noto Sans CJK SC',Inter,Arial,sans-serif} .mono{font-family:SFMono-Regular,Consolas,'Liberation Mono',monospace}</style></defs>
+<rect width="1360" height="900" fill="#fff"/>
+<text x="48" y="54" font-size="30" font-weight="700" fill="#1f2d3d">旧式 repeated group 示例：schema path 决定 max DL / RL</text>
+<text x="48" y="88" font-size="18" fill="#657386">这里严格针对示例 schema；现代 logical LIST 的 optional / repeated 路径可能产生不同 level。</text>
+<line x1="48" y1="110" x2="1312" y2="110" stroke="#dce3ea" stroke-width="2"/>
+<rect x="55" y="150" width="450" height="235" rx="8" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="73" y="181" font-size="20" font-weight="700" fill="#326cae" text-anchor="start" class="">AddressBook</text>
+<text x="73" y="211" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">owner: required string</text>
+<text x="73" y="238" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">contacts: repeated group</text>
+<text x="73" y="265" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">  name: required string</text>
+<text x="73" y="292" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">  blockID: optional long</text>
+<line x1="505" y1="265" x2="600" y2="265" stroke="#657386" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="625" y="145" width="245" height="135" rx="8" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.5"/>
+<text x="643" y="176" font-size="20" font-weight="700" fill="#877951" text-anchor="start" class="">owner</text>
+<text x="643" y="206" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">path: required</text>
+<text x="643" y="233" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">maxDL=0 · maxRL=0</text>
+<rect x="625" y="330" width="300" height="145" rx="8" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="643" y="361" font-size="20" font-weight="700" fill="#2e7963" text-anchor="start" class="">contacts.name</text>
+<text x="643" y="391" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">repeated → required</text>
+<text x="643" y="418" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">maxDL=1 · maxRL=1</text>
+<rect x="625" y="525" width="330" height="145" rx="8" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
+<text x="643" y="556" font-size="20" font-weight="700" fill="#65537f" text-anchor="start" class="">contacts.blockID</text>
+<text x="643" y="586" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">repeated → optional</text>
+<text x="643" y="613" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">maxDL=2 · maxRL=1</text>
+<path d="M600 265 L600 212 L625 212" fill="none" stroke="#657386" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<path d="M600 265 L600 402 L625 402" fill="none" stroke="#657386" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<path d="M600 402 L600 597 L625 597" fill="none" stroke="#657386" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<rect x="1010" y="145" width="290" height="210" rx="8" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.5"/>
+<text x="1028" y="176" font-size="20" font-weight="700" fill="#877951" text-anchor="start" class="">计算规则</text>
+<text x="1028" y="206" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">路径遇到 repeated：</text>
+<text x="1028" y="233" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">  maxRL + 1</text>
+<text x="1028" y="260" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">路径遇到 optional / repeated：</text>
+<text x="1028" y="287" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">  maxDL + 1</text>
+<text x="1028" y="314" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">required 不增加 level</text>
+<rect x="1010" y="420" width="290" height="250" rx="8" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="1028" y="451" font-size="20" font-weight="700" fill="#2e7963" text-anchor="start" class="">语义</text>
+<text x="1028" y="481" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">DL：路径定义到了哪一层</text>
+<text x="1028" y="508" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">RL=0：新 parent / 首元素</text>
+<text x="1028" y="535" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">RL=1：同 parent 后续元素</text>
+<text x="1028" y="562" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">空列表会写 level marker</text>
+<text x="1028" y="589" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">null leaf 不写实际 value</text>
+<text x="55" y="760" font-size="17" font-weight="400" fill="#657386" text-anchor="start" class="">2026-09-26 的最新代码还修正了 legacy nested schema 的 max definition level 传播；分析时必须以实际 Parquet schema path 为准。</text>
+</svg>

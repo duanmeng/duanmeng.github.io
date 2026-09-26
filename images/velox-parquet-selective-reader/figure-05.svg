@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1360" height="760" viewBox="0 0 1360 760">
+<defs><marker id="arrow" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" refX="11" refY="5" orient="auto"><path d="M0,0 L11,5 L0,10 Z" fill="#657386"/></marker><marker id="arrow-blue" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" refX="11" refY="5" orient="auto"><path d="M0,0 L11,5 L0,10 Z" fill="#4078bd"/></marker><style>text{font-family:'Noto Sans SC','Noto Sans CJK SC',Inter,Arial,sans-serif} .mono{font-family:SFMono-Regular,Consolas,'Liberation Mono',monospace}</style></defs>
+<rect width="1360" height="760" fill="#fff"/>
+<text x="48" y="54" font-size="30" font-weight="700" fill="#1f2d3d">一个 Data Page 中，哪些部分被读取和解压</text>
+<text x="48" y="88" font-size="18" fill="#657386">PageHeader 变长；后续 repetition levels、definition levels 与 encoded values 共同构成页负载。</text>
+<line x1="48" y1="110" x2="1312" y2="110" stroke="#dce3ea" stroke-width="2"/>
+<rect x="70" y="210" width="250" height="175" rx="8" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.5"/>
+<text x="88" y="241" font-size="20" font-weight="700" fill="#877951" text-anchor="start" class="">PageHeader</text>
+<text x="88" y="271" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">Thrift · 变长</text>
+<rect x="332" y="210" width="250" height="175" rx="8" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
+<text x="350" y="241" font-size="20" font-weight="700" fill="#65537f" text-anchor="start" class="">repetition levels</text>
+<text x="350" y="271" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">可选</text>
+<rect x="594" y="210" width="260" height="175" rx="8" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="612" y="241" font-size="20" font-weight="700" fill="#326cae" text-anchor="start" class="">definition levels</text>
+<text x="612" y="271" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">可选</text>
+<rect x="866" y="210" width="420" height="175" rx="8" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="884" y="241" font-size="20" font-weight="700" fill="#2e7963" text-anchor="start" class="">encoded values</text>
+<text x="884" y="271" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">plain / dictionary / delta …</text>
+<path d="M330 405 L1290 405" fill="none" stroke="#a95f64" stroke-width="2" stroke-linejoin="round"/>
+<text x="810" y="438" font-size="17" font-weight="600" fill="#8d4f54" text-anchor="middle" class="">compressed page payload（具体边界由 page type / codec 决定）</text>
+<rect x="160" y="535" width="1040" height="110" rx="8" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.5"/>
+<text x="178" y="566" font-size="20" font-weight="700" fill="#877951" text-anchor="start" class="">读取边界</text>
+<text x="178" y="596" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">目标行不在某页时，可跳过该页；目标行落入压缩页后，通常仍需读取并解压该页，再做页内稀疏 decode。</text>
+</svg>

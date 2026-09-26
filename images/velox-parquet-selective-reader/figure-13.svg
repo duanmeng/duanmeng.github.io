@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1360" height="880" viewBox="0 0 1360 880">
+<defs><marker id="arrow" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" refX="11" refY="5" orient="auto"><path d="M0,0 L11,5 L0,10 Z" fill="#657386"/></marker><marker id="arrow-blue" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" refX="11" refY="5" orient="auto"><path d="M0,0 L11,5 L0,10 Z" fill="#4078bd"/></marker><style>text{font-family:'Noto Sans SC','Noto Sans CJK SC',Inter,Arial,sans-serif} .mono{font-family:SFMono-Regular,Consolas,'Liberation Mono',monospace}</style></defs>
+<rect width="1360" height="880" fill="#fff"/>
+<text x="48" y="54" font-size="30" font-weight="700" fill="#1f2d3d">RowGroup 过滤、调度与切换</text>
+<text x="48" y="88" font-size="18" fill="#657386">先排除不可能命中的 RowGroup，再为当前及后续 RowGroup 安排输入；next 的扫描行数与输出行数不同。</text>
+<line x1="48" y1="110" x2="1312" y2="110" stroke="#dce3ea" stroke-width="2"/>
+<rect x="55" y="155" width="285" height="145" rx="8" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="73" y="186" font-size="20" font-weight="700" fill="#326cae" text-anchor="start" class="">filterRowGroups</text>
+<text x="73" y="216" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">split range</text>
+<text x="73" y="243" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">empty RowGroup</text>
+<text x="73" y="270" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">column statistics</text>
+<text x="73" y="297" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">metadata filter</text>
+<rect x="400" y="155" width="285" height="145" rx="8" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="418" y="186" font-size="20" font-weight="700" fill="#2e7963" text-anchor="start" class="">scheduleRowGroups</text>
+<text x="418" y="216" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">当前 RowGroup</text>
+<text x="418" y="243" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">后续若干 RowGroup</text>
+<text x="418" y="270" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">创建 BufferedInput</text>
+<rect x="745" y="155" width="285" height="145" rx="8" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
+<text x="763" y="186" font-size="20" font-weight="700" fill="#65537f" text-anchor="start" class="">loadRowGroup</text>
+<text x="763" y="216" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">enqueue column regions</text>
+<text x="763" y="243" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">DirectBufferedInput::load</text>
+<text x="763" y="270" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">prefetch / on-demand</text>
+<rect x="1090" y="155" width="215" height="145" rx="8" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.5"/>
+<text x="1108" y="186" font-size="20" font-weight="700" fill="#877951" text-anchor="start" class="">seek</text>
+<text x="1108" y="216" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">seekToRowGroup</text>
+<text x="1108" y="243" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">reader tree 切换</text>
+<line x1="340" y1="227" x2="400" y2="227" stroke="#657386" stroke-width="2" marker-end="url(#arrow)"/>
+<line x1="685" y1="227" x2="745" y2="227" stroke="#657386" stroke-width="2" marker-end="url(#arrow)"/>
+<line x1="1030" y1="227" x2="1090" y2="227" stroke="#657386" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="55" y="390" font-size="20" font-weight="700" fill="#1f2d3d" text-anchor="start" class="">示例：4 个 RowGroup</text>
+<rect x="55" y="430" width="270" height="120" rx="8" fill="#fbf3f3" stroke="#a95f64" stroke-width="1.5"/>
+<text x="73" y="461" font-size="22" font-weight="700" fill="#8d4f54" text-anchor="start" class="">RG0</text>
+<text x="73" y="491" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">统计排除</text>
+<rect x="370" y="430" width="270" height="120" rx="8" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="388" y="461" font-size="22" font-weight="700" fill="#2e7963" text-anchor="start" class="">RG1</text>
+<text x="388" y="491" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">当前读取</text>
+<rect x="685" y="430" width="270" height="120" rx="8" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="703" y="461" font-size="22" font-weight="700" fill="#326cae" text-anchor="start" class="">RG2</text>
+<text x="703" y="491" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">已调度</text>
+<rect x="1000" y="430" width="270" height="120" rx="8" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.5"/>
+<text x="1018" y="461" font-size="22" font-weight="700" fill="#877951" text-anchor="start" class="">RG3</text>
+<text x="1018" y="491" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">尚未调度</text>
+<rect x="150" y="650" width="1060" height="120" rx="8" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.5"/>
+<text x="168" y="681" font-size="20" font-weight="700" fill="#877951" text-anchor="start" class="">next(size, output) 的两个数量</text>
+<text x="168" y="711" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">返回值表示扫描推进的行数；output RowVector::size() 是经过 reader filters 后的行数，二者可能不同。</text>
+</svg>

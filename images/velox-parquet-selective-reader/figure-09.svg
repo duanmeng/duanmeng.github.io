@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1360" height="900" viewBox="0 0 1360 900">
+<defs><marker id="arrow" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" refX="11" refY="5" orient="auto"><path d="M0,0 L11,5 L0,10 Z" fill="#657386"/></marker><marker id="arrow-blue" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" refX="11" refY="5" orient="auto"><path d="M0,0 L11,5 L0,10 Z" fill="#4078bd"/></marker><style>text{font-family:'Noto Sans SC','Noto Sans CJK SC',Inter,Arial,sans-serif} .mono{font-family:SFMono-Regular,Consolas,'Liberation Mono',monospace}</style></defs>
+<rect width="1360" height="900" fill="#fff"/>
+<text x="48" y="54" font-size="30" font-weight="700" fill="#1f2d3d">Cascading filters：RowSet 在列之间逐步缩小</text>
+<text x="48" y="88" font-size="18" fill="#657386">排序由运行时 timeToDropValue 与确定性初始规则共同决定，不是固定“整数永远先于字符串”。</text>
+<line x1="48" y1="110" x2="1312" y2="110" stroke="#dce3ea" stroke-width="2"/>
+<text x="55" y="155" font-size="20" font-weight="700" fill="#1f2d3d" text-anchor="start" class="">ScanSpec children</text>
+<rect x="55" y="185" width="275" height="95" rx="8" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="73" y="216" font-size="19" font-weight="700" fill="#326cae" text-anchor="start" class="">nationkey</text>
+<text x="73" y="246" font-size="16" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">filter [0,3]</text>
+<rect x="370" y="185" width="275" height="95" rx="8" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="388" y="216" font-size="19" font-weight="700" fill="#2e7963" text-anchor="start" class="">regionkey</text>
+<text x="388" y="246" font-size="16" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">filter [0,0]</text>
+<rect x="685" y="185" width="275" height="95" rx="8" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.5"/>
+<text x="703" y="216" font-size="19" font-weight="700" fill="#877951" text-anchor="start" class="">comment</text>
+<text x="703" y="246" font-size="16" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">payload</text>
+<rect x="1000" y="185" width="275" height="95" rx="8" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
+<text x="1018" y="216" font-size="19" font-weight="700" fill="#65537f" text-anchor="start" class="">name</text>
+<text x="1018" y="246" font-size="16" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">payload</text>
+<text x="55" y="330" font-size="18" font-weight="400" fill="#657386" text-anchor="start" class="">初始候选 rows</text>
+<rect x="230" y="308" width="470" height="34" rx="17" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.3"/>
+<text x="465.0" y="331" font-size="15" font-weight="600" fill="#877951" text-anchor="middle" class="">[0 1 2 3 4 5 6 7 8 9]</text>
+<rect x="120" y="405" width="330" height="125" rx="8" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="138" y="436" font-size="20" font-weight="700" fill="#326cae" text-anchor="start" class="">nationkey read + filter</text>
+<text x="138" y="466" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">输入 10 rows</text>
+<text x="138" y="493" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">输出 [0 1 3 6 8]</text>
+<rect x="515" y="405" width="330" height="125" rx="8" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="533" y="436" font-size="20" font-weight="700" fill="#2e7963" text-anchor="start" class="">regionkey read + filter</text>
+<text x="533" y="466" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">输入 5 rows</text>
+<text x="533" y="493" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">输出 [1 6]</text>
+<rect x="910" y="405" width="330" height="125" rx="8" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
+<text x="928" y="436" font-size="20" font-weight="700" fill="#65537f" text-anchor="start" class="">payload</text>
+<text x="928" y="466" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">只对 [1 6] 物化</text>
+<text x="928" y="493" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">或建立 LazyVector</text>
+<line x1="450" y1="468" x2="515" y2="468" stroke="#657386" stroke-width="2" marker-end="url(#arrow)"/>
+<line x1="845" y1="468" x2="910" y2="468" stroke="#657386" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="120" y="630" width="1120" height="150" rx="8" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.5"/>
+<text x="138" y="661" font-size="20" font-weight="700" fill="#877951" text-anchor="start" class="">重排规则</text>
+<text x="138" y="691" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">有 filter 的 child 在无 filter child 之前；有历史统计时比较 timeToDropValue</text>
+<text x="138" y="718" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">没有统计时按 FilterKind、simple/complex filter、字段名等确定性规则排序</text>
+<text x="138" y="745" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">disableStatsBasedFilterReorder 可关闭统计重排；适应结果可跨 split 移交</text>
+</svg>

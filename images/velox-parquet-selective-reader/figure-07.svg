@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1360" height="930" viewBox="0 0 1360 930">
+<defs><marker id="arrow" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" refX="11" refY="5" orient="auto"><path d="M0,0 L11,5 L0,10 Z" fill="#657386"/></marker><marker id="arrow-blue" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" refX="11" refY="5" orient="auto"><path d="M0,0 L11,5 L0,10 Z" fill="#4078bd"/></marker><style>text{font-family:'Noto Sans SC','Noto Sans CJK SC',Inter,Arial,sans-serif} .mono{font-family:SFMono-Regular,Consolas,'Liberation Mono',monospace}</style></defs>
+<rect width="1360" height="930" fill="#fff"/>
+<text x="48" y="54" font-size="30" font-weight="700" fill="#1f2d3d">三行数据如何展开为三条叶子流</text>
+<text x="48" y="88" font-size="18" fill="#657386">第一行 contacts=[] 是空列表 marker，不是 contacts=null。</text>
+<line x1="48" y1="110" x2="1312" y2="110" stroke="#dce3ea" stroke-width="2"/>
+<rect x="55" y="145" width="450" height="90" rx="8" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.5"/>
+<text x="73" y="176" font-size="18" font-weight="700" fill="#877951" text-anchor="start" class="">Row 1</text>
+<text x="73" y="206" font-size="16" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">owner=A</text>
+<text x="73" y="233" font-size="16" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">contacts=[]</text>
+<rect x="55" y="255" width="450" height="90" rx="8" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="73" y="286" font-size="18" font-weight="700" fill="#326cae" text-anchor="start" class="">Row 2</text>
+<text x="73" y="316" font-size="16" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">owner=B</text>
+<text x="73" y="343" font-size="16" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">{n1, null}</text>
+<rect x="55" y="365" width="450" height="90" rx="8" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="73" y="396" font-size="18" font-weight="700" fill="#2e7963" text-anchor="start" class="">Row 3</text>
+<text x="73" y="426" font-size="16" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">owner=C</text>
+<text x="73" y="453" font-size="16" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">{n2,10}, {n3,20}</text>
+<rect x="575" y="145" width="220" height="360" rx="8" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.5"/>
+<text x="593" y="176" font-size="20" font-weight="700" fill="#877951" text-anchor="start" class="">owner</text>
+<text x="593" y="206" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">A  DL0 RL0</text>
+<text x="593" y="233" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">B  DL0 RL0</text>
+<text x="593" y="260" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">C  DL0 RL0</text>
+<rect x="830" y="145" width="220" height="360" rx="8" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="848" y="176" font-size="20" font-weight="700" fill="#2e7963" text-anchor="start" class="">contacts.name</text>
+<text x="848" y="206" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">∅  DL0 RL0</text>
+<text x="848" y="233" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">n1 DL1 RL0</text>
+<text x="848" y="260" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">n2 DL1 RL0</text>
+<text x="848" y="287" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">n3 DL1 RL1</text>
+<rect x="1085" y="145" width="220" height="360" rx="8" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
+<text x="1103" y="176" font-size="20" font-weight="700" fill="#65537f" text-anchor="start" class="">contacts.blockID</text>
+<text x="1103" y="206" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">∅    DL0 RL0</text>
+<text x="1103" y="233" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">null DL1 RL0</text>
+<text x="1103" y="260" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">10   DL2 RL0</text>
+<text x="1103" y="287" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">20   DL2 RL1</text>
+<rect x="55" y="585" width="590" height="215" rx="8" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="73" y="616" font-size="20" font-weight="700" fill="#326cae" text-anchor="start" class="">definition level</text>
+<text x="73" y="646" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">name: 0=empty contacts, 1=name exists</text>
+<text x="73" y="673" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">blockID: 0=empty contacts</text>
+<text x="73" y="700" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">blockID: 1=contact exists, leaf null</text>
+<text x="73" y="727" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">blockID: 2=value exists</text>
+<rect x="715" y="585" width="590" height="215" rx="8" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="733" y="616" font-size="20" font-weight="700" fill="#2e7963" text-anchor="start" class="">repetition level</text>
+<text x="733" y="646" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">RL=0：一条 AddressBook 的开始，或 contacts 首元素</text>
+<text x="733" y="673" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">RL=1：同一 AddressBook 中 contacts 的后续元素</text>
+<text x="733" y="700" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">level marker 可以存在，而叶子 value 不存在</text>
+<text x="733" y="727" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">maxDL/maxRL 都为 0 时实现常省略 level stream</text>
+</svg>

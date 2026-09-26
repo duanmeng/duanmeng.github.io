@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1360" height="1000" viewBox="0 0 1360 1000">
+<defs><marker id="arrow" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" refX="11" refY="5" orient="auto"><path d="M0,0 L11,5 L0,10 Z" fill="#657386"/></marker><marker id="arrow-blue" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" refX="11" refY="5" orient="auto"><path d="M0,0 L11,5 L0,10 Z" fill="#4078bd"/></marker><style>text{font-family:'Noto Sans SC','Noto Sans CJK SC',Inter,Arial,sans-serif} .mono{font-family:SFMono-Regular,Consolas,'Liberation Mono',monospace}</style></defs>
+<rect width="1360" height="1000" fill="#fff"/>
+<text x="48" y="54" font-size="30" font-weight="700" fill="#1f2d3d">I/O 时序：后台 load 与查询线程消费在哪里汇合</text>
+<text x="48" y="88" font-size="18" fill="#657386">生命线表示调用角色；DirectInputStream 当前会在查询线程同步等待 SemiFuture，而不是 Driver isBlocked 的 off-thread future。</text>
+<line x1="48" y1="110" x2="1312" y2="110" stroke="#dce3ea" stroke-width="2"/>
+<rect x="35" y="135" width="190" height="65" rx="8" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="53" y="166" font-size="13" font-weight="700" fill="#326cae" text-anchor="start" class="">RowGroup 调度</text>
+<line x1="130" y1="205" x2="130" y2="900" stroke="#dce3ea" stroke-width="2" stroke-dasharray="8 8"/>
+<rect x="305" y="135" width="190" height="65" rx="8" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="323" y="166" font-size="13" font-weight="700" fill="#2e7963" text-anchor="start" class="">DirectBufferedInput</text>
+<line x1="400" y1="205" x2="400" y2="900" stroke="#dce3ea" stroke-width="2" stroke-dasharray="8 8"/>
+<rect x="585" y="135" width="190" height="65" rx="8" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
+<text x="603" y="166" font-size="13" font-weight="700" fill="#65537f" text-anchor="start" class="">I/O executor</text>
+<line x1="680" y1="205" x2="680" y2="900" stroke="#dce3ea" stroke-width="2" stroke-dasharray="8 8"/>
+<rect x="875" y="135" width="190" height="65" rx="8" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.5"/>
+<text x="893" y="166" font-size="13" font-weight="700" fill="#877951" text-anchor="start" class="">DirectCoalescedLoad</text>
+<line x1="970" y1="205" x2="970" y2="900" stroke="#dce3ea" stroke-width="2" stroke-dasharray="8 8"/>
+<rect x="1145" y="135" width="190" height="65" rx="8" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="1163" y="166" font-size="13" font-weight="700" fill="#326cae" text-anchor="start" class="">DirectInputStream</text>
+<line x1="1240" y1="205" x2="1240" y2="900" stroke="#dce3ea" stroke-width="2" stroke-dasharray="8 8"/>
+<line x1="130" y1="245" x2="400" y2="245" stroke="#657386" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="265.0" y="236" font-size="15" font-weight="500" fill="#1f2d3d" text-anchor="middle" class="">enqueue(regions)</text>
+<line x1="400" y1="300" x2="680" y2="300" stroke="#657386" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="540.0" y="291" font-size="15" font-weight="500" fill="#1f2d3d" text-anchor="middle" class="">prefetch task</text>
+<line x1="680" y1="355" x2="970" y2="355" stroke="#657386" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="825.0" y="346" font-size="15" font-weight="500" fill="#1f2d3d" text-anchor="middle" class="">loadOrFuture(nullptr)</text>
+<path d="M970 420 h55 v32 h-55" fill="none" stroke="#657386" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<text x="905" y="443" font-size="15" font-weight="500" fill="#1f2d3d" text-anchor="end" class="">ReadFile::read</text>
+<line x1="1240" y1="490" x2="400" y2="490" stroke="#657386" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="820.0" y="481" font-size="15" font-weight="500" fill="#1f2d3d" text-anchor="middle" class="">coalescedLoad(this)</text>
+<line x1="1240" y1="555" x2="970" y2="555" stroke="#657386" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="1105.0" y="546" font-size="15" font-weight="500" fill="#1f2d3d" text-anchor="middle" class="">loadOrFuture(&amp;future)</text>
+<line x1="970" y1="625" x2="1240" y2="625" stroke="#657386" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="1105.0" y="616" font-size="15" font-weight="500" fill="#1f2d3d" text-anchor="middle" class="">future incomplete</text>
+<path d="M1240 690 h55 v32 h-55" fill="none" stroke="#657386" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<text x="1175" y="713" font-size="15" font-weight="500" fill="#1f2d3d" text-anchor="end" class="">waitFuture.wait()</text>
+<line x1="970" y1="755" x2="1240" y2="755" stroke="#657386" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="1105.0" y="746" font-size="15" font-weight="500" fill="#1f2d3d" text-anchor="middle" class="">getData(offset)</text>
+<line x1="1240" y1="820" x2="130" y2="820" stroke="#657386" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="685.0" y="811" font-size="15" font-weight="500" fill="#1f2d3d" text-anchor="middle" class="">Next() returns bytes</text>
+<rect x="790" y="890" width="480" height="75" rx="8" fill="#fbf3f3" stroke="#a95f64" stroke-width="1.5"/>
+<text x="808" y="921" font-size="17" font-weight="700" fill="#8d4f54" text-anchor="start" class="">关键边界</text>
+<text x="808" y="951" font-size="15" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">wait 发生在当前读取调用线程；不是 Operator::isBlocked() 协议。</text>
+</svg>

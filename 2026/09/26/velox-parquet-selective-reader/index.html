@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content=".selective-reader-article [id]{scroll-margin-top:1.5rem}.selective-reader-article .doc-figure{margin:1.9rem 0}.selective-reader-article .doc-diagram{max-width:100%;overflow-x:auto}.selective-reader-a">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Velox Parquet SelectiveReader：过滤下推、延迟物化与 I&#x2F;O 调度">
+<meta property="og:url" content="https://duanmeng.github.io/2026/09/26/velox-parquet-selective-reader/index.html">
+<meta property="og:site_name" content="Macduan Notes">
+<meta property="og:description" content=".selective-reader-article [id]{scroll-margin-top:1.5rem}.selective-reader-article .doc-figure{margin:1.9rem 0}.selective-reader-article .doc-diagram{max-width:100%;overflow-x:auto}.selective-reader-a">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://duanmeng.github.io/images/velox-parquet-selective-reader/figure-01.svg">
+<meta property="og:image" content="https://duanmeng.github.io/images/velox-parquet-selective-reader/figure-02.svg">
+<meta property="og:image" content="https://duanmeng.github.io/images/velox-parquet-selective-reader/figure-03.svg">
+<meta property="og:image" content="https://duanmeng.github.io/images/velox-parquet-selective-reader/figure-04.svg">
+<meta property="og:image" content="https://duanmeng.github.io/images/velox-parquet-selective-reader/figure-05.svg">
+<meta property="og:image" content="https://duanmeng.github.io/images/velox-parquet-selective-reader/figure-06.svg">
+<meta property="og:image" content="https://duanmeng.github.io/images/velox-parquet-selective-reader/figure-07.svg">
+<meta property="og:image" content="https://duanmeng.github.io/images/velox-parquet-selective-reader/figure-08.svg">
+<meta property="og:image" content="https://duanmeng.github.io/images/velox-parquet-selective-reader/figure-09.svg">
+<meta property="og:image" content="https://duanmeng.github.io/images/velox-parquet-selective-reader/figure-10.svg">
+<meta property="og:image" content="https://duanmeng.github.io/images/velox-parquet-selective-reader/figure-11.svg">
+<meta property="og:image" content="https://duanmeng.github.io/images/velox-parquet-selective-reader/figure-12.svg">
+<meta property="og:image" content="https://duanmeng.github.io/images/velox-parquet-selective-reader/figure-13.svg">
+<meta property="og:image" content="https://duanmeng.github.io/images/velox-parquet-selective-reader/figure-14.svg">
+<meta property="og:image" content="https://duanmeng.github.io/images/velox-parquet-selective-reader/figure-16.svg">
+<meta property="og:image" content="https://duanmeng.github.io/images/velox-parquet-selective-reader/figure-15.svg">
+<meta property="og:image" content="https://duanmeng.github.io/images/velox-parquet-selective-reader/figure-17.svg">
+<meta property="article:published_time" content="2026-09-26T10:00:00.000Z">
+<meta property="article:modified_time" content="2026-09-26T14:35:08.136Z">
+<meta property="article:author" content="duanmeng">
+<meta property="article:tag" content="Velox">
+<meta property="article:tag" content="Parquet">
+<meta property="article:tag" content="SelectiveReader">
+<meta property="article:tag" content="PredicatePushdown">
+<meta property="article:tag" content="IO">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://duanmeng.github.io/images/velox-parquet-selective-reader/figure-01.svg">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Velox Parquet SelectiveReader：过滤下推、延迟物化与 I/O 调度</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr theme-whiteboard">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2026/09/20/llm-inference-nano-vllm/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://duanmeng.github.io/2026/09/26/velox-parquet-selective-reader/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://duanmeng.github.io/2026/09/26/velox-parquet-selective-reader/&text=Velox Parquet SelectiveReader：过滤下推、延迟物化与 I/O 调度"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://duanmeng.github.io/2026/09/26/velox-parquet-selective-reader/&title=Velox Parquet SelectiveReader：过滤下推、延迟物化与 I/O 调度"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://duanmeng.github.io/2026/09/26/velox-parquet-selective-reader/&is_video=false&description=Velox Parquet SelectiveReader：过滤下推、延迟物化与 I/O 调度"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Velox Parquet SelectiveReader：过滤下推、延迟物化与 I/O 调度&body=Check out this article: https://duanmeng.github.io/2026/09/26/velox-parquet-selective-reader/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://duanmeng.github.io/2026/09/26/velox-parquet-selective-reader/&title=Velox Parquet SelectiveReader：过滤下推、延迟物化与 I/O 调度"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://duanmeng.github.io/2026/09/26/velox-parquet-selective-reader/&title=Velox Parquet SelectiveReader：过滤下推、延迟物化与 I/O 调度"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://duanmeng.github.io/2026/09/26/velox-parquet-selective-reader/&title=Velox Parquet SelectiveReader：过滤下推、延迟物化与 I/O 调度"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://duanmeng.github.io/2026/09/26/velox-parquet-selective-reader/&title=Velox Parquet SelectiveReader：过滤下推、延迟物化与 I/O 调度"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://duanmeng.github.io/2026/09/26/velox-parquet-selective-reader/&name=Velox Parquet SelectiveReader：过滤下推、延迟物化与 I/O 调度&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://duanmeng.github.io/2026/09/26/velox-parquet-selective-reader/&t=Velox Parquet SelectiveReader：过滤下推、延迟物化与 I/O 调度"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#scope"><span class="toc-number">1.</span> <span class="toc-text">1. SelectiveReader 解决的不是一个点，而是一条读取链</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#industry"><span class="toc-number">2.</span> <span class="toc-text">2. 延迟物化的共同目标：把 selection 送回 reader</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#parquet-layout"><span class="toc-number">3.</span> <span class="toc-text">3. 先看 Parquet：RowGroup、ColumnChunk 与 Page</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#levels"><span class="toc-number">4.</span> <span class="toc-text">4. repetition &#x2F; definition levels：嵌套结构怎样落到叶子列</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reader-tree"><span class="toc-number">5.</span> <span class="toc-text">5. 从 schema tree 到 reader tree</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#scan-spec"><span class="toc-number">6.</span> <span class="toc-text">6. ScanSpec：投影、过滤和读取次序的控制面</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#two-phase"><span class="toc-number">7.</span> <span class="toc-text">7. read 与 getValues：为什么必须分两阶段</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#visitor"><span class="toc-number">8.</span> <span class="toc-text">8. 从 IntegerColumnReader 到 ColumnVisitor</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#page-reader"><span class="toc-number">9.</span> <span class="toc-text">9. PageReader：跨页稀疏读取的状态机</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#remaining-filter"><span class="toc-number">10.</span> <span class="toc-text">10. Remaining filter：复杂表达式与 payload 延迟物化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#row-groups"><span class="toc-number">11.</span> <span class="toc-text">11. RowGroup：先过滤，再调度输入</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#buffered-input"><span class="toc-number">12.</span> <span class="toc-text">12. DirectBufferedInput：I&#x2F;O 请求怎样成为 load</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#coalesced-load"><span class="toc-number">13.</span> <span class="toc-text">13. DirectCoalescedLoad：任务、buffer 与发布语义</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#direct-stream"><span class="toc-number">14.</span> <span class="toc-text">14. DirectInputStream：计划内复用与计划外同步读</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#savings"><span class="toc-number">15.</span> <span class="toc-text">15. 过滤到底省在哪里</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#design"><span class="toc-number">16.</span> <span class="toc-text">16. 设计取舍：为什么多一层抽象值得</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#appendix"><span class="toc-number">17.</span> <span class="toc-text">附录：PageReader 状态字段的阅读地图</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#references"><span class="toc-number">18.</span> <span class="toc-text">参考代码与资料</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+      
+        <nav class="post-side-nav" aria-label="Site navigation">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/categories/technology">Technology</a></li>
+    
+      <li><a href="/categories/life">Life</a></li>
+    
+      <li><a href="/archives/">Archives</a></li>
+    
+      <li><a href="/tags/">Tags</a></li>
+    
+      <li><a href="/about">About</a></li>
+    
+  </ul>
+</nav>
+
+      
+    
+    <div class="content index py4">
+        
+          <header class="post-site-header">
+  <a class="site-name" href="/">Macduan Notes</a>
+  <nav aria-label="Menu">
+    <ul>
+      
+        <li><a href="/">Home</a></li>
+      
+        <li><a href="/categories/technology">Technology</a></li>
+      
+        <li><a href="/categories/life">Life</a></li>
+      
+        <li><a href="/archives/">Archives</a></li>
+      
+        <li><a href="/tags/">Tags</a></li>
+      
+        <li><a href="/about">About</a></li>
+      
+    </ul>
+  </nav>
+</header>
+
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Velox Parquet SelectiveReader：过滤下推、延迟物化与 I/O 调度
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">duanmeng</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2026-09-26T10:00:00.000Z" itemprop="datePublished">2026-09-26</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/technology/">technology</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/IO/" rel="tag">IO</a>, <a class="tag-link-link" href="/tags/Parquet/" rel="tag">Parquet</a>, <a class="tag-link-link" href="/tags/PredicatePushdown/" rel="tag">PredicatePushdown</a>, <a class="tag-link-link" href="/tags/SelectiveReader/" rel="tag">SelectiveReader</a>, <a class="tag-link-link" href="/tags/Velox/" rel="tag">Velox</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <style>
+.selective-reader-article [id]{scroll-margin-top:1.5rem}.selective-reader-article .doc-figure{margin:1.9rem 0}.selective-reader-article .doc-diagram{max-width:100%;overflow-x:auto}.selective-reader-article .doc-diagram img{display:block;width:100%;min-width:960px;max-width:none;height:auto}.selective-reader-article figcaption{font-size:.82rem;color:#7c776f;text-align:right;margin-top:.45rem}.selective-reader-article .doc-table{max-width:100%;overflow-x:auto;margin:1.4rem 0}article.post .selective-reader-article .doc-table>table{display:table;width:100%;max-width:none;min-width:720px;border-collapse:collapse;table-layout:auto}.selective-reader-article .note{padding:.9rem 1rem;margin:1.2rem 0;background:#faf7ef;border-left:2px solid #ac9c76}.selective-reader-article .correction{padding:.9rem 1rem;margin:1.2rem 0;background:#f3f7fc;border-left:2px solid #4078bd}.selective-reader-article code{font-family:SFMono-Regular,Consolas,"Liberation Mono",Menlo,monospace}.selective-reader-article pre.cpp-highlight{overflow-x:auto;white-space:pre;font-family:SFMono-Regular,Consolas,"Liberation Mono",Menlo,monospace}.selective-reader-article pre.cpp-highlight code,.selective-reader-article pre.cpp-highlight span{font-family:inherit;white-space:pre}.selective-reader-article .small{color:#657386;font-size:.9rem}@media print{.selective-reader-article .doc-diagram img{min-width:0}}
+</style>
+<div class="post-body selective-reader-article">
+<p>Velox 的 Parquet SelectiveReader 是一套<strong>把投影、单列过滤、行集合、page 解码、延迟物化和 I/O 规划连在一起的列式读取框架</strong>。它的目标不是把一个 Parquet 文件完整解压成 RowVector 后再过滤，而是尽可能早地产生“哪些行还值得继续读”的信息，并把这组行号继续传给后面的列、page decoder 和 payload loader。</p>
+<p>这套实现跨越多个层次：TableScan 通过 Hive Connector 接收 split；<code>FileDataSource</code> 构造格式相关的 split reader；<code>ParquetReader</code> 负责 footer、schema 和 RowGroup 元数据；<code>ParquetRowReader</code> 持有一棵以 <code>StructColumnReader</code> 为根的 reader tree；叶子 reader 借助 <code>PageReader</code>、decoder 和 <code>ColumnVisitor</code> 完成稀疏读取；<code>DirectBufferedInput</code> 再把多个物理区域规划成预取或按需加载。最终结果是 RowVector，其中一部分 child 可能已经物化，另一部分仍是带 loader 的 LazyVector。</p>
+<div class="correction"><strong>源码基准：</strong>本文按 Velox <code>origin/main</code> 的 <code>235512ebfb44508180d6d530b9f2a1faed899320</code> 核对，时间为 2026-09-26。原分享中“每个 Driver 运行在独立线程”“row-level filter 必然裁剪底层 I/O”“DirectInputStream 一律 zero-copy”等说法在正文中逐一修正。</div>
+<figure class="doc-figure"><div class="doc-diagram" tabindex="0" role="region" aria-label="可横向滚动的 SVG 配图"><img src="/images/velox-parquet-selective-reader/figure-01.svg" alt="从 split 到 RowVector 的主路径" loading="lazy"></div><figcaption>从 split 到 RowVector 的主路径 · <a href="/images/velox-parquet-selective-reader/figure-01.svg">打开 SVG 原图</a></figcaption></figure>
+
+<h2 id="scope">1. SelectiveReader 解决的不是一个点，而是一条读取链</h2>
+<p>Velox Task 包含一个或多个 pipeline，每个 pipeline 按并行度创建 Driver。Driver 是一组 Operator 实例及其推进状态，并不永久绑定一条独占线程：它在 executor 线程上执行，遇到 Operator 的 blocked future 后可以离开线程，future 满足后再排队恢复。TableScan 是 Driver 中的 source operator，它通过 connector DataSource 拉取 RowVector。</p>
+<p>以 Hive Connector 为例，<code>FileDataSource::addSplit()</code> 创建 <code>FileSplitReader</code>，配置 reader options、remaining filter columns，再执行 <code>prepareSplit()</code>。Parquet 路径中，<code>ParquetReader</code> 包装 <code>ReaderBase</code>，用于读取文件元数据、构造文件 schema、过滤 RowGroup；<code>ParquetRowReader::Impl</code> 则持有 <code>std::unique_ptr&lt;SelectiveColumnReader&gt; columnReader_</code>，实际按 batch 读取。</p>
+<pre class="cpp-highlight"><code class="language-cpp"><span class="function"><span class="type">void</span> <span class="title">FileDataSource::addSplit</span><span class="params">(std::shared_ptr&lt;ConnectorSplit&gt; split)</span> </span>{
+  split_ = <span class="built_in">checkedPointerCast</span>&lt;FileConnectorSplit&gt;(split);
+  splitReader_ = <span class="built_in">createSplitReader</span>();
+  splitReader_-&gt;<span class="built_in">configureReaderOptions</span>(randomSkip_);
+  splitReader_-&gt;<span class="built_in">setRemainingFilterColumns</span>(remainingFilterColumns_);
+  splitReader_-&gt;<span class="built_in">prepareSplit</span>(metadataFilter_, runtimeStats_);
+  readerOutputType_ = splitReader_-&gt;<span class="built_in">readerOutputType</span>();
+}
+
+<span class="function">std::optional&lt;RowVectorPtr&gt; <span class="title">FileDataSource::next</span><span class="params">(
+    <span class="type">uint64_t</span> size, ContinueFuture&amp; <span class="comment">/*future*/</span>)</span> </span>{
+  <span class="type">const</span> <span class="keyword">auto</span> rowsScanned = splitReader_-&gt;<span class="built_in">next</span>(size, output_);
+  <span class="comment">// output_-&gt;size() 是 reader filters 后的行数，可能小于 rowsScanned。</span>
+  ...
+}</code></pre>
+<p><code>ParquetRowReader::next()</code> 的返回值表示扫描位置推进了多少行，而输出 RowVector 的 <code>size()</code> 表示有多少行通过 reader 里的过滤。把这两个数混为一谈，会在统计、limit 和 split 结束判断中产生错误。</p>
+<figure class="doc-figure"><div class="doc-diagram" tabindex="0" role="region" aria-label="可横向滚动的 SVG 配图"><img src="/images/velox-parquet-selective-reader/figure-02.svg" alt="SelectiveReader 的分层职责" loading="lazy"></div><figcaption>SelectiveReader 的分层职责 · <a href="/images/velox-parquet-selective-reader/figure-02.svg">打开 SVG 原图</a></figcaption></figure>
+<p>SelectiveReader 之所以复杂，是因为它不是一个类，而是格式无关 DWIO 抽象与 Parquet 实现的组合。格式无关层提供 <code>ScanSpec</code>、<code>SelectiveColumnReader</code>、<code>SelectiveStructColumnReaderBase</code>、<code>ColumnVisitor</code>、Lazy loader 和 buffered input；Parquet 层提供 schema 映射、RowGroup、PageReader、encoding decoder 以及 list/map/struct 的 repetition/definition level 处理。</p>
+
+<h2 id="industry">2. 延迟物化的共同目标：把 selection 送回 reader</h2>
+<p>传统向量化 reader 很容易形成固定顺序：定位并读取所有需要的 page，解压各列，构造完整 batch，最后执行 filter。对于选择率很低的查询，这会在 payload 列上浪费大量解码、内存写入和 cache bandwidth。业界的延迟物化方案都试图反转其中一部分顺序：先读取过滤列并产生 mask/selection，再让 payload 列只处理通过行。</p>
+<figure class="doc-figure"><div class="doc-diagram" tabindex="0" role="region" aria-label="可横向滚动的 SVG 配图"><img src="/images/velox-parquet-selective-reader/figure-03.svg" alt="Spark 提案、native reader 思路与 Velox 的落点" loading="lazy"></div><figcaption>Spark 提案、native reader 思路与 Velox 的落点 · <a href="/images/velox-parquet-selective-reader/figure-03.svg">打开 SVG 原图</a></figcaption></figure>
+<p>Spark 社区曾提出 LazyColumnVector 方向，希望未访问列不立即物化。但真正困难的部分不是增加一个 lazy wrapper，而是修改 vectorized reader 的列调度、把 RowSet 传到 parquet-mr 的页内 decoder，并处理嵌套类型、null、字典编码和跨页状态。Databricks Runtime 及 Photon 的公开材料展示了 JVM vectorized reader 调用 native reader、在堆外 vector 上生成 mask 的思路，但闭源实现细节不能从示意图中直接推断。</p>
+<p>Velox 的实现把这件事拆成三个可组合机制：单列简单 predicate 成为 <code>SubfieldFilter</code> 并进入 ColumnVisitor；多列或复杂表达式成为 remaining filter，由表达式引擎计算；纯 payload 字段在条件允许时用 LazyVector 延迟到更小的选择集合上读取。</p>
+
+<h2 id="parquet-layout">3. 先看 Parquet：RowGroup、ColumnChunk 与 Page</h2>
+<p>Parquet 是典型的 PAX 风格文件布局。文件按行切成多个 RowGroup；每个 RowGroup 针对每个叶子列保存一个 ColumnChunk；ColumnChunk 再由 dictionary page、data pages 等组成。文件末尾 footer 保存 schema、RowGroup 和 ColumnChunk 位置、压缩与编码信息以及 min/max 等统计。</p>
+<figure class="doc-figure"><div class="doc-diagram" tabindex="0" role="region" aria-label="可横向滚动的 SVG 配图"><img src="/images/velox-parquet-selective-reader/figure-04.svg" alt="Parquet 文件、RowGroup、ColumnChunk、Page 与 footer" loading="lazy"></div><figcaption>Parquet 文件、RowGroup、ColumnChunk、Page 与 footer · <a href="/images/velox-parquet-selective-reader/figure-04.svg">打开 SVG 原图</a></figcaption></figure>
+<p>一个 data page 可以粗略理解为下面的连续布局。PageHeader 使用 Thrift 序列化且长度可变；repetition levels 和 definition levels 是否存在取决于 schema；values 则采用 plain、dictionary、delta 等编码。压缩的准确边界由 page type 和 codec 决定，不能把所有 Parquet page 都套进同一个固定字节模板。</p>
+<pre class="cpp-highlight"><code class="language-cpp">[ <span class="built_in">PageHeader</span> (Thrift, variable length) ]
+[ repetition levels bytes, optional ]
+[ definition levels bytes, optional ]
+[ encoded values bytes ]</code></pre><figure class="doc-figure"><div class="doc-diagram" tabindex="0" role="region" aria-label="可横向滚动的 SVG 配图"><img src="/images/velox-parquet-selective-reader/figure-05.svg" alt="Parquet Data Page 的逻辑组成与读取边界" loading="lazy"></div><figcaption>Parquet Data Page 的逻辑组成与读取边界 · <a href="/images/velox-parquet-selective-reader/figure-05.svg">打开 SVG 原图</a></figcaption></figure>
+<p>过滤发生在哪一层，决定了能省下什么。RowGroup 统计命中失败时，可以跳过整个 RowGroup。PageReader 发现目标 RowSet 没有落入某个 page 时，可以跳过该页。只要目标行落入一个压缩页，reader 通常仍需获取并解压该页，然后在页内跳到目标行并稀疏解码。因此“有 row-level filter”不等于“底层一定少读同等比例的字节”。</p>
+
+<h2 id="levels">4. repetition / definition levels：嵌套结构怎样落到叶子列</h2>
+<p>下面保留原分享的 AddressBook 例子，但明确它使用的是旧式 <code>repeated group</code> schema。路径上每遇到一个 <code>repeated</code> 节点，max repetition level 加一；每遇到一个 <code>optional</code> 或 <code>repeated</code> 节点，max definition level 加一；<code>required</code> 不增加 definition level。</p>
+<pre class="cpp-highlight"><code class="language-cpp">message AddressBook {
+  required string owner;
+  repeated group contacts {
+    required string name;
+    optional int64 blockID;
+  }
+}</code></pre><figure class="doc-figure"><div class="doc-diagram" tabindex="0" role="region" aria-label="可横向滚动的 SVG 配图"><img src="/images/velox-parquet-selective-reader/figure-06.svg" alt="AddressBook schema 与三个叶子列的 max DL / RL" loading="lazy"></div><figcaption>AddressBook schema 与三个叶子列的 max DL / RL · <a href="/images/velox-parquet-selective-reader/figure-06.svg">打开 SVG 原图</a></figcaption></figure>
+<div class="doc-table"><table><thead><tr><th>Leaf column</th><th>Path</th><th>maxDL</th><th>maxRL</th></tr></thead><tbody><tr><td>owner</td><td>owner(required)</td><td>0</td><td>0</td></tr><tr><td>contacts.name</td><td>contacts(repeated) → name(required)</td><td>1</td><td>1</td></tr><tr><td>contacts.blockID</td><td>contacts(repeated) → blockID(optional)</td><td>2</td><td>1</td></tr></tbody></table></div>
+<p>definition level 表示一条 schema path 定义到了多深。对 <code>contacts.name</code>，DL=0 表示 contacts 为空，DL=1 表示 contact 元素存在且 required name 有值。对 <code>contacts.blockID</code>，DL=0 表示 contacts 为空，DL=1 表示 contact 存在但 blockID 为 null，DL=2 表示 blockID 有值。repetition level 则描述重复结构的边界：RL=0 是新 AddressBook 或该 parent 下的首个 contact，RL=1 是同一 parent 的后续 contact。</p>
+<div class="doc-table"><table><thead><tr><th>Row</th><th>owner</th><th>contacts</th></tr></thead><tbody><tr><td>1</td><td>"A"</td><td>[]</td></tr><tr><td>2</td><td>"B"</td><td>[{name:"n1", blockID:null}]</td></tr><tr><td>3</td><td>"C"</td><td>[{name:"n2", blockID:10}, {name:"n3", blockID:20}]</td></tr></tbody></table></div>
+<figure class="doc-figure"><div class="doc-diagram" tabindex="0" role="region" aria-label="可横向滚动的 SVG 配图"><img src="/images/velox-parquet-selective-reader/figure-07.svg" alt="三行嵌套数据展开后的 owner、name 与 blockID 叶子流" loading="lazy"></div><figcaption>三行嵌套数据展开后的 owner、name 与 blockID 叶子流 · <a href="/images/velox-parquet-selective-reader/figure-07.svg">打开 SVG 原图</a></figcaption></figure>
+<div class="correction"><strong>纠错：</strong>第一行是 <code>contacts=[]</code>，不是 <code>contacts=null</code>。它会为叶子流产生 empty-list level marker，但没有实际 leaf value。对现代 logical LIST schema，外层 optional list、list container 和 element 的路径不同，DL 数值也会不同；必须读取文件的真实 schema path，不能机械复用本例。</div>
+<p>当 maxDL 和 maxRL 都为零时，许多实现会省略 level stream，概念上仍等价于每个值的 DL/RL 都为零。2026-09-26 最新代码中，Parquet legacy nested schema 的 definition level 传播刚有修正，这也说明嵌套 schema 的 level 不能只靠直觉推算。</p>
+
+<h2 id="reader-tree">5. 从 schema tree 到 reader tree</h2>
+<p><code>ParquetColumnReader::build()</code> 根据 requested type、file type 和 ScanSpec 递归创建 reader。顶层 requested type 是 ROW，所以 <code>ParquetRowReader::columnReader_</code> 是 <code>StructColumnReader</code>，并调用 <code>setIsTopLevel()</code>。每个叶子 reader 对应一个物理 leaf column；Array、Map、Row reader 负责 level、offset、size 和 child reader 的组织。</p>
+<figure class="doc-figure"><div class="doc-diagram" tabindex="0" role="region" aria-label="可横向滚动的 SVG 配图"><img src="/images/velox-parquet-selective-reader/figure-08.svg" alt="Vector tree、reader tree 与 SelectiveColumnReader 类层次" loading="lazy"></div><figcaption>Vector tree、reader tree 与 SelectiveColumnReader 类层次 · <a href="/images/velox-parquet-selective-reader/figure-08.svg">打开 SVG 原图</a></figcaption></figure>
+<p>以 <code>ROW(BIGINT c0, MAP(VARCHAR, DOUBLE) c1)</code> 为例，RowVector 有 c0 和 c1 两个直接 child；MapVector 继续持有 key 和 value child，因此最终有 BIGINT、VARCHAR、DOUBLE 三条叶子值流。reader tree 同样以 StructColumnReader 为根，下面连接 IntegerColumnReader 和 MapColumnReader，MapColumnReader 再连接 key/value readers。</p>
+<pre class="cpp-highlight"><code class="language-cpp"><span class="keyword">auto</span> columnReader = ParquetColumnReader::<span class="built_in">build</span>(
+    requestedType,
+    fileType,
+    params,
+    scanSpec);
+columnReader-&gt;<span class="built_in">setIsTopLevel</span>();
+
+<span class="comment">// ParquetRowReader::next 最终从根 reader 发起：</span>
+columnReader_-&gt;<span class="built_in">next</span>(rowsToRead, result, mutation);</code></pre>
+<p>这里的“逐列读取”不是先完整生成每个 leaf vector 再拼 RowVector。Struct reader 分成 <code>read()</code> 与 <code>getValues()</code> 两阶段：前者让过滤列级联地产生最终 RowSet，后者才 compact 已读值并组装输出 vector。</p>
+
+<h2 id="scan-spec">6. ScanSpec：投影、过滤和读取次序的控制面</h2>
+<p>ScanSpec 是 reader tree 的控制面。每个 child 可以描述字段名、输出 channel、是否投影、filter、常量列、缺失列、复杂类型 child，以及是否需要 lazy。Struct reader 在新一轮读取时调用 <code>ScanSpec::newRead()</code>；如果是第一次读取，或者运行时统计表明当前次序已经不是最优，就执行 reorder。</p>
+<pre class="cpp-highlight"><code class="language-cpp"><span class="function"><span class="type">bool</span> <span class="title">ScanSpec::compareTimeToDropValue</span><span class="params">(
+    <span class="type">const</span> std::shared_ptr&lt;ScanSpec&gt;&amp; left,
+    <span class="type">const</span> std::shared_ptr&lt;ScanSpec&gt;&amp; right)</span> </span>{
+  <span class="keyword">if</span> (left-&gt;<span class="built_in">hasFilter</span>() &amp;&amp; right-&gt;<span class="built_in">hasFilter</span>()) {
+    <span class="keyword">if</span> (!disableStatsBasedFilterReorder_ &amp;&amp;
+        (left-&gt;selectivity_.<span class="built_in">numIn</span>() || right-&gt;selectivity_.<span class="built_in">numIn</span>())) {
+      <span class="keyword">return</span> left-&gt;selectivity_.<span class="built_in">timeToDropValue</span>() &lt;
+          right-&gt;selectivity_.<span class="built_in">timeToDropValue</span>();
+    }
+    <span class="comment">// 没有历史时，按 FilterKind、simple/complex 和字段名稳定排序。</span>
+    ...
+  }
+  <span class="keyword">return</span> left-&gt;<span class="built_in">hasFilter</span>() &amp;&amp; !right-&gt;<span class="built_in">hasFilter</span>();
+}</code></pre><figure class="doc-figure"><div class="doc-diagram" tabindex="0" role="region" aria-label="可横向滚动的 SVG 配图"><img src="/images/velox-parquet-selective-reader/figure-09.svg" alt="ScanSpec 重排与 cascading RowSet" loading="lazy"></div><figcaption>ScanSpec 重排与 cascading RowSet · <a href="/images/velox-parquet-selective-reader/figure-09.svg">打开 SVG 原图</a></figcaption></figure>
+<p><code>timeToDropValue</code> 可以理解为“丢掉一个输入值所花的时间”：一个 filter 即使很快，如果几乎不丢行，也未必应该排最前。原分享中“scalar 一定先于 complex、integer 一定先于 string”只是早期 heuristic 的粗略描述；当前实现有历史统计时直接比较动态指标，没有历史时才使用 filter kind 等确定性规则。这个适应结果还能在 split/stripe 之间通过 <code>moveAdaptationFrom()</code> 传递。</p>
+<p>假设 nation 表的计划包含 <code>nationkey BETWEEN 0 AND 3</code> 和 <code>regionkey = 0</code>。第一个 reader 从 10 行中留下 5 行，第二个 reader 只接收这 5 个 row numbers 并留下 2 行。comment、name 这类 payload 随后只需处理最终两行，或先创建 LazyVector。</p>
+<pre class="cpp-highlight"><code class="language-cpp">TableScan[<span class="number">0</span>][
+  table: hive_table,
+  range filters: [
+    (nationkey, BigintRange: [<span class="number">0</span>, <span class="number">3</span>] no nulls),
+    (regionkey, BigintRange: [<span class="number">0</span>, <span class="number">0</span>] no nulls)
+  ]
+] -&gt; nationkey:BIGINT, name:VARCHAR,
+     regionkey:BIGINT, comment:VARCHAR</code></pre>
+<div class="doc-table"><table><thead><tr><th>nationkey</th><th>name</th><th>regionkey</th><th>在示例中的作用</th></tr></thead><tbody>
+<tr><td>0</td><td>ALGERIA</td><td>0</td><td>通过两个 range filters</td></tr>
+<tr><td>1</td><td>ARGENTINA</td><td>1</td><td>通过 nationkey，未通过 regionkey</td></tr>
+<tr><td>2</td><td>BRAZIL</td><td>1</td><td>通过 nationkey，未通过 regionkey</td></tr>
+<tr><td>3</td><td>CANADA</td><td>1</td><td>通过 nationkey，未通过 regionkey</td></tr>
+<tr><td>4</td><td>EGYPT</td><td>4</td><td>在 nationkey filter 被丢弃</td></tr>
+<tr><td>5</td><td>ETHIOPIA</td><td>0</td><td>在 nationkey filter 被丢弃，后续列无需测试</td></tr>
+</tbody></table></div>
+<p>这个表也解释了 cascading filter 与普通“依次判断表达式”的区别：regionkey reader 收到的是 nationkey 已筛选后的稀疏 RowSet；name 和 comment 不参与 predicate，所以无需在 filter 阶段读取整列。重排前 ScanSpec 的稳定顺序可能是 <code>nationkey, name, regionkey, comment</code>，重排后有 filter 的 <code>nationkey, regionkey</code> 会先执行；没有 filter 的字段仍按确定性规则排在后面。</p>
+
+<h2 id="two-phase">7. read 与 getValues：为什么必须分两阶段</h2>
+<figure class="doc-figure"><div class="doc-diagram" tabindex="0" role="region" aria-label="可横向滚动的 SVG 配图"><img src="/images/velox-parquet-selective-reader/figure-10.svg" alt="StructColumnReader 的 read / getValues 两阶段" loading="lazy"></div><figcaption>StructColumnReader 的 read / getValues 两阶段 · <a href="/images/velox-parquet-selective-reader/figure-10.svg">打开 SVG 原图</a></figcaption></figure>
+<p><code>SelectiveStructColumnReaderBase::read()</code> 保存本轮 inputRows，更新 read offset，调用 <code>scanSpec_-&gt;newRead()</code>，然后按重排后的 children 顺序读取。带 filter 的 child 会更新 struct reader 的 outputRows；后续 child 直接接收缩小后的 RowSet。顶层无 filter 且允许 lazy 的 child 可以在这一阶段跳过实际读取。</p>
+<pre class="cpp-highlight"><code class="language-cpp"><span class="function"><span class="type">void</span> <span class="title">SelectiveStructColumnReaderBase::next</span><span class="params">(
+    <span class="type">uint64_t</span> numValues, VectorPtr&amp; result, <span class="type">const</span> Mutation* mutation)</span> </span>{
+  <span class="function"><span class="type">const</span> RowSet <span class="title">rows</span><span class="params">(iota(numValues, rows_), numValues)</span></span>;
+  <span class="built_in">read</span>(readOffset_, rows, <span class="literal">nullptr</span>);
+  <span class="built_in">getValues</span>(<span class="built_in">outputRows</span>(), &amp;result);
+}
+
+<span class="comment">// read(): 先按 ScanSpec 顺序读取和过滤 children。</span>
+<span class="comment">// getValues(): 使用最终 outputRows compact 并构造 RowVector / LazyVector。</span></code></pre>
+<p>如果 nationkey 先读取并保存了 5 个值，regionkey 又把 RowSet 从 5 行缩到 2 行，那么 nationkey 在 <code>getValues()</code> 时必须按最终两行 compact。复杂类型还要同步处理 offsets、sizes、nulls 和 children，因此不能把“读取”和“输出 vector 组装”简单合成一步。</p>
+
+<h2 id="visitor">8. 从 IntegerColumnReader 到 ColumnVisitor</h2>
+<p>叶子 reader 的模板分派把 filter kind、dense/sparse rows、是否提取值以及 encoding null 行为编译进具体路径。以 bigint range 为例，<code>SelectiveIntegerColumnReader</code> 选择 filter 类型并创建 <code>ColumnVisitor&lt;int64_t,...&gt;</code>，Parquet reader 再把 visitor 交给 <code>PageReader::readWithVisitor()</code>。</p>
+<pre class="cpp-highlight"><code class="language-cpp"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> ColumnVisitor&gt;
+<span class="function"><span class="type">void</span> <span class="title">IntegerColumnReader::readWithVisitor</span><span class="params">(
+    <span class="type">const</span> RowSet&amp; rows,
+    ColumnVisitor visitor)</span> </span>{
+  formatData_-&gt;<span class="built_in">as</span>&lt;ParquetData&gt;().<span class="built_in">readWithVisitor</span>(visitor);
+}
+
+<span class="comment">// ColumnVisitor 同时携带：</span>
+<span class="comment">// 1) RowSet；2) Filter；3) value extraction 策略；4) output rows。</span></code></pre>
+<p>把中间几层展开后，实际分派链如下。它看起来模板层次很多，但每一层都在消除一个运行时分支：是否 dense、encoding 是否可能有 null、filter 的具体 C++ 类型、整数宽度以及是 filter-only 还是同时提取 values。</p>
+<pre class="cpp-highlight"><code class="language-cpp"><span class="function"><span class="type">void</span> <span class="title">IntegerColumnReader::read</span><span class="params">(
+    <span class="type">int64_t</span> offset,
+    <span class="type">const</span> RowSet&amp; rows,
+    <span class="type">const</span> <span class="type">uint64_t</span>* <span class="comment">/*incomingNulls*/</span>)</span> </span>{
+  <span class="built_in">readCommon</span>&lt;IntegerColumnReader, <span class="literal">true</span>&gt;(rows);
+  readOffset_ += rows.<span class="built_in">back</span>() + <span class="number">1</span>;
+}
+
+<span class="keyword">template</span> &lt;<span class="keyword">typename</span> Reader, <span class="type">bool</span> kEncodingHasNulls&gt;
+<span class="function"><span class="type">void</span> <span class="title">SelectiveIntegerColumnReader::readCommon</span><span class="params">(<span class="type">const</span> RowSet&amp; rows)</span> </span>{
+  <span class="type">const</span> <span class="type">bool</span> isDense = rows.<span class="built_in">back</span>() == rows.<span class="built_in">size</span>() - <span class="number">1</span>;
+  <span class="keyword">auto</span>* filter = scanSpec_-&gt;<span class="built_in">filter</span>() ? scanSpec_-&gt;<span class="built_in">filter</span>() : &amp;<span class="built_in">alwaysTrue</span>();
+  <span class="comment">// 选择 ExtractValues / DropValues，以及 dense / sparse 实例化。</span>
+  <span class="built_in">processFilter</span>&lt;Reader, <span class="literal">true</span>, kEncodingHasNulls&gt;(filter, extractValues, rows);
+}
+
+<span class="keyword">template</span> &lt;<span class="keyword">typename</span> Reader, <span class="type">bool</span> isDense, <span class="type">bool</span> kEncodingHasNulls,
+          <span class="keyword">typename</span> ExtractValues&gt;
+<span class="function"><span class="type">void</span> <span class="title">SelectiveIntegerColumnReader::processFilter</span><span class="params">(
+    <span class="type">const</span> common::Filter* filter,
+    ExtractValues extractValues,
+    <span class="type">const</span> RowSet&amp; rows)</span> </span>{
+  <span class="keyword">switch</span> (filter-&gt;<span class="built_in">kind</span>()) {
+    <span class="keyword">case</span> common::FilterKind::kBigintRange:
+      <span class="keyword">return</span> <span class="built_in">readHelper</span>&lt;Reader, common::BigintRange, isDense&gt;(
+          filter, rows, extractValues);
+    <span class="comment">// 其他 FilterKind 选择各自的具体 filter type。</span>
+    ...
+  }
+}
+
+<span class="keyword">template</span> &lt;<span class="keyword">typename</span> Reader, <span class="keyword">typename</span> TFilter, <span class="type">bool</span> isDense,
+          <span class="keyword">typename</span> ExtractValues&gt;
+<span class="function"><span class="type">void</span> <span class="title">SelectiveIntegerColumnReader::readHelper</span><span class="params">(
+    <span class="type">const</span> common::Filter* filter,
+    <span class="type">const</span> RowSet&amp; rows,
+    ExtractValues extractValues)</span> </span>{
+  <span class="keyword">switch</span> (valueSize_) {
+    <span class="keyword">case</span> <span class="number">8</span>:
+      <span class="keyword">return</span> <span class="built_in">static_cast</span>&lt;Reader*&gt;(<span class="keyword">this</span>)-&gt;<span class="built_in">readWithVisitor</span>(
+          rows,
+          <span class="built_in">ColumnVisitor</span>&lt;<span class="type">int64_t</span>, TFilter, ExtractValues, isDense&gt;(
+              *<span class="built_in">static_cast</span>&lt;<span class="type">const</span> TFilter*&gt;(filter), <span class="keyword">this</span>, rows, extractValues));
+    ...
+  }
+}</code></pre>
+<p>这条路径把解码和过滤放在同一个紧循环中：decoder 取得一个值后，visitor 立刻测试 predicate；filter-only 路径甚至不必保存 value。对 dictionary page，reader 可以为字典值建立 filter cache，使相同 dictionary id 的 filter 结果复用。</p>
+
+<h2 id="page-reader">9. PageReader：跨页稀疏读取的状态机</h2>
+<figure class="doc-figure"><div class="doc-diagram" tabindex="0" role="region" aria-label="可横向滚动的 SVG 配图"><img src="/images/velox-parquet-selective-reader/figure-11.svg" alt="PageReader 的 page 定位、rebias、decode 与拼接" loading="lazy"></div><figcaption>PageReader 的 page 定位、rebias、decode 与拼接 · <a href="/images/velox-parquet-selective-reader/figure-11.svg">打开 SVG 原图</a></figcaption></figure>
+<p><code>rowsForPage()</code> 负责把 visitor 的批次 RowSet 切成当前 page 内的子集合。它先计算下一目标绝对行 <code>visitBase_ + visitorRows_[currentVisitorRow_]</code>；如果目标已经越过当前页，就调用 <code>seekToPage()</code>。接着通过 <code>lower_bound</code> 找出当前页覆盖多少个 visitor rows。</p>
+<p>当 batch 起点与 page 起点不对齐时，reader 会计算 <code>rowNumberBias_</code>，先 <code>skip()</code> 到页内第一个目标，再把例如 <code>[205, 210]</code> rebias 为 decoder 看到的 <code>[0, 5]</code>。当前实现用 xsimd 批量完成行号减法。解码结束后，如果 visitor 带 filter，还要把 output rows 加回 bias，恢复到 batch 坐标。</p>
+<pre class="cpp-highlight"><code class="language-cpp"><span class="function"><span class="type">bool</span> <span class="title">PageReader::rowsForPage</span><span class="params">(
+    SelectiveColumnReader&amp; reader,
+    <span class="type">bool</span> hasFilter,
+    <span class="type">bool</span> mayProduceNulls,
+    folly::Range&lt;<span class="type">const</span> <span class="type">vector_size_t</span>*&gt;&amp; rows,
+    <span class="type">const</span> <span class="type">uint64_t</span>*&amp; nulls)</span> </span>{
+  <span class="keyword">if</span> (currentVisitorRow_ == numVisitorRows_) {
+    <span class="keyword">return</span> <span class="literal">false</span>;
+  }
+
+  <span class="comment">// 1. 找到下一目标绝对行；必要时跳到覆盖它的 page。</span>
+  <span class="type">const</span> <span class="keyword">auto</span> rowZero = visitBase_ + visitorRows_[currentVisitorRow_];
+  <span class="keyword">if</span> (rowZero &gt;= rowOfPage_ + numRowsInPage_) {
+    <span class="built_in">seekToPage</span>(rowZero);
+    <span class="keyword">if</span> (hasChunkRepDefs_) {
+      numLeafNullsConsumed_ = rowOfPage_;
+    }
+  }
+
+  <span class="comment">// 2. 同步 dictionary/direct encoding 状态与 filter cache。</span>
+  <span class="built_in">updateDictionaryState</span>(reader, hasFilter, mayProduceNulls);
+
+  <span class="comment">// 3. 找出当前 page 能处理的 visitor rows 子区间。</span>
+  <span class="type">const</span> <span class="type">int32_t</span> firstOnNextPage =
+      rowOfPage_ + numRowsInPage_ - visitBase_;
+  <span class="type">const</span> <span class="type">int32_t</span> numToVisit = <span class="built_in">rowsBefore</span>(firstOnNextPage);
+
+  <span class="comment">// 4. 如果 decoder 当前点不是 batch 基准，先 skip，再 rebias 行号。</span>
+  <span class="type">const</span> <span class="keyword">auto</span> pageOffset = rowOfPage_ - visitBase_;
+  rowNumberBias_ = visitorRows_[currentVisitorRow_];
+  <span class="built_in">skip</span>(rowNumberBias_ - pageOffset);
+  rowsCopy_ = <span class="built_in">subtractBiasWithSimd</span>(visitorRows_, rowNumberBias_, numToVisit);
+
+  <span class="comment">// 5. 解析本页 nulls，并让 reader 为本页输出准备 null buffer。</span>
+  nulls = <span class="built_in">readNulls</span>(rowsCopy_-&gt;<span class="built_in">back</span>() + <span class="number">1</span>, reader.<span class="built_in">nullsInReadRange</span>());
+  reader.<span class="built_in">prepareNulls</span>(*rowsCopy_, nulls != <span class="literal">nullptr</span>, currentVisitorRow_);
+
+  <span class="comment">// 6. 推进 visitor 与下一次 skip 的基准。</span>
+  currentVisitorRow_ += numToVisit;
+  firstUnvisited_ =
+      visitBase_ + visitorRows_[currentVisitorRow_ - <span class="number">1</span>] + <span class="number">1</span>;
+  rows = folly::<span class="built_in">Range</span>&lt;<span class="type">const</span> <span class="type">vector_size_t</span>*&gt;(
+      rowsCopy_-&gt;<span class="built_in">data</span>(), rowsCopy_-&gt;<span class="built_in">size</span>());
+  <span class="keyword">return</span> <span class="literal">true</span>;
+}</code></pre>
+<p>上面的代码是按当前实现整理的控制流示意，辅助函数名用于压缩展示；真实源码把 fast path、dictionary 切换、null 处理和 SIMD rebias 展开在函数内部。关键不变量是：传给 decoder 的 rows 总是相对于 decoder 当前消费位置，传给 struct reader 的 outputRows 最终仍是相对于本 batch 的坐标。</p>
+<pre class="cpp-highlight"><code class="language-cpp"><span class="keyword">while</span> (<span class="built_in">rowsForPage</span>(reader, hasFilter, mayProduceNulls, pageRows, nulls)) {
+  <span class="type">const</span> <span class="type">int32_t</span> numValuesBeforePage =
+      <span class="built_in">numValuesRead</span>&lt;hasFilter, hasHook&gt;(reader, numPageRowsRead);
+  visitor.<span class="built_in">setNumValuesBias</span>(numValuesBeforePage);
+  visitor.<span class="built_in">setRows</span>(pageRows);
+  <span class="built_in">callDecoder</span>(nulls, nullsFromFastPath, visitor);
+
+  <span class="keyword">if</span> (hasFilter &amp;&amp; rowNumberBias_) {
+    reader.<span class="built_in">offsetOutputRows</span>(numValuesBeforePage, rowNumberBias_);
+  }
+  numPageRowsRead += pageRows.<span class="built_in">size</span>();
+}</code></pre>
+<p>跨页还有两个容易遗漏的状态。第一，Parquet 允许 data page 在 dictionary 与 direct encoding 之间切换，reader 要更新 dictionary、重建 filter cache，必要时先 dedictionarize 已累积结果。第二，null bitmap 是按页产生的；跨页读取时，<code>BitConcatenation</code> 要区分全非空页、fast path nulls 和 compact 后 mutable nulls，再拼成最终 reader nulls。</p>
+<div class="note"><strong>页级 I/O 边界：</strong><code>seekToPage()</code> 能跳过没有目标行的 page，并一定减少这些 page 的解码工作；是否少发 storage read，要看 ColumnChunk stream 已经预取了多大区域、目标 page 是否和其他请求 coalesce、缓存命中及压缩边界。</div>
+
+<h2 id="remaining-filter">10. Remaining filter：复杂表达式与 payload 延迟物化</h2>
+<p>SubfieldFilter 适合下推到单个 column reader 的简单条件，例如 bigint range、bytes range、is null。<code>c0 + c1 &gt; 10</code>、复杂函数或多列组合无法由一个 leaf visitor 独立计算，FileDataSource 会把剩余表达式编译为 <code>ExprSet</code>，在 reader 产生 RowVector 后执行。</p>
+<figure class="doc-figure"><div class="doc-diagram" tabindex="0" role="region" aria-label="可横向滚动的 SVG 配图"><img src="/images/velox-parquet-selective-reader/figure-12.svg" alt="SubfieldFilter、remaining filter、Dictionary wrapping 与 LazyVector" loading="lazy"></div><figcaption>SubfieldFilter、remaining filter、Dictionary wrapping 与 LazyVector · <a href="/images/velox-parquet-selective-reader/figure-12.svg">打开 SVG 原图</a></figcaption></figure>
+<p>原分享说“除了 SubfieldFilter 列外，其他列都是 LazyVector”，这个结论过强。构造 FileDataSource 时，Velox 会尝试从表达式中提取能变成 subfield filters 的部分；剩下表达式引用的字段记录到 <code>remainingFilterColumns_</code>，并通过 <code>FileSplitReader::setRemainingFilterColumns()</code> 进入 RowReaderOptions。底层 reader 必须保证这些字段能在表达式求值前获得。</p>
+<pre class="cpp-highlight"><code class="language-cpp"><span class="function"><span class="type">vector_size_t</span> <span class="title">FileDataSource::evaluateRemainingFilter</span><span class="params">(
+    RowVectorPtr&amp; rowVector)</span> </span>{
+  <span class="keyword">for</span> (<span class="keyword">auto</span> fieldIndex : multiReferencedFields_) {
+    LazyVector::<span class="built_in">ensureLoadedRows</span>(
+        rowVector-&gt;<span class="built_in">childAt</span>(fieldIndex),
+        filterRows_,
+        filterLazyDecoded_,
+        filterLazyBaseRows_);
+  }
+  expressionEvaluator_-&gt;<span class="built_in">evaluate</span>(
+      remainingFilterExprSet_.<span class="built_in">get</span>(), filterRows_, *rowVector, filterResult_);
+  <span class="keyword">return</span> exec::<span class="built_in">processFilterResults</span>(
+      filterResult_, filterRows_, filterEvalCtx_, pool_);
+}</code></pre>
+<p>如果 remaining filter 只让一部分行通过，<code>selectedIndices</code> 会成为 dictionary indices。输出 child 使用 <code>exec::wrapChild()</code> 包装，只暴露通过行。纯 payload child 若仍为 LazyVector，在下游 Operator 真正加载时可以收到选择后的 rows，从而少解码无效 payload。重复引用字段由 <code>multiReferencedFields_</code> 提前 <code>ensureLoadedRows()</code>，避免表达式在不同引用处触发不一致的 lazy 状态。</p>
+
+<h2 id="row-groups">11. RowGroup：先过滤，再调度输入</h2>
+<figure class="doc-figure"><div class="doc-diagram" tabindex="0" role="region" aria-label="可横向滚动的 SVG 配图"><img src="/images/velox-parquet-selective-reader/figure-13.svg" alt="RowGroup 过滤、调度、加载和 reader 切换" loading="lazy"></div><figcaption>RowGroup 过滤、调度、加载和 reader 切换 · <a href="/images/velox-parquet-selective-reader/figure-13.svg">打开 SVG 原图</a></figcaption></figure>
+<p><code>ReaderBase::filterRowGroups()</code> 综合 split 范围、空 RowGroup、列统计和 metadata filter，标记无需读取的 RowGroup。<code>scheduleRowGroups()</code> 为当前及后续若干 RowGroup 创建对应 BufferedInput；进入一个 RowGroup 时，<code>loadRowGroup()</code> 让列 reader enqueue 自己需要的 streams，再触发 input 的 <code>load()</code>。最后 <code>seekToRowGroup()</code> 把 reader tree 切换到新位置。</p>
+<p>这种设计把 metadata pruning 与实际列读取分开。前者可以完全跳过 RowGroup；后者根据访问历史决定哪些 ColumnChunk streams 值得预取，避免对所有投影列一视同仁。</p>
+
+<h2 id="buffered-input">12. DirectBufferedInput：I/O 请求怎样成为 load</h2>
+<p>每个 RowGroup 的上层 reader 会通过 <code>DirectBufferedInput::enqueue()</code> 注册多个 <code>Region{offset,length}</code>。enqueue 创建 <code>DirectInputStream</code> 并记录 <code>LoadRequest</code>，此时通常没有发生 I/O。若开启 whole-file preload，则 stream 直接从 preload data 服务，不进入 coalesced load 路径。</p>
+<figure class="doc-figure"><div class="doc-diagram" tabindex="0" role="region" aria-label="可横向滚动的 SVG 配图"><img src="/images/velox-parquet-selective-reader/figure-14.svg" alt="DirectBufferedInput 的请求分类、coalescing 与 prefetch" loading="lazy"></div><figcaption>DirectBufferedInput 的请求分类、coalescing 与 prefetch · <a href="/images/velox-parquet-selective-reader/figure-14.svg">打开 SVG 原图</a></figcaption></figure>
+<p><code>load()</code> 先查询 ScanTracker 的 tracking data，并按 adjusted read percentage 把 request 分成 prefetchable 和 non-prefetchable 两类。两类分别按文件 offset 排序。prefetch 类可使用较大的 <code>maxCoalesceBytes</code> 追求吞吐；sparse 类用 <code>loadQuantum</code> 约束过读，防止低命中访问被合并成过大的连续读取。</p>
+<pre class="cpp-highlight"><code class="language-cpp"><span class="function"><span class="type">void</span> <span class="title">DirectBufferedInput::load</span><span class="params">(<span class="type">const</span> LogType)</span> </span>{
+  <span class="keyword">auto</span> requests = std::<span class="built_in">move</span>(requests_);
+  std::vector&lt;LoadRequest*&gt; storageLoad[<span class="number">2</span>];
+  <span class="keyword">for</span> (<span class="keyword">auto</span>&amp; request : requests) {
+    <span class="type">const</span> <span class="type">int</span> loadIndex =
+        (prefetchAnyway || <span class="built_in">isPrefetchablePct</span>(<span class="built_in">adjustedReadPct</span>(trackingData)))
+        ? <span class="number">1</span> : <span class="number">0</span>;
+    storageLoad[loadIndex].<span class="built_in">push_back</span>(&amp;request);
+  }
+  groupEnds[<span class="number">1</span>] = <span class="built_in">groupRequests</span>(storageLoad[<span class="number">1</span>], <span class="literal">true</span>);
+  groupEnds[<span class="number">0</span>] = <span class="built_in">groupRequests</span>(storageLoad[<span class="number">0</span>], <span class="literal">false</span>);
+  <span class="built_in">readRegions</span>(storageLoad[<span class="number">1</span>], <span class="literal">true</span>, groupEnds[<span class="number">1</span>]);
+  <span class="built_in">readRegions</span>(storageLoad[<span class="number">0</span>], <span class="literal">false</span>, groupEnds[<span class="number">0</span>]);
+}</code></pre>
+<p>只有 prefetch group 且配置了 executor 时，planned load 才会提交后台任务。单个 non-prefetch request 没有可合并对象，也不具备预取资格，因此不会创建 coalesced load；它在 stream 首次消费时走同步 <code>loadSync()</code>。相邻 request 可以跨 gap 合并，gap 会计入 overread 统计。</p>
+
+<h2 id="coalesced-load">13. DirectCoalescedLoad：任务、buffer 与发布语义</h2>
+<p><code>DirectCoalescedLoad</code> 表示一个合并加载任务，而不是“一次本地磁盘读取”的同义词。它最终调用 <code>ReadFile::read()</code>，当前代码还明确把这条 latency 归到 remote storage 指标。一个 load 可以包含多个 request 及其 gap，并为每个 request 准备不同形式的 buffer。</p>
+<figure class="doc-figure"><div class="doc-diagram" tabindex="0" role="region" aria-label="可横向滚动的 SVG 配图"><img src="/images/velox-parquet-selective-reader/figure-16.svg" alt="DirectCoalescedLoad 的三种 buffer 形态" loading="lazy"></div><figcaption>DirectCoalescedLoad 的三种 buffer 形态 · <a href="/images/velox-parquet-selective-reader/figure-16.svg">打开 SVG 原图</a></figcaption></figure>
+<p>较大的 request 可以从 shared allocation 得到只读 slice；tiny request 放在自己的 byte vector；其他 request 使用 MemoryPool 的 non-contiguous pages。duplicate region 若能使用 shared allocation，可共享同一 slice；否则复制到各自 buffer。<code>getData()</code> 只在 load state 为 <code>kLoaded</code> 时发布，避免失败读取把半填充 buffer 暴露给 decoder。</p>
+
+<h2 id="direct-stream">14. DirectInputStream：计划内复用与计划外同步读</h2>
+<p><code>DirectInputStream</code> 向 PageReader 提供 SeekableInputStream 接口。第一次需要数据时，<code>loadPosition()</code> 向 DirectBufferedInput 取回与自己关联的 coalesced load。如果后台任务尚未完成，当前实现调用 <code>loadOrFuture(&amp;waitFuture)</code>，随后直接 <code>waitFuture.wait()</code>。这是一段查询读取线程上的同步等待，并不是 Driver/Operator <code>isBlocked()</code> 所使用的 off-thread future 协议。</p>
+<figure class="doc-figure"><div class="doc-diagram" tabindex="0" role="region" aria-label="可横向滚动的 SVG 配图"><img src="/images/velox-parquet-selective-reader/figure-15.svg" alt="DirectInputStream 消费 coalesced load 的时序" loading="lazy"></div><figcaption>DirectInputStream 消费 coalesced load 的时序 · <a href="/images/velox-parquet-selective-reader/figure-15.svg">打开 SVG 原图</a></figcaption></figure>
+<pre class="cpp-highlight"><code class="language-cpp"><span class="keyword">if</span> (!loaded_) {
+  loaded_ = <span class="literal">true</span>;
+  <span class="keyword">auto</span> load = bufferedInput_-&gt;<span class="built_in">coalescedLoad</span>(<span class="keyword">this</span>);
+  <span class="keyword">if</span> (load != <span class="literal">nullptr</span>) {
+    <span class="function">folly::SemiFuture&lt;<span class="type">bool</span>&gt; <span class="title">waitFuture</span><span class="params">(<span class="literal">false</span>)</span></span>;
+    <span class="keyword">if</span> (!load-&gt;<span class="built_in">loadOrFuture</span>(&amp;waitFuture)) {
+      waitFuture.<span class="built_in">wait</span>(); <span class="comment">// 当前调用线程同步等待。</span>
+    }
+    <span class="keyword">auto</span> loaded = load-&gt;<span class="built_in">getData</span>(region_.offset);
+    loadedData_.<span class="built_in">set</span>(std::<span class="built_in">move</span>(loaded), load);
+  }
+}
+
+<span class="keyword">if</span> (positionOutsideLoadedBounds) {
+  <span class="built_in">loadSync</span>(); <span class="comment">// 未计划区域按 loadQuantum 同步读取。</span>
+}</code></pre>
+<p>如果 stream 不属于任何 coalesced load，或者 seek 位置越过已加载区域，它按 <code>loadQuantum</code> 计算新 region 并同步读取。数据可能是借用的 shared slice，也可能是 stream 自己持有的 tiny buffer 或 pages，因此不能笼统称为 zero-copy；只有 shared slice 路径明确复用 load 的内存。</p>
+
+<h2 id="savings">15. 过滤到底省在哪里</h2>
+<figure class="doc-figure"><div class="doc-diagram" tabindex="0" role="region" aria-label="可横向滚动的 SVG 配图"><img src="/images/velox-parquet-selective-reader/figure-17.svg" alt="从 RowGroup 到 Lazy payload 的四级裁剪" loading="lazy"></div><figcaption>从 RowGroup 到 Lazy payload 的四级裁剪 · <a href="/images/velox-parquet-selective-reader/figure-17.svg">打开 SVG 原图</a></figcaption></figure>
+<p>SelectiveReader 的收益要按层拆开：</p>
+<ul>
+<li><strong>RowGroup pruning：</strong>统计和 metadata filter 可以完全跳过一个 RowGroup，直接节省 storage bytes、解压与解码。</li>
+<li><strong>Page / RowSet pruning：</strong>目标 RowSet 不落入某页时可以跳页；落入时通常仍要获取并解压整个 compressed page。</li>
+<li><strong>ColumnVisitor：</strong>在解码循环中立即过滤，减少 values 写入，并把更小 RowSet 传给后续过滤列。</li>
+<li><strong>Remaining filter + LazyVector：</strong>复杂表达式产生最终 indices，payload 列只对通过行加载，减少解码、物化和下游 Operator 工作。</li>
+</ul>
+<p>这些层次叠加才构成 SelectiveReader。只看 LazyVector 会漏掉 reader 内部的 cascading filters；只看 PageReader 又会漏掉 remaining filter 对 payload 的二次裁剪；只看 coalesced I/O 则无法解释为什么同一查询在选择率变化后预取策略也会自适应。</p>
+
+<h2 id="design">16. 设计取舍：为什么多一层抽象值得</h2>
+<p><strong>ScanSpec 把执行意图和格式实现分开。</strong> Connector 知道查询投影、动态 filter 和 remaining filter，Parquet reader 知道 page、encoding 和 levels。ScanSpec 是两者之间稳定的控制面，使 DWRF、Parquet、Nimble 可以共享 selective reader 的一部分机制。</p>
+<p><strong>RowSet 是跨列的窄接口。</strong> 前一列不必把完整 vector 交给后一列，只需传递通过行号。这样 scalar decoder 可以保留模板化紧循环，复杂类型 reader 也能围绕相同坐标系组织 offsets、sizes 与 nulls。</p>
+<p><strong>read/getValues 分离换来正确的晚期 compaction。</strong> 过滤次序可以动态变化，后读列可以继续丢行；只有最终 RowSet 稳定后组装 vector，才能避免反复 compact 并让 LazyVector 获得最小选择集合。</p>
+<p><strong>I/O 规划使用历史而不是静态猜测。</strong> ScanTracker 记录 stream 的读取比例，DirectBufferedInput 据此区分 dense prefetch 与 sparse on-demand。代价是实现要管理 load state、duplicate、overread、buffer ownership 和同步等待。</p>
+<p><strong>性能边界来自压缩与存储现实。</strong> 行级 predicate 能精确减少 decode 行数，却不能把压缩页任意切成单行读取。把 CPU 裁剪、materialization 裁剪与 storage byte 裁剪区分开，才能正确解释指标。</p>
+
+<h2 id="appendix">附录：PageReader 状态字段的阅读地图</h2>
+<div class="doc-table"><table><thead><tr><th>字段 / 动作</th><th>作用</th><th>容易误解的地方</th></tr></thead><tbody>
+<tr><td><code>visitBase_</code> + <code>visitorRows_</code></td><td>把 batch 相对行号还原为 RowGroup 绝对行号</td><td>visitor rows 不是 page-local 坐标</td></tr>
+<tr><td><code>seekToPage(rowZero)</code></td><td>移动到覆盖下一个目标行的 page</td><td>跳 page 不保证一定少发物理 read</td></tr>
+<tr><td><code>rowNumberBias_</code></td><td>把 page 内 decoder 坐标归零</td><td>filter output rows 之后还要加回 bias</td></tr>
+<tr><td><code>scanState.dictionary</code></td><td>维护当前 dictionary 与 filter cache</td><td>page 间允许 dictionary/direct 切换</td></tr>
+<tr><td><code>nullConcatenation_</code></td><td>拼接多个 page 的 null bitmap</td><td>fast path、reader nulls、mutable nulls 来源不同</td></tr>
+<tr><td><code>firstUnvisited_</code></td><td>记录下一次 skip 的消费基准</td><td>嵌套 levels 的消费状态也必须同步</td></tr>
+<tr><td><code>visitor.setNumValuesBias()</code></td><td>把当前页结果追加到 reader 已有结果后</td><td>它是输出 buffer 偏移，不是输入 row bias</td></tr>
+</tbody></table></div>
+<p>沿源码阅读时，建议按下面的顺序：<code>FileDataSource::next()</code> → <code>ParquetRowReader::next()</code> → <code>SelectiveStructColumnReaderBase::read()</code> / <code>getValues()</code> → leaf reader 的 <code>readCommon()</code> → <code>PageReader::readWithVisitor()</code> / <code>rowsForPage()</code> → <code>DirectBufferedInput::load()</code> → <code>DirectInputStream::loadPosition()</code>。这条路径能同时看到控制流、行集合和 I/O 状态如何传递。</p>
+
+<h2 id="references">参考代码与资料</h2>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/tree/235512ebfb44508180d6d530b9f2a1faed899320/velox/dwio/parquet/reader">Velox Parquet reader，commit 235512ebf</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/235512ebfb44508180d6d530b9f2a1faed899320/velox/dwio/common/SelectiveStructColumnReader.cpp">SelectiveStructColumnReader.cpp</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/235512ebfb44508180d6d530b9f2a1faed899320/velox/dwio/parquet/reader/PageReader.cpp">PageReader.cpp</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/235512ebfb44508180d6d530b9f2a1faed899320/velox/connectors/hive/FileDataSource.cpp">FileDataSource.cpp</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/235512ebfb44508180d6d530b9f2a1faed899320/velox/dwio/common/DirectBufferedInput.cpp">DirectBufferedInput.cpp</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/235512ebfb44508180d6d530b9f2a1faed899320/velox/dwio/common/DirectInputStream.cpp">DirectInputStream.cpp</a></li>
+<li><a target="_blank" rel="noopener" href="https://parquet.apache.org/docs/file-format/nestedencoding/">Apache Parquet — Nested Encoding</a></li>
+</ul>
+</div>
+
+  </div>
+</article>
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/categories/technology">Technology</a></li>
+         
+          <li><a href="/categories/life">Life</a></li>
+         
+          <li><a href="/archives/">Archives</a></li>
+         
+          <li><a href="/tags/">Tags</a></li>
+         
+          <li><a href="/about">About</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#scope"><span class="toc-number">1.</span> <span class="toc-text">1. SelectiveReader 解决的不是一个点，而是一条读取链</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#industry"><span class="toc-number">2.</span> <span class="toc-text">2. 延迟物化的共同目标：把 selection 送回 reader</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#parquet-layout"><span class="toc-number">3.</span> <span class="toc-text">3. 先看 Parquet：RowGroup、ColumnChunk 与 Page</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#levels"><span class="toc-number">4.</span> <span class="toc-text">4. repetition &#x2F; definition levels：嵌套结构怎样落到叶子列</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reader-tree"><span class="toc-number">5.</span> <span class="toc-text">5. 从 schema tree 到 reader tree</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#scan-spec"><span class="toc-number">6.</span> <span class="toc-text">6. ScanSpec：投影、过滤和读取次序的控制面</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#two-phase"><span class="toc-number">7.</span> <span class="toc-text">7. read 与 getValues：为什么必须分两阶段</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#visitor"><span class="toc-number">8.</span> <span class="toc-text">8. 从 IntegerColumnReader 到 ColumnVisitor</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#page-reader"><span class="toc-number">9.</span> <span class="toc-text">9. PageReader：跨页稀疏读取的状态机</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#remaining-filter"><span class="toc-number">10.</span> <span class="toc-text">10. Remaining filter：复杂表达式与 payload 延迟物化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#row-groups"><span class="toc-number">11.</span> <span class="toc-text">11. RowGroup：先过滤，再调度输入</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#buffered-input"><span class="toc-number">12.</span> <span class="toc-text">12. DirectBufferedInput：I&#x2F;O 请求怎样成为 load</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#coalesced-load"><span class="toc-number">13.</span> <span class="toc-text">13. DirectCoalescedLoad：任务、buffer 与发布语义</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#direct-stream"><span class="toc-number">14.</span> <span class="toc-text">14. DirectInputStream：计划内复用与计划外同步读</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#savings"><span class="toc-number">15.</span> <span class="toc-text">15. 过滤到底省在哪里</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#design"><span class="toc-number">16.</span> <span class="toc-text">16. 设计取舍：为什么多一层抽象值得</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#appendix"><span class="toc-number">17.</span> <span class="toc-text">附录：PageReader 状态字段的阅读地图</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#references"><span class="toc-number">18.</span> <span class="toc-text">参考代码与资料</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://duanmeng.github.io/2026/09/26/velox-parquet-selective-reader/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://duanmeng.github.io/2026/09/26/velox-parquet-selective-reader/&text=Velox Parquet SelectiveReader：过滤下推、延迟物化与 I/O 调度"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://duanmeng.github.io/2026/09/26/velox-parquet-selective-reader/&title=Velox Parquet SelectiveReader：过滤下推、延迟物化与 I/O 调度"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://duanmeng.github.io/2026/09/26/velox-parquet-selective-reader/&is_video=false&description=Velox Parquet SelectiveReader：过滤下推、延迟物化与 I/O 调度"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Velox Parquet SelectiveReader：过滤下推、延迟物化与 I/O 调度&body=Check out this article: https://duanmeng.github.io/2026/09/26/velox-parquet-selective-reader/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://duanmeng.github.io/2026/09/26/velox-parquet-selective-reader/&title=Velox Parquet SelectiveReader：过滤下推、延迟物化与 I/O 调度"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://duanmeng.github.io/2026/09/26/velox-parquet-selective-reader/&title=Velox Parquet SelectiveReader：过滤下推、延迟物化与 I/O 调度"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://duanmeng.github.io/2026/09/26/velox-parquet-selective-reader/&title=Velox Parquet SelectiveReader：过滤下推、延迟物化与 I/O 调度"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://duanmeng.github.io/2026/09/26/velox-parquet-selective-reader/&title=Velox Parquet SelectiveReader：过滤下推、延迟物化与 I/O 调度"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://duanmeng.github.io/2026/09/26/velox-parquet-selective-reader/&name=Velox Parquet SelectiveReader：过滤下推、延迟物化与 I/O 调度&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://duanmeng.github.io/2026/09/26/velox-parquet-selective-reader/&t=Velox Parquet SelectiveReader：过滤下推、延迟物化与 I/O 调度"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        
+        <a class="icon footer-home" href="/"><i class="fas fa-home" aria-hidden="true"></i> Home</a>
+        
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2026
+    duanmeng
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/categories/technology">Technology</a></li><!--
+     --><!--
+       --><li><a href="/categories/life">Life</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Archives</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tags</a></li><!--
+     --><!--
+       --><li><a href="/about">About</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+ 
+  <link
+    rel="preload"
+    href="/lib/font-awesome/css/all.min.css"
+    as="style"
+    onload="this.onload=null;this.rel='stylesheet'"
+  />
+  <noscript
+    ><link
+      rel="stylesheet"
+      href="/lib/font-awesome/css/all.min.css"
+  /></noscript>
+
+
+
+  
+    <script defer src="/lib/mermaid/mermaid.min.js"></script>
+  
+  <script type="application/json" id="mermaid-config">{"theme":"base","securityLevel":"strict","fontFamily":"-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, Microsoft YaHei, sans-serif","themeVariables":{"background":"#FAF9F6","primaryColor":"#FAF9F6","primaryBorderColor":"#B6A088","primaryTextColor":"#302E2B","secondaryColor":"#EEE7ED","secondaryBorderColor":"#9A8097","secondaryTextColor":"#302E2B","tertiaryColor":"#E8EFE3","tertiaryBorderColor":"#74896B","tertiaryTextColor":"#302E2B","lineColor":"#B8B1A7","textColor":"#302E2B","mainBkg":"#FAF9F6","nodeBorder":"#B6A088","clusterBkg":"#F2F1ED","clusterBorder":"#B6A088","titleColor":"#302E2B","edgeLabelBackground":"#FAF9F6","actorBkg":"#F2F1ED","actorBorder":"#B6A088","actorTextColor":"#302E2B","actorLineColor":"#B8B1A7","signalColor":"#706B63","signalTextColor":"#302E2B","noteBkgColor":"#F8EED8","noteBorderColor":"#BEA16D","noteTextColor":"#302E2B","labelBoxBkgColor":"#EEE7ED","labelBoxBorderColor":"#9A8097","labelTextColor":"#302E2B","activationBkgColor":"#E8EFE3","activationBorderColor":"#74896B","fontSize":"15px"},"flowchart":{"curve":"linear","padding":16,"nodeSpacing":40,"rankSpacing":48,"useMaxWidth":true},"sequence":{"useMaxWidth":true,"actorMargin":48,"messageMargin":36}}</script>
+  <script defer src="/js/mermaid-init.js"></script>
+
+
+    <!-- jquery -->
+ 
+  
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+
+
+
+<!-- clipboard -->
+
+   
+    
+<script src="/lib/clipboard/clipboard.min.js"></script>
+
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

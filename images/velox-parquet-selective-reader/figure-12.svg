@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1360" height="930" viewBox="0 0 1360 930">
+<defs><marker id="arrow" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" refX="11" refY="5" orient="auto"><path d="M0,0 L11,5 L0,10 Z" fill="#657386"/></marker><marker id="arrow-blue" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" refX="11" refY="5" orient="auto"><path d="M0,0 L11,5 L0,10 Z" fill="#4078bd"/></marker><style>text{font-family:'Noto Sans SC','Noto Sans CJK SC',Inter,Arial,sans-serif} .mono{font-family:SFMono-Regular,Consolas,'Liberation Mono',monospace}</style></defs>
+<rect width="1360" height="930" fill="#fff"/>
+<text x="48" y="54" font-size="30" font-weight="700" fill="#1f2d3d">remaining filter 与 LazyVector：先求复杂表达式，再读 payload</text>
+<text x="48" y="88" font-size="18" fill="#657386">“非 pushdown 列全部 lazy”并不成立；是否 eager 由 filter 引用、投影、重复引用和 ScanSpec 共同决定。</text>
+<line x1="48" y1="110" x2="1312" y2="110" stroke="#dce3ea" stroke-width="2"/>
+<rect x="55" y="150" width="310" height="140" rx="8" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="73" y="181" font-size="20" font-weight="700" fill="#326cae" text-anchor="start" class="">Subfield filters</text>
+<text x="73" y="211" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">nationkey BETWEEN 0 AND 3</text>
+<text x="73" y="238" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">regionkey = 0</text>
+<text x="73" y="265" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">在 reader / Visitor 内求值</text>
+<rect x="430" y="150" width="360" height="140" rx="8" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="448" y="181" font-size="20" font-weight="700" fill="#2e7963" text-anchor="start" class="">remaining filter</text>
+<text x="448" y="211" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">c0 + c1 &gt; 10</text>
+<text x="448" y="238" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">复杂函数 / 多列表达式</text>
+<text x="448" y="265" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">ExprSet 在 FileDataSource 求值</text>
+<rect x="855" y="150" width="450" height="140" rx="8" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
+<text x="873" y="181" font-size="20" font-weight="700" fill="#65537f" text-anchor="start" class="">payload</text>
+<text x="873" y="211" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">comment / name / other projected fields</text>
+<text x="873" y="238" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">可先返回 LazyVector</text>
+<text x="873" y="265" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">加载时接收更小的 SelectivityVector</text>
+<line x1="365" y1="220" x2="430" y2="220" stroke="#657386" stroke-width="2" marker-end="url(#arrow)"/>
+<line x1="790" y1="220" x2="855" y2="220" stroke="#657386" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="90" y="405" width="310" height="125" rx="8" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="108" y="436" font-size="20" font-weight="700" fill="#326cae" text-anchor="start" class="">reader 输出</text>
+<text x="108" y="466" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">pushdown 后 RowVector</text>
+<text x="108" y="493" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">filter 所需列已可用</text>
+<rect x="525" y="405" width="310" height="125" rx="8" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="543" y="436" font-size="17" font-weight="700" fill="#2e7963" text-anchor="start" class="">evaluateRemainingFilter</text>
+<text x="543" y="466" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">加载表达式引用列</text>
+<text x="543" y="493" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">生成 selectedIndices</text>
+<rect x="960" y="405" width="310" height="125" rx="8" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
+<text x="978" y="436" font-size="20" font-weight="700" fill="#65537f" text-anchor="start" class="">Dictionary wrapping</text>
+<text x="978" y="466" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">只暴露通过行</text>
+<text x="978" y="493" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">payload loader 看到选择行</text>
+<line x1="400" y1="468" x2="525" y2="468" stroke="#657386" stroke-width="2" marker-end="url(#arrow)"/>
+<line x1="835" y1="468" x2="960" y2="468" stroke="#657386" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="120" y="650" width="1120" height="160" rx="8" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.5"/>
+<text x="138" y="681" font-size="20" font-weight="700" fill="#877951" text-anchor="start" class="">eager / lazy 的真实约束</text>
+<text x="138" y="711" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">remainingFilterColumns 通过 RowReaderOptions 传到底层，避免表达式列被错误延迟</text>
+<text x="138" y="738" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">multiReferencedFields 会在表达式求值前 ensureLoadedRows；重复引用和 eager materialization 有专门处理</text>
+<text x="138" y="765" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">部分通过时 output child 用 dictionary indices 包装；下游真正访问 lazy payload 时才触发列读取</text>
+</svg>

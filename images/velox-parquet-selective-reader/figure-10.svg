@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1360" height="870" viewBox="0 0 1360 870">
+<defs><marker id="arrow" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" refX="11" refY="5" orient="auto"><path d="M0,0 L11,5 L0,10 Z" fill="#657386"/></marker><marker id="arrow-blue" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" refX="11" refY="5" orient="auto"><path d="M0,0 L11,5 L0,10 Z" fill="#4078bd"/></marker><style>text{font-family:'Noto Sans SC','Noto Sans CJK SC',Inter,Arial,sans-serif} .mono{font-family:SFMono-Regular,Consolas,'Liberation Mono',monospace}</style></defs>
+<rect width="1360" height="870" fill="#fff"/>
+<text x="48" y="54" font-size="30" font-weight="700" fill="#1f2d3d">Struct reader 的两阶段：read 先裁剪，getValues 再组装</text>
+<text x="48" y="88" font-size="18" fill="#657386">先让所有过滤列更新最终 RowSet，才能正确 compact 早读列并延迟 payload。</text>
+<line x1="48" y1="110" x2="1312" y2="110" stroke="#dce3ea" stroke-width="2"/>
+<rect x="55" y="155" width="565" height="505" rx="8" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="73" y="186" font-size="20" font-weight="700" fill="#326cae" text-anchor="start" class="">阶段 1 · read</text>
+<text x="73" y="216" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">ScanSpec::newRead() 可能重排列</text>
+<text x="73" y="243" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">逐个 child 读取当前 RowSet</text>
+<text x="73" y="270" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">ColumnVisitor 边 decode 边 filter</text>
+<text x="73" y="297" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">outputRows 成为下一列输入</text>
+<text x="73" y="324" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">无 filter 的顶层字段可延迟</text>
+<text x="73" y="351" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">跨页 null bitmap 被拼接</text>
+<rect x="740" y="155" width="565" height="505" rx="8" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="758" y="186" font-size="20" font-weight="700" fill="#2e7963" text-anchor="start" class="">阶段 2 · getValues</text>
+<text x="758" y="216" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">使用最终 outputRows</text>
+<text x="758" y="243" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">早读列按最终 rows compact</text>
+<text x="758" y="270" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">values / nulls 组装 Vector</text>
+<text x="758" y="297" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">常量与缺失列生成 ConstantVector</text>
+<text x="758" y="324" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">未读字段安装 ColumnLoader</text>
+<text x="758" y="351" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">返回 RowVector / LazyVector</text>
+<line x1="620" y1="405" x2="740" y2="405" stroke="#657386" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="680" y="387" font-size="17" font-weight="600" fill="#65537f" text-anchor="middle" class="">最终 RowSet</text>
+<rect x="180" y="710" width="1000" height="100" rx="8" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.5"/>
+<text x="198" y="741" font-size="20" font-weight="700" fill="#877951" text-anchor="start" class="">为什么分两阶段</text>
+<text x="198" y="771" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">若第一列过滤后立即组装，而后续列又丢掉更多行，前一列还要再次对齐；分阶段把行集合先稳定下来。</text>
+</svg>

@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1360" height="900" viewBox="0 0 1360 900">
+<defs><marker id="arrow" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" refX="11" refY="5" orient="auto"><path d="M0,0 L11,5 L0,10 Z" fill="#657386"/></marker><marker id="arrow-blue" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" refX="11" refY="5" orient="auto"><path d="M0,0 L11,5 L0,10 Z" fill="#4078bd"/></marker><style>text{font-family:'Noto Sans SC','Noto Sans CJK SC',Inter,Arial,sans-serif} .mono{font-family:SFMono-Regular,Consolas,'Liberation Mono',monospace}</style></defs>
+<rect width="1360" height="900" fill="#fff"/>
+<text x="48" y="54" font-size="30" font-weight="700" fill="#1f2d3d">DirectCoalescedLoad 的 buffer 形态与 duplicate 处理</text>
+<text x="48" y="88" font-size="18" fill="#657386">getData 只在整个 load 成功后发布；共享 slice、tiny buffer 与 owned pages 三者互斥。</text>
+<line x1="48" y1="110" x2="1312" y2="110" stroke="#dce3ea" stroke-width="2"/>
+<rect x="55" y="155" width="350" height="150" rx="8" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="73" y="186" font-size="20" font-weight="700" fill="#2e7963" text-anchor="start" class="">shared allocation slice</text>
+<text x="73" y="216" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">较大 request 可借用只读 slice</text>
+<text x="73" y="243" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">DirectInputStream 持有 load holder</text>
+<text x="73" y="270" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">duplicate 可共享同一 slice</text>
+<rect x="505" y="155" width="350" height="150" rx="8" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="523" y="186" font-size="20" font-weight="700" fill="#326cae" text-anchor="start" class="">tinyData</text>
+<text x="523" y="216" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">小 request 用 byte vector</text>
+<text x="523" y="243" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">duplicate 通常复制自己的 bytes</text>
+<text x="523" y="270" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">stream 拥有这块小 buffer</text>
+<rect x="955" y="155" width="350" height="150" rx="8" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
+<text x="973" y="186" font-size="17" font-weight="700" fill="#65537f" text-anchor="start" class="">owned non-contiguous pages</text>
+<text x="973" y="216" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">MemoryPool 分配 pages</text>
+<text x="973" y="243" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">getData 后移动给 stream</text>
+<text x="973" y="270" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">后续 quantum 可同步重载</text>
+<rect x="120" y="450" width="1120" height="145" rx="8" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.5"/>
+<text x="138" y="481" font-size="20" font-weight="700" fill="#877951" text-anchor="start" class="">buildReadRanges</text>
+<text x="138" y="511" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">相邻请求之间允许 gap；gap 会形成 overread 统计</text>
+<text x="138" y="538" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">每个 request 计算 requestBytes，尾部可能被 loadQuantum 截断</text>
+<text x="138" y="565" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">相同 offset / length 的 duplicate 不重复向 ReadFile 发同一段读取</text>
+<rect x="120" y="670" width="1120" height="110" rx="8" fill="#fbf3f3" stroke="#a95f64" stroke-width="1.5"/>
+<text x="138" y="701" font-size="20" font-weight="700" fill="#8d4f54" text-anchor="start" class="">发布条件</text>
+<text x="138" y="731" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">state == kLoaded 才返回 LoadedBuffer；失败或部分填充不会暴露给 DirectInputStream。</text>
+</svg>

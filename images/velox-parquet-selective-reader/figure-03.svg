@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1360" height="920" viewBox="0 0 1360 920">
+<defs><marker id="arrow" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" refX="11" refY="5" orient="auto"><path d="M0,0 L11,5 L0,10 Z" fill="#657386"/></marker><marker id="arrow-blue" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" refX="11" refY="5" orient="auto"><path d="M0,0 L11,5 L0,10 Z" fill="#4078bd"/></marker><style>text{font-family:'Noto Sans SC','Noto Sans CJK SC',Inter,Arial,sans-serif} .mono{font-family:SFMono-Regular,Consolas,'Liberation Mono',monospace}</style></defs>
+<rect width="1360" height="920" fill="#fff"/>
+<text x="48" y="54" font-size="30" font-weight="700" fill="#1f2d3d">延迟物化的业界思路：共同目标与实现差异</text>
+<text x="48" y="88" font-size="18" fill="#657386">核心不是只增加一个 LazyVector，而是把行选择传给列读取、page 解码和 payload 物化。</text>
+<line x1="48" y1="110" x2="1312" y2="110" stroke="#dce3ea" stroke-width="2"/>
+<rect x="55" y="145" width="580" height="250" rx="8" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="73" y="176" font-size="20" font-weight="700" fill="#326cae" text-anchor="start" class="">Spark 社区提案：把读取顺序反转</text>
+<text x="73" y="206" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">传统：定位 page → 解压 → batch → filter</text>
+<text x="73" y="233" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">提案：先求 filter，再按需物化 payload</text>
+<text x="73" y="260" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">难点：RowSet 下推、列调度、parquet-mr 改造</text>
+<path d="M120 430 L570 430" fill="none" stroke="#657386" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<text x="345" y="420" font-size="17" font-weight="600" fill="#326cae" text-anchor="middle" class="">predicate 先产生 selection</text>
+<rect x="70" y="455" width="94" height="70" rx="8" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.5"/>
+<text x="88" y="486" font-size="12" font-weight="700" fill="#877951" text-anchor="start" class="">下载</text>
+<rect x="180" y="455" width="94" height="70" rx="8" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="198" y="486" font-size="12" font-weight="700" fill="#326cae" text-anchor="start" class="">过滤</text>
+<rect x="290" y="455" width="94" height="70" rx="8" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="308" y="486" font-size="12" font-weight="700" fill="#2e7963" text-anchor="start" class="">选行</text>
+<rect x="400" y="455" width="94" height="70" rx="8" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
+<text x="418" y="486" font-size="12" font-weight="700" fill="#65537f" text-anchor="start" class="">读 payload</text>
+<rect x="510" y="455" width="94" height="70" rx="8" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.5"/>
+<text x="528" y="486" font-size="12" font-weight="700" fill="#877951" text-anchor="start" class="">解压</text>
+<rect x="725" y="145" width="580" height="250" rx="8" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="743" y="176" font-size="20" font-weight="700" fill="#2e7963" text-anchor="start" class="">DBR / Native Reader / Photon</text>
+<text x="743" y="206" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">JVM vectorized reader 发起列请求</text>
+<text x="743" y="233" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">native reader 读取 Parquet 并写堆外 vector</text>
+<text x="743" y="260" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">predicate 生成 mask，payload 按 mask 解码</text>
+<text x="743" y="287" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">公开材料未给出完整闭源实现细节</text>
+<rect x="760" y="455" width="108" height="70" rx="8" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="778" y="486" font-size="13" font-weight="700" fill="#326cae" text-anchor="start" class="">JVM Vector</text>
+<line x1="868" y1="490" x2="885" y2="490" stroke="#657386" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="885" y="455" width="108" height="70" rx="8" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="903" y="486" font-size="13" font-weight="700" fill="#2e7963" text-anchor="start" class="">Native</text>
+<line x1="993" y1="490" x2="1010" y2="490" stroke="#657386" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="1010" y="455" width="108" height="70" rx="8" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
+<text x="1028" y="486" font-size="13" font-weight="700" fill="#65537f" text-anchor="start" class="">mask</text>
+<line x1="1118" y1="490" x2="1135" y2="490" stroke="#657386" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="1135" y="455" width="108" height="70" rx="8" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.5"/>
+<text x="1153" y="486" font-size="13" font-weight="700" fill="#877951" text-anchor="start" class="">off-heap</text>
+<rect x="150" y="640" width="1060" height="170" rx="8" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
+<text x="168" y="671" font-size="20" font-weight="700" fill="#65537f" text-anchor="start" class="">Velox SelectiveReader 的落点</text>
+<text x="168" y="701" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">ScanSpec 描述投影和过滤；reader tree 逐列读取</text>
+<text x="168" y="728" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">RowSet 在过滤列之间级联；PageReader/Decoder 接受稀疏行集合</text>
+<text x="168" y="755" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">remaining filter 用表达式求值；payload 可由 LazyVector 在更小 RowSet 上加载</text>
+<text x="168" y="782" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">DirectBufferedInput 用访问历史决定 prefetch 与 coalescing</text>
+</svg>

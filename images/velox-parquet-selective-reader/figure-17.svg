@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1360" height="900" viewBox="0 0 1360 900">
+<defs><marker id="arrow" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" refX="11" refY="5" orient="auto"><path d="M0,0 L11,5 L0,10 Z" fill="#657386"/></marker><marker id="arrow-blue" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" refX="11" refY="5" orient="auto"><path d="M0,0 L11,5 L0,10 Z" fill="#4078bd"/></marker><style>text{font-family:'Noto Sans SC','Noto Sans CJK SC',Inter,Arial,sans-serif} .mono{font-family:SFMono-Regular,Consolas,'Liberation Mono',monospace}</style></defs>
+<rect width="1360" height="900" fill="#fff"/>
+<text x="48" y="54" font-size="30" font-weight="700" fill="#1f2d3d">SelectiveReader 能省下什么：四级裁剪与边界</text>
+<text x="48" y="88" font-size="18" fill="#657386">越靠前的裁剪越可能节省底层 bytes；越靠后的裁剪仍能减少 decode、materialization 与下游计算。</text>
+<line x1="48" y1="110" x2="1312" y2="110" stroke="#dce3ea" stroke-width="2"/>
+<rect x="100" y="145" width="1160" height="120" rx="8" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="118" y="176" font-size="21" font-weight="700" fill="#326cae" text-anchor="start" class="">1 RowGroup statistics</text>
+<text x="118" y="206" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">跳过整个 RowGroup</text>
+<text x="118" y="233" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">最强：I/O + CPU</text>
+<line x1="680" y1="265" x2="680" y2="305" stroke="#657386" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="100" y="305" width="1160" height="120" rx="8" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="118" y="336" font-size="21" font-weight="700" fill="#2e7963" text-anchor="start" class="">2 Page / RowSet</text>
+<text x="118" y="366" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">跳过无目标行的 page</text>
+<text x="118" y="393" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">可能减少 I/O；一定减少无关 page decode</text>
+<line x1="680" y1="425" x2="680" y2="465" stroke="#657386" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="100" y="465" width="1160" height="120" rx="8" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
+<text x="118" y="496" font-size="21" font-weight="700" fill="#65537f" text-anchor="start" class="">3 ColumnVisitor filter</text>
+<text x="118" y="526" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">页内 decode 时筛行</text>
+<text x="118" y="553" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">减少保存值、后续列 RowSet</text>
+<line x1="680" y1="585" x2="680" y2="625" stroke="#657386" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="100" y="625" width="1160" height="120" rx="8" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.5"/>
+<text x="118" y="656" font-size="21" font-weight="700" fill="#877951" text-anchor="start" class="">4 remaining filter + Lazy</text>
+<text x="118" y="686" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">表达式后再加载 payload</text>
+<text x="118" y="713" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">减少 payload decode 与下游计算</text>
+<text x="100" y="825" font-size="18" font-weight="400" fill="#657386" text-anchor="start" class="">底层 storage bytes 还受 compressed page、prefetch、coalescing、cache hit 与访问密度影响，不能只凭“有 filter”推断。</text>
+</svg>
