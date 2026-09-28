@@ -1,49 +1,73 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1360" height="850" viewBox="0 0 1360 850">
-<defs><marker id="arrow" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" refX="11" refY="5" orient="auto"><path d="M0,0 L11,5 L0,10 Z" fill="#657386"/></marker><marker id="arrow-blue" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" refX="11" refY="5" orient="auto"><path d="M0,0 L11,5 L0,10 Z" fill="#4078bd"/></marker><style>text{font-family:'Noto Sans SC','Noto Sans CJK SC',Inter,Arial,sans-serif} .mono{font-family:SFMono-Regular,Consolas,'Liberation Mono',monospace}</style></defs>
-<rect width="1360" height="850" fill="#fff"/>
-<text x="48" y="54" font-size="30" font-weight="700" fill="#1f2d3d">Parquet 的物理布局：水平 RowGroup，垂直 ColumnChunk</text>
-<text x="48" y="88" font-size="18" fill="#657386">footer 保存 schema、位置和统计；数据页位于各 ColumnChunk 内。</text>
-<line x1="48" y1="110" x2="1312" y2="110" stroke="#dce3ea" stroke-width="2"/>
-<text x="55" y="155" font-size="22" font-weight="700" fill="#1f2d3d" text-anchor="start" class="">Parquet file</text>
-<text x="55" y="183" font-size="19" font-weight="600" fill="#657386" text-anchor="start" class="">RowGroup 0</text>
-<rect x="180" y="195" width="260" height="170" rx="8" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
-<text x="198" y="226" font-size="20" font-weight="700" fill="#326cae" text-anchor="start" class="">ColumnChunk A</text>
-<text x="198" y="256" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">Page 0</text>
-<text x="198" y="283" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">Page 1</text>
-<rect x="198" y="300" width="100" height="38" rx="4" fill="#fff" stroke="#4078bd"/><rect x="310" y="300" width="100" height="38" rx="4" fill="#fff" stroke="#4078bd"/>
-<rect x="500" y="195" width="260" height="170" rx="8" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
-<text x="518" y="226" font-size="20" font-weight="700" fill="#2e7963" text-anchor="start" class="">ColumnChunk B</text>
-<text x="518" y="256" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">Page 0</text>
-<text x="518" y="283" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">Page 1</text>
-<rect x="518" y="300" width="100" height="38" rx="4" fill="#fff" stroke="#39826d"/><rect x="630" y="300" width="100" height="38" rx="4" fill="#fff" stroke="#39826d"/>
-<rect x="820" y="195" width="260" height="170" rx="8" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
-<text x="838" y="226" font-size="20" font-weight="700" fill="#65537f" text-anchor="start" class="">ColumnChunk C</text>
-<text x="838" y="256" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">Page 0</text>
-<text x="838" y="283" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">Page 1</text>
-<rect x="838" y="300" width="100" height="38" rx="4" fill="#fff" stroke="#8d76b7"/><rect x="950" y="300" width="100" height="38" rx="4" fill="#fff" stroke="#8d76b7"/>
-<text x="55" y="423" font-size="19" font-weight="600" fill="#657386" text-anchor="start" class="">RowGroup 1</text>
-<rect x="180" y="435" width="260" height="170" rx="8" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
-<text x="198" y="466" font-size="20" font-weight="700" fill="#326cae" text-anchor="start" class="">ColumnChunk A</text>
-<text x="198" y="496" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">Page 0</text>
-<text x="198" y="523" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">Page 1</text>
-<rect x="198" y="540" width="100" height="38" rx="4" fill="#fff" stroke="#4078bd"/><rect x="310" y="540" width="100" height="38" rx="4" fill="#fff" stroke="#4078bd"/>
-<rect x="500" y="435" width="260" height="170" rx="8" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
-<text x="518" y="466" font-size="20" font-weight="700" fill="#2e7963" text-anchor="start" class="">ColumnChunk B</text>
-<text x="518" y="496" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">Page 0</text>
-<text x="518" y="523" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">Page 1</text>
-<rect x="518" y="540" width="100" height="38" rx="4" fill="#fff" stroke="#39826d"/><rect x="630" y="540" width="100" height="38" rx="4" fill="#fff" stroke="#39826d"/>
-<rect x="820" y="435" width="260" height="170" rx="8" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
-<text x="838" y="466" font-size="20" font-weight="700" fill="#65537f" text-anchor="start" class="">ColumnChunk C</text>
-<text x="838" y="496" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">Page 0</text>
-<text x="838" y="523" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">1 page only</text>
-<rect x="838" y="540" width="100" height="38" rx="4" fill="#fff" stroke="#8d76b7"/><rect x="950" y="540" width="100" height="38" rx="4" fill="#fff" stroke="#8d76b7"/>
-<rect x="1100" y="195" width="200" height="410" rx="8" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.5"/>
-<text x="1118" y="226" font-size="20" font-weight="700" fill="#877951" text-anchor="start" class="">Footer</text>
-<text x="1118" y="256" font-size="15" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">schema</text>
-<text x="1118" y="283" font-size="15" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">RowGroup offsets</text>
-<text x="1118" y="310" font-size="15" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">ColumnChunk offsets</text>
-<text x="1118" y="337" font-size="15" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">min / max</text>
-<text x="1118" y="364" font-size="15" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">encodings</text>
-<text x="180" y="695" font-size="18" font-weight="400" fill="#657386" text-anchor="start" class="">一个 RowGroup 是行的水平切片；每列在该 RowGroup 中形成一个 ColumnChunk。</text>
-<text x="180" y="730" font-size="18" font-weight="400" fill="#657386" text-anchor="start" class="">Page 数量取决于数据、编码效果与 writer 配置。</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="860" viewBox="0 0 1320 860"><title>文件布局：RowGroup 划分行，ColumnChunk 聚集列</title><desc>3 个叶子列 × 2 个 RowGroup = 6 个 ColumnChunk；图中宽度仅示意，不代表实际字节比例。</desc><defs>
+<marker id="arr-muted" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#657386"/></marker>
+<marker id="arr-blue" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#4078bd"/></marker>
+<marker id="arr-green" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#39826d"/></marker>
+<marker id="arr-purple" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#8d76b7"/></marker>
+<marker id="arr-warm" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#ac9c76"/></marker>
+<marker id="arr-red" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#a95f64"/></marker>
+</defs>
+<rect x="0" y="0" width="1320" height="860" rx="0" fill="#fff" stroke="none" stroke-width="0"/>
+<text x="44" y="52" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="30" font-weight="700" text-anchor="start" fill="#1f2d3d">文件布局：RowGroup 划分行，ColumnChunk 聚集列</text>
+<text x="44" y="87" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start" fill="#657386">3 个叶子列 × 2 个 RowGroup = 6 个 ColumnChunk；图中宽度仅示意，不代表实际字节比例。</text>
+<path d="M44 111L1276 111" fill="none" stroke="#dce3ea" stroke-width="1.5" stroke-linejoin="round"/>
+<text x="55" y="163" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#1f2d3d">逻辑行区间</text>
+<text x="55" y="237" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#1f2d3d">RowGroup 0</text>
+<text x="55" y="272" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start" fill="#657386">rows 0 … N−1</text>
+<rect x="315" y="204" width="275" height="137" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<text x="332" y="235" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#326cae">ColumnChunk A</text>
+<rect x="332" y="268" width="110" height="49" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.3"/>
+<text x="387.0" y="299.5" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="700" text-anchor="middle" fill="#326cae">page 0</text>
+<rect x="447" y="268" width="110" height="49" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.3"/>
+<text x="502.0" y="299.5" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="700" text-anchor="middle" fill="#326cae">page 1</text>
+<rect x="625" y="204" width="275" height="137" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<text x="642" y="235" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#2e7963">ColumnChunk B</text>
+<rect x="642" y="268" width="110" height="49" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1.3"/>
+<text x="697.0" y="299.5" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="700" text-anchor="middle" fill="#2e7963">page 0</text>
+<rect x="757" y="268" width="110" height="49" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1.3"/>
+<text x="812.0" y="299.5" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="700" text-anchor="middle" fill="#2e7963">page 1</text>
+<rect x="935" y="204" width="275" height="137" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
+<text x="952" y="235" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#65537f">ColumnChunk C</text>
+<rect x="952" y="268" width="110" height="49" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.3"/>
+<text x="1007.0" y="299.5" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="700" text-anchor="middle" fill="#65537f">page 0</text>
+<rect x="1067" y="268" width="110" height="49" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.3"/>
+<text x="1122.0" y="299.5" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="700" text-anchor="middle" fill="#65537f">page 1</text>
+<text x="55" y="413" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#1f2d3d">RowGroup 1</text>
+<text x="55" y="448" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start" fill="#657386">rows N … 2N−1</text>
+<rect x="315" y="380" width="275" height="137" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<text x="332" y="411" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#326cae">ColumnChunk A</text>
+<rect x="332" y="444" width="110" height="49" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.3"/>
+<text x="387.0" y="475.5" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="700" text-anchor="middle" fill="#326cae">page 0</text>
+<rect x="447" y="444" width="110" height="49" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.3"/>
+<text x="502.0" y="475.5" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="700" text-anchor="middle" fill="#326cae">page 1</text>
+<rect x="625" y="380" width="275" height="137" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<text x="642" y="411" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#2e7963">ColumnChunk B</text>
+<rect x="642" y="444" width="110" height="49" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1.3"/>
+<text x="697.0" y="475.5" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="700" text-anchor="middle" fill="#2e7963">page 0</text>
+<rect x="757" y="444" width="110" height="49" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1.3"/>
+<text x="812.0" y="475.5" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="700" text-anchor="middle" fill="#2e7963">page 1</text>
+<rect x="935" y="380" width="275" height="137" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
+<text x="952" y="411" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#65537f">ColumnChunk C</text>
+<rect x="952" y="444" width="110" height="49" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.3"/>
+<text x="1007.0" y="475.5" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="700" text-anchor="middle" fill="#65537f">page 0</text>
+<text x="55" y="582" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#1f2d3d">文件中的连续区域</text>
+<rect x="55" y="620" width="86" height="58" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<text x="98.0" y="657" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="700" text-anchor="middle" fill="#877951">PAR1</text>
+<rect x="145" y="620" width="146" height="58" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<text x="218.0" y="657" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="700" text-anchor="middle" fill="#326cae">RG0:A</text>
+<rect x="295" y="620" width="146" height="58" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<text x="368.0" y="657" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="700" text-anchor="middle" fill="#2e7963">RG0:B</text>
+<rect x="445" y="620" width="146" height="58" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
+<text x="518.0" y="657" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="700" text-anchor="middle" fill="#65537f">RG0:C</text>
+<rect x="595" y="620" width="146" height="58" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<text x="668.0" y="657" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="700" text-anchor="middle" fill="#326cae">RG1:A</text>
+<rect x="745" y="620" width="146" height="58" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<text x="818.0" y="657" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="700" text-anchor="middle" fill="#2e7963">RG1:B</text>
+<rect x="895" y="620" width="146" height="58" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
+<text x="968.0" y="657" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="700" text-anchor="middle" fill="#65537f">RG1:C</text>
+<rect x="1045" y="620" width="131" height="58" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<text x="1110.5" y="657" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="700" text-anchor="middle" fill="#877951">Footer</text>
+<text x="55" y="726" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#877951">Footer</text>
+<text x="170" y="726" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#1f2d3d">schema · column offsets · row counts · min/max · encoding / codec</text>
+<path d="M44 765L1276 765" fill="none" stroke="#dce3ea" stroke-width="1.5" stroke-linejoin="round"/>
+<text x="44" y="786" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start" fill="#657386">每个 ColumnChunk 的页数由数据、编码效果和 writer 配置决定；RowGroup 内各列 page 边界不要求对齐。</text>
 </svg>

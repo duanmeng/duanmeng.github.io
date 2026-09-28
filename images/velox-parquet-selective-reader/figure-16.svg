@@ -1,30 +1,59 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1360" height="900" viewBox="0 0 1360 900">
-<defs><marker id="arrow" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" refX="11" refY="5" orient="auto"><path d="M0,0 L11,5 L0,10 Z" fill="#657386"/></marker><marker id="arrow-blue" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" refX="11" refY="5" orient="auto"><path d="M0,0 L11,5 L0,10 Z" fill="#4078bd"/></marker><style>text{font-family:'Noto Sans SC','Noto Sans CJK SC',Inter,Arial,sans-serif} .mono{font-family:SFMono-Regular,Consolas,'Liberation Mono',monospace}</style></defs>
-<rect width="1360" height="900" fill="#fff"/>
-<text x="48" y="54" font-size="30" font-weight="700" fill="#1f2d3d">DirectCoalescedLoad 的 buffer 形态与 duplicate 处理</text>
-<text x="48" y="88" font-size="18" fill="#657386">getData 只在整个 load 成功后发布；共享 slice、tiny buffer 与 owned pages 三者互斥。</text>
-<line x1="48" y1="110" x2="1312" y2="110" stroke="#dce3ea" stroke-width="2"/>
-<rect x="55" y="155" width="350" height="150" rx="8" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
-<text x="73" y="186" font-size="20" font-weight="700" fill="#2e7963" text-anchor="start" class="">shared allocation slice</text>
-<text x="73" y="216" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">较大 request 可借用只读 slice</text>
-<text x="73" y="243" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">DirectInputStream 持有 load holder</text>
-<text x="73" y="270" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">duplicate 可共享同一 slice</text>
-<rect x="505" y="155" width="350" height="150" rx="8" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
-<text x="523" y="186" font-size="20" font-weight="700" fill="#326cae" text-anchor="start" class="">tinyData</text>
-<text x="523" y="216" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">小 request 用 byte vector</text>
-<text x="523" y="243" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">duplicate 通常复制自己的 bytes</text>
-<text x="523" y="270" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">stream 拥有这块小 buffer</text>
-<rect x="955" y="155" width="350" height="150" rx="8" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
-<text x="973" y="186" font-size="17" font-weight="700" fill="#65537f" text-anchor="start" class="">owned non-contiguous pages</text>
-<text x="973" y="216" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">MemoryPool 分配 pages</text>
-<text x="973" y="243" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">getData 后移动给 stream</text>
-<text x="973" y="270" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">后续 quantum 可同步重载</text>
-<rect x="120" y="450" width="1120" height="145" rx="8" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.5"/>
-<text x="138" y="481" font-size="20" font-weight="700" fill="#877951" text-anchor="start" class="">buildReadRanges</text>
-<text x="138" y="511" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">相邻请求之间允许 gap；gap 会形成 overread 统计</text>
-<text x="138" y="538" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">每个 request 计算 requestBytes，尾部可能被 loadQuantum 截断</text>
-<text x="138" y="565" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">相同 offset / length 的 duplicate 不重复向 ReadFile 发同一段读取</text>
-<rect x="120" y="670" width="1120" height="110" rx="8" fill="#fbf3f3" stroke="#a95f64" stroke-width="1.5"/>
-<text x="138" y="701" font-size="20" font-weight="700" fill="#8d4f54" text-anchor="start" class="">发布条件</text>
-<text x="138" y="731" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">state == kLoaded 才返回 LoadedBuffer；失败或部分填充不会暴露给 DirectInputStream。</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="930" viewBox="0 0 1320 930"><title>一次合并 load，三种数据持有方式</title><desc>LoadedData 同时只保留一种表示；shared slice、tiny buffer 和 owned pages 的所有权不同。</desc><defs>
+<marker id="arr-muted" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#657386"/></marker>
+<marker id="arr-blue" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#4078bd"/></marker>
+<marker id="arr-green" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#39826d"/></marker>
+<marker id="arr-purple" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#8d76b7"/></marker>
+<marker id="arr-warm" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#ac9c76"/></marker>
+<marker id="arr-red" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#a95f64"/></marker>
+</defs>
+<rect x="0" y="0" width="1320" height="930" rx="0" fill="#fff" stroke="none" stroke-width="0"/>
+<text x="44" y="52" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="30" font-weight="700" text-anchor="start" fill="#1f2d3d">一次合并 load，三种数据持有方式</text>
+<text x="44" y="87" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start" fill="#657386">LoadedData 同时只保留一种表示；shared slice、tiny buffer 和 owned pages 的所有权不同。</text>
+<path d="M44 111L1276 111" fill="none" stroke="#dce3ea" stroke-width="1.5" stroke-linejoin="round"/>
+<circle cx="62" cy="148" r="18" fill="#f0f7f3" stroke="#39826d" stroke-width="1.3"/>
+<text x="62" y="155" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="700" text-anchor="middle" fill="#2e7963">1</text>
+<text x="98" y="155" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="23" font-weight="700" text-anchor="start" fill="#2e7963">shared allocation：多个 stream 借用只读 slice</text>
+<rect x="90" y="194" width="720" height="84" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<rect x="112" y="213" width="210" height="48" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1.3"/>
+<text x="217.0" y="244.0" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="700" text-anchor="middle" fill="#2e7963">slice A</text>
+<rect x="327" y="213" width="210" height="48" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1.3"/>
+<text x="432.0" y="244.0" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="700" text-anchor="middle" fill="#2e7963">slice B</text>
+<rect x="542" y="213" width="210" height="48" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1.3"/>
+<text x="647.0" y="244.0" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="700" text-anchor="middle" fill="#2e7963">slice C</text>
+<rect x="920" y="184" width="340" height="122" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<text x="938" y="222" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#2e7963">DirectInputStream</text>
+<text x="938" y="261" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start" fill="#1f2d3d">sharedPtr + sharedHolder</text>
+<path d="M810 236L920 236" fill="none" stroke="#39826d" stroke-width="2" stroke-linejoin="round" marker-end="url(#arr-green)"/>
+<rect x="837.0" y="195" width="56.0" height="29" rx="3" fill="#fff" stroke="none" stroke-width="1.4"/>
+<text x="865" y="216" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="middle" fill="#657386">借用</text>
+<circle cx="62" cy="369" r="18" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.3"/>
+<text x="62" y="376" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="700" text-anchor="middle" fill="#326cae">2</text>
+<text x="98" y="376" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="23" font-weight="700" text-anchor="start" fill="#326cae">tiny request：字节数组移交给 stream</text>
+<rect x="90" y="416" width="380" height="113" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<text x="108" y="454" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#326cae">request.tinyData</text>
+<text x="108" y="493" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#1f2d3d">小区域的连续 buffer</text>
+<rect x="770" y="416" width="490" height="113" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<text x="788" y="454" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#326cae">stream.loadedData.tiny</text>
+<text x="788" y="493" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#1f2d3d">own bytes；duplicate 可复制</text>
+<path d="M470 472L770 472" fill="none" stroke="#4078bd" stroke-width="2" stroke-linejoin="round" marker-end="url(#arr-blue)"/>
+<rect x="565.5" y="428" width="109.0" height="30" rx="3" fill="#fff" stroke="none" stroke-width="1.4"/>
+<text x="620" y="450" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="middle" fill="#657386">std::move</text>
+<circle cx="62" cy="602" r="18" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.3"/>
+<text x="62" y="609" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="700" text-anchor="middle" fill="#65537f">3</text>
+<text x="98" y="609" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="23" font-weight="700" text-anchor="start" fill="#65537f">owned pages：非连续分配的页归 stream 持有</text>
+<rect x="90" y="656" width="127" height="59" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.3"/>
+<text x="153.5" y="692.5" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="700" text-anchor="middle" fill="#65537f">run 0</text>
+<rect x="222" y="656" width="127" height="59" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.3"/>
+<text x="285.5" y="692.5" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="700" text-anchor="middle" fill="#65537f">run 1</text>
+<rect x="354" y="656" width="127" height="59" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.3"/>
+<text x="417.5" y="692.5" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="700" text-anchor="middle" fill="#65537f">run 2</text>
+<rect x="770" y="643" width="490" height="112" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
+<text x="788" y="681" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#65537f">stream.loadedData.owned</text>
+<text x="788" y="720" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#1f2d3d">Next() 逐个连续 run 暴露字节</text>
+<path d="M486 685L770 685" fill="none" stroke="#8d76b7" stroke-width="2" stroke-linejoin="round" marker-end="url(#arr-purple)"/>
+<rect x="551.5" y="641" width="153.0" height="30" rx="3" fill="#fff" stroke="none" stroke-width="1.4"/>
+<text x="628" y="663" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="middle" fill="#657386">移交 Allocation</text>
+<path d="M44 805L1276 805" fill="none" stroke="#dce3ea" stroke-width="1.5" stroke-linejoin="round"/>
+<text x="44" y="826" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start" fill="#657386">重复 offset/length 只读一次：shared 路径共享 slice，非 shared 路径为不同消费者准备各自 buffer。</text>
+<text x="44" y="856" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start" fill="#657386">离开已加载范围后，stream 释放借用 slice 并按 quantum 同步加载下一段。</text>
 </svg>

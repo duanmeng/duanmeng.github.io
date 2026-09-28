@@ -1,46 +1,51 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1360" height="880" viewBox="0 0 1360 880">
-<defs><marker id="arrow" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" refX="11" refY="5" orient="auto"><path d="M0,0 L11,5 L0,10 Z" fill="#657386"/></marker><marker id="arrow-blue" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" refX="11" refY="5" orient="auto"><path d="M0,0 L11,5 L0,10 Z" fill="#4078bd"/></marker><style>text{font-family:'Noto Sans SC','Noto Sans CJK SC',Inter,Arial,sans-serif} .mono{font-family:SFMono-Regular,Consolas,'Liberation Mono',monospace}</style></defs>
-<rect width="1360" height="880" fill="#fff"/>
-<text x="48" y="54" font-size="30" font-weight="700" fill="#1f2d3d">RowGroup 过滤、调度与切换</text>
-<text x="48" y="88" font-size="18" fill="#657386">先排除不可能命中的 RowGroup，再为当前及后续 RowGroup 安排输入；next 的扫描行数与输出行数不同。</text>
-<line x1="48" y1="110" x2="1312" y2="110" stroke="#dce3ea" stroke-width="2"/>
-<rect x="55" y="155" width="285" height="145" rx="8" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
-<text x="73" y="186" font-size="20" font-weight="700" fill="#326cae" text-anchor="start" class="">filterRowGroups</text>
-<text x="73" y="216" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">split range</text>
-<text x="73" y="243" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">empty RowGroup</text>
-<text x="73" y="270" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">column statistics</text>
-<text x="73" y="297" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">metadata filter</text>
-<rect x="400" y="155" width="285" height="145" rx="8" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
-<text x="418" y="186" font-size="20" font-weight="700" fill="#2e7963" text-anchor="start" class="">scheduleRowGroups</text>
-<text x="418" y="216" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">当前 RowGroup</text>
-<text x="418" y="243" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">后续若干 RowGroup</text>
-<text x="418" y="270" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">创建 BufferedInput</text>
-<rect x="745" y="155" width="285" height="145" rx="8" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
-<text x="763" y="186" font-size="20" font-weight="700" fill="#65537f" text-anchor="start" class="">loadRowGroup</text>
-<text x="763" y="216" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">enqueue column regions</text>
-<text x="763" y="243" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">DirectBufferedInput::load</text>
-<text x="763" y="270" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">prefetch / on-demand</text>
-<rect x="1090" y="155" width="215" height="145" rx="8" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.5"/>
-<text x="1108" y="186" font-size="20" font-weight="700" fill="#877951" text-anchor="start" class="">seek</text>
-<text x="1108" y="216" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">seekToRowGroup</text>
-<text x="1108" y="243" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">reader tree 切换</text>
-<line x1="340" y1="227" x2="400" y2="227" stroke="#657386" stroke-width="2" marker-end="url(#arrow)"/>
-<line x1="685" y1="227" x2="745" y2="227" stroke="#657386" stroke-width="2" marker-end="url(#arrow)"/>
-<line x1="1030" y1="227" x2="1090" y2="227" stroke="#657386" stroke-width="2" marker-end="url(#arrow)"/>
-<text x="55" y="390" font-size="20" font-weight="700" fill="#1f2d3d" text-anchor="start" class="">示例：4 个 RowGroup</text>
-<rect x="55" y="430" width="270" height="120" rx="8" fill="#fbf3f3" stroke="#a95f64" stroke-width="1.5"/>
-<text x="73" y="461" font-size="22" font-weight="700" fill="#8d4f54" text-anchor="start" class="">RG0</text>
-<text x="73" y="491" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">统计排除</text>
-<rect x="370" y="430" width="270" height="120" rx="8" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
-<text x="388" y="461" font-size="22" font-weight="700" fill="#2e7963" text-anchor="start" class="">RG1</text>
-<text x="388" y="491" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">当前读取</text>
-<rect x="685" y="430" width="270" height="120" rx="8" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
-<text x="703" y="461" font-size="22" font-weight="700" fill="#326cae" text-anchor="start" class="">RG2</text>
-<text x="703" y="491" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">已调度</text>
-<rect x="1000" y="430" width="270" height="120" rx="8" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.5"/>
-<text x="1018" y="461" font-size="22" font-weight="700" fill="#877951" text-anchor="start" class="">RG3</text>
-<text x="1018" y="491" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">尚未调度</text>
-<rect x="150" y="650" width="1060" height="120" rx="8" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.5"/>
-<text x="168" y="681" font-size="20" font-weight="700" fill="#877951" text-anchor="start" class="">next(size, output) 的两个数量</text>
-<text x="168" y="711" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">返回值表示扫描推进的行数；output RowVector::size() 是经过 reader filters 后的行数，二者可能不同。</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="880" viewBox="0 0 1320 880"><title>RowGroup 输入窗口：只对通过元数据过滤的组做调度</title><desc>例：原组 0、2 被排除，rowGroupIds=[1,3,4]；prefetchRowGroups=1。</desc><defs>
+<marker id="arr-muted" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#657386"/></marker>
+<marker id="arr-blue" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#4078bd"/></marker>
+<marker id="arr-green" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#39826d"/></marker>
+<marker id="arr-purple" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#8d76b7"/></marker>
+<marker id="arr-warm" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#ac9c76"/></marker>
+<marker id="arr-red" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#a95f64"/></marker>
+</defs>
+<rect x="0" y="0" width="1320" height="880" rx="0" fill="#fff" stroke="none" stroke-width="0"/>
+<text x="44" y="52" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="30" font-weight="700" text-anchor="start" fill="#1f2d3d">RowGroup 输入窗口：只对通过元数据过滤的组做调度</text>
+<text x="44" y="87" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start" fill="#657386">例：原组 0、2 被排除，rowGroupIds=[1,3,4]；prefetchRowGroups=1。</text>
+<path d="M44 111L1276 111" fill="none" stroke="#dce3ea" stroke-width="1.5" stroke-linejoin="round"/>
+<text x="60" y="166" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#1f2d3d">文件顺序</text>
+<rect x="60" y="201" width="210" height="90" rx="6" fill="#fbf3f3" stroke="#a95f64" stroke-width="1.4"/>
+<text x="78" y="239" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#8d4f54">RG0</text>
+<rect x="304" y="201" width="210" height="90" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<text x="322" y="239" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#326cae">RG1</text>
+<rect x="548" y="201" width="210" height="90" rx="6" fill="#fbf3f3" stroke="#a95f64" stroke-width="1.4"/>
+<text x="566" y="239" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#8d4f54">RG2</text>
+<rect x="792" y="201" width="210" height="90" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<text x="810" y="239" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#326cae">RG3</text>
+<rect x="1036" y="201" width="210" height="90" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<text x="1054" y="239" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#326cae">RG4</text>
+<text x="60" y="331" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#326cae">rowGroupIds</text>
+<rect x="405" y="302" width="150" height="48" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.3"/>
+<text x="480.0" y="333.0" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="700" text-anchor="middle" fill="#326cae">1</text>
+<rect x="560" y="302" width="150" height="48" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.3"/>
+<text x="635.0" y="333.0" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="700" text-anchor="middle" fill="#326cae">3</text>
+<rect x="715" y="302" width="150" height="48" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.3"/>
+<text x="790.0" y="333.0" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="700" text-anchor="middle" fill="#326cae">4</text>
+<text x="60" y="480" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="23" font-weight="700" text-anchor="start" fill="#1f2d3d">读 RG1</text>
+<rect x="405" y="441" width="260" height="110" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<text x="423" y="479" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#2e7963">RG1</text>
+<text x="423" y="518" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#1f2d3d">当前</text>
+<rect x="705" y="441" width="260" height="110" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<text x="723" y="479" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#326cae">RG3</text>
+<text x="723" y="518" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#1f2d3d">预取</text>
+<text x="60" y="644" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="23" font-weight="700" text-anchor="start" fill="#1f2d3d">读 RG3</text>
+<rect x="405" y="605" width="260" height="110" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<text x="423" y="643" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#2e7963">RG3</text>
+<text x="423" y="682" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#1f2d3d">当前</text>
+<rect x="705" y="605" width="260" height="110" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<text x="723" y="643" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#326cae">RG4</text>
+<text x="723" y="682" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#1f2d3d">预取</text>
+<text x="1050" y="477" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#657386">创建 / 复用</text>
+<text x="1050" y="511" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#657386">BufferedInput</text>
+<text x="1050" y="641" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#657386">移除上一组</text>
+<text x="1050" y="675" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#657386">inputs[RG1]</text>
+<path d="M44 785L1276 785" fill="none" stroke="#dce3ea" stroke-width="1.5" stroke-linejoin="round"/>
+<text x="44" y="806" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start" fill="#657386">scheduleRowGroups() 取当前位置之后的 prefetchRowGroups+1 个有效组；随后整棵 reader tree 一起 seek。</text>
 </svg>

@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="930" viewBox="0 0 1320 930"><title>一次 CoalescedLoad 执行：成功、异常与等待通知</title><desc>状态转换与 promise 交换在 mutex 保护下完成；存储 I/O 和 promise 通知发生在锁外。</desc><defs>
+<marker id="arr-muted" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#657386"/></marker>
+<marker id="arr-blue" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#4078bd"/></marker>
+<marker id="arr-green" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#39826d"/></marker>
+<marker id="arr-purple" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#8d76b7"/></marker>
+<marker id="arr-warm" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#ac9c76"/></marker>
+<marker id="arr-red" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#a95f64"/></marker>
+</defs>
+<rect x="0" y="0" width="1320" height="930" rx="0" fill="#fff" stroke="none" stroke-width="0"/>
+<text x="44" y="52" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="30" font-weight="700" text-anchor="start" fill="#1f2d3d">一次 CoalescedLoad 执行：成功、异常与等待通知</text>
+<text x="44" y="87" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start" fill="#657386">状态转换与 promise 交换在 mutex 保护下完成；存储 I/O 和 promise 通知发生在锁外。</text>
+<path d="M44 111L1276 111" fill="none" stroke="#dce3ea" stroke-width="1.5" stroke-linejoin="round"/>
+<rect x="55" y="190" width="270" height="90" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<text x="73" y="228" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#326cae">kPlanned</text>
+<rect x="510" y="190" width="310" height="90" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<text x="528" y="228" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#877951">kLoading</text>
+<path d="M325 235L510 235" fill="none" stroke="#657386" stroke-width="2" stroke-linejoin="round" marker-end="url(#arr-muted)"/>
+<rect x="350.0" y="193" width="134.0" height="30" rx="3" fill="#fff" stroke="none" stroke-width="1.4"/>
+<text x="417" y="215" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="middle" fill="#657386">先到线程抢占</text>
+<rect x="970" y="435" width="295" height="90" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<text x="988" y="473" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#2e7963">kLoaded</text>
+<rect x="510" y="650" width="310" height="90" rx="6" fill="#fbf3f3" stroke="#a95f64" stroke-width="1.4"/>
+<text x="528" y="688" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#8d4f54">kCancelled</text>
+<path d="M820 235H1117V435" fill="none" stroke="#39826d" stroke-width="2" stroke-linejoin="round" marker-end="url(#arr-green)"/>
+<rect x="1045.0" y="321" width="144.0" height="30" rx="3" fill="#fff" stroke="none" stroke-width="1.4"/>
+<text x="1117" y="343" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="middle" fill="#2e7963">loadData 成功</text>
+<path d="M665 280L665 650" fill="none" stroke="#a95f64" stroke-width="2" stroke-linejoin="round" marker-end="url(#arr-red)"/>
+<rect x="583.5" y="438" width="163.0" height="30" rx="3" fill="#fff" stroke="none" stroke-width="1.4"/>
+<text x="665" y="460" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="middle" fill="#8d4f54">loadData 抛异常</text>
+<rect x="55" y="417" width="350" height="170" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
+<text x="73" y="455" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#65537f">另一个调用者</text>
+<text x="73" y="494" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#1f2d3d">Loading + wait!=nullptr</text>
+<text x="73" y="522" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#1f2d3d">获得 SharedPromise future</text>
+<text x="73" y="550" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#1f2d3d">返回 false</text>
+<path d="M510 245H437V398H229V417" fill="none" stroke="#8d76b7" stroke-width="2" stroke-linejoin="round" marker-end="url(#arr-purple)" stroke-dasharray="7 5"/>
+<text x="945" y="604" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#1f2d3d">setEndState()</text>
+<text x="945" y="646" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#657386">promise-&gt;setValue(true)</text>
+<text x="945" y="682" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#657386">成功 / 取消都会唤醒等待者</text>
+<path d="M44 805L1276 805" fill="none" stroke="#dce3ea" stroke-width="1.5" stroke-linejoin="round"/>
+<text x="44" y="826" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start" fill="#657386">异常在实际执行 loadData 的线程上重抛；这个 SharedPromise 没有 setException，不携带原异常。</text>
+<text x="44" y="856" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start" fill="#657386">Direct getData 仅在 Loaded 发布数据；取消时返回空 buffer，stream 可回落 loadSync 并在读取处报告失败。</text>
+</svg>

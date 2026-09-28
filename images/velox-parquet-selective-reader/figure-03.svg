@@ -1,47 +1,48 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1360" height="920" viewBox="0 0 1360 920">
-<defs><marker id="arrow" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" refX="11" refY="5" orient="auto"><path d="M0,0 L11,5 L0,10 Z" fill="#657386"/></marker><marker id="arrow-blue" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" refX="11" refY="5" orient="auto"><path d="M0,0 L11,5 L0,10 Z" fill="#4078bd"/></marker><style>text{font-family:'Noto Sans SC','Noto Sans CJK SC',Inter,Arial,sans-serif} .mono{font-family:SFMono-Regular,Consolas,'Liberation Mono',monospace}</style></defs>
-<rect width="1360" height="920" fill="#fff"/>
-<text x="48" y="54" font-size="30" font-weight="700" fill="#1f2d3d">延迟物化的业界思路：共同目标与实现差异</text>
-<text x="48" y="88" font-size="18" fill="#657386">核心不是只增加一个 LazyVector，而是把行选择传给列读取、page 解码和 payload 物化。</text>
-<line x1="48" y1="110" x2="1312" y2="110" stroke="#dce3ea" stroke-width="2"/>
-<rect x="55" y="145" width="580" height="250" rx="8" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
-<text x="73" y="176" font-size="20" font-weight="700" fill="#326cae" text-anchor="start" class="">Spark 社区提案：把读取顺序反转</text>
-<text x="73" y="206" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">传统：定位 page → 解压 → batch → filter</text>
-<text x="73" y="233" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">提案：先求 filter，再按需物化 payload</text>
-<text x="73" y="260" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">难点：RowSet 下推、列调度、parquet-mr 改造</text>
-<path d="M120 430 L570 430" fill="none" stroke="#657386" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow)"/>
-<text x="345" y="420" font-size="17" font-weight="600" fill="#326cae" text-anchor="middle" class="">predicate 先产生 selection</text>
-<rect x="70" y="455" width="94" height="70" rx="8" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.5"/>
-<text x="88" y="486" font-size="12" font-weight="700" fill="#877951" text-anchor="start" class="">下载</text>
-<rect x="180" y="455" width="94" height="70" rx="8" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
-<text x="198" y="486" font-size="12" font-weight="700" fill="#326cae" text-anchor="start" class="">过滤</text>
-<rect x="290" y="455" width="94" height="70" rx="8" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
-<text x="308" y="486" font-size="12" font-weight="700" fill="#2e7963" text-anchor="start" class="">选行</text>
-<rect x="400" y="455" width="94" height="70" rx="8" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
-<text x="418" y="486" font-size="12" font-weight="700" fill="#65537f" text-anchor="start" class="">读 payload</text>
-<rect x="510" y="455" width="94" height="70" rx="8" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.5"/>
-<text x="528" y="486" font-size="12" font-weight="700" fill="#877951" text-anchor="start" class="">解压</text>
-<rect x="725" y="145" width="580" height="250" rx="8" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
-<text x="743" y="176" font-size="20" font-weight="700" fill="#2e7963" text-anchor="start" class="">DBR / Native Reader / Photon</text>
-<text x="743" y="206" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">JVM vectorized reader 发起列请求</text>
-<text x="743" y="233" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">native reader 读取 Parquet 并写堆外 vector</text>
-<text x="743" y="260" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">predicate 生成 mask，payload 按 mask 解码</text>
-<text x="743" y="287" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">公开材料未给出完整闭源实现细节</text>
-<rect x="760" y="455" width="108" height="70" rx="8" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
-<text x="778" y="486" font-size="13" font-weight="700" fill="#326cae" text-anchor="start" class="">JVM Vector</text>
-<line x1="868" y1="490" x2="885" y2="490" stroke="#657386" stroke-width="2" marker-end="url(#arrow)"/>
-<rect x="885" y="455" width="108" height="70" rx="8" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
-<text x="903" y="486" font-size="13" font-weight="700" fill="#2e7963" text-anchor="start" class="">Native</text>
-<line x1="993" y1="490" x2="1010" y2="490" stroke="#657386" stroke-width="2" marker-end="url(#arrow)"/>
-<rect x="1010" y="455" width="108" height="70" rx="8" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
-<text x="1028" y="486" font-size="13" font-weight="700" fill="#65537f" text-anchor="start" class="">mask</text>
-<line x1="1118" y1="490" x2="1135" y2="490" stroke="#657386" stroke-width="2" marker-end="url(#arrow)"/>
-<rect x="1135" y="455" width="108" height="70" rx="8" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.5"/>
-<text x="1153" y="486" font-size="13" font-weight="700" fill="#877951" text-anchor="start" class="">off-heap</text>
-<rect x="150" y="640" width="1060" height="170" rx="8" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
-<text x="168" y="671" font-size="20" font-weight="700" fill="#65537f" text-anchor="start" class="">Velox SelectiveReader 的落点</text>
-<text x="168" y="701" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">ScanSpec 描述投影和过滤；reader tree 逐列读取</text>
-<text x="168" y="728" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">RowSet 在过滤列之间级联；PageReader/Decoder 接受稀疏行集合</text>
-<text x="168" y="755" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">remaining filter 用表达式求值；payload 可由 LazyVector 在更小 RowSet 上加载</text>
-<text x="168" y="782" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">DirectBufferedInput 用访问历史决定 prefetch 与 coalescing</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="845" viewBox="0 0 1320 845"><title>延迟物化改变的是列读取顺序</title><desc>Spark LazyColumnVector、JVM/native reader 与 Photon 材料提供背景；下图表达共同的数据依赖。</desc><defs>
+<marker id="arr-muted" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#657386"/></marker>
+<marker id="arr-blue" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#4078bd"/></marker>
+<marker id="arr-green" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#39826d"/></marker>
+<marker id="arr-purple" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#8d76b7"/></marker>
+<marker id="arr-warm" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#ac9c76"/></marker>
+<marker id="arr-red" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#a95f64"/></marker>
+</defs>
+<rect x="0" y="0" width="1320" height="845" rx="0" fill="#fff" stroke="none" stroke-width="0"/>
+<text x="44" y="52" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="30" font-weight="700" text-anchor="start" fill="#1f2d3d">延迟物化改变的是列读取顺序</text>
+<text x="44" y="87" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start" fill="#657386">Spark LazyColumnVector、JVM/native reader 与 Photon 材料提供背景；下图表达共同的数据依赖。</text>
+<path d="M44 111L1276 111" fill="none" stroke="#dce3ea" stroke-width="1.5" stroke-linejoin="round"/>
+<circle cx="62" cy="151" r="18" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.3"/>
+<text x="62" y="158" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="700" text-anchor="middle" fill="#877951">1</text>
+<text x="98" y="158" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="23" font-weight="700" text-anchor="start" fill="#877951">先物化所有列，再执行 predicate</text>
+<rect x="65" y="195" width="335" height="112" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<text x="83" y="233" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#326cae">读取过滤列</text>
+<text x="83" y="272" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#1f2d3d">decode values</text>
+<rect x="445" y="195" width="335" height="112" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
+<text x="463" y="233" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#65537f">读取 payload</text>
+<text x="463" y="272" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#1f2d3d">decode 全部候选行</text>
+<rect x="825" y="195" width="335" height="112" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<text x="843" y="233" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#2e7963">表达式过滤</text>
+<text x="843" y="272" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#1f2d3d">产生 selection</text>
+<path d="M400 250L445 250" fill="none" stroke="#657386" stroke-width="2" stroke-linejoin="round" marker-end="url(#arr-muted)"/>
+<path d="M780 250L825 250" fill="none" stroke="#657386" stroke-width="2" stroke-linejoin="round" marker-end="url(#arr-muted)"/>
+<circle cx="62" cy="378" r="18" fill="#f0f7f3" stroke="#39826d" stroke-width="1.3"/>
+<text x="62" y="385" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="700" text-anchor="middle" fill="#2e7963">2</text>
+<text x="98" y="385" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="23" font-weight="700" text-anchor="start" fill="#2e7963">先读 predicate 所需列，再按 selection 读 payload</text>
+<rect x="65" y="425" width="335" height="112" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<text x="83" y="463" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#326cae">读取过滤列</text>
+<text x="83" y="502" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#1f2d3d">native 或 JVM reader</text>
+<rect x="445" y="425" width="335" height="112" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<text x="463" y="463" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#2e7963">filter / mask</text>
+<text x="463" y="502" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#1f2d3d">筛出 row indices</text>
+<rect x="825" y="425" width="335" height="112" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
+<text x="843" y="463" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#65537f">读取 payload</text>
+<text x="843" y="502" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#1f2d3d">仅解码通过行</text>
+<path d="M400 480L445 480" fill="none" stroke="#657386" stroke-width="2" stroke-linejoin="round" marker-end="url(#arr-muted)"/>
+<path d="M780 480L825 480" fill="none" stroke="#39826d" stroke-width="2" stroke-linejoin="round" marker-end="url(#arr-green)"/>
+<text x="68" y="614" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#1f2d3d">共同接口</text>
+<text x="260" y="614" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="400" text-anchor="start" fill="#2e7963">列调度  →  selection  →  decoder  →  vector</text>
+<text x="68" y="662" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#1f2d3d">Velox 对应</text>
+<text x="260" y="662" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="400" text-anchor="start" fill="#326cae">ScanSpec  →  RowSet  →  ColumnVisitor  →  LazyVector</text>
+<path d="M44 720L1276 720" fill="none" stroke="#dce3ea" stroke-width="1.5" stroke-linejoin="round"/>
+<text x="44" y="741" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start" fill="#657386">payload 的依赖方向必须从 predicate 指向 selection，再指向读取；只增加 lazy wrapper 不足以完成这条链。</text>
+<text x="44" y="771" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start" fill="#657386">闭源产品的实际 I/O、缓存与解码策略不能从公开架构示意推断为与 Velox 相同。</text>
 </svg>

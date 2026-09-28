@@ -1,28 +1,57 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1360" height="870" viewBox="0 0 1360 870">
-<defs><marker id="arrow" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" refX="11" refY="5" orient="auto"><path d="M0,0 L11,5 L0,10 Z" fill="#657386"/></marker><marker id="arrow-blue" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" refX="11" refY="5" orient="auto"><path d="M0,0 L11,5 L0,10 Z" fill="#4078bd"/></marker><style>text{font-family:'Noto Sans SC','Noto Sans CJK SC',Inter,Arial,sans-serif} .mono{font-family:SFMono-Regular,Consolas,'Liberation Mono',monospace}</style></defs>
-<rect width="1360" height="870" fill="#fff"/>
-<text x="48" y="54" font-size="30" font-weight="700" fill="#1f2d3d">Struct reader 的两阶段：read 先裁剪，getValues 再组装</text>
-<text x="48" y="88" font-size="18" fill="#657386">先让所有过滤列更新最终 RowSet，才能正确 compact 早读列并延迟 payload。</text>
-<line x1="48" y1="110" x2="1312" y2="110" stroke="#dce3ea" stroke-width="2"/>
-<rect x="55" y="155" width="565" height="505" rx="8" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
-<text x="73" y="186" font-size="20" font-weight="700" fill="#326cae" text-anchor="start" class="">阶段 1 · read</text>
-<text x="73" y="216" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">ScanSpec::newRead() 可能重排列</text>
-<text x="73" y="243" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">逐个 child 读取当前 RowSet</text>
-<text x="73" y="270" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">ColumnVisitor 边 decode 边 filter</text>
-<text x="73" y="297" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">outputRows 成为下一列输入</text>
-<text x="73" y="324" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">无 filter 的顶层字段可延迟</text>
-<text x="73" y="351" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">跨页 null bitmap 被拼接</text>
-<rect x="740" y="155" width="565" height="505" rx="8" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
-<text x="758" y="186" font-size="20" font-weight="700" fill="#2e7963" text-anchor="start" class="">阶段 2 · getValues</text>
-<text x="758" y="216" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">使用最终 outputRows</text>
-<text x="758" y="243" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">早读列按最终 rows compact</text>
-<text x="758" y="270" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">values / nulls 组装 Vector</text>
-<text x="758" y="297" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">常量与缺失列生成 ConstantVector</text>
-<text x="758" y="324" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">未读字段安装 ColumnLoader</text>
-<text x="758" y="351" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">返回 RowVector / LazyVector</text>
-<line x1="620" y1="405" x2="740" y2="405" stroke="#657386" stroke-width="2" marker-end="url(#arrow)"/>
-<text x="680" y="387" font-size="17" font-weight="600" fill="#65537f" text-anchor="middle" class="">最终 RowSet</text>
-<rect x="180" y="710" width="1000" height="100" rx="8" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.5"/>
-<text x="198" y="741" font-size="20" font-weight="700" fill="#877951" text-anchor="start" class="">为什么分两阶段</text>
-<text x="198" y="771" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">若第一列过滤后立即组装，而后续列又丢掉更多行，前一列还要再次对齐；分阶段把行集合先稳定下来。</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="910" viewBox="0 0 1320 910"><title>read 先缩小行集合，getValues 再让所有列对齐</title><desc>nationkey 先存了 4 个值，regionkey 继续过滤后，最终只需要原 row 0。</desc><defs>
+<marker id="arr-muted" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#657386"/></marker>
+<marker id="arr-blue" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#4078bd"/></marker>
+<marker id="arr-green" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#39826d"/></marker>
+<marker id="arr-purple" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#8d76b7"/></marker>
+<marker id="arr-warm" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#ac9c76"/></marker>
+<marker id="arr-red" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#a95f64"/></marker>
+</defs>
+<rect x="0" y="0" width="1320" height="910" rx="0" fill="#fff" stroke="none" stroke-width="0"/>
+<text x="44" y="52" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="30" font-weight="700" text-anchor="start" fill="#1f2d3d">read 先缩小行集合，getValues 再让所有列对齐</text>
+<text x="44" y="87" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start" fill="#657386">nationkey 先存了 4 个值，regionkey 继续过滤后，最终只需要原 row 0。</text>
+<path d="M44 111L1276 111" fill="none" stroke="#dce3ea" stroke-width="1.5" stroke-linejoin="round"/>
+<circle cx="62" cy="147" r="18" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.3"/>
+<text x="62" y="154" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="700" text-anchor="middle" fill="#326cae">1</text>
+<text x="98" y="154" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="23" font-weight="700" text-anchor="start" fill="#326cae">read：逐列过滤，但先不把所有列做成输出 Vector</text>
+<text x="70" y="225" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#326cae">nationkey</text>
+<rect x="350" y="195" width="89" height="48" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.3"/>
+<text x="394.5" y="226.0" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="700" text-anchor="middle" fill="#326cae">0</text>
+<rect x="444" y="195" width="89" height="48" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.3"/>
+<text x="488.5" y="226.0" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="700" text-anchor="middle" fill="#326cae">1</text>
+<rect x="538" y="195" width="89" height="48" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.3"/>
+<text x="582.5" y="226.0" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="700" text-anchor="middle" fill="#326cae">2</text>
+<rect x="632" y="195" width="89" height="48" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.3"/>
+<text x="676.5" y="226.0" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="700" text-anchor="middle" fill="#326cae">3</text>
+<text x="790" y="225" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="21" font-weight="400" text-anchor="start" fill="#1f2d3d">暂存 values：[0,1,2,3]</text>
+<text x="70" y="316" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#2e7963">regionkey</text>
+<rect x="350" y="286" width="89" height="48" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1.3"/>
+<text x="394.5" y="317.0" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="700" text-anchor="middle" fill="#2e7963">0</text>
+<rect x="444" y="286" width="89" height="48" rx="4" fill="#fff" stroke="#dce3ea" stroke-width="1.3"/>
+<text x="488.5" y="317.0" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="middle" fill="#657386">1</text>
+<rect x="538" y="286" width="89" height="48" rx="4" fill="#fff" stroke="#dce3ea" stroke-width="1.3"/>
+<text x="582.5" y="317.0" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="middle" fill="#657386">1</text>
+<rect x="632" y="286" width="89" height="48" rx="4" fill="#fff" stroke="#dce3ea" stroke-width="1.3"/>
+<text x="676.5" y="317.0" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="middle" fill="#657386">1</text>
+<text x="790" y="316" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="21" font-weight="700" text-anchor="start" fill="#2e7963">最终 outputRows：[0]</text>
+<text x="70" y="407" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#65537f">name / comment</text>
+<text x="350" y="407" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="21" font-weight="400" text-anchor="start" fill="#657386">read 阶段可跳过，保留 loader 所需位置</text>
+<circle cx="62" cy="497" r="18" fill="#f0f7f3" stroke="#39826d" stroke-width="1.3"/>
+<text x="62" y="504" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="700" text-anchor="middle" fill="#2e7963">2</text>
+<text x="98" y="504" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="23" font-weight="700" text-anchor="start" fill="#2e7963">getValues(outputRows)：压紧已有值，挂上延迟加载器</text>
+<rect x="70" y="547" width="345" height="165" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<text x="88" y="585" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#326cae">nationkey</text>
+<text x="88" y="624" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#1f2d3d">[0,1,2,3] → [0]</text>
+<text x="88" y="652" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#1f2d3d">依据最终 rows compact</text>
+<rect x="475" y="547" width="345" height="165" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<text x="493" y="585" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#2e7963">regionkey</text>
+<text x="493" y="624" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#1f2d3d">[0] → FlatVector</text>
+<text x="493" y="652" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#1f2d3d">nulls 同步对齐</text>
+<rect x="880" y="547" width="345" height="165" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
+<text x="898" y="585" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#65537f">name / comment</text>
+<text x="898" y="624" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#1f2d3d">LazyVector(size=1)</text>
+<text x="898" y="652" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#1f2d3d">ColumnLoader(version, offset)</text>
+<path d="M243 712V746H1052V712" fill="none" stroke="#657386" stroke-width="1.8" stroke-linejoin="round"/>
+<text x="646" y="785" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="middle" fill="#1f2d3d">RowVector：所有 child 的逻辑长度均为 1</text>
+<path d="M44 815L1276 815" fill="none" stroke="#dce3ea" stroke-width="1.5" stroke-linejoin="round"/>
+<text x="44" y="836" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start" fill="#657386">两阶段分离允许后读的 filter 继续丢行，也使先读列只需按最终集合生成一次输出。</text>
 </svg>

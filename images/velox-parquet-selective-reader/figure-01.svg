@@ -1,52 +1,62 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1360" height="850" viewBox="0 0 1360 850">
-<defs><marker id="arrow" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" refX="11" refY="5" orient="auto"><path d="M0,0 L11,5 L0,10 Z" fill="#657386"/></marker><marker id="arrow-blue" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" refX="11" refY="5" orient="auto"><path d="M0,0 L11,5 L0,10 Z" fill="#4078bd"/></marker><style>text{font-family:'Noto Sans SC','Noto Sans CJK SC',Inter,Arial,sans-serif} .mono{font-family:SFMono-Regular,Consolas,'Liberation Mono',monospace}</style></defs>
-<rect width="1360" height="850" fill="#fff"/>
-<text x="48" y="54" font-size="30" font-weight="700" fill="#1f2d3d">从 split 到 RowVector：SelectiveReader 位于哪一层</text>
-<text x="48" y="88" font-size="18" fill="#657386">Driver 是可调度的推进状态；文件读取发生在 TableScan 的 DataSource 路径中。</text>
-<line x1="48" y1="110" x2="1312" y2="110" stroke="#dce3ea" stroke-width="2"/>
-<rect x="50" y="145" width="210" height="120" rx="8" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.5"/>
-<text x="68" y="176" font-size="20" font-weight="700" fill="#877951" text-anchor="start" class="">Driver</text>
-<text x="68" y="206" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">一串 Operator 实例</text>
-<text x="68" y="233" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">在 executor 线程上推进</text>
-<rect x="310" y="145" width="210" height="120" rx="8" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
-<text x="328" y="176" font-size="20" font-weight="700" fill="#326cae" text-anchor="start" class="">TableScan</text>
-<text x="328" y="206" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">请求 split / batch</text>
-<text x="328" y="233" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">消费 RowVector</text>
-<rect x="570" y="145" width="230" height="120" rx="8" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
-<text x="588" y="176" font-size="20" font-weight="700" fill="#2e7963" text-anchor="start" class="">FileDataSource</text>
-<text x="588" y="206" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">pushdown filter</text>
-<text x="588" y="233" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">remaining filter</text>
-<rect x="850" y="145" width="230" height="120" rx="8" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
-<text x="868" y="176" font-size="20" font-weight="700" fill="#65537f" text-anchor="start" class="">FileSplitReader</text>
-<text x="868" y="206" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">格式无关控制层</text>
-<text x="868" y="233" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">prepareSplit / next</text>
-<line x1="260" y1="205" x2="310" y2="205" stroke="#657386" stroke-width="2" marker-end="url(#arrow)"/>
-<line x1="520" y1="205" x2="570" y2="205" stroke="#657386" stroke-width="2" marker-end="url(#arrow)"/>
-<line x1="800" y1="205" x2="850" y2="205" stroke="#657386" stroke-width="2" marker-end="url(#arrow)"/>
-<rect x="170" y="355" width="250" height="135" rx="8" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
-<text x="188" y="386" font-size="20" font-weight="700" fill="#326cae" text-anchor="start" class="">ParquetReader</text>
-<text x="188" y="416" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">ReaderBase</text>
-<text x="188" y="443" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">footer / schema / RowGroup</text>
-<rect x="555" y="355" width="270" height="135" rx="8" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
-<text x="573" y="386" font-size="20" font-weight="700" fill="#2e7963" text-anchor="start" class="">ParquetRowReader</text>
-<text x="573" y="416" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">columnReader_</text>
-<text x="573" y="443" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">next(size, output)</text>
-<rect x="960" y="355" width="240" height="135" rx="8" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
-<text x="978" y="386" font-size="20" font-weight="700" fill="#65537f" text-anchor="start" class="">RowVector</text>
-<text x="978" y="416" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">过滤后输出行</text>
-<text x="978" y="443" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">children 可含 LazyVector</text>
-<path d="M965 265 L965 315 L295 315 L295 355" fill="none" stroke="#657386" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow)"/>
-<path d="M965 265 L965 320 L690 320 L690 355" fill="none" stroke="#657386" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow)"/>
-<line x1="825" y1="422" x2="960" y2="422" stroke="#657386" stroke-width="2" marker-end="url(#arrow)"/>
-<rect x="370" y="595" width="310" height="130" rx="8" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
-<text x="388" y="626" font-size="16" font-weight="700" fill="#2e7963" text-anchor="start" class="">top-level StructColumnReader</text>
-<text x="388" y="656" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">递归 child readers</text>
-<text x="388" y="683" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">read → getValues</text>
-<rect x="780" y="595" width="310" height="130" rx="8" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
-<text x="798" y="626" font-size="20" font-weight="700" fill="#65537f" text-anchor="start" class="">PageReader + Decoder</text>
-<text x="798" y="656" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">RowSet / ColumnVisitor</text>
-<text x="798" y="683" font-size="17" font-weight="400" fill="#1f2d3d" text-anchor="start" class="">page 内稀疏读取</text>
-<line x1="690" y1="490" x2="545" y2="595" stroke="#657386" stroke-width="2" marker-end="url(#arrow)"/>
-<line x1="680" y1="660" x2="780" y2="660" stroke="#657386" stroke-width="2" marker-end="url(#arrow)"/>
-<text x="50" y="800" font-size="18" font-weight="400" fill="#657386" text-anchor="start" class="">阻塞时 Driver 可以 off-thread；future 满足后重新排队。Reader 并不等于独占线程。</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="850" viewBox="0 0 1320 850"><title>一次 next()：谁请求数据，谁返回 RowVector</title><desc>箭头上的文字区分调用与返回；TableScan 向同一 pipeline 的下游算子输出 batch。</desc><defs>
+<marker id="arr-muted" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#657386"/></marker>
+<marker id="arr-blue" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#4078bd"/></marker>
+<marker id="arr-green" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#39826d"/></marker>
+<marker id="arr-purple" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#8d76b7"/></marker>
+<marker id="arr-warm" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#ac9c76"/></marker>
+<marker id="arr-red" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#a95f64"/></marker>
+</defs>
+<rect x="0" y="0" width="1320" height="850" rx="0" fill="#fff" stroke="none" stroke-width="0"/>
+<text x="44" y="52" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="30" font-weight="700" text-anchor="start" fill="#1f2d3d">一次 next()：谁请求数据，谁返回 RowVector</text>
+<text x="44" y="87" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start" fill="#657386">箭头上的文字区分调用与返回；TableScan 向同一 pipeline 的下游算子输出 batch。</text>
+<path d="M44 111L1276 111" fill="none" stroke="#dce3ea" stroke-width="1.5" stroke-linejoin="round"/>
+<circle cx="62" cy="148" r="18" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.3"/>
+<text x="62" y="155" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="700" text-anchor="middle" fill="#326cae">1</text>
+<text x="98" y="155" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="23" font-weight="700" text-anchor="start" fill="#326cae">执行路径：当前 executor 线程推进 Driver</text>
+<rect x="70" y="190" width="325" height="112" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<text x="88" y="228" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#877951">Driver</text>
+<text x="88" y="267" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#1f2d3d">调度 Operator 链</text>
+<rect x="475" y="190" width="325" height="112" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<text x="493" y="228" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#326cae">TableScan</text>
+<text x="493" y="267" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#1f2d3d">getOutput() 拉取数据</text>
+<rect x="885" y="190" width="325" height="112" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<text x="903" y="228" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#2e7963">FileDataSource</text>
+<text x="903" y="267" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#1f2d3d">next() 读取 split</text>
+<path d="M395 234L475 234" fill="none" stroke="#657386" stroke-width="2" stroke-linejoin="round" marker-end="url(#arr-muted)"/>
+<rect x="407.0" y="200" width="56.0" height="29" rx="3" fill="#fff" stroke="none" stroke-width="1.4"/>
+<text x="435" y="221" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="middle" fill="#657386">调用</text>
+<path d="M800 234L885 234" fill="none" stroke="#657386" stroke-width="2" stroke-linejoin="round" marker-end="url(#arr-muted)"/>
+<rect x="812.5" y="200" width="57.0" height="29" rx="3" fill="#fff" stroke="none" stroke-width="1.4"/>
+<text x="841" y="221" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="middle" fill="#657386">next</text>
+<path d="M885 280L800 280" fill="none" stroke="#39826d" stroke-width="2" stroke-linejoin="round" marker-end="url(#arr-green)" stroke-dasharray="7 5"/>
+<path d="M475 280L395 280" fill="none" stroke="#39826d" stroke-width="2" stroke-linejoin="round" marker-end="url(#arr-green)" stroke-dasharray="7 5"/>
+<circle cx="62" cy="371" r="18" fill="#f0f7f3" stroke="#39826d" stroke-width="1.3"/>
+<text x="62" y="378" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="700" text-anchor="middle" fill="#2e7963">2</text>
+<text x="98" y="378" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="23" font-weight="700" text-anchor="start" fill="#2e7963">格式读取：元数据决定范围，reader tree 读取列</text>
+<rect x="70" y="421" width="345" height="138" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<text x="88" y="459" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#877951">FileSplitReader</text>
+<text x="88" y="498" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#1f2d3d">prepareSplit() / next()</text>
+<text x="88" y="526" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#1f2d3d">调整 schema 与常量列</text>
+<rect x="475" y="421" width="345" height="138" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<text x="493" y="459" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#2e7963">ParquetRowReader</text>
+<text x="493" y="498" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#1f2d3d">next(size, output)</text>
+<text x="493" y="526" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#1f2d3d">根 StructColumnReader</text>
+<rect x="885" y="421" width="345" height="138" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
+<text x="903" y="459" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#65537f">RowVector</text>
+<text x="903" y="498" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#1f2d3d">物化过滤列</text>
+<text x="903" y="526" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#1f2d3d">LazyVector payload</text>
+<path d="M1045 302V347H242V421" fill="none" stroke="#657386" stroke-width="2" stroke-linejoin="round" marker-end="url(#arr-muted)" stroke-dasharray="7 5"/>
+<rect x="717.5" y="321" width="245.0" height="29" rx="3" fill="#fff" stroke="none" stroke-width="1.4"/>
+<text x="840" y="342" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="middle" fill="#657386">connector 持有 split reader</text>
+<path d="M415 490L475 490" fill="none" stroke="#657386" stroke-width="2" stroke-linejoin="round" marker-end="url(#arr-muted)"/>
+<path d="M820 490L885 490" fill="none" stroke="#39826d" stroke-width="2" stroke-linejoin="round" marker-end="url(#arr-green)"/>
+<rect x="70" y="612" width="345" height="113" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<text x="88" y="650" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#326cae">ParquetReader</text>
+<text x="88" y="689" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#1f2d3d">ReaderBase：footer / schema</text>
+<path d="M415 665L647 665" fill="none" stroke="#4078bd" stroke-width="2" stroke-linejoin="round" marker-end="url(#arr-blue)" stroke-dasharray="7 5"/>
+<path d="M647 665V559" fill="none" stroke="#4078bd" stroke-width="2" stroke-linejoin="round" marker-end="url(#arr-blue)" stroke-dasharray="7 5"/>
+<text x="690" y="649" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="21" font-weight="700" text-anchor="start" fill="#1f2d3d">next 返回：本次扫描行数</text>
+<text x="690" y="688" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="21" font-weight="400" text-anchor="start" fill="#2e7963">output-&gt;size()：通过过滤的行数</text>
+<path d="M44 755L1276 755" fill="none" stroke="#dce3ea" stroke-width="1.5" stroke-linejoin="round"/>
+<text x="44" y="776" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start" fill="#657386">Driver 不独占一条线程；这里的直接文件读也不自动等同于 Operator::isBlocked()。</text>
 </svg>
