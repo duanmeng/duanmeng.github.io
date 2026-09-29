@@ -1,36 +1,45 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="900" viewBox="0 0 1320 900"><title>嵌套 schema：沿路径数 optional 与 repeated</title><desc>旧式 repeated group contacts 的例子；现代 LIST 通常会多出 optional list 与 repeated list 节点。</desc><defs>
-<marker id="arr-muted" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#657386"/></marker>
-<marker id="arr-blue" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#4078bd"/></marker>
-<marker id="arr-green" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#39826d"/></marker>
-<marker id="arr-purple" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#8d76b7"/></marker>
-<marker id="arr-warm" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#ac9c76"/></marker>
-<marker id="arr-red" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#a95f64"/></marker>
-</defs>
-<rect x="0" y="0" width="1320" height="900" rx="0" fill="#fff" stroke="none" stroke-width="0"/>
-<text x="44" y="52" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="30" font-weight="700" text-anchor="start" fill="#1f2d3d">嵌套 schema：沿路径数 optional 与 repeated</text>
-<text x="44" y="87" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start" fill="#657386">旧式 repeated group contacts 的例子；现代 LIST 通常会多出 optional list 与 repeated list 节点。</text>
-<path d="M44 111L1276 111" fill="none" stroke="#dce3ea" stroke-width="1.5" stroke-linejoin="round"/>
-<rect x="465" y="155" width="370" height="80" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
-<text x="483" y="193" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#877951">AddressBook</text>
-<rect x="70" y="337" width="365" height="112" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
-<text x="88" y="375" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#326cae">owner · required</text>
-<text x="88" y="414" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#1f2d3d">maxDL=0   maxRL=0</text>
-<rect x="670" y="315" width="450" height="140" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
-<text x="688" y="353" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#2e7963">contacts · repeated</text>
-<text x="688" y="392" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#1f2d3d">路径到此：DL +1，RL +1</text>
-<text x="688" y="420" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#1f2d3d">逻辑上是一列 ARRAY(ROW)</text>
-<path d="M560 235V285H252V337" fill="none" stroke="#657386" stroke-width="2" stroke-linejoin="round" marker-end="url(#arr-muted)"/>
-<path d="M755 235V275H895V315" fill="none" stroke="#657386" stroke-width="2" stroke-linejoin="round" marker-end="url(#arr-muted)"/>
-<rect x="500" y="552" width="345" height="113" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
-<text x="518" y="590" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#326cae">name · required</text>
-<text x="518" y="629" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#1f2d3d">maxDL=1   maxRL=1</text>
-<rect x="935" y="552" width="325" height="113" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
-<text x="953" y="590" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#65537f">blockID · optional</text>
-<text x="953" y="629" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#1f2d3d">maxDL=2   maxRL=1</text>
-<path d="M825 455V500H672V552" fill="none" stroke="#657386" stroke-width="2" stroke-linejoin="round" marker-end="url(#arr-muted)"/>
-<path d="M965 455V500H1098V552" fill="none" stroke="#657386" stroke-width="2" stroke-linejoin="round" marker-end="url(#arr-muted)"/>
-<text x="70" y="752" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#2e7963">maxRL = repeated 节点数</text>
-<text x="670" y="752" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#65537f">maxDL = optional + repeated 节点数</text>
-<path d="M44 805L1276 805" fill="none" stroke="#dce3ea" stroke-width="1.5" stroke-linejoin="round"/>
-<text x="44" y="826" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start" fill="#657386">required 不增加 DL；repeated 同时增加 DL 与 RL。name 是 required，不代表整个 contacts path 一定有值。</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="780" viewBox="0 0 1280 780" role="img"><title>AddressBook：沿 schema path 计算 DL / RL</title><desc>旧式 repeated group；required 不增加 DL，optional / repeated 增加 DL，repeated 增加 RL。</desc><defs>
+<marker id="arr-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#657386"/></marker>
+<marker id="arr-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#4078bd"/></marker>
+<marker id="arr-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#39826d"/></marker>
+<marker id="arr-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8d76b7"/></marker>
+<marker id="arr-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ac9c76"/></marker>
+<marker id="arr-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#a95f64"/></marker>
+</defs><rect width="1280" height="780" fill="white"/>
+<text x="48" y="58" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="30" fill="#1f2d3d" font-weight="600" text-anchor="start">AddressBook：沿 schema path 计算 DL / RL</text>
+<text x="48" y="94" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">旧式 repeated group；required 不增加 DL，optional / repeated 增加 DL，repeated 增加 RL。</text>
+<line x1="48" y1="118" x2="1232" y2="118" stroke="#dce3ea" stroke-width="1.5"/>
+<g class="card">
+<rect x="440" y="155" width="400" height="95" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<text x="460" y="189" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#877951" font-weight="600" text-anchor="start">message AddressBook</text>
+</g>
+<g class="card">
+<rect x="65" y="341" width="325" height="120" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<text x="85" y="375" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#326cae" font-weight="600" text-anchor="start">required owner</text>
+<text x="85" y="409" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">VARCHAR</text>
+<text x="85" y="438" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">maxDL = 0 · maxRL = 0</text>
+</g>
+<g class="card">
+<rect x="570" y="341" width="585" height="120" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<text x="590" y="375" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#2e7963" font-weight="600" text-anchor="start">repeated contacts</text>
+<text x="590" y="409" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">ARRAY(ROW(name, blockID))</text>
+<text x="590" y="438" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">进入 repeated：DL + 1，RL + 1</text>
+</g>
+<polyline points="530,250 530,289 230,289 230,341" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)"/>
+<polyline points="740,250 740,289 850,289 850,341" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)"/>
+<g class="card">
+<rect x="490" y="550" width="310" height="115" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<text x="510" y="584" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#326cae" font-weight="600" text-anchor="start">required name</text>
+<text x="510" y="618" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">maxDL = 1 · maxRL = 1</text>
+</g>
+<g class="card">
+<rect x="875" y="550" width="355" height="115" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
+<text x="895" y="584" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#65537f" font-weight="600" text-anchor="start">optional blockID</text>
+<text x="895" y="618" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">再增加一层 DL</text>
+<text x="895" y="647" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">maxDL = 2 · maxRL = 1</text>
+</g>
+<polyline points="725,461 725,505 645,505 645,550" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)"/>
+<polyline points="1000,461 1000,505 1050,505 1050,550" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)"/>
+<line x1="48" y1="708" x2="1232" y2="708" stroke="#dce3ea" stroke-width="1.5"/>
+<text x="48" y="742" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">DL 区分“没有 contact”与“contact 的 blockID 为 null”；RL 区分新的 parent 与同一 parent 的后续元素。</text>
 </svg>

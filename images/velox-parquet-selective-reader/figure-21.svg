@@ -1,57 +1,49 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="1040" viewBox="0 0 1320 1040"><title>JVM 与 native reader：调用和数据分开放</title><desc>据原分享引用的公开论文重绘；该图描述接口关系，不代表当前 DBR 的全部实现。</desc><defs>
-<marker id="arr-muted" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#657386"/></marker>
-<marker id="arr-blue" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#4078bd"/></marker>
-<marker id="arr-green" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#39826d"/></marker>
-<marker id="arr-purple" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#8d76b7"/></marker>
-<marker id="arr-warm" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#ac9c76"/></marker>
-<marker id="arr-red" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#a95f64"/></marker>
-</defs>
-<rect x="0" y="0" width="1320" height="1040" rx="0" fill="#fff" stroke="none" stroke-width="0"/>
-<text x="44" y="52" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="30" font-weight="700" text-anchor="start" fill="#1f2d3d">JVM 与 native reader：调用和数据分开放</text>
-<text x="44" y="87" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start" fill="#657386">据原分享引用的公开论文重绘；该图描述接口关系，不代表当前 DBR 的全部实现。</text>
-<path d="M44 111L1276 111" fill="none" stroke="#dce3ea" stroke-width="1.5" stroke-linejoin="round"/>
-<circle cx="62" cy="151" r="18" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.3"/>
-<text x="62" y="158" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="700" text-anchor="middle" fill="#326cae">1</text>
-<text x="98" y="158" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="23" font-weight="700" text-anchor="start" fill="#326cae">JVM：请求下一批，再逐列请求 column vector</text>
-<rect x="55" y="205" width="330" height="118" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
-<text x="73" y="243" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#326cae">Generated code</text>
-<text x="73" y="282" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#1f2d3d">访问堆外 column vectors</text>
-<rect x="495" y="205" width="330" height="118" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
-<text x="513" y="243" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#326cae">Vectorized reader</text>
-<text x="513" y="282" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#1f2d3d">request next batch</text>
-<rect x="935" y="205" width="330" height="118" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
-<text x="953" y="243" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#326cae">Column reader 1 … N</text>
-<text x="953" y="282" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#1f2d3d">request column vectors</text>
-<path d="M385 259L495 259" fill="none" stroke="#657386" stroke-width="2" stroke-linejoin="round" marker-end="url(#arr-muted)"/>
-<path d="M825 259L935 259" fill="none" stroke="#657386" stroke-width="2" stroke-linejoin="round" marker-end="url(#arr-muted)"/>
-<rect x="55" y="467" width="430" height="246" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
-<text x="73" y="505" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#65537f">Off-heap memory</text>
-<text x="73" y="544" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#1f2d3d">state 1 … state N</text>
-<text x="73" y="572" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#1f2d3d">data / dictionary IDs vectors</text>
-<text x="73" y="600" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#1f2d3d">nulls vectors</text>
-<path d="M220 323L220 467" fill="none" stroke="#8d76b7" stroke-width="2" stroke-linejoin="round" marker-end="url(#arr-purple)" stroke-dasharray="7 5"/>
-<rect x="122.5" y="368" width="195.0" height="30" rx="3" fill="#fff" stroke="none" stroke-width="1.4"/>
-<text x="220" y="390" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="middle" fill="#65537f">直接访问堆外 vector</text>
-<rect x="715" y="485" width="510" height="165" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
-<text x="733" y="523" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#2e7963">Native reader</text>
-<text x="733" y="562" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#1f2d3d">接收 state / vector 指针</text>
-<text x="733" y="590" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#1f2d3d">解码 Parquet，填充堆外向量</text>
-<path d="M1100 323V485" fill="none" stroke="#657386" stroke-width="2" stroke-linejoin="round" marker-end="url(#arr-muted)"/>
-<rect x="1041.0" y="385" width="118.0" height="30" rx="3" fill="#fff" stroke="none" stroke-width="1.4"/>
-<text x="1100" y="407" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="middle" fill="#657386">native 调用</text>
-<path d="M485 528L715 528" fill="none" stroke="#8d76b7" stroke-width="2" stroke-linejoin="round" marker-end="url(#arr-purple)" stroke-dasharray="7 5"/>
-<rect x="522.5" y="491" width="155.0" height="30" rx="3" fill="#fff" stroke="none" stroke-width="1.4"/>
-<text x="600" y="513" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="middle" fill="#65537f">state / pointers</text>
-<path d="M715 616L485 616" fill="none" stroke="#39826d" stroke-width="2" stroke-linejoin="round" marker-end="url(#arr-green)"/>
-<rect x="532.0" y="579" width="136.0" height="30" rx="3" fill="#fff" stroke="none" stroke-width="1.4"/>
-<text x="600" y="601" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="middle" fill="#2e7963">values / nulls</text>
-<rect x="715" y="788" width="510" height="105" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
-<text x="733" y="826" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#877951">Raw Parquet data</text>
-<text x="733" y="865" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#1f2d3d">由 native reader 访问文件数据</text>
-<path d="M955 788L955 650" fill="none" stroke="#ac9c76" stroke-width="2" stroke-linejoin="round" marker-end="url(#arr-warm)"/>
-<rect x="907.0" y="726" width="96.0" height="30" rx="3" fill="#fff" stroke="none" stroke-width="1.4"/>
-<text x="955" y="748" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="middle" fill="#877951">文件读取</text>
-<path d="M44 915L1276 915" fill="none" stroke="#dce3ea" stroke-width="1.5" stroke-linejoin="round"/>
-<text x="44" y="936" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start" fill="#657386">过滤列生成 selection / mask，后续 payload 列按 mask 解码；生成代码可以直接访问堆外向量。</text>
-<text x="44" y="966" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start" fill="#657386">接口必须约定状态、值、字典索引、nulls 的布局和生命周期，不能只把 Java 对象换成 native 指针。</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="770" viewBox="0 0 1280 770" role="img"><title>JVM 与 native reader：共享什么数据</title><desc>原分享公开材料中的接口示意；不据此推断 DBR / Photon 的闭源 I/O 策略。</desc><defs>
+<marker id="arr-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#657386"/></marker>
+<marker id="arr-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#4078bd"/></marker>
+<marker id="arr-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#39826d"/></marker>
+<marker id="arr-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8d76b7"/></marker>
+<marker id="arr-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ac9c76"/></marker>
+<marker id="arr-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#a95f64"/></marker>
+</defs><rect width="1280" height="770" fill="white"/>
+<text x="48" y="58" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="30" fill="#1f2d3d" font-weight="600" text-anchor="start">JVM 与 native reader：共享什么数据</text>
+<text x="48" y="94" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">原分享公开材料中的接口示意；不据此推断 DBR / Photon 的闭源 I/O 策略。</text>
+<line x1="48" y1="118" x2="1232" y2="118" stroke="#dce3ea" stroke-width="1.5"/>
+<g class="card">
+<rect x="48" y="165" width="445" height="125" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<text x="68" y="199" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#326cae" font-weight="600" text-anchor="start">JVM vectorized reader</text>
+<text x="68" y="233" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">请求 batch / 列</text>
+<text x="68" y="262" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">通过桥接传递指针与状态</text>
+</g>
+<g class="card">
+<rect x="788" y="165" width="442" height="125" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<text x="808" y="199" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#2e7963" font-weight="600" text-anchor="start">native reader</text>
+<text x="808" y="233" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">predicate 解码 → mask</text>
+<text x="808" y="262" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">按选择处理 payload</text>
+</g>
+<polyline points="493,214 788,214" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)"/>
+<text x="543" y="190" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#657386" font-weight="400" text-anchor="start">native call</text>
+<polyline points="788,264 493,264" fill="none" stroke="#39826d" stroke-width="1.8" marker-end="url(#arr-green)"/>
+<text x="555" y="317" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#2e7963" font-weight="400" text-anchor="start">batch 状态 / 有效行</text>
+<rect x="48" y="415" width="1182" height="210" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<text x="73" y="454" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="24" fill="#877951" font-weight="600" text-anchor="start">堆外共享表示</text>
+<g class="card">
+<rect x="75" y="490" width="320" height="103" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<text x="95" y="524" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="20" fill="#877951" font-weight="600" text-anchor="start">reader state</text>
+<text x="95" y="558" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">游标、编码与选择</text>
+</g>
+<g class="card">
+<rect x="478" y="490" width="320" height="103" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<text x="498" y="524" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="20" fill="#326cae" font-weight="600" text-anchor="start">values / dictionary IDs</text>
+<text x="498" y="558" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">数据与字典索引</text>
+</g>
+<g class="card">
+<rect x="881" y="490" width="320" height="103" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
+<text x="901" y="524" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="20" fill="#65537f" font-weight="600" text-anchor="start">nulls / mask</text>
+<text x="901" y="558" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">有效性与行选择</text>
+</g>
+<polyline points="260,290 260,415" fill="none" stroke="#4078bd" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-blue)"/>
+<polyline points="1009,290 1009,415" fill="none" stroke="#39826d" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-green)"/>
+<line x1="48" y1="698" x2="1232" y2="698" stroke="#dce3ea" stroke-width="1.5"/>
+<text x="48" y="732" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">共享指针并不自动产生延迟物化：上层访问次序与下层 decoder 必须约定相同的 selection 和 buffer 生命周期。</text>
 </svg>

@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="1050" viewBox="0 0 1280 1050" role="img"><title>Split preload：把准备好的扫描状态交给消费方</title><desc>AsyncSource 保存 DataSource 或准备异常；它与 coalesced data load 使用不同的结果协议。</desc><defs>
+<marker id="arr-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#657386"/></marker>
+<marker id="arr-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#4078bd"/></marker>
+<marker id="arr-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#39826d"/></marker>
+<marker id="arr-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8d76b7"/></marker>
+<marker id="arr-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ac9c76"/></marker>
+<marker id="arr-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#a95f64"/></marker>
+</defs><rect width="1280" height="1050" fill="white"/>
+<text x="48" y="58" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="30" fill="#1f2d3d" font-weight="600" text-anchor="start">Split preload：把准备好的扫描状态交给消费方</text>
+<text x="48" y="94" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">AsyncSource 保存 DataSource 或准备异常；它与 coalesced data load 使用不同的结果协议。</text>
+<line x1="48" y1="118" x2="1232" y2="118" stroke="#dce3ea" stroke-width="1.5"/>
+<g class="card">
+<rect x="55" y="150" width="290" height="95" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<text x="75" y="184" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#326cae" font-weight="600" text-anchor="start">消费线程</text>
+<text x="75" y="218" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">TableScan::getSplit</text>
+</g>
+<line x1="200" y1="245" x2="200" y2="888" stroke="#657386" stroke-width="2.3" stroke-dasharray="7 5"/>
+<g class="card">
+<rect x="505" y="150" width="290" height="95" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<text x="525" y="184" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#2e7963" font-weight="600" text-anchor="start">preload executor</text>
+<text x="525" y="218" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">AsyncSource::prepare</text>
+</g>
+<line x1="650" y1="245" x2="650" y2="888" stroke="#657386" stroke-width="2.3" stroke-dasharray="7 5"/>
+<g class="card">
+<rect x="935" y="150" width="290" height="95" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
+<text x="955" y="184" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#65537f" font-weight="600" text-anchor="start">预制 DataSource</text>
+<text x="955" y="218" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">自己的 ctx / stats / reader</text>
+</g>
+<line x1="1080" y1="245" x2="1080" y2="888" stroke="#657386" stroke-width="2.3" stroke-dasharray="7 5"/>
+<polyline points="650,304 1080,304" fill="none" stroke="#39826d" stroke-width="1.8" marker-end="url(#arr-green)"/>
+<rect x="664" y="271" width="323.89999999999986" height="27" fill="white"/>
+<text x="668" y="291" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#2e7963" font-weight="400" text-anchor="start">createDataSource + addSplit</text>
+<rect x="840" y="332" width="338.29999999999984" height="27" fill="white"/>
+<text x="844" y="352" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#65537f" font-weight="400" text-anchor="start">footer → schema → rowReader</text>
+<rect x="840" y="366" width="277.99999999999994" height="27" fill="white"/>
+<text x="844" y="386" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#65537f" font-weight="400" text-anchor="start">→ 首个 RowGroup I/O 计划</text>
+<rect x="51" y="433" width="317.59999999999985" height="27" fill="white"/>
+<text x="55" y="453" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#326cae" font-weight="400" text-anchor="start">调用共享 AsyncSource::move()</text>
+<rect x="183" y="481" width="34" height="145" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<rect x="234" y="508" width="203.30000000000004" height="27" fill="white"/>
+<text x="238" y="528" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#877951" font-weight="400" text-anchor="start">若 Making：同步等待</text>
+<rect x="234" y="538" width="236.60000000000005" height="27" fill="white"/>
+<text x="238" y="558" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#877951" font-weight="400" text-anchor="start">若 Init：消费方自己准备</text>
+<polyline points="1080,637 650,637" fill="none" stroke="#8d76b7" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-purple)"/>
+<rect x="664" y="604" width="194.30000000000004" height="27" fill="white"/>
+<text x="668" y="624" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#65537f" font-weight="400" text-anchor="start">制作成功 / 抛出异常</text>
+<rect x="671" y="653" width="396.79999999999984" height="27" fill="white"/>
+<text x="675" y="673" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#65537f" font-weight="400" text-anchor="start">AsyncSource 保存 item / exception_</text>
+<polyline points="650,725 200,725" fill="none" stroke="#39826d" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-green)"/>
+<rect x="214" y="692" width="313.99999999999994" height="27" fill="white"/>
+<text x="218" y="712" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#2e7963" font-weight="400" text-anchor="start">通知；move() 取结果 / 重抛异常</text>
+<g class="card">
+<rect x="48" y="762" width="620" height="126" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<text x="68" y="796" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#326cae" font-weight="600" text-anchor="start">FileDataSource::setFromDataSource</text>
+<text x="68" y="830" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">迁移 ScanSpec adaptation、split 与 reader</text>
+<text x="68" y="859" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">重绑定 ConnectorQueryCtx，合并并接管 I/O stats</text>
+</g>
+<line x1="48" y1="946" x2="1232" y2="946" stroke="#dce3ea" stroke-width="1.5"/>
+<text x="48" y="980" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">闭包持有 Task，保持 memory pools 存活；取消检查减少无用准备，但不抢占已经运行的底层 I/O。</text>
+<text x="48" y="1011" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">成功接管不只移动 reader 指针：类型、过滤状态、统计对象和上下文都要一致。</text>
+</svg>

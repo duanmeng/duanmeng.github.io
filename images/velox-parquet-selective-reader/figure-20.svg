@@ -1,34 +1,47 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="900" viewBox="0 0 1320 900"><title>从 FilterKind 到模板实例：热循环里少做动态判断</title><desc>以读取 int64_t 并应用 BigintRange 为例；不同路径仍受 encoding、null、hook 与投影条件限制。</desc><defs>
-<marker id="arr-muted" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#657386"/></marker>
-<marker id="arr-blue" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#4078bd"/></marker>
-<marker id="arr-green" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#39826d"/></marker>
-<marker id="arr-purple" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#8d76b7"/></marker>
-<marker id="arr-warm" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#ac9c76"/></marker>
-<marker id="arr-red" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#a95f64"/></marker>
-</defs>
-<rect x="0" y="0" width="1320" height="900" rx="0" fill="#fff" stroke="none" stroke-width="0"/>
-<text x="44" y="52" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="30" font-weight="700" text-anchor="start" fill="#1f2d3d">从 FilterKind 到模板实例：热循环里少做动态判断</text>
-<text x="44" y="87" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start" fill="#657386">以读取 int64_t 并应用 BigintRange 为例；不同路径仍受 encoding、null、hook 与投影条件限制。</text>
-<path d="M44 111L1276 111" fill="none" stroke="#dce3ea" stroke-width="1.5" stroke-linejoin="round"/>
-<rect x="255" y="155" width="840" height="98" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
-<text x="273" y="193" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#326cae">IntegerColumnReader::read</text>
-<text x="273" y="232" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#1f2d3d">prepareRead → readCommon&lt;Reader,true&gt;</text>
-<path d="M675 253L675 281" fill="none" stroke="#657386" stroke-width="2" stroke-linejoin="round" marker-end="url(#arr-muted)"/>
-<rect x="255" y="281" width="840" height="98" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
-<text x="273" y="319" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#2e7963">readCommon</text>
-<text x="273" y="358" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#1f2d3d">keepValues / ValueHook / dense rows</text>
-<path d="M675 379L675 407" fill="none" stroke="#657386" stroke-width="2" stroke-linejoin="round" marker-end="url(#arr-muted)"/>
-<rect x="255" y="407" width="840" height="98" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
-<text x="273" y="445" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#65537f">processFilter</text>
-<text x="273" y="484" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#1f2d3d">FilterKind → BigintRange 等具体 TFilter</text>
-<path d="M675 505L675 533" fill="none" stroke="#657386" stroke-width="2" stroke-linejoin="round" marker-end="url(#arr-muted)"/>
-<rect x="255" y="533" width="840" height="98" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
-<text x="273" y="571" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#877951">readHelper</text>
-<text x="273" y="610" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#1f2d3d">valueSize_ → int16_t / int32_t / int64_t …</text>
-<path d="M675 631L675 659" fill="none" stroke="#657386" stroke-width="2" stroke-linejoin="round" marker-end="url(#arr-muted)"/>
-<rect x="255" y="659" width="840" height="98" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
-<text x="273" y="697" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#326cae">PageReader::callDecoder</text>
-<text x="273" y="736" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#1f2d3d">ColumnVisitor&lt;Value,TFilter,Extract,isDense&gt;</text>
-<path d="M44 805L1276 805" fill="none" stroke="#dce3ea" stroke-width="1.5" stroke-linejoin="round"/>
-<text x="44" y="826" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start" fill="#657386">ExtractToReader 保存值；DropValues 只保留筛选结果；ValueHook 是另一条路径，不与普通 filter 路径简单叠加。</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="820" viewBox="0 0 1280 820" role="img"><title>ColumnVisitor：一次分派，生成具体解码路径</title><desc>以整数列为例；模板参数把热循环的 filter、提取策略和值宽度具体化。</desc><defs>
+<marker id="arr-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#657386"/></marker>
+<marker id="arr-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#4078bd"/></marker>
+<marker id="arr-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#39826d"/></marker>
+<marker id="arr-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8d76b7"/></marker>
+<marker id="arr-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ac9c76"/></marker>
+<marker id="arr-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#a95f64"/></marker>
+</defs><rect width="1280" height="820" fill="white"/>
+<text x="48" y="58" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="30" fill="#1f2d3d" font-weight="600" text-anchor="start">ColumnVisitor：一次分派，生成具体解码路径</text>
+<text x="48" y="94" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">以整数列为例；模板参数把热循环的 filter、提取策略和值宽度具体化。</text>
+<line x1="48" y1="118" x2="1232" y2="118" stroke="#dce3ea" stroke-width="1.5"/>
+<g class="card">
+<rect x="48" y="160" width="550" height="140" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<text x="68" y="194" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#326cae" font-weight="600" text-anchor="start">SelectiveIntegerColumnReader::readCommon</text>
+<text x="68" y="228" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">dense / sparse；keepValues；ValueHook</text>
+<text x="68" y="257" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">kEncodingHasNulls 决定空值处理能力</text>
+</g>
+<g class="card">
+<rect x="685" y="160" width="545" height="140" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
+<text x="705" y="194" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="20" fill="#65537f" font-weight="600" text-anchor="start">processFilter → readHelper</text>
+<text x="705" y="228" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">FilterKind → BigintRange / …</text>
+<text x="705" y="257" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">valueSize → int16_t / int32_t / int64_t / int128_t</text>
+</g>
+<polyline points="598,229 685,229" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)"/>
+<g class="card">
+<rect x="48" y="397" width="550" height="140" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<text x="68" y="431" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#2e7963" font-weight="600" text-anchor="start">提取策略</text>
+<text x="68" y="465" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">ExtractToReader：保存通过的值</text>
+<text x="68" y="494" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">DropValues：只过滤；Hook：交给消费者</text>
+</g>
+<g class="card">
+<rect x="685" y="397" width="545" height="140" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
+<text x="705" y="431" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#65537f" font-weight="600" text-anchor="start">ColumnVisitor&lt;T, Filter, Extract, dense&gt;</text>
+<text x="705" y="465" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">进入 ParquetData → PageReader</text>
+<text x="705" y="494" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">依据 page encoding 选择 decoder</text>
+</g>
+<polyline points="957,300 957,397" fill="none" stroke="#8d76b7" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-purple)"/>
+<polyline points="598,468 685,468" fill="none" stroke="#39826d" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-green)"/>
+<g class="card">
+<rect x="48" y="630" width="1182" height="83" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<text x="68" y="664" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#877951" font-weight="600" text-anchor="start">结果：通过行号 +（按需要）values / nulls</text>
+<text x="68" y="698" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">字典 filter cache、bulk decode、SIMD 都受具体 encoding 和路径限制。</text>
+</g>
+<polyline points="957,537 957,630" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)"/>
+<line x1="48" y1="748" x2="1232" y2="748" stroke="#dce3ea" stroke-width="1.5"/>
+<text x="48" y="782" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">PageReader 禁止 hasFilter 与 hasHook 同时为真；不存在把每种优化无条件叠加的统一 fast path。</text>
 </svg>

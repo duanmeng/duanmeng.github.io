@@ -1,58 +1,77 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="1230" viewBox="0 0 1320 1230"><title>ColumnReader 类层次：公共算法与格式实现</title><desc>箭头指向直接基类；上部为 dwio::common，下部为 parquet 命名空间的具体 reader。</desc><defs>
-<marker id="arr-muted" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#657386"/></marker>
-<marker id="arr-blue" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#4078bd"/></marker>
-<marker id="arr-green" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#39826d"/></marker>
-<marker id="arr-purple" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#8d76b7"/></marker>
-<marker id="arr-warm" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#ac9c76"/></marker>
-<marker id="arr-red" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#a95f64"/></marker>
-</defs>
-<rect x="0" y="0" width="1320" height="1230" rx="0" fill="#fff" stroke="none" stroke-width="0"/>
-<text x="44" y="52" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="30" font-weight="700" text-anchor="start" fill="#1f2d3d">ColumnReader 类层次：公共算法与格式实现</text>
-<text x="44" y="87" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start" fill="#657386">箭头指向直接基类；上部为 dwio::common，下部为 parquet 命名空间的具体 reader。</text>
-<path d="M44 111L1276 111" fill="none" stroke="#dce3ea" stroke-width="1.5" stroke-linejoin="round"/>
-<rect x="295" y="148" width="730" height="96" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
-<text x="313" y="186" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#877951">SelectiveColumnReader</text>
-<rect x="50" y="335" width="300" height="140" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
-<text x="68" y="373" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#326cae">SelectiveInteger</text>
-<text x="68" y="411" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#326cae">ColumnReader</text>
-<rect x="385" y="335" width="300" height="140" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
-<text x="403" y="373" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#2e7963">SelectiveStruct</text>
-<text x="403" y="411" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#2e7963">ColumnReaderBase</text>
-<rect x="700" y="335" width="580" height="140" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
-<text x="718" y="373" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#65537f">SelectiveRepeatedColumnReader</text>
-<path d="M200 335V284H660V244" fill="none" stroke="#4078bd" stroke-width="2" stroke-linejoin="round" marker-end="url(#arr-blue)"/>
-<path d="M535 335V284H660V244" fill="none" stroke="#39826d" stroke-width="2" stroke-linejoin="round" marker-end="url(#arr-green)"/>
-<path d="M990 335V284H660V244" fill="none" stroke="#8d76b7" stroke-width="2" stroke-linejoin="round" marker-end="url(#arr-purple)"/>
-<rect x="385" y="635" width="300" height="140" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
-<text x="403" y="673" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#2e7963">SelectiveStruct</text>
-<text x="403" y="711" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#2e7963">ColumnReader</text>
-<path d="M535 635L535 475" fill="none" stroke="#39826d" stroke-width="2" stroke-linejoin="round" marker-end="url(#arr-green)"/>
-<rect x="700" y="535" width="270" height="140" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
-<text x="718" y="573" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#65537f">SelectiveList</text>
-<text x="718" y="611" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#65537f">ColumnReader</text>
-<rect x="990" y="535" width="290" height="140" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
-<text x="1008" y="573" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#65537f">SelectiveMap</text>
-<text x="1008" y="611" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#65537f">ColumnReaderBase</text>
-<path d="M835 535V503H990V475" fill="none" stroke="#8d76b7" stroke-width="2" stroke-linejoin="round" marker-end="url(#arr-purple)"/>
-<path d="M1135 535V503H990V475" fill="none" stroke="#8d76b7" stroke-width="2" stroke-linejoin="round" marker-end="url(#arr-purple)"/>
-<rect x="990" y="745" width="290" height="140" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
-<text x="1008" y="783" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#65537f">SelectiveMap</text>
-<text x="1008" y="821" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#65537f">ColumnReader</text>
-<path d="M1135 745L1135 675" fill="none" stroke="#8d76b7" stroke-width="2" stroke-linejoin="round" marker-end="url(#arr-purple)"/>
-<path d="M44 944L1276 944" fill="none" stroke="#dce3ea" stroke-width="1.5" stroke-linejoin="round"/>
-<text x="48" y="981" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start" fill="#657386">parquet</text>
-<rect x="50" y="1000" width="300" height="100" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
-<text x="68" y="1037" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="21" font-weight="700" text-anchor="start" fill="#326cae">IntegerColumnReader</text>
-<path d="M200.0 1000L200.0 475" fill="none" stroke="#4078bd" stroke-width="2" stroke-linejoin="round" marker-end="url(#arr-blue)"/>
-<rect x="385" y="1000" width="300" height="100" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
-<text x="403" y="1037" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="21" font-weight="700" text-anchor="start" fill="#2e7963">StructColumnReader</text>
-<path d="M535.0 1000L535.0 775" fill="none" stroke="#39826d" stroke-width="2" stroke-linejoin="round" marker-end="url(#arr-green)"/>
-<rect x="700" y="1000" width="270" height="100" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
-<text x="718" y="1037" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="21" font-weight="700" text-anchor="start" fill="#65537f">ListColumnReader</text>
-<path d="M835.0 1000L835.0 675" fill="none" stroke="#8d76b7" stroke-width="2" stroke-linejoin="round" marker-end="url(#arr-purple)"/>
-<rect x="990" y="1000" width="290" height="100" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
-<text x="1008" y="1037" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="21" font-weight="700" text-anchor="start" fill="#65537f">MapColumnReader</text>
-<path d="M1135.0 1000L1135.0 885" fill="none" stroke="#8d76b7" stroke-width="2" stroke-linejoin="round" marker-end="url(#arr-purple)"/>
-<path d="M44 1135L1276 1135" fill="none" stroke="#dce3ea" stroke-width="1.5" stroke-linejoin="round"/>
-<text x="44" y="1156" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start" fill="#657386">图展示整数、struct、list、map 四条直接继承链；String、FloatingPoint、Boolean、Timestamp 等也接入公共体系。</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="960" viewBox="0 0 1280 960" role="img"><title>ColumnReader 的完整继承链</title><desc>从左到右指向基类；第三列卡片内的箭头继续列出更上层基类。</desc><defs>
+<marker id="arr-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#657386"/></marker>
+<marker id="arr-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#4078bd"/></marker>
+<marker id="arr-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#39826d"/></marker>
+<marker id="arr-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8d76b7"/></marker>
+<marker id="arr-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ac9c76"/></marker>
+<marker id="arr-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#a95f64"/></marker>
+</defs><rect width="1280" height="960" fill="white"/>
+<text x="48" y="58" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="30" fill="#1f2d3d" font-weight="600" text-anchor="start">ColumnReader 的完整继承链</text>
+<text x="48" y="94" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">从左到右指向基类；第三列卡片内的箭头继续列出更上层基类。</text>
+<line x1="48" y1="118" x2="1232" y2="118" stroke="#dce3ea" stroke-width="1.5"/>
+<text x="48" y="157" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="23" fill="#326cae" font-weight="400" text-anchor="start">Parquet 具体类</text>
+<text x="458" y="157" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="23" fill="#2e7963" font-weight="400" text-anchor="start">DWIO 直接基类</text>
+<text x="868" y="157" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="23" fill="#65537f" font-weight="400" text-anchor="start">继续向上继承</text>
+<g class="card">
+<rect x="48" y="192" width="362" height="127" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<text x="68" y="226" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#326cae" font-weight="600" text-anchor="start">IntegerColumnReader</text>
+</g>
+<g class="card">
+<rect x="458" y="192" width="362" height="127" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<text x="478" y="226" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#326cae" font-weight="600" text-anchor="start">SelectiveIntegerColumnReader</text>
+</g>
+<g class="card">
+<rect x="868" y="192" width="364" height="127" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<text x="888" y="226" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="17" fill="#326cae" font-weight="600" text-anchor="start">SelectiveColumnReader</text>
+</g>
+<polyline points="410,254 458,254" fill="none" stroke="#4078bd" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-blue)"/>
+<polyline points="820,254 868,254" fill="none" stroke="#4078bd" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-blue)"/>
+<g class="card">
+<rect x="48" y="361" width="362" height="127" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<text x="68" y="395" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#2e7963" font-weight="600" text-anchor="start">StructColumnReader</text>
+</g>
+<g class="card">
+<rect x="458" y="361" width="362" height="127" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<text x="478" y="395" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#2e7963" font-weight="600" text-anchor="start">SelectiveStructColumnReader</text>
+</g>
+<g class="card">
+<rect x="868" y="361" width="364" height="127" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<text x="888" y="395" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="17" fill="#2e7963" font-weight="600" text-anchor="start">SelectiveStructColumnReaderBase</text>
+<text x="888" y="429" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">→ SelectiveColumnReader</text>
+</g>
+<polyline points="410,423 458,423" fill="none" stroke="#39826d" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-green)"/>
+<polyline points="820,423 868,423" fill="none" stroke="#39826d" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-green)"/>
+<g class="card">
+<rect x="48" y="530" width="362" height="127" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
+<text x="68" y="564" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#65537f" font-weight="600" text-anchor="start">ListColumnReader</text>
+</g>
+<g class="card">
+<rect x="458" y="530" width="362" height="127" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
+<text x="478" y="564" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#65537f" font-weight="600" text-anchor="start">SelectiveListColumnReader</text>
+</g>
+<g class="card">
+<rect x="868" y="530" width="364" height="127" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
+<text x="888" y="564" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="17" fill="#65537f" font-weight="600" text-anchor="start">SelectiveRepeatedColumnReader</text>
+<text x="888" y="598" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">→ SelectiveColumnReader</text>
+</g>
+<polyline points="410,592 458,592" fill="none" stroke="#8d76b7" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-purple)"/>
+<polyline points="820,592 868,592" fill="none" stroke="#8d76b7" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-purple)"/>
+<g class="card">
+<rect x="48" y="699" width="362" height="127" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<text x="68" y="733" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#877951" font-weight="600" text-anchor="start">MapColumnReader</text>
+</g>
+<g class="card">
+<rect x="458" y="699" width="362" height="127" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<text x="478" y="733" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#877951" font-weight="600" text-anchor="start">SelectiveMapColumnReader</text>
+</g>
+<g class="card">
+<rect x="868" y="699" width="364" height="127" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<text x="888" y="733" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="17" fill="#877951" font-weight="600" text-anchor="start">SelectiveMapColumnReaderBase</text>
+<text x="888" y="767" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">→ SelectiveRepeatedColumnReader</text>
+<text x="888" y="796" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">→ SelectiveColumnReader</text>
+</g>
+<polyline points="410,761 458,761" fill="none" stroke="#ac9c76" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-warm)"/>
+<polyline points="820,761 868,761" fill="none" stroke="#ac9c76" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-warm)"/>
+<line x1="48" y1="888" x2="1232" y2="888" stroke="#dce3ea" stroke-width="1.5"/>
+<text x="48" y="922" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">这些基类复用选择、过滤与输出组装；Parquet 子类接入格式的 levels、pages 和 decoder。</text>
 </svg>

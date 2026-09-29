@@ -1,42 +1,62 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="900" viewBox="0 0 1320 900"><title>跨 page 行号：一次 rebias 的完整算例</title><desc>batch 起点 visitBase=1000；请求 batch rows=[5,8,210,215]。以下为非 repeated 标量列。</desc><defs>
-<marker id="arr-muted" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#657386"/></marker>
-<marker id="arr-blue" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#4078bd"/></marker>
-<marker id="arr-green" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#39826d"/></marker>
-<marker id="arr-purple" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#8d76b7"/></marker>
-<marker id="arr-warm" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#ac9c76"/></marker>
-<marker id="arr-red" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="10" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#a95f64"/></marker>
-</defs>
-<rect x="0" y="0" width="1320" height="900" rx="0" fill="#fff" stroke="none" stroke-width="0"/>
-<text x="44" y="52" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="30" font-weight="700" text-anchor="start" fill="#1f2d3d">跨 page 行号：一次 rebias 的完整算例</text>
-<text x="44" y="87" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start" fill="#657386">batch 起点 visitBase=1000；请求 batch rows=[5,8,210,215]。以下为非 repeated 标量列。</text>
-<path d="M44 111L1276 111" fill="none" stroke="#dce3ea" stroke-width="1.5" stroke-linejoin="round"/>
-<circle cx="62" cy="151" r="18" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.3"/>
-<text x="62" y="158" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="700" text-anchor="middle" fill="#326cae">1</text>
-<text x="98" y="158" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="23" font-weight="700" text-anchor="start" fill="#326cae">先按 page 切分绝对位置</text>
-<rect x="65" y="201" width="520" height="149" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
-<text x="83" y="239" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#326cae">Page A：绝对行 [1000,1200)</text>
-<text x="83" y="278" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#1f2d3d">目标绝对行：1005、1008</text>
-<text x="83" y="306" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#1f2d3d">batch rows：5、8</text>
-<rect x="720" y="201" width="520" height="149" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
-<text x="738" y="239" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#2e7963">Page B：绝对行 [1200,1400)</text>
-<text x="738" y="278" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#1f2d3d">目标绝对行：1210、1215</text>
-<text x="738" y="306" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#1f2d3d">batch rows：210、215</text>
-<circle cx="62" cy="416" r="18" fill="#f0f7f3" stroke="#39826d" stroke-width="1.3"/>
-<text x="62" y="423" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="700" text-anchor="middle" fill="#2e7963">2</text>
-<text x="98" y="423" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="23" font-weight="700" text-anchor="start" fill="#2e7963">Page B 的 decoder 跳过 10 行，再把第一个目标视为 0</text>
-<text x="65" y="494" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="400" text-anchor="start" fill="#1f2d3d">pageOffset = 1200 − 1000 = 200</text>
-<text x="720" y="494" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#2e7963">rowNumberBias = 210</text>
-<text x="65" y="550" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="400" text-anchor="start" fill="#1f2d3d">skip(210 − 200) = skip(10)</text>
-<text x="720" y="550" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#2e7963">[210,215] − 210 → [0,5]</text>
-<circle cx="62" cy="623" r="18" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.3"/>
-<text x="62" y="630" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="700" text-anchor="middle" fill="#65537f">3</text>
-<text x="98" y="630" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="23" font-weight="700" text-anchor="start" fill="#65537f">输入行号和输出写入位置各有一个 bias</text>
-<rect x="65" y="667" width="520" height="112" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
-<text x="83" y="705" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#2e7963">rowNumberBias = 210</text>
-<text x="83" y="744" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#1f2d3d">把通过行加回 batch 坐标：0 → 210</text>
-<rect x="720" y="667" width="520" height="112" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
-<text x="738" y="705" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" fill="#65537f">numValuesBias</text>
-<text x="738" y="744" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#1f2d3d">把该页结果追加到上一页已写值之后</text>
-<path d="M44 805L1276 805" fill="none" stroke="#dce3ea" stroke-width="1.5" stroke-linejoin="round"/>
-<text x="44" y="826" font-family="Noto Sans CJK SC, Noto Sans SC, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start" fill="#657386">firstUnvisited 最后推进到 1216。首个 page 的对齐快路径可直接借用原 RowSet，省掉拷贝。</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="920" viewBox="0 0 1280 920" role="img"><title>跨 page 的行号：输入位置与输出 buffer 偏移分开</title><desc>visitBase = 1000；visitorRows = [5, 8, 210, 215]。本例为普通标量列。</desc><defs>
+<marker id="arr-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#657386"/></marker>
+<marker id="arr-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#4078bd"/></marker>
+<marker id="arr-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#39826d"/></marker>
+<marker id="arr-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8d76b7"/></marker>
+<marker id="arr-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ac9c76"/></marker>
+<marker id="arr-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#a95f64"/></marker>
+</defs><rect width="1280" height="920" fill="white"/>
+<text x="48" y="58" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="30" fill="#1f2d3d" font-weight="600" text-anchor="start">跨 page 的行号：输入位置与输出 buffer 偏移分开</text>
+<text x="48" y="94" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">visitBase = 1000；visitorRows = [5, 8, 210, 215]。本例为普通标量列。</text>
+<line x1="48" y1="118" x2="1232" y2="118" stroke="#dce3ea" stroke-width="1.5"/>
+<text x="48" y="165" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#657386" font-weight="400" text-anchor="start">目标绝对位置</text>
+<rect x="340" y="136" width="180" height="50" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
+<text x="430.0" y="168.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#65537f" font-weight="400" text-anchor="middle">1005</text>
+<rect x="525" y="136" width="180" height="50" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
+<text x="615.0" y="168.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#65537f" font-weight="400" text-anchor="middle">1008</text>
+<rect x="710" y="136" width="180" height="50" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
+<text x="800.0" y="168.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#65537f" font-weight="400" text-anchor="middle">1210</text>
+<rect x="895" y="136" width="180" height="50" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
+<text x="985.0" y="168.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#65537f" font-weight="400" text-anchor="middle">1215</text>
+<g class="card">
+<rect x="48" y="244" width="520" height="115" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<text x="68" y="278" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#326cae" font-weight="600" text-anchor="start">Page A · [1000, 1200)</text>
+<text x="68" y="312" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">接收 visitorRows 的 [5, 8]</text>
+</g>
+<g class="card">
+<rect x="685" y="244" width="545" height="115" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<text x="705" y="278" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#2e7963" font-weight="600" text-anchor="start">Page B · [1200, 1400)</text>
+<text x="705" y="312" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">接收 visitorRows 的 [210, 215]</text>
+</g>
+<polyline points="960,359 960,410" fill="none" stroke="#39826d" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-green)"/>
+<g class="card">
+<rect x="685" y="410" width="545" height="172" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<text x="705" y="444" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#2e7963" font-weight="600" text-anchor="start">进入 B：先定位，再 rebias</text>
+<text x="705" y="478" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">pageOffset = 1200 − 1000 = 200</text>
+<text x="705" y="507" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">rowNumberBias = 210；skip(10)</text>
+<text x="705" y="536" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">decoder-local rows = [0, 5]</text>
+</g>
+<g class="card">
+<rect x="48" y="410" width="520" height="172" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
+<text x="68" y="444" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#65537f" font-weight="600" text-anchor="start">两类 bias，各自解决一个问题</text>
+<text x="68" y="478" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">rowNumberBias：输入 rows 坐标还原</text>
+<text x="68" y="507" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">numValuesBias：输出 values 追加位置</text>
+<text x="68" y="536" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">二者不能互换</text>
+</g>
+<polyline points="960,582 960,630" fill="none" stroke="#39826d" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-green)"/>
+<g class="card">
+<rect x="685" y="630" width="545" height="128" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<text x="705" y="664" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#2e7963" font-weight="600" text-anchor="start">恢复输出行号</text>
+<text x="705" y="698" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">local [0, 5] + 210 → [210, 215]</text>
+<text x="705" y="727" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">firstUnvisited = 1000 + 215 + 1</text>
+</g>
+<g class="card">
+<rect x="48" y="630" width="520" height="128" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<text x="68" y="664" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#326cae" font-weight="600" text-anchor="start">values 与 nulls 一起追加</text>
+<text x="68" y="698" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">上一 page 产出多少值，就偏移多少</text>
+<text x="68" y="727" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">最终 firstUnvisited = 1216</text>
+</g>
+<line x1="48" y1="816" x2="1232" y2="816" stroke="#dce3ea" stroke-width="1.5"/>
+<text x="48" y="850" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">第一次 visit 且 page 没变时可直接使用原 rows view；换页时需要 rebias，SIMD 临时数组具有尾部 padding。</text>
+<text x="48" y="881" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">重复嵌套列还要先做结构坐标转换，不能把 leaf 位置直接等同于顶层行号。</text>
 </svg>
