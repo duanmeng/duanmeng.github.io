@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="945" viewBox="0 0 1280 945" role="img"><title>查询要求怎样编译成 ScanSpec 与 ExprSet</title><desc>投影、reader filter、表达式依赖可以落在同一列上；不是三套互斥列集合。</desc><defs>
+<marker id="arr-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#657386"/></marker>
+<marker id="arr-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#4078bd"/></marker>
+<marker id="arr-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#39826d"/></marker>
+<marker id="arr-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8d76b7"/></marker>
+<marker id="arr-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ac9c76"/></marker>
+<marker id="arr-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#a95f64"/></marker>
+</defs><rect width="1280" height="945" fill="white"/>
+<text x="48" y="58" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="30" fill="#1f2d3d" font-weight="600" text-anchor="start">查询要求怎样编译成 ScanSpec 与 ExprSet</text>
+<text x="48" y="94" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">投影、reader filter、表达式依赖可以落在同一列上；不是三套互斥列集合。</text>
+<line x1="48" y1="118" x2="1232" y2="118" stroke="#dce3ea" stroke-width="1.5"/>
+<g class="card">
+<rect x="48" y="156" width="360" height="128" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<text x="68" y="190" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#326cae" font-weight="600" text-anchor="start">SELECT / assignments</text>
+<text x="68" y="224" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">name、comment、ds</text>
+<text x="68" y="254" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">requiredSubfields</text>
+</g>
+<g class="card">
+<rect x="460" y="156" width="360" height="128" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<text x="480" y="190" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#2e7963" font-weight="600" text-anchor="start">WHERE 可提取部分</text>
+<text x="480" y="224" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">ds = 09-01</text>
+<text x="480" y="254" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">nationkey BETWEEN 0 AND 3</text>
+</g>
+<g class="card">
+<rect x="872" y="156" width="360" height="128" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
+<text x="892" y="190" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#65537f" font-weight="600" text-anchor="start">WHERE 剩余部分</text>
+<text x="892" y="224" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">nationkey + regionkey ≥ 4</text>
+<text x="892" y="254" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">compile → ExprSet → distinctFields</text>
+</g>
+<polyline points="228,284 228,343" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)"/>
+<polyline points="640,284 640,343" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)"/>
+<polyline points="1052,284 1052,343" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)"/>
+<g class="card">
+<rect x="48" y="343" width="1184" height="113" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<text x="68" y="377" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#877951" font-weight="600" text-anchor="start">makeScanSpec：先内部投影列，再补 filter-only 列</text>
+<text x="68" y="411" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">合并 requiredSubfields 与表达式 subfields；用表 schema 解析隐藏过滤字段的类型</text>
+</g>
+<polyline points="640,456 640,514" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)"/>
+<g class="card">
+<rect x="48" y="514" width="272" height="188" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<text x="68" y="548" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#326cae" font-weight="600" text-anchor="start">name / comment</text>
+<text x="68" y="582" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">projectOut = true</text>
+<text x="68" y="612" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">无 reader filter</text>
+<text x="68" y="642" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">可创建 LazyVector</text>
+</g>
+<g class="card">
+<rect x="352" y="514" width="272" height="188" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<text x="372" y="548" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#877951" font-weight="600" text-anchor="start">ds</text>
+<text x="372" y="582" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">split 后安装常量</text>
+<text x="372" y="612" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">分区 filter</text>
+<text x="372" y="642" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">无需读文件列</text>
+</g>
+<g class="card">
+<rect x="656" y="514" width="272" height="188" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<text x="676" y="548" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#2e7963" font-weight="600" text-anchor="start">nationkey</text>
+<text x="676" y="582" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">range filter + projectOut</text>
+<text x="676" y="612" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">读时缩小 RowSet</text>
+<text x="676" y="642" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">保留值供加法使用</text>
+</g>
+<g class="card">
+<rect x="960" y="514" width="272" height="188" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
+<text x="980" y="548" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#65537f" font-weight="600" text-anchor="start">regionkey</text>
+<text x="980" y="582" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">projectOut = true</text>
+<text x="980" y="612" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">供 ExprSet 使用</text>
+<text x="980" y="642" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">按需触发加载</text>
+</g>
+<g class="card">
+<rect x="48" y="754" width="1184" height="93" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<text x="68" y="788" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#2e7963" font-weight="600" text-anchor="start">另例：SELECT name WHERE nationkey BETWEEN 0 AND 3</text>
+<text x="68" y="822" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">此时 nationkey 只需筛行，可为 filter-only；主例因加法需要它，必须保留值。</text>
+</g>
+<line x1="48" y1="873" x2="1232" y2="873" stroke="#dce3ea" stroke-width="1.5"/>
+<text x="48" y="907" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">MetadataFilter 还能利用统计排除不可能命中的读取单元，但不能替代 remaining ExprSet 的精确行过滤。</text>
+</svg>

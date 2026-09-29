@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="900" viewBox="0 0 1280 900" role="img"><title>next 的返回协议：空 batch 不等于 split 耗尽</title><desc>接口类型为 optional&lt;RowVectorPtr&gt;；TableScan 的主循环区分下面四种结果。</desc><defs>
+<marker id="arr-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#657386"/></marker>
+<marker id="arr-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#4078bd"/></marker>
+<marker id="arr-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#39826d"/></marker>
+<marker id="arr-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8d76b7"/></marker>
+<marker id="arr-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ac9c76"/></marker>
+<marker id="arr-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#a95f64"/></marker>
+</defs><rect width="1280" height="900" fill="white"/>
+<text x="48" y="58" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="30" fill="#1f2d3d" font-weight="600" text-anchor="start">next 的返回协议：空 batch 不等于 split 耗尽</text>
+<text x="48" y="94" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">接口类型为 optional&lt;RowVectorPtr&gt;；TableScan 的主循环区分下面四种结果。</text>
+<line x1="48" y1="118" x2="1232" y2="118" stroke="#dce3ea" stroke-width="1.5"/>
+<g class="card">
+<rect x="48" y="158" width="1184" height="105" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<text x="68" y="192" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#326cae" font-weight="600" text-anchor="start">TableScan → DataSource::next(readBatchSize, future)</text>
+<text x="68" y="226" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">当前 FileDataSource 是同步实现，future 参数未使用；接口本身允许其他 connector 异步返回。</text>
+</g>
+<g class="card">
+<rect x="48" y="385" width="272" height="184" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
+<text x="68" y="419" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="20" fill="#65537f" font-weight="600" text-anchor="start">nullopt</text>
+<text x="68" y="453" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">暂时没有结果</text>
+<text x="68" y="483" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">future 表示继续执行条件</text>
+<text x="68" y="513" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">kWaitForConnector</text>
+</g>
+<g class="card">
+<rect x="352" y="385" width="272" height="184" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<text x="372" y="419" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="20" fill="#877951" font-weight="600" text-anchor="start">optional(nullptr)</text>
+<text x="372" y="453" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">当前 split 已耗尽</text>
+<text x="372" y="483" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">splitFinished()</text>
+<text x="372" y="513" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">下一次取新 split</text>
+</g>
+<g class="card">
+<rect x="656" y="385" width="272" height="184" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<text x="676" y="419" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="20" fill="#326cae" font-weight="600" text-anchor="start">RowVector(size = 0)</text>
+<text x="676" y="453" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">推进过输入，但无人通过</text>
+<text x="676" y="483" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">仍在当前 split 内</text>
+<text x="676" y="513" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">继续扫描或按时让出线程</text>
+</g>
+<g class="card">
+<rect x="960" y="385" width="272" height="184" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<text x="980" y="419" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="20" fill="#2e7963" font-weight="600" text-anchor="start">RowVector(size &gt; 0)</text>
+<text x="980" y="453" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">一个可交给下游的 batch</text>
+<text x="980" y="483" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">可能带 Lazy / Dictionary</text>
+<text x="980" y="513" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">处理后再推进 reader</text>
+</g>
+<polyline points="184,263 184,385" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)"/>
+<polyline points="488,263 488,385" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)"/>
+<polyline points="792,263 792,385" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)"/>
+<polyline points="1096,263 1096,385" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)"/>
+<g class="card">
+<rect x="48" y="654" width="1184" height="115" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<text x="68" y="688" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#877951" font-weight="600" text-anchor="start">Task 没有 ready split、主动 yield、scan scale-up 是另外的等待来源</text>
+<text x="68" y="722" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">getOutput() 返回 nullptr 只是“本次没有结果”；Driver 还要检查 isBlocked() 与 isFinished()。</text>
+</g>
+<line x1="48" y1="828" x2="1232" y2="828" stroke="#dce3ea" stroke-width="1.5"/>
+<text x="48" y="862" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">future 交给 Driver 的路径才可能让 Driver 离开工作线程；同步 I/O 或 AsyncSource::move().wait() 会占用当前线程。</text>
+</svg>

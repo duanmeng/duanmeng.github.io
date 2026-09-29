@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="825" viewBox="0 0 1280 825" role="img"><title>查询、split、batch：三种状态不能混在一起</title><desc>框内是持有的状态；箭头表示外层对象推进内层生命周期。</desc><defs>
+<marker id="arr-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#657386"/></marker>
+<marker id="arr-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#4078bd"/></marker>
+<marker id="arr-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#39826d"/></marker>
+<marker id="arr-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8d76b7"/></marker>
+<marker id="arr-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ac9c76"/></marker>
+<marker id="arr-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#a95f64"/></marker>
+</defs><rect width="1280" height="825" fill="white"/>
+<text x="48" y="58" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="30" fill="#1f2d3d" font-weight="600" text-anchor="start">查询、split、batch：三种状态不能混在一起</text>
+<text x="48" y="94" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">框内是持有的状态；箭头表示外层对象推进内层生命周期。</text>
+<line x1="48" y1="118" x2="1232" y2="118" stroke="#dce3ea" stroke-width="1.5"/>
+<rect x="48" y="144" width="34" height="34" rx="17" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<text x="65" y="170" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#326cae" font-weight="600" text-anchor="middle">1</text>
+<text x="96" y="170" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="24" fill="#326cae" font-weight="600" text-anchor="start">DataSource：跨多个 split 存活</text>
+<g class="card">
+<rect x="48" y="205" width="1184" height="114" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<text x="68" y="239" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#326cae" font-weight="600" text-anchor="start">查询要求与累计反馈</text>
+<text x="68" y="273" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">outputType / assignments → ScanSpec / remaining ExprSet；过滤代价、动态条件、累计 I/O 统计</text>
+</g>
+<polyline points="123,319 123,380" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)"/>
+<rect x="48" y="373" width="34" height="34" rx="17" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<text x="65" y="399" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#877951" font-weight="600" text-anchor="middle">2</text>
+<text x="96" y="399" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="24" fill="#877951" font-weight="600" text-anchor="start">SplitReader：绑定当前文件范围</text>
+<g class="card">
+<rect x="48" y="438" width="558" height="122" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<text x="68" y="472" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#877951" font-weight="600" text-anchor="start">Split A</text>
+<text x="68" y="506" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">partition ds = 09-01；旧 schema</text>
+<text x="68" y="536" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">Reader / RowReader / 打开文件与输入</text>
+</g>
+<g class="card">
+<rect x="675" y="438" width="557" height="122" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<text x="695" y="472" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#877951" font-weight="600" text-anchor="start">Split B</text>
+<text x="695" y="506" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">partition ds = 09-02；新 schema</text>
+<text x="695" y="536" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">重绑常量和类型；预加载时移交状态</text>
+</g>
+<polyline points="606,501 675,501" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)"/>
+<text x="510" y="413" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#657386" font-weight="400" text-anchor="start">A 耗尽后才切到 B</text>
+<polyline points="188,560 188,604" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)"/>
+<polyline points="470,560 470,604" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)"/>
+<polyline points="1045,560 1045,604" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)"/>
+<g class="card">
+<rect x="48" y="604" width="272" height="108" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<text x="68" y="638" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#2e7963" font-weight="600" text-anchor="start">Batch A₀</text>
+<text x="68" y="672" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">rows → reader filters</text>
+<text x="68" y="702" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">→ ExprSet</text>
+</g>
+<g class="card">
+<rect x="334" y="604" width="272" height="108" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<text x="354" y="638" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#2e7963" font-weight="600" text-anchor="start">Batch A₁</text>
+<text x="354" y="672" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">LazyVector</text>
+<text x="354" y="702" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">绑定本次 reader 版本</text>
+</g>
+<g class="card">
+<rect x="675" y="604" width="557" height="108" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<text x="695" y="638" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#2e7963" font-weight="600" text-anchor="start">Batch B₀</text>
+<text x="695" y="672" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">新文件、新常量、新游标</text>
+</g>
+<line x1="48" y1="721" x2="1232" y2="721" stroke="#dce3ea" stroke-width="1.5"/>
+<text x="48" y="755" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">ScanSpec 会跨 batch / split 保留适配反馈，但当前 split 的常量与 reader 不能当成全查询不变状态。</text>
+<text x="48" y="786" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">未加载的旧 LazyVector 依赖旧 reader 版本；不能先推进 reader，再回来任意加载旧 batch。</text>
+</svg>

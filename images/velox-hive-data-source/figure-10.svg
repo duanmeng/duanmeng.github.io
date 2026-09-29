@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="930" viewBox="0 0 1280 930" role="img"><title>Bucket conversion：隐藏的 bucket 列也是读取依赖</title><desc>教学例：旧分区 2 buckets，新表 16 buckets；当前 split 负责 table bucket 3。</desc><defs>
+<marker id="arr-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#657386"/></marker>
+<marker id="arr-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#4078bd"/></marker>
+<marker id="arr-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#39826d"/></marker>
+<marker id="arr-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8d76b7"/></marker>
+<marker id="arr-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ac9c76"/></marker>
+<marker id="arr-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#a95f64"/></marker>
+</defs><rect width="1280" height="930" fill="white"/>
+<text x="48" y="58" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="30" fill="#1f2d3d" font-weight="600" text-anchor="start">Bucket conversion：隐藏的 bucket 列也是读取依赖</text>
+<text x="48" y="94" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">教学例：旧分区 2 buckets，新表 16 buckets；当前 split 负责 table bucket 3。</text>
+<line x1="48" y1="118" x2="1232" y2="118" stroke="#dce3ea" stroke-width="1.5"/>
+<g class="card">
+<rect x="48" y="155" width="550" height="156" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<text x="68" y="189" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#326cae" font-weight="600" text-anchor="start">HiveDataSource::setupBucketConversion</text>
+<text x="68" y="223" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">把 bucket 字段补进 readerOutputType</text>
+<text x="68" y="253" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">取消该字段仅读部分 subfields 的要求</text>
+<text x="68" y="283" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">必要时重建 ScanSpec，迁移已有反馈</text>
+</g>
+<g class="card">
+<rect x="680" y="155" width="552" height="156" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<text x="700" y="189" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#2e7963" font-weight="600" text-anchor="start">HiveSplitReader::next</text>
+<text x="700" y="223" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">FileSplitReader 产出候选 RowVector</text>
+<text x="700" y="253" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">HivePartitionFunction 计算 table bucket</text>
+<text x="700" y="283" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">copyRanges 保留目标 bucket 的行</text>
+</g>
+<polyline points="598,230 680,230" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)"/>
+<text x="48" y="393" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#657386" font-weight="400" text-anchor="start">示例候选行计算出的 table bucket</text>
+<rect x="48" y="423" width="143" height="57" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
+<text x="119.5" y="458.5" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="22" fill="#65537f" font-weight="400" text-anchor="middle">1</text>
+<rect x="196" y="423" width="143" height="57" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
+<text x="267.5" y="458.5" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="22" fill="#65537f" font-weight="400" text-anchor="middle">3</text>
+<rect x="344" y="423" width="143" height="57" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
+<text x="415.5" y="458.5" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="22" fill="#65537f" font-weight="400" text-anchor="middle">5</text>
+<rect x="492" y="423" width="143" height="57" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
+<text x="563.5" y="458.5" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="22" fill="#65537f" font-weight="400" text-anchor="middle">7</text>
+<rect x="640" y="423" width="143" height="57" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
+<text x="711.5" y="458.5" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="22" fill="#65537f" font-weight="400" text-anchor="middle">9</text>
+<rect x="788" y="423" width="143" height="57" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
+<text x="859.5" y="458.5" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="22" fill="#65537f" font-weight="400" text-anchor="middle">11</text>
+<rect x="936" y="423" width="143" height="57" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
+<text x="1007.5" y="458.5" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="22" fill="#65537f" font-weight="400" text-anchor="middle">13</text>
+<rect x="1084" y="423" width="143" height="57" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
+<text x="1155.5" y="458.5" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="22" fill="#65537f" font-weight="400" text-anchor="middle">15</text>
+<text x="420" y="527" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#657386" font-weight="400" text-anchor="start">所有 bucket 都与 3 对旧 bucket 数 2 同余。</text>
+<text x="420" y="557" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#657386" font-weight="400" text-anchor="start">只有 3 属于当前 split 的 table bucket。</text>
+<polyline points="270,480 270,592" fill="none" stroke="#39826d" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-green)"/>
+<g class="card">
+<rect x="48" y="592" width="550" height="140" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<text x="68" y="626" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#2e7963" font-weight="600" text-anchor="start">保留当前行并拷贝各输出列</text>
+<text x="68" y="660" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">bucketToKeep = 3</text>
+<text x="68" y="690" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">临时 reader 列随后用于剩余表达式</text>
+</g>
+<g class="card">
+<rect x="680" y="592" width="552" height="140" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<text x="700" y="626" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#877951" font-weight="600" text-anchor="start">remaining ExprSet → 最终输出</text>
+<text x="700" y="660" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">还可以继续排除候选行</text>
+<text x="700" y="690" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">隐藏 bucket 列不需要暴露给 SQL</text>
+</g>
+<polyline points="598,663 680,663" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)"/>
+<line x1="48" y1="826" x2="1232" y2="826" stroke="#dce3ea" stroke-width="1.5"/>
+<text x="48" y="860" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">图中的数字是 hash 结果对应的 bucket，不假设任意列值都直接对 16 取模。</text>
+<text x="48" y="891" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">bucket conversion 在 remaining ExprSet 之前；copyRanges 还可能改变普通 lazy payload 路径的加载时机。</text>
+</svg>

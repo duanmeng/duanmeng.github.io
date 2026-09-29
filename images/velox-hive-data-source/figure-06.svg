@@ -1,0 +1,125 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="1030" viewBox="0 0 1280 1030" role="img"><title>同一 batch 的三次选择，不是三遍文件扫描</title><desc>主例 nationkey + regionkey ≥ 4；nationkey 范围过滤先留下原始行 [0, 1, 2, 3]。</desc><defs>
+<marker id="arr-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#657386"/></marker>
+<marker id="arr-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#4078bd"/></marker>
+<marker id="arr-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#39826d"/></marker>
+<marker id="arr-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8d76b7"/></marker>
+<marker id="arr-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ac9c76"/></marker>
+<marker id="arr-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#a95f64"/></marker>
+</defs><rect width="1280" height="1030" fill="white"/>
+<text x="48" y="58" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="30" fill="#1f2d3d" font-weight="600" text-anchor="start">同一 batch 的三次选择，不是三遍文件扫描</text>
+<text x="48" y="94" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">主例 nationkey + regionkey ≥ 4；nationkey 范围过滤先留下原始行 [0, 1, 2, 3]。</text>
+<line x1="48" y1="118" x2="1232" y2="118" stroke="#dce3ea" stroke-width="1.5"/>
+<text x="48" y="165" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#657386" font-weight="400" text-anchor="start">原始 row</text>
+<rect x="290" y="137" width="79" height="48" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<text x="329.5" y="168.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#877951" font-weight="400" text-anchor="middle">0</text>
+<rect x="374" y="137" width="79" height="48" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<text x="413.5" y="168.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#877951" font-weight="400" text-anchor="middle">1</text>
+<rect x="458" y="137" width="79" height="48" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<text x="497.5" y="168.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#877951" font-weight="400" text-anchor="middle">2</text>
+<rect x="542" y="137" width="79" height="48" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<text x="581.5" y="168.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#877951" font-weight="400" text-anchor="middle">3</text>
+<rect x="626" y="137" width="79" height="48" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<text x="665.5" y="168.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#877951" font-weight="400" text-anchor="middle">4</text>
+<rect x="710" y="137" width="79" height="48" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<text x="749.5" y="168.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#877951" font-weight="400" text-anchor="middle">5</text>
+<rect x="794" y="137" width="79" height="48" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<text x="833.5" y="168.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#877951" font-weight="400" text-anchor="middle">6</text>
+<rect x="878" y="137" width="79" height="48" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<text x="917.5" y="168.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#877951" font-weight="400" text-anchor="middle">7</text>
+<rect x="962" y="137" width="79" height="48" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<text x="1001.5" y="168.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#877951" font-weight="400" text-anchor="middle">8</text>
+<rect x="1046" y="137" width="79" height="48" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<text x="1085.5" y="168.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#877951" font-weight="400" text-anchor="middle">9</text>
+<rect x="1130" y="137" width="79" height="48" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<text x="1169.5" y="168.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#877951" font-weight="400" text-anchor="middle">10</text>
+<text x="48" y="235" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#657386" font-weight="400" text-anchor="start">nationkey</text>
+<rect x="290" y="207" width="79" height="48" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<text x="329.5" y="238.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#326cae" font-weight="400" text-anchor="middle">0</text>
+<rect x="374" y="207" width="79" height="48" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<text x="413.5" y="238.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#326cae" font-weight="400" text-anchor="middle">1</text>
+<rect x="458" y="207" width="79" height="48" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<text x="497.5" y="238.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#326cae" font-weight="400" text-anchor="middle">2</text>
+<rect x="542" y="207" width="79" height="48" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<text x="581.5" y="238.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#326cae" font-weight="400" text-anchor="middle">3</text>
+<rect x="626" y="207" width="79" height="48" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<text x="665.5" y="238.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#326cae" font-weight="400" text-anchor="middle">4</text>
+<rect x="710" y="207" width="79" height="48" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<text x="749.5" y="238.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#326cae" font-weight="400" text-anchor="middle">5</text>
+<rect x="794" y="207" width="79" height="48" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<text x="833.5" y="238.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#326cae" font-weight="400" text-anchor="middle">6</text>
+<rect x="878" y="207" width="79" height="48" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<text x="917.5" y="238.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#326cae" font-weight="400" text-anchor="middle">7</text>
+<rect x="962" y="207" width="79" height="48" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<text x="1001.5" y="238.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#326cae" font-weight="400" text-anchor="middle">8</text>
+<rect x="1046" y="207" width="79" height="48" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<text x="1085.5" y="238.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#326cae" font-weight="400" text-anchor="middle">9</text>
+<rect x="1130" y="207" width="79" height="48" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<text x="1169.5" y="238.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#326cae" font-weight="400" text-anchor="middle">10</text>
+<text x="48" y="305" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#657386" font-weight="400" text-anchor="start">regionkey</text>
+<rect x="290" y="277" width="79" height="48" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<text x="329.5" y="308.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#2e7963" font-weight="400" text-anchor="middle">0</text>
+<rect x="374" y="277" width="79" height="48" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<text x="413.5" y="308.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#2e7963" font-weight="400" text-anchor="middle">1</text>
+<rect x="458" y="277" width="79" height="48" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<text x="497.5" y="308.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#2e7963" font-weight="400" text-anchor="middle">1</text>
+<rect x="542" y="277" width="79" height="48" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<text x="581.5" y="308.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#2e7963" font-weight="400" text-anchor="middle">1</text>
+<rect x="626" y="277" width="79" height="48" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<text x="665.5" y="308.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#2e7963" font-weight="400" text-anchor="middle">4</text>
+<rect x="710" y="277" width="79" height="48" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<text x="749.5" y="308.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#2e7963" font-weight="400" text-anchor="middle">0</text>
+<rect x="794" y="277" width="79" height="48" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<text x="833.5" y="308.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#2e7963" font-weight="400" text-anchor="middle">3</text>
+<rect x="878" y="277" width="79" height="48" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<text x="917.5" y="308.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#2e7963" font-weight="400" text-anchor="middle">3</text>
+<rect x="962" y="277" width="79" height="48" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<text x="1001.5" y="308.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#2e7963" font-weight="400" text-anchor="middle">2</text>
+<rect x="1046" y="277" width="79" height="48" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<text x="1085.5" y="308.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#2e7963" font-weight="400" text-anchor="middle">2</text>
+<rect x="1130" y="277" width="79" height="48" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<text x="1169.5" y="308.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#2e7963" font-weight="400" text-anchor="middle">4</text>
+<rect x="48" y="372" width="34" height="34" rx="17" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<text x="65" y="398" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#326cae" font-weight="600" text-anchor="middle">1</text>
+<text x="96" y="398" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="24" fill="#326cae" font-weight="600" text-anchor="start">reader filter：nationkey ∈ [0, 3]</text>
+<rect x="290" y="425" width="79" height="48" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<text x="329.5" y="456.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#326cae" font-weight="400" text-anchor="middle">0</text>
+<rect x="374" y="425" width="79" height="48" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<text x="413.5" y="456.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#326cae" font-weight="400" text-anchor="middle">1</text>
+<rect x="458" y="425" width="79" height="48" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<text x="497.5" y="456.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#326cae" font-weight="400" text-anchor="middle">2</text>
+<rect x="542" y="425" width="79" height="48" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<text x="581.5" y="456.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#326cae" font-weight="400" text-anchor="middle">3</text>
+<text x="674" y="458" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#657386" font-weight="400" text-anchor="start">outputRows；nationkey 值同时保留</text>
+<rect x="48" y="522" width="34" height="34" rx="17" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
+<text x="65" y="548" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#65537f" font-weight="600" text-anchor="middle">2</text>
+<text x="96" y="548" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="24" fill="#65537f" font-weight="600" text-anchor="start">ExprSet：复用 nationkey，按需加载 regionkey</text>
+<text x="48" y="612" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#657386" font-weight="400" text-anchor="start">对应加法结果</text>
+<rect x="290" y="582" width="79" height="48" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
+<text x="329.5" y="613.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#65537f" font-weight="400" text-anchor="middle">0</text>
+<rect x="374" y="582" width="79" height="48" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
+<text x="413.5" y="613.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#65537f" font-weight="400" text-anchor="middle">2</text>
+<rect x="458" y="582" width="79" height="48" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
+<text x="497.5" y="613.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#65537f" font-weight="400" text-anchor="middle">3</text>
+<rect x="542" y="582" width="79" height="48" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
+<text x="581.5" y="613.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#65537f" font-weight="400" text-anchor="middle">4</text>
+<text x="676" y="613" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#65537f" font-weight="400" text-anchor="start">selectedIndices = [3]</text>
+<rect x="48" y="678" width="34" height="34" rx="17" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<text x="65" y="704" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#2e7963" font-weight="600" text-anchor="middle">3</text>
+<text x="96" y="704" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="24" fill="#2e7963" font-weight="600" text-anchor="start">下游访问 payload：只加载幸存行</text>
+<g class="card">
+<rect x="48" y="742" width="550" height="131" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<text x="68" y="776" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#2e7963" font-weight="600" text-anchor="start">ColumnLoader 行号映射</text>
+<text x="68" y="810" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">rows = [3] → outputRows[3] = 3</text>
+<text x="68" y="840" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">name → CANADA；comment → 第 3 行</text>
+</g>
+<g class="card">
+<rect x="680" y="742" width="552" height="131" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<text x="700" y="776" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#877951" font-weight="600" text-anchor="start">输出 ROW(country, comment, ds)</text>
+<text x="700" y="810" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">country 使用 alias；ds 使用常量</text>
+<text x="700" y="840" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">rowsScanned = 11；最终输出 = 1</text>
+</g>
+<polyline points="598,808 680,808" fill="none" stroke="#39826d" stroke-width="1.8" marker-end="url(#arr-green)"/>
+<line x1="48" y1="926" x2="1232" y2="926" stroke="#dce3ea" stroke-width="1.5"/>
+<text x="48" y="960" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">过滤列、表达式列和 payload 可以重叠；LazyVector 推迟物化，不保证文件字节从未预取或解压。</text>
+<text x="48" y="991" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">一般行号并不等于列值；本例输入经过专门选择。表达式使用的是 reader 输出位置，不是任意文件 offset。</text>
+</svg>

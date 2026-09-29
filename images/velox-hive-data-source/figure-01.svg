@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="1040" viewBox="0 0 1280 1040" role="img"><title>HiveDataSource 在执行引擎与文件格式之间</title><desc>虚线表示调用；带「继承」标注的箭头指向基类；绿色箭头表示批数据返回。</desc><defs>
+<marker id="arr-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#657386"/></marker>
+<marker id="arr-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#4078bd"/></marker>
+<marker id="arr-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#39826d"/></marker>
+<marker id="arr-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8d76b7"/></marker>
+<marker id="arr-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ac9c76"/></marker>
+<marker id="arr-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#a95f64"/></marker>
+</defs><rect width="1280" height="1040" fill="white"/>
+<text x="48" y="58" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="30" fill="#1f2d3d" font-weight="600" text-anchor="start">HiveDataSource 在执行引擎与文件格式之间</text>
+<text x="48" y="94" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">虚线表示调用；带「继承」标注的箭头指向基类；绿色箭头表示批数据返回。</text>
+<line x1="48" y1="118" x2="1232" y2="118" stroke="#dce3ea" stroke-width="1.5"/>
+<g class="card">
+<rect x="48" y="160" width="330" height="125" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<text x="68" y="194" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#326cae" font-weight="600" text-anchor="start">Task → TableScan</text>
+<text x="68" y="228" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">Task 供应 splits</text>
+<text x="68" y="258" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">TableScan 推进 addSplit / next</text>
+</g>
+<g class="card">
+<rect x="48" y="365" width="330" height="125" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<text x="68" y="399" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#326cae" font-weight="600" text-anchor="start">HiveConnector</text>
+<text x="68" y="433" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">createDataSource()</text>
+<text x="68" y="463" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">提供 factory、config、IO executor</text>
+</g>
+<polyline points="215,285 215,365" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)"/>
+<text x="233" y="330" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#657386" font-weight="400" text-anchor="start">创建</text>
+<g class="card">
+<rect x="485" y="160" width="345" height="125" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<text x="505" y="194" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#2e7963" font-weight="600" text-anchor="start">FileDataSource : DataSource</text>
+<text x="505" y="228" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">编译 ScanSpec / ExprSet</text>
+<text x="505" y="258" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">整理输出、动态过滤、统计</text>
+</g>
+<g class="card">
+<rect x="485" y="365" width="345" height="125" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<text x="505" y="399" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#2e7963" font-weight="600" text-anchor="start">HiveDataSource</text>
+<text x="505" y="433" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">bucket conversion / rowId</text>
+<text x="505" y="463" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">createSplitReader()</text>
+</g>
+<polyline points="378,425 485,425" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)"/>
+<polyline points="657,365 657,285" fill="none" stroke="#39826d" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-green)"/>
+<rect x="671" y="310" width="45.800000000000004" height="27" fill="white"/>
+<text x="675" y="330" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#2e7963" font-weight="400" text-anchor="start">继承</text>
+<g class="card">
+<rect x="920" y="160" width="312" height="125" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<text x="940" y="194" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#877951" font-weight="600" text-anchor="start">FileSplitReader</text>
+<text x="940" y="228" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">打开文件、适配、整 split 判断</text>
+<text x="940" y="258" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">持有 Reader / RowReader</text>
+</g>
+<g class="card">
+<rect x="920" y="365" width="312" height="125" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<text x="940" y="399" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#877951" font-weight="600" text-anchor="start">HiveSplitReader</text>
+<text x="940" y="433" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">分区 / synthesized columns</text>
+<text x="940" y="463" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">bucket 行过滤</text>
+</g>
+<polyline points="830,425 920,425" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)"/>
+<polyline points="1075,365 1075,285" fill="none" stroke="#ac9c76" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-warm)"/>
+<rect x="1089" y="310" width="45.800000000000004" height="27" fill="white"/>
+<text x="1093" y="330" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#877951" font-weight="400" text-anchor="start">继承</text>
+<polyline points="1075,490 1075,552 640,552 640,606" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)"/>
+<g class="card">
+<rect x="420" y="606" width="440" height="124" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
+<text x="440" y="640" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#65537f" font-weight="600" text-anchor="start">格式 Reader → RowReader</text>
+<text x="440" y="674" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">Parquet / DWRF / Nimble / …</text>
+<text x="440" y="704" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">schema、split range、读取单元</text>
+</g>
+<g class="card">
+<rect x="48" y="606" width="300" height="124" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<text x="68" y="640" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#2e7963" font-weight="600" text-anchor="start">RowVector</text>
+<text x="68" y="674" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">逻辑类型 + 列向量</text>
+<text x="68" y="704" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">返回 TableScan</text>
+</g>
+<polyline points="420,668 348,668" fill="none" stroke="#39826d" stroke-width="1.8" marker-end="url(#arr-green)"/>
+<g class="card">
+<rect x="420" y="806" width="440" height="124" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
+<text x="440" y="840" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#65537f" font-weight="600" text-anchor="start">ColumnReader / decoder</text>
+<text x="440" y="874" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">筛选候选行、解码、LazyVector</text>
+<text x="440" y="904" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">具体能力取决于文件格式</text>
+</g>
+<g class="card">
+<rect x="920" y="806" width="312" height="124" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<text x="940" y="840" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="20" fill="#877951" font-weight="600" text-anchor="start">BufferedInput → ReadFile</text>
+<text x="940" y="874" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">缓存、合并读取、预取</text>
+<text x="940" y="904" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">本地文件 / 对象存储</text>
+</g>
+<polyline points="640,730 640,806" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)"/>
+<polyline points="860,868 920,868" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)"/>
+<line x1="48" y1="968" x2="1232" y2="968" stroke="#dce3ea" stroke-width="1.5"/>
+<text x="48" y="1002" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">SQL 规划与 split 枚举由宿主系统提供；HiveDataSource 把查询要求落实到当前文件，TableScan 负责执行调度。</text>
+</svg>
