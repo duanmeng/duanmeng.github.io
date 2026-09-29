@@ -1,49 +1,49 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="810" viewBox="0 0 1280 810" role="img"><title>选择性读取究竟省在哪一层</title><desc>从早期排除到晚期物化：范围越早被排除，通常能避免的工作越多。</desc><defs>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="778" viewBox="0 0 1280 778" role="img"><title>选择性读取究竟省在哪一层</title><desc>从早期排除到晚期物化：范围越早被排除，通常能避免的工作越多。</desc><defs>
 <marker id="arr-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#657386" /></marker>
 <marker id="arr-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#4078bd" /></marker>
 <marker id="arr-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#39826d" /></marker>
 <marker id="arr-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8d76b7" /></marker>
 <marker id="arr-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ac9c76" /></marker>
 <marker id="arr-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#a95f64" /></marker>
-</defs><rect width="1280" height="810" fill="white" stroke="none" />
+</defs><rect width="1280" height="780" fill="white" stroke="none" />
 <text x="48" y="58" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="30" fill="#1f2d3d" font-weight="600" text-anchor="start">选择性读取究竟省在哪一层</text>
 <text x="48" y="94" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">从早期排除到晚期物化：范围越早被排除，通常能避免的工作越多。</text>
-<line x1="48" y1="118" x2="1232" y2="118" stroke="#dce3ea" stroke-width="1.6" />
+<line x1="48" y1="118" x2="1232" y2="118" stroke="#dce3ea" stroke-width="1.85" />
 <g class="card">
-<rect x="48" y="154" width="310" height="81" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
+<rect x="48" y="154" width="310" height="81" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.55" />
 <text x="68" y="188" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#326cae" font-weight="600" text-anchor="start">split / RowGroup</text>
 </g>
 <text x="402" y="186" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#326cae" font-weight="600" text-anchor="start">常量、范围归属、统计</text>
 <text x="402" y="220" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">可避免整组的数据读取与解码</text>
-<polyline points="205,235 205,256" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)" />
+<polyline points="205,235 205,256" fill="none" stroke="#657386" stroke-width="1.85" stroke-dasharray="7 5" marker-end="url(#arr-muted)" />
 <g class="card">
-<rect x="48" y="257" width="310" height="81" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4" />
+<rect x="48" y="257" width="310" height="81" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.55" />
 <text x="68" y="291" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#2e7963" font-weight="600" text-anchor="start">page</text>
 </g>
 <text x="402" y="289" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#2e7963" font-weight="600" text-anchor="start">目标 rows 落在后续页</text>
 <text x="402" y="323" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">有条件跳过页；levels 可能仍需读取</text>
-<polyline points="205,338 205,359" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)" />
+<polyline points="205,338 205,359" fill="none" stroke="#657386" stroke-width="1.85" stroke-dasharray="7 5" marker-end="url(#arr-muted)" />
 <g class="card">
-<rect x="48" y="360" width="310" height="81" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4" />
+<rect x="48" y="360" width="310" height="81" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.55" />
 <text x="68" y="394" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#65537f" font-weight="600" text-anchor="start">leaf decode</text>
 </g>
 <text x="402" y="392" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#65537f" font-weight="600" text-anchor="start">ColumnVisitor + filter</text>
 <text x="402" y="426" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">减少输出写入，缩小后续列的 RowSet</text>
-<polyline points="205,441 205,462" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)" />
+<polyline points="205,441 205,462" fill="none" stroke="#657386" stroke-width="1.85" stroke-dasharray="7 5" marker-end="url(#arr-muted)" />
 <g class="card">
-<rect x="48" y="463" width="310" height="81" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4" />
+<rect x="48" y="463" width="310" height="81" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.55" />
 <text x="68" y="497" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#2e7963" font-weight="600" text-anchor="start">remaining ExprSet</text>
 </g>
 <text x="402" y="495" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#2e7963" font-weight="600" text-anchor="start">复杂 / 多列条件</text>
 <text x="402" y="529" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">继续缩小下游和 payload 的需求</text>
-<polyline points="205,544 205,565" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)" />
+<polyline points="205,544 205,565" fill="none" stroke="#657386" stroke-width="1.85" stroke-dasharray="7 5" marker-end="url(#arr-muted)" />
 <g class="card">
-<rect x="48" y="566" width="310" height="81" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4" />
+<rect x="48" y="566" width="310" height="81" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.55" />
 <text x="68" y="600" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#877951" font-weight="600" text-anchor="start">LazyVector</text>
 </g>
 <text x="402" y="598" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#877951" font-weight="600" text-anchor="start">下游实际访问的 rows</text>
 <text x="402" y="632" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">延迟 values；不承诺此前没有预取 bytes</text>
-<line x1="48" y1="706" x2="1232" y2="706" stroke="#dce3ea" stroke-width="1.6" />
-<text x="48" y="740" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">同时观察 scanned / output rows、reader CPU、remaining CPU、storage bytes、overread、预取与 query-thread I/O。</text>
-<text x="48" y="771" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">“过滤掉 99% 的行”本身不能证明存储读取减少 99%。</text>
+<line x1="48" y1="677.5517" x2="1232" y2="677.5517" stroke="#dce3ea" stroke-width="1.85" />
+<text x="48" y="710" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">同时观察 scanned / output rows、reader CPU、remaining CPU、storage bytes、overread、预取与 query-thread I/O。</text>
+<text x="48" y="741" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">“过滤掉 99% 的行”本身不能证明存储读取减少 99%。</text>
 </svg>

@@ -1,68 +1,68 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="960" height="700" viewBox="0 0 960 700" role="img" aria-labelledby="title desc"><title id="title">八项求和：先合并半区，再缩小有效范围</title><desc id="desc">示例 1..8 的总和为 36。图中保留实际中间结果，标明最后只取 lane 0。</desc><defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#657386" stroke-width="1.6" /></marker></defs>
-<rect x="0" y="0" width="960" height="700" rx="3" fill="white" stroke="none" stroke-width="1" />
-<rect x="8" y="8" width="944" height="684" rx="4" fill="white" stroke="none" stroke-width="1" />
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="611" viewBox="0 0 960 611" role="img" aria-labelledby="title desc"><title id="title">八项求和：先合并半区，再缩小有效范围</title><desc id="desc">示例 1..8 的总和为 36。图中保留实际中间结果，标明最后只取 lane 0。</desc><defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#657386" stroke-width="1.6" /></marker></defs>
+<rect x="0" y="0" width="960" height="676" rx="3" fill="white" stroke="none" stroke-width="1" />
+<rect x="8" y="8" width="944" height="660" rx="4" fill="white" stroke="none" stroke-width="1" />
 <rect x="9" y="9" width="942" height="84" rx="3" fill="white" stroke="none" stroke-width="1" />
-<line x1="9" y1="93" x2="951" y2="93" stroke="#dce3ea" stroke-width="1.6" />
+<line x1="9" y1="93" x2="951" y2="93" stroke="#dce3ea" stroke-width="1.85" />
 <text x="32" y="44" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="26" font-weight="600" fill="#1f2d3d" text-anchor="start">八项求和：先合并半区，再缩小有效范围</text>
 <text x="32" y="75" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="14" font-weight="400" fill="#657386" text-anchor="start">示例 1..8 的总和为 36。图中保留实际中间结果，标明最后只取 lane 0。</text>
 <text x="32" y="178" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="16" font-weight="400" fill="#657386" text-anchor="start">输入 v</text>
-<rect x="166.0" y="148" width="88.0" height="48" rx="3" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.25" />
+<rect x="166.0" y="148" width="88.0" height="48" rx="3" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.55" />
 <text x="210.0" y="178" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" font-weight="400" fill="#1f2d3d" text-anchor="middle">1</text>
 <text x="210.0" y="138" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="13" font-weight="400" fill="#657386" text-anchor="middle">0</text>
-<rect x="258.0" y="148" width="88.0" height="48" rx="3" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.25" />
+<rect x="258.0" y="148" width="88.0" height="48" rx="3" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.55" />
 <text x="302.0" y="178" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" font-weight="400" fill="#1f2d3d" text-anchor="middle">2</text>
 <text x="302.0" y="138" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="13" font-weight="400" fill="#657386" text-anchor="middle">1</text>
-<rect x="350.0" y="148" width="88.0" height="48" rx="3" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.25" />
+<rect x="350.0" y="148" width="88.0" height="48" rx="3" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.55" />
 <text x="394.0" y="178" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" font-weight="400" fill="#1f2d3d" text-anchor="middle">3</text>
 <text x="394.0" y="138" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="13" font-weight="400" fill="#657386" text-anchor="middle">2</text>
-<rect x="442.0" y="148" width="88.0" height="48" rx="3" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.25" />
+<rect x="442.0" y="148" width="88.0" height="48" rx="3" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.55" />
 <text x="486.0" y="178" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" font-weight="400" fill="#1f2d3d" text-anchor="middle">4</text>
 <text x="486.0" y="138" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="13" font-weight="400" fill="#657386" text-anchor="middle">3</text>
-<rect x="534.0" y="148" width="88.0" height="48" rx="3" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.25" />
+<rect x="534.0" y="148" width="88.0" height="48" rx="3" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.55" />
 <text x="578.0" y="178" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" font-weight="400" fill="#1f2d3d" text-anchor="middle">5</text>
 <text x="578.0" y="138" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="13" font-weight="400" fill="#657386" text-anchor="middle">4</text>
-<rect x="626.0" y="148" width="88.0" height="48" rx="3" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.25" />
+<rect x="626.0" y="148" width="88.0" height="48" rx="3" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.55" />
 <text x="670.0" y="178" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" font-weight="400" fill="#1f2d3d" text-anchor="middle">6</text>
 <text x="670.0" y="138" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="13" font-weight="400" fill="#657386" text-anchor="middle">5</text>
-<rect x="718.0" y="148" width="88.0" height="48" rx="3" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.25" />
+<rect x="718.0" y="148" width="88.0" height="48" rx="3" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.55" />
 <text x="762.0" y="178" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" font-weight="400" fill="#1f2d3d" text-anchor="middle">7</text>
 <text x="762.0" y="138" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="13" font-weight="400" fill="#657386" text-anchor="middle">6</text>
-<rect x="810.0" y="148" width="88.0" height="48" rx="3" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.25" />
+<rect x="810.0" y="148" width="88.0" height="48" rx="3" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.55" />
 <text x="854.0" y="178" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" font-weight="400" fill="#1f2d3d" text-anchor="middle">8</text>
 <text x="854.0" y="138" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="13" font-weight="400" fill="#657386" text-anchor="middle">7</text>
-<line x1="532.0" y1="144" x2="532.0" y2="200" stroke="#657386" stroke-width="2.0" />
-<line x1="532" y1="208" x2="532" y2="245" stroke="#657386" stroke-width="1.6" stroke-dasharray="6 5" marker-end="url(#arrow)" />
-<text x="32" y="286" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="16" font-weight="400" fill="#657386" text-anchor="start">低半 + 高半</text>
-<rect x="166.0" y="256" width="180.0" height="48" rx="3" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.25" />
-<text x="256.0" y="286" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" font-weight="400" fill="#1f2d3d" text-anchor="middle">6</text>
-<rect x="350.0" y="256" width="180.0" height="48" rx="3" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.25" />
-<text x="440.0" y="286" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" font-weight="400" fill="#1f2d3d" text-anchor="middle">8</text>
-<rect x="534.0" y="256" width="180.0" height="48" rx="3" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.25" />
-<text x="624.0" y="286" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" font-weight="400" fill="#1f2d3d" text-anchor="middle">10</text>
-<rect x="718.0" y="256" width="180.0" height="48" rx="3" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.25" />
-<text x="808.0" y="286" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" font-weight="400" fill="#1f2d3d" text-anchor="middle">12</text>
-<text x="164" y="339" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="start">movehl(s,s) = [10,12,10,12]</text>
-<text x="32" y="393" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="16" font-weight="400" fill="#657386" text-anchor="start">相加后</text>
-<rect x="166.0" y="363" width="180.0" height="48" rx="3" fill="#f0f7f3" stroke="#39826d" stroke-width="1.25" />
-<text x="256.0" y="393" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" font-weight="400" fill="#1f2d3d" text-anchor="middle">16</text>
-<rect x="350.0" y="363" width="180.0" height="48" rx="3" fill="#f0f7f3" stroke="#39826d" stroke-width="1.25" />
-<text x="440.0" y="393" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" font-weight="400" fill="#1f2d3d" text-anchor="middle">20</text>
-<rect x="534.0" y="363" width="180.0" height="48" rx="3" fill="#f0f7f3" stroke="#39826d" stroke-width="1.25" />
-<text x="624.0" y="393" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" font-weight="400" fill="#1f2d3d" text-anchor="middle">20</text>
-<rect x="718.0" y="363" width="180.0" height="48" rx="3" fill="#f0f7f3" stroke="#39826d" stroke-width="1.25" />
-<text x="808.0" y="393" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" font-weight="400" fill="#1f2d3d" text-anchor="middle">24</text>
-<text x="164" y="451" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="start">add_ss：只计算低元素 16 + 20；其余位置保留</text>
-<text x="32" y="508" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="16" font-weight="400" fill="#657386" text-anchor="start">最终 XMM</text>
-<rect x="166.0" y="478" width="180.0" height="48" rx="3" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.25" />
-<text x="256.0" y="508" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" font-weight="400" fill="#1f2d3d" text-anchor="middle">36</text>
-<rect x="350.0" y="478" width="180.0" height="48" rx="3" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.25" />
-<text x="440.0" y="508" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" font-weight="400" fill="#1f2d3d" text-anchor="middle">20</text>
-<rect x="534.0" y="478" width="180.0" height="48" rx="3" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.25" />
-<text x="624.0" y="508" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" font-weight="400" fill="#1f2d3d" text-anchor="middle">20</text>
-<rect x="718.0" y="478" width="180.0" height="48" rx="3" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.25" />
-<text x="808.0" y="508" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" font-weight="400" fill="#1f2d3d" text-anchor="middle">24</text>
-<rect x="164" y="553" width="280" height="72" rx="3" fill="#f0f7f3" stroke="#39826d" stroke-width="1.25" />
-<rect x="165" y="554" width="4" height="70" rx="0" fill="none" stroke="none" stroke-width="1" />
-<text x="182" y="583" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="20" font-weight="600" fill="#1f2d3d" text-anchor="start">提取 lane 0 → 36</text>
-<text x="490" y="590" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" font-weight="400" fill="#657386" text-anchor="start">其余 lane 不作为总和使用</text>
+<line x1="532.0" y1="144" x2="532.0" y2="200" stroke="#657386" stroke-width="2" />
+<line x1="532" y1="204.3077" x2="532" y2="224.2308" stroke="#657386" stroke-width="1.85" stroke-dasharray="6 5" marker-end="url(#arrow)" />
+<text x="32" y="262" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="16" font-weight="400" fill="#657386" text-anchor="start">低半 + 高半</text>
+<rect x="166.0" y="232" width="180.0" height="48" rx="3" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.55" />
+<text x="256.0" y="262" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" font-weight="400" fill="#1f2d3d" text-anchor="middle">6</text>
+<rect x="350.0" y="232" width="180.0" height="48" rx="3" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.55" />
+<text x="440.0" y="262" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" font-weight="400" fill="#1f2d3d" text-anchor="middle">8</text>
+<rect x="534.0" y="232" width="180.0" height="48" rx="3" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.55" />
+<text x="624.0" y="262" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" font-weight="400" fill="#1f2d3d" text-anchor="middle">10</text>
+<rect x="718.0" y="232" width="180.0" height="48" rx="3" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.55" />
+<text x="808.0" y="262" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" font-weight="400" fill="#1f2d3d" text-anchor="middle">12</text>
+<text x="164" y="315" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="start">movehl(s,s) = [10,12,10,12]</text>
+<text x="32" y="369" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="16" font-weight="400" fill="#657386" text-anchor="start">相加后</text>
+<rect x="166.0" y="339" width="180.0" height="48" rx="3" fill="#f0f7f3" stroke="#39826d" stroke-width="1.55" />
+<text x="256.0" y="369" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" font-weight="400" fill="#1f2d3d" text-anchor="middle">16</text>
+<rect x="350.0" y="339" width="180.0" height="48" rx="3" fill="#f0f7f3" stroke="#39826d" stroke-width="1.55" />
+<text x="440.0" y="369" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" font-weight="400" fill="#1f2d3d" text-anchor="middle">20</text>
+<rect x="534.0" y="339" width="180.0" height="48" rx="3" fill="#f0f7f3" stroke="#39826d" stroke-width="1.55" />
+<text x="624.0" y="369" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" font-weight="400" fill="#1f2d3d" text-anchor="middle">20</text>
+<rect x="718.0" y="339" width="180.0" height="48" rx="3" fill="#f0f7f3" stroke="#39826d" stroke-width="1.55" />
+<text x="808.0" y="369" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" font-weight="400" fill="#1f2d3d" text-anchor="middle">24</text>
+<text x="164" y="427" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="start">add_ss：只计算低元素 16 + 20；其余位置保留</text>
+<text x="32" y="484" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="16" font-weight="400" fill="#657386" text-anchor="start">最终 XMM</text>
+<rect x="166.0" y="454" width="180.0" height="48" rx="3" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.55" />
+<text x="256.0" y="484" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" font-weight="400" fill="#1f2d3d" text-anchor="middle">36</text>
+<rect x="350.0" y="454" width="180.0" height="48" rx="3" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.55" />
+<text x="440.0" y="484" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" font-weight="400" fill="#1f2d3d" text-anchor="middle">20</text>
+<rect x="534.0" y="454" width="180.0" height="48" rx="3" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.55" />
+<text x="624.0" y="484" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" font-weight="400" fill="#1f2d3d" text-anchor="middle">20</text>
+<rect x="718.0" y="454" width="180.0" height="48" rx="3" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.55" />
+<text x="808.0" y="484" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" font-weight="400" fill="#1f2d3d" text-anchor="middle">24</text>
+<rect x="164" y="529" width="280" height="72" rx="3" fill="#f0f7f3" stroke="#39826d" stroke-width="1.55" />
+<rect x="165" y="530" width="4" height="70" rx="0" fill="none" stroke="none" stroke-width="1" />
+<text x="182" y="559" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="20" font-weight="600" fill="#1f2d3d" text-anchor="start">提取 lane 0 → 36</text>
+<text x="490" y="566" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" font-weight="400" fill="#657386" text-anchor="start">其余 lane 不作为总和使用</text>
 </svg>

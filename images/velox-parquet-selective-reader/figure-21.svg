@@ -1,49 +1,49 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="770" viewBox="0 0 1280 770" role="img"><title>JVM 与 native reader：共享什么数据</title><desc>原分享公开材料中的接口示意；不据此推断 DBR / Photon 的闭源 I/O 策略。</desc><defs>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="611" viewBox="0 0 1280 611" role="img"><title>JVM 与 native reader：共享什么数据</title><desc>原分享公开材料中的接口示意；不据此推断 DBR / Photon 的闭源 I/O 策略。</desc><defs>
 <marker id="arr-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#657386" /></marker>
 <marker id="arr-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#4078bd" /></marker>
 <marker id="arr-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#39826d" /></marker>
 <marker id="arr-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8d76b7" /></marker>
 <marker id="arr-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ac9c76" /></marker>
 <marker id="arr-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#a95f64" /></marker>
-</defs><rect width="1280" height="770" fill="white" stroke="none" />
+</defs><rect width="1280" height="612" fill="white" stroke="none" />
 <text x="48" y="58" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="30" fill="#1f2d3d" font-weight="600" text-anchor="start">JVM 与 native reader：共享什么数据</text>
 <text x="48" y="94" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">原分享公开材料中的接口示意；不据此推断 DBR / Photon 的闭源 I/O 策略。</text>
-<line x1="48" y1="118" x2="1232" y2="118" stroke="#dce3ea" stroke-width="1.6" />
+<line x1="48" y1="113.3846" x2="1232" y2="113.3846" stroke="#dce3ea" stroke-width="1.85" />
 <g class="card">
-<rect x="48" y="165" width="445" height="125" rx="6" fill="white" stroke="none" stroke-width="1.4" />
-<line x1="48" y1="165" x2="493.0" y2="165" stroke="#dce3ea" stroke-width="1.5" /><text x="68" y="199" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#326cae" font-weight="600" text-anchor="start">JVM vectorized reader</text>
-<text x="68" y="233" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">请求 batch / 列</text>
-<text x="68" y="262" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">通过桥接传递指针与状态</text>
+<rect x="48" y="141" width="445" height="125" rx="6" fill="white" stroke="none" stroke-width="1.4" />
+<line x1="48" y1="141" x2="493.0" y2="141" stroke="#dce3ea" stroke-width="1.85" /><text x="68" y="175" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#326cae" font-weight="600" text-anchor="start">JVM vectorized reader</text>
+<text x="68" y="209" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">请求 batch / 列</text>
+<text x="68" y="238" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">通过桥接传递指针与状态</text>
 </g>
 <g class="card">
-<rect x="788" y="165" width="442" height="125" rx="6" fill="white" stroke="none" stroke-width="1.4" />
-<line x1="788" y1="165" x2="1230.0" y2="165" stroke="#dce3ea" stroke-width="1.5" /><text x="808" y="199" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#2e7963" font-weight="600" text-anchor="start">native reader</text>
-<text x="808" y="233" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">predicate 解码 → mask</text>
-<text x="808" y="262" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">按选择处理 payload</text>
+<rect x="788" y="141" width="442" height="125" rx="6" fill="white" stroke="none" stroke-width="1.4" />
+<line x1="788" y1="141" x2="1230.0" y2="141" stroke="#dce3ea" stroke-width="1.85" /><text x="808" y="175" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#2e7963" font-weight="600" text-anchor="start">native reader</text>
+<text x="808" y="209" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">predicate 解码 → mask</text>
+<text x="808" y="238" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">按选择处理 payload</text>
 </g>
-<polyline points="493,214 788,214" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)" />
-<text x="543" y="190" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#1f2d3d" font-weight="400" text-anchor="start">native call</text>
-<polyline points="788,264 493,264" fill="none" stroke="#39826d" stroke-width="1.8" marker-end="url(#arr-green)" />
-<text x="555" y="317" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#2e7963" font-weight="400" text-anchor="start">batch 状态 / 有效行</text>
-<rect x="48" y="415" width="1182" height="210" rx="6" fill="white" stroke="#ac9c76" stroke-width="1.3" />
-<text x="73" y="454" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="24" fill="#877951" font-weight="600" text-anchor="start">堆外共享表示</text>
+<polyline points="493,190 788,190" fill="none" stroke="#657386" stroke-width="1.85" stroke-dasharray="7 5" marker-end="url(#arr-muted)" />
+<text x="543" y="166" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#1f2d3d" font-weight="400" text-anchor="start">native call</text>
+<polyline points="788,240 493,240" fill="none" stroke="#39826d" stroke-width="1.85" marker-end="url(#arr-green)" />
+<text x="555" y="293" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#2e7963" font-weight="400" text-anchor="start">batch 状态 / 有效行</text>
+<rect x="48" y="334.3488" width="1182" height="188.1896" rx="6" fill="white" stroke="#ac9c76" stroke-width="1.55" />
+<text x="73" y="372" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="24" fill="#877951" font-weight="600" text-anchor="start">堆外共享表示</text>
 <g class="card">
-<rect x="75" y="490" width="320" height="103" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4" />
-<text x="95" y="524" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="20" fill="#877951" font-weight="600" text-anchor="start">reader state</text>
-<text x="95" y="558" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">游标、编码与选择</text>
-</g>
-<g class="card">
-<rect x="478" y="490" width="320" height="103" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
-<text x="498" y="524" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="20" fill="#326cae" font-weight="600" text-anchor="start">values / dictionary IDs</text>
-<text x="498" y="558" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">数据与字典索引</text>
+<rect x="75" y="408" width="320" height="103" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.55" />
+<text x="95" y="442" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="20" fill="#877951" font-weight="600" text-anchor="start">reader state</text>
+<text x="95" y="476" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">游标、编码与选择</text>
 </g>
 <g class="card">
-<rect x="881" y="490" width="320" height="103" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4" />
-<text x="901" y="524" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="20" fill="#65537f" font-weight="600" text-anchor="start">nulls / mask</text>
-<text x="901" y="558" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">有效性与行选择</text>
+<rect x="478" y="408" width="320" height="103" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.55" />
+<text x="498" y="442" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="20" fill="#326cae" font-weight="600" text-anchor="start">values / dictionary IDs</text>
+<text x="498" y="476" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">数据与字典索引</text>
 </g>
-<polyline points="260,290 260,415" fill="none" stroke="#4078bd" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-blue)" />
-<polyline points="1009,290 1009,415" fill="none" stroke="#39826d" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-green)" />
-<line x1="48" y1="698" x2="1232" y2="698" stroke="#dce3ea" stroke-width="1.6" />
-<text x="48" y="732" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">共享指针并不自动产生延迟物化：上层访问次序与下层 decoder 必须约定相同的 selection 和 buffer 生命周期。</text>
+<g class="card">
+<rect x="881" y="408" width="320" height="103" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.55" />
+<text x="901" y="442" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="20" fill="#65537f" font-weight="600" text-anchor="start">nulls / mask</text>
+<text x="901" y="476" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">有效性与行选择</text>
+</g>
+<polyline points="260,266 260,334.3488" fill="none" stroke="#4078bd" stroke-width="1.85" stroke-dasharray="7 5" marker-end="url(#arr-blue)" />
+<polyline points="1009,266 1009,334.3488" fill="none" stroke="#39826d" stroke-width="1.85" stroke-dasharray="7 5" marker-end="url(#arr-green)" />
+<line x1="48" y1="542.1923" x2="1232" y2="542.1923" stroke="#dce3ea" stroke-width="1.85" />
+<text x="48" y="574" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">共享指针并不自动产生延迟物化：上层访问次序与下层 decoder 必须约定相同的 selection 和 buffer 生命周期。</text>
 </svg>

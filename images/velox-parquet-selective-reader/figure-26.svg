@@ -1,73 +1,73 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="910" viewBox="0 0 1280 910" role="img"><title>主例：一批数据从扫描到最终输出</title><desc>ds 常量已通过；nationkey BETWEEN 0 AND 3；remaining：nationkey + regionkey ≥ 4。</desc><defs>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="870" viewBox="0 0 1280 870" role="img"><title>主例：一批数据从扫描到最终输出</title><desc>ds 常量已通过；nationkey BETWEEN 0 AND 3；remaining：nationkey + regionkey ≥ 4。</desc><defs>
 <marker id="arr-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#657386" /></marker>
 <marker id="arr-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#4078bd" /></marker>
 <marker id="arr-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#39826d" /></marker>
 <marker id="arr-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8d76b7" /></marker>
 <marker id="arr-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ac9c76" /></marker>
 <marker id="arr-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#a95f64" /></marker>
-</defs><rect width="1280" height="910" fill="white" stroke="none" />
+</defs><rect width="1280" height="871" fill="white" stroke="none" />
 <text x="48" y="58" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="30" fill="#1f2d3d" font-weight="600" text-anchor="start">主例：一批数据从扫描到最终输出</text>
 <text x="48" y="94" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">ds 常量已通过；nationkey BETWEEN 0 AND 3；remaining：nationkey + regionkey ≥ 4。</text>
-<line x1="48" y1="118" x2="1232" y2="118" stroke="#dce3ea" stroke-width="1.6" />
-<rect x="48" y="140" width="34" height="34" rx="17" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
+<line x1="48" y1="118" x2="1232" y2="118" stroke="#dce3ea" stroke-width="1.85" />
+<rect x="48" y="140" width="34" height="34" rx="17" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.55" />
 <text x="65" y="166" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#326cae" font-weight="600" text-anchor="middle">1</text>
 <text x="96" y="166" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="24" fill="#326cae" font-weight="600" text-anchor="start">Parquet reader 扫描 11 行</text>
 <text x="48" y="224" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#1f2d3d" font-weight="400" text-anchor="start">nationkey range</text>
-<rect x="340" y="194" width="170" height="53" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
+<rect x="340" y="194" width="170" height="53" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.55" />
 <text x="425.0" y="227.5" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#326cae" font-weight="400" text-anchor="middle">0</text>
-<rect x="515" y="194" width="170" height="53" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
+<rect x="515" y="194" width="170" height="53" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.55" />
 <text x="600.0" y="227.5" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#326cae" font-weight="400" text-anchor="middle">1</text>
-<rect x="690" y="194" width="170" height="53" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
+<rect x="690" y="194" width="170" height="53" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.55" />
 <text x="775.0" y="227.5" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#326cae" font-weight="400" text-anchor="middle">2</text>
-<rect x="865" y="194" width="170" height="53" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
+<rect x="865" y="194" width="170" height="53" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.55" />
 <text x="950.0" y="227.5" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#326cae" font-weight="400" text-anchor="middle">3</text>
 <text x="48" y="282" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#1f2d3d" font-weight="400" text-anchor="start">regionkey（按需加载）</text>
-<rect x="340" y="252" width="170" height="53" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4" />
+<rect x="340" y="252" width="170" height="53" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.55" />
 <text x="425.0" y="285.5" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#2e7963" font-weight="400" text-anchor="middle">0</text>
-<rect x="515" y="252" width="170" height="53" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4" />
+<rect x="515" y="252" width="170" height="53" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.55" />
 <text x="600.0" y="285.5" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#2e7963" font-weight="400" text-anchor="middle">1</text>
-<rect x="690" y="252" width="170" height="53" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4" />
+<rect x="690" y="252" width="170" height="53" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.55" />
 <text x="775.0" y="285.5" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#2e7963" font-weight="400" text-anchor="middle">1</text>
-<rect x="865" y="252" width="170" height="53" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4" />
+<rect x="865" y="252" width="170" height="53" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.55" />
 <text x="950.0" y="285.5" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#2e7963" font-weight="400" text-anchor="middle">1</text>
-<rect x="48" y="353" width="34" height="34" rx="17" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4" />
+<rect x="48" y="353" width="34" height="34" rx="17" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.55" />
 <text x="65" y="379" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#65537f" font-weight="600" text-anchor="middle">2</text>
 <text x="96" y="379" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="24" fill="#65537f" font-weight="600" text-anchor="start">ExprSet 在 4 行内部 RowVector 上求值</text>
 <text x="48" y="439" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#1f2d3d" font-weight="400" text-anchor="start">nationkey + regionkey</text>
-<rect x="340" y="409" width="170" height="53" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4" />
+<rect x="340" y="409" width="170" height="53" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.55" />
 <text x="425.0" y="442.5" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#877951" font-weight="400" text-anchor="middle">0</text>
-<rect x="515" y="409" width="170" height="53" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4" />
+<rect x="515" y="409" width="170" height="53" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.55" />
 <text x="600.0" y="442.5" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#877951" font-weight="400" text-anchor="middle">2</text>
-<rect x="690" y="409" width="170" height="53" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4" />
+<rect x="690" y="409" width="170" height="53" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.55" />
 <text x="775.0" y="442.5" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#877951" font-weight="400" text-anchor="middle">3</text>
-<rect x="865" y="409" width="170" height="53" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4" />
+<rect x="865" y="409" width="170" height="53" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.55" />
 <text x="950.0" y="442.5" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#2e7963" font-weight="400" text-anchor="middle">4</text>
 <text x="48" y="511" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#1f2d3d" font-weight="400" text-anchor="start">通过的逻辑位置</text>
-<rect x="340" y="481" width="170" height="53" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4" />
+<rect x="340" y="481" width="170" height="53" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.55" />
 <text x="425.0" y="514.5" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#65537f" font-weight="400" text-anchor="middle">3</text>
-<polyline points="950,462 950,586" fill="none" stroke="#39826d" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-green)" />
+<polyline points="950,462 950,586" fill="none" stroke="#39826d" stroke-width="1.85" stroke-dasharray="7 5" marker-end="url(#arr-green)" />
 <text x="981" y="532" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="24" fill="#2e7963" font-weight="400" text-anchor="start">≥ 4</text>
-<rect x="48" y="578" width="34" height="34" rx="17" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4" />
+<rect x="48" y="578" width="34" height="34" rx="17" fill="#f0f7f3" stroke="#39826d" stroke-width="1.55" />
 <text x="65" y="604" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#2e7963" font-weight="600" text-anchor="middle">3</text>
 <text x="96" y="604" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="24" fill="#2e7963" font-weight="600" text-anchor="start">返回 SQL 列，payload 只需原 batch row 3</text>
 <g class="card">
 <rect x="48" y="643" width="350" height="127" rx="6" fill="white" stroke="none" stroke-width="1.4" />
-<line x1="48" y1="643" x2="398.0" y2="643" stroke="#dce3ea" stroke-width="1.5" /><text x="68" y="677" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#2e7963" font-weight="600" text-anchor="start">country</text>
+<line x1="48" y1="643" x2="398.0" y2="643" stroke="#dce3ea" stroke-width="1.85" /><text x="68" y="677" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#2e7963" font-weight="600" text-anchor="start">country</text>
 <text x="68" y="711" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">loader：outputRows[3] = 3</text>
 <text x="68" y="740" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">得到 CANADA</text>
 </g>
 <g class="card">
 <rect x="465" y="643" width="350" height="127" rx="6" fill="white" stroke="none" stroke-width="1.4" />
-<line x1="465" y1="643" x2="815.0" y2="643" stroke="#dce3ea" stroke-width="1.5" /><text x="485" y="677" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#2e7963" font-weight="600" text-anchor="start">comment</text>
+<line x1="465" y1="643" x2="815.0" y2="643" stroke="#dce3ea" stroke-width="1.85" /><text x="485" y="677" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#2e7963" font-weight="600" text-anchor="start">comment</text>
 <text x="485" y="711" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">与 country 使用相同行映射</text>
 <text x="485" y="740" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">加载 CANADA 的 comment</text>
 </g>
 <g class="card">
 <rect x="882" y="643" width="350" height="127" rx="6" fill="white" stroke="none" stroke-width="1.4" />
-<line x1="882" y1="643" x2="1232.0" y2="643" stroke="#dce3ea" stroke-width="1.5" /><text x="902" y="677" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#877951" font-weight="600" text-anchor="start">ds</text>
+<line x1="882" y1="643" x2="1232.0" y2="643" stroke="#dce3ea" stroke-width="1.85" /><text x="902" y="677" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#877951" font-weight="600" text-anchor="start">ds</text>
 <text x="902" y="711" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">ConstantVector</text>
 <text x="902" y="740" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">2026-09-01</text>
 </g>
-<line x1="48" y1="838" x2="1232" y2="838" stroke="#dce3ea" stroke-width="1.6" />
-<text x="48" y="872" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">rowsScanned = 11；reader result.size = 4；FileDataSource result.size = 1。三者描述不同阶段。</text>
+<line x1="48" y1="800.7463" x2="1232" y2="800.7463" stroke="#dce3ea" stroke-width="1.85" />
+<text x="48" y="833" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">rowsScanned = 11；reader result.size = 4；FileDataSource result.size = 1。三者描述不同阶段。</text>
 </svg>

@@ -1,50 +1,50 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="820" viewBox="0 0 1280 820" role="img"><title>ScanSpec：查询要求与文件事实的汇合点</title><desc>它同时描述 projection、filter、constant、channel、reader subscript 和自适应反馈。</desc><defs>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="659" viewBox="0 0 1280 659" role="img"><title>ScanSpec：查询要求与文件事实的汇合点</title><desc>它同时描述 projection、filter、constant、channel、reader subscript 和自适应反馈。</desc><defs>
 <marker id="arr-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#657386" /></marker>
 <marker id="arr-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#4078bd" /></marker>
 <marker id="arr-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#39826d" /></marker>
 <marker id="arr-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8d76b7" /></marker>
 <marker id="arr-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ac9c76" /></marker>
 <marker id="arr-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#a95f64" /></marker>
-</defs><rect width="1280" height="820" fill="white" stroke="none" />
+</defs><rect width="1280" height="660" fill="white" stroke="none" />
 <text x="48" y="58" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="30" fill="#1f2d3d" font-weight="600" text-anchor="start">ScanSpec：查询要求与文件事实的汇合点</text>
 <text x="48" y="94" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">它同时描述 projection、filter、constant、channel、reader subscript 和自适应反馈。</text>
-<line x1="48" y1="118" x2="1232" y2="118" stroke="#dce3ea" stroke-width="1.6" />
+<line x1="48" y1="118" x2="1232" y2="118" stroke="#dce3ea" stroke-width="1.85" />
 <g class="card">
 <rect x="48" y="153" width="348" height="122" rx="6" fill="white" stroke="none" stroke-width="1.4" />
-<line x1="48" y1="153" x2="396.0" y2="153" stroke="#dce3ea" stroke-width="1.5" /><text x="68" y="187" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#326cae" font-weight="600" text-anchor="start">输出与 subfields</text>
+<line x1="48" y1="153" x2="396.0" y2="153" stroke="#dce3ea" stroke-width="1.85" /><text x="68" y="187" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#326cae" font-weight="600" text-anchor="start">输出与 subfields</text>
 <text x="68" y="221" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">assignments → 实际列名</text>
 <text x="68" y="250" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">SELECT 与表达式共同需要的字段</text>
 </g>
 <g class="card">
 <rect x="466" y="153" width="348" height="122" rx="6" fill="white" stroke="none" stroke-width="1.4" />
-<line x1="466" y1="153" x2="814.0" y2="153" stroke="#dce3ea" stroke-width="1.5" /><text x="486" y="187" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#65537f" font-weight="600" text-anchor="start">可下推 filter</text>
+<line x1="466" y1="153" x2="814.0" y2="153" stroke="#dce3ea" stroke-width="1.85" /><text x="486" y="187" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#65537f" font-weight="600" text-anchor="start">可下推 filter</text>
 <text x="486" y="221" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">范围 / null / 可表示的 OR</text>
 <text x="486" y="250" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">未提取部分编译成 ExprSet</text>
 </g>
 <g class="card">
 <rect x="884" y="153" width="348" height="122" rx="6" fill="white" stroke="none" stroke-width="1.4" />
-<line x1="884" y1="153" x2="1232.0" y2="153" stroke="#dce3ea" stroke-width="1.5" /><text x="904" y="187" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#877951" font-weight="600" text-anchor="start">当前 split</text>
+<line x1="884" y1="153" x2="1232.0" y2="153" stroke="#dce3ea" stroke-width="1.85" /><text x="904" y="187" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#877951" font-weight="600" text-anchor="start">当前 split</text>
 <text x="904" y="221" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">分区值、info columns</text>
 <text x="904" y="250" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">文件中存在 / 缺失的字段</text>
 </g>
 <g class="card">
-<rect x="318" y="386" width="644" height="182" rx="6" fill="white" stroke="none" stroke-width="1.4" />
-<line x1="318" y1="386" x2="962.0" y2="386" stroke="#dce3ea" stroke-width="1.5" /><text x="338" y="420" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="24" fill="#2e7963" font-weight="600" text-anchor="start">root ScanSpec</text>
-<text x="338" y="454" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">name / comment：projectOut，等待 payload</text>
-<text x="338" y="483" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">nationkey：range filter + 保留值；regionkey：内部输出</text>
-<text x="338" y="512" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">ds：partition constant + filter</text>
+<rect x="318" y="310" width="644" height="150.5" rx="6" fill="white" stroke="none" stroke-width="1.4" />
+<line x1="318" y1="310" x2="962.0" y2="310" stroke="#dce3ea" stroke-width="1.85" /><text x="338" y="344" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="24" fill="#2e7963" font-weight="600" text-anchor="start">root ScanSpec</text>
+<text x="338" y="378" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">name / comment：projectOut，等待 payload</text>
+<text x="338" y="407" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">nationkey：range filter + 保留值；regionkey：内部输出</text>
+<text x="338" y="436" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">ds：partition constant + filter</text>
 </g>
-<polyline points="222,275 222,329 640,329 640,386" fill="none" stroke="#4078bd" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-blue)" />
-<polyline points="640,275 640,329 640,329 640,386" fill="none" stroke="#8d76b7" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-purple)" />
-<polyline points="1058,275 1058,329 640,329 640,386" fill="none" stroke="#ac9c76" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-warm)" />
+<polyline points="222,275 222,292.4615 640,292.4615 640,310" fill="none" stroke="#4078bd" stroke-width="1.85" stroke-dasharray="7 5" marker-end="url(#arr-blue)" />
+<polyline points="640,275 640,292.4615 640,292.4615 640,310" fill="none" stroke="#8d76b7" stroke-width="1.85" stroke-dasharray="7 5" marker-end="url(#arr-purple)" />
+<polyline points="1058,275 1058,292.4615 640,292.4615 640,310" fill="none" stroke="#ac9c76" stroke-width="1.85" stroke-dasharray="7 5" marker-end="url(#arr-warm)" />
 <g class="card">
-<rect x="48" y="642" width="550" height="80" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4" />
-<text x="68" y="676" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#65537f" font-weight="600" text-anchor="start">不在 readerOutputType 的纯过滤列</text>
+<rect x="48" y="482" width="550" height="80" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.55" />
+<text x="68" y="516" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#65537f" font-weight="600" text-anchor="start">不在 readerOutputType 的纯过滤列</text>
 </g>
 <g class="card">
-<rect x="680" y="642" width="550" height="80" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4" />
-<text x="700" y="676" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#877951" font-weight="600" text-anchor="start">无需真实文件 stream 的常量列</text>
+<rect x="680" y="482" width="550" height="80" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.55" />
+<text x="700" y="516" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#877951" font-weight="600" text-anchor="start">无需真实文件 stream 的常量列</text>
 </g>
-<line x1="48" y1="748" x2="1232" y2="748" stroke="#dce3ea" stroke-width="1.6" />
-<text x="48" y="782" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">makeScanSpec 先建投影字段，再添加 filter-only 字段；split 适配后清除过期的常量与缓存。</text>
+<line x1="48" y1="588" x2="1232" y2="588" stroke="#dce3ea" stroke-width="1.85" />
+<text x="48" y="622" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">makeScanSpec 先建投影字段，再添加 filter-only 字段；split 适配后清除过期的常量与缓存。</text>
 </svg>

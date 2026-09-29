@@ -1,75 +1,75 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="850" viewBox="0 0 1280 850" role="img"><title>同一逻辑结构，三棵不同的树</title><desc>例：ROW(c0 BIGINT, c1 MAP(VARCHAR, DOUBLE))。虚线表示本列树中的 child 关系。</desc><defs>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="813" viewBox="0 0 1280 813" role="img"><title>同一逻辑结构，三棵不同的树</title><desc>例：ROW(c0 BIGINT, c1 MAP(VARCHAR, DOUBLE))。虚线表示本列树中的 child 关系。</desc><defs>
 <marker id="arr-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#657386" /></marker>
 <marker id="arr-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#4078bd" /></marker>
 <marker id="arr-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#39826d" /></marker>
 <marker id="arr-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8d76b7" /></marker>
 <marker id="arr-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ac9c76" /></marker>
 <marker id="arr-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#a95f64" /></marker>
-</defs><rect width="1280" height="850" fill="white" stroke="none" />
+</defs><rect width="1280" height="814" fill="white" stroke="none" />
 <text x="48" y="58" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="30" fill="#1f2d3d" font-weight="600" text-anchor="start">同一逻辑结构，三棵不同的树</text>
 <text x="48" y="94" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">例：ROW(c0 BIGINT, c1 MAP(VARCHAR, DOUBLE))。虚线表示本列树中的 child 关系。</text>
-<line x1="48" y1="118" x2="1232" y2="118" stroke="#dce3ea" stroke-width="1.6" />
+<line x1="48" y1="118" x2="1232" y2="118" stroke="#dce3ea" stroke-width="1.85" />
 <text x="48" y="165" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="26" fill="#326cae" font-weight="600" text-anchor="start">Velox Type</text>
 <g class="card">
-<rect x="48" y="205" width="342" height="85" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
+<rect x="48" y="205" width="342" height="85" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.55" />
 <text x="68" y="239" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#326cae" font-weight="600" text-anchor="start">ROW</text>
 </g>
 <g class="card">
-<rect x="48" y="362" width="342" height="85" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
-<text x="68" y="396" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#326cae" font-weight="600" text-anchor="start">c0 · BIGINT</text>
+<rect x="48" y="326" width="342" height="85" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.55" />
+<text x="68" y="360" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#326cae" font-weight="600" text-anchor="start">c0 · BIGINT</text>
 </g>
 <g class="card">
-<rect x="48" y="502" width="342" height="85" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
-<text x="68" y="536" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#326cae" font-weight="600" text-anchor="start">c1 · MAP</text>
+<rect x="48" y="466" width="342" height="85" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.55" />
+<text x="68" y="500" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#326cae" font-weight="600" text-anchor="start">c1 · MAP</text>
 </g>
-<polyline points="390,247 417,247 417,404 390,404" fill="none" stroke="#4078bd" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-blue)" />
-<polyline points="417,404 417,545 390,545" fill="none" stroke="#4078bd" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-blue)" />
-<polyline points="218,587 218,633" fill="none" stroke="#4078bd" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-blue)" />
+<polyline points="390,247 417,247 417,368 390,368" fill="none" stroke="#4078bd" stroke-width="1.85" stroke-dasharray="7 5" marker-end="url(#arr-blue)" />
+<polyline points="417,368 417,509 390,509" fill="none" stroke="#4078bd" stroke-width="1.85" stroke-dasharray="7 5" marker-end="url(#arr-blue)" />
+<polyline points="218,551 218,597" fill="none" stroke="#4078bd" stroke-width="1.85" stroke-dasharray="7 5" marker-end="url(#arr-blue)" />
 <g class="card">
-<rect x="48" y="633" width="342" height="100" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
-<text x="68" y="667" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="20" fill="#326cae" font-weight="600" text-anchor="start">VARCHAR / DOUBLE</text>
+<rect x="48" y="597" width="342" height="100" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.55" />
+<text x="68" y="631" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="20" fill="#326cae" font-weight="600" text-anchor="start">VARCHAR / DOUBLE</text>
 </g>
 <text x="468" y="165" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="26" fill="#2e7963" font-weight="600" text-anchor="start">Vector 表示</text>
 <g class="card">
-<rect x="468" y="205" width="342" height="85" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4" />
+<rect x="468" y="205" width="342" height="85" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.55" />
 <text x="488" y="239" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#2e7963" font-weight="600" text-anchor="start">RowVector</text>
 </g>
 <g class="card">
-<rect x="468" y="362" width="342" height="85" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4" />
-<text x="488" y="396" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#2e7963" font-weight="600" text-anchor="start">c0 · Flat / Lazy</text>
+<rect x="468" y="326" width="342" height="85" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.55" />
+<text x="488" y="360" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#2e7963" font-weight="600" text-anchor="start">c0 · Flat / Lazy</text>
 </g>
 <g class="card">
-<rect x="468" y="502" width="342" height="85" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4" />
-<text x="488" y="536" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#2e7963" font-weight="600" text-anchor="start">MapVector</text>
+<rect x="468" y="466" width="342" height="85" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.55" />
+<text x="488" y="500" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#2e7963" font-weight="600" text-anchor="start">MapVector</text>
 </g>
-<polyline points="810,247 837,247 837,404 810,404" fill="none" stroke="#39826d" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-green)" />
-<polyline points="837,404 837,545 810,545" fill="none" stroke="#39826d" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-green)" />
-<polyline points="638,587 638,633" fill="none" stroke="#39826d" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-green)" />
+<polyline points="810,247 837,247 837,368 810,368" fill="none" stroke="#39826d" stroke-width="1.85" stroke-dasharray="7 5" marker-end="url(#arr-green)" />
+<polyline points="837,368 837,509 810,509" fill="none" stroke="#39826d" stroke-width="1.85" stroke-dasharray="7 5" marker-end="url(#arr-green)" />
+<polyline points="638,551 638,597" fill="none" stroke="#39826d" stroke-width="1.85" stroke-dasharray="7 5" marker-end="url(#arr-green)" />
 <g class="card">
-<rect x="468" y="633" width="342" height="100" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4" />
-<text x="488" y="667" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="20" fill="#2e7963" font-weight="600" text-anchor="start">keys / values vectors</text>
-<text x="488" y="701" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">offsets / sizes / nulls 在 MapVector</text>
+<rect x="468" y="597" width="342" height="100" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.55" />
+<text x="488" y="631" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="20" fill="#2e7963" font-weight="600" text-anchor="start">keys / values vectors</text>
+<text x="488" y="665" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">offsets / sizes / nulls 在 MapVector</text>
 </g>
 <text x="888" y="165" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="26" fill="#65537f" font-weight="600" text-anchor="start">ColumnReader</text>
 <g class="card">
-<rect x="888" y="205" width="342" height="85" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4" />
+<rect x="888" y="205" width="342" height="85" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.55" />
 <text x="908" y="239" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#65537f" font-weight="600" text-anchor="start">StructColumnReader</text>
 </g>
 <g class="card">
-<rect x="888" y="362" width="342" height="85" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4" />
-<text x="908" y="396" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#65537f" font-weight="600" text-anchor="start">IntegerColumnReader</text>
+<rect x="888" y="326" width="342" height="85" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.55" />
+<text x="908" y="360" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#65537f" font-weight="600" text-anchor="start">IntegerColumnReader</text>
 </g>
 <g class="card">
-<rect x="888" y="502" width="342" height="85" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4" />
-<text x="908" y="536" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#65537f" font-weight="600" text-anchor="start">MapColumnReader</text>
+<rect x="888" y="466" width="342" height="85" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.55" />
+<text x="908" y="500" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#65537f" font-weight="600" text-anchor="start">MapColumnReader</text>
 </g>
-<polyline points="1230,247 1257,247 1257,404 1230,404" fill="none" stroke="#8d76b7" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-purple)" />
-<polyline points="1257,404 1257,545 1230,545" fill="none" stroke="#8d76b7" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-purple)" />
-<polyline points="1058,587 1058,633" fill="none" stroke="#8d76b7" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-purple)" />
+<polyline points="1230,247 1257,247 1257,368 1230,368" fill="none" stroke="#8d76b7" stroke-width="1.85" stroke-dasharray="7 5" marker-end="url(#arr-purple)" />
+<polyline points="1257,368 1257,509 1230,509" fill="none" stroke="#8d76b7" stroke-width="1.85" stroke-dasharray="7 5" marker-end="url(#arr-purple)" />
+<polyline points="1058,551 1058,597" fill="none" stroke="#8d76b7" stroke-width="1.85" stroke-dasharray="7 5" marker-end="url(#arr-purple)" />
 <g class="card">
-<rect x="888" y="633" width="342" height="100" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4" />
-<text x="908" y="667" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="20" fill="#65537f" font-weight="600" text-anchor="start">String / FloatingPoint</text>
+<rect x="888" y="597" width="342" height="100" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.55" />
+<text x="908" y="631" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="20" fill="#65537f" font-weight="600" text-anchor="start">String / FloatingPoint</text>
 </g>
-<line x1="48" y1="778" x2="1232" y2="778" stroke="#dce3ea" stroke-width="1.6" />
-<text x="48" y="812" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">Type 是 schema；Vector 是数据与编码；reader 保存读取状态。MAP 的 key/value 是叶子，但 MAP 本身也是 Vector。</text>
+<line x1="48" y1="742" x2="1232" y2="742" stroke="#dce3ea" stroke-width="1.85" />
+<text x="48" y="776" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">Type 是 schema；Vector 是数据与编码；reader 保存读取状态。MAP 的 key/value 是叶子，但 MAP 本身也是 Vector。</text>
 </svg>

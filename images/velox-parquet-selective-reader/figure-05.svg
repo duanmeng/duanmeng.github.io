@@ -1,49 +1,49 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="730" viewBox="0 0 1280 730" role="img"><title>Data Page V1 / V2：压缩边界不同</title><desc>PageHeader 在页体之外；levels 和 encoded values 不能混为一个区域。</desc><defs>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="682" viewBox="0 0 1280 682" role="img"><title>Data Page V1 / V2：压缩边界不同</title><desc>PageHeader 在页体之外；levels 和 encoded values 不能混为一个区域。</desc><defs>
 <marker id="arr-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#657386" /></marker>
 <marker id="arr-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#4078bd" /></marker>
 <marker id="arr-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#39826d" /></marker>
 <marker id="arr-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8d76b7" /></marker>
 <marker id="arr-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ac9c76" /></marker>
 <marker id="arr-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#a95f64" /></marker>
-</defs><rect width="1280" height="730" fill="white" stroke="none" />
+</defs><rect width="1280" height="684" fill="white" stroke="none" />
 <text x="48" y="58" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="30" fill="#1f2d3d" font-weight="600" text-anchor="start">Data Page V1 / V2：压缩边界不同</text>
 <text x="48" y="94" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">PageHeader 在页体之外；levels 和 encoded values 不能混为一个区域。</text>
-<line x1="48" y1="118" x2="1232" y2="118" stroke="#dce3ea" stroke-width="1.6" />
-<rect x="48" y="139" width="34" height="34" rx="17" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
+<line x1="48" y1="118" x2="1232" y2="118" stroke="#dce3ea" stroke-width="1.85" />
+<rect x="48" y="139" width="34" height="34" rx="17" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.55" />
 <text x="65" y="165" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#326cae" font-weight="600" text-anchor="middle">1</text>
 <text x="96" y="165" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="24" fill="#326cae" font-weight="600" text-anchor="start">V1：启用 codec 时整体压缩页体</text>
 <g class="card">
-<rect x="48" y="201" width="230" height="120" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4" />
+<rect x="48" y="201" width="230" height="120" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.55" />
 <text x="68" y="235" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#877951" font-weight="600" text-anchor="start">PageHeader</text>
 <text x="68" y="269" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">变长 Thrift</text>
 </g>
-<rect x="340" y="201" width="890" height="120" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
+<rect x="340" y="201" width="890" height="120" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.55" />
 <text x="365" y="237" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="20" fill="#326cae" font-weight="600" text-anchor="start">codec( repetition levels | definition levels | encoded values )</text>
 <text x="365" y="279" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="20" fill="#1f2d3d" font-weight="400" text-anchor="start">先得到解压后的页体，才能解释 levels 与 values 的边界</text>
-<polyline points="278,261 340,261" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)" />
-<rect x="48" y="366" width="34" height="34" rx="17" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4" />
+<polyline points="278,261 340,261" fill="none" stroke="#657386" stroke-width="1.85" stroke-dasharray="7 5" marker-end="url(#arr-muted)" />
+<rect x="48" y="366" width="34" height="34" rx="17" fill="#f0f7f3" stroke="#39826d" stroke-width="1.55" />
 <text x="65" y="392" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#2e7963" font-weight="600" text-anchor="middle">2</text>
 <text x="96" y="392" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="24" fill="#2e7963" font-weight="600" text-anchor="start">V2：levels 原样存放，values 单独处理</text>
 <g class="card">
-<rect x="48" y="431" width="230" height="120" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4" />
+<rect x="48" y="431" width="230" height="120" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.55" />
 <text x="68" y="465" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#877951" font-weight="600" text-anchor="start">PageHeader</text>
 <text x="68" y="499" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">显式 RL / DL 字节数</text>
 <text x="68" y="528" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">is_compressed</text>
 </g>
 <g class="card">
-<rect x="340" y="431" width="250" height="120" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4" />
+<rect x="340" y="431" width="250" height="120" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.55" />
 <text x="360" y="465" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#65537f" font-weight="600" text-anchor="start">RL / DL</text>
 <text x="360" y="499" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">未压缩的 levels</text>
 </g>
 <g class="card">
 <rect x="662" y="431" width="568" height="120" rx="6" fill="white" stroke="none" stroke-width="1.4" />
-<line x1="662" y1="431" x2="1230.0" y2="431" stroke="#dce3ea" stroke-width="1.5" /><text x="682" y="465" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#2e7963" font-weight="600" text-anchor="start">encoded values</text>
+<line x1="662" y1="431" x2="1230.0" y2="431" stroke="#dce3ea" stroke-width="1.85" /><text x="682" y="465" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#2e7963" font-weight="600" text-anchor="start">encoded values</text>
 <text x="682" y="499" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">按 is_compressed 决定是否解压</text>
 <text x="682" y="528" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">缺省按 true 处理</text>
 </g>
-<polyline points="278,490 340,490" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)" />
-<polyline points="590,490 662,490" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)" />
-<line x1="48" y1="626" x2="1232" y2="626" stroke="#dce3ea" stroke-width="1.6" />
-<text x="48" y="660" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">page 内只选择两行，通常仍要取得对应压缩块；选择性解码与选择性解压不是同一保证。</text>
-<text x="48" y="691" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">V2 必须校验 levelsSize 不超过 compressed / uncompressed page size。</text>
+<polyline points="278,490 340,490" fill="none" stroke="#657386" stroke-width="1.85" stroke-dasharray="7 5" marker-end="url(#arr-muted)" />
+<polyline points="590,490 662,490" fill="none" stroke="#657386" stroke-width="1.85" stroke-dasharray="7 5" marker-end="url(#arr-muted)" />
+<line x1="48" y1="581.8649" x2="1232" y2="581.8649" stroke="#dce3ea" stroke-width="1.85" />
+<text x="48" y="614" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">page 内只选择两行，通常仍要取得对应压缩块；选择性解码与选择性解压不是同一保证。</text>
+<text x="48" y="645" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">V2 必须校验 levelsSize 不超过 compressed / uncompressed page size。</text>
 </svg>
