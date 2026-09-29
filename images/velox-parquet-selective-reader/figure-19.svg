@@ -1,53 +1,53 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="860" viewBox="0 0 1280 860" role="img"><title>加载结束通知，与数据成功发布分开</title><desc>正常成功 / std::exception 路径；外部 cancel 不是抢占式 I/O 中断。</desc><defs>
-<marker id="arr-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#657386"/></marker>
-<marker id="arr-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#4078bd"/></marker>
-<marker id="arr-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#39826d"/></marker>
-<marker id="arr-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8d76b7"/></marker>
-<marker id="arr-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ac9c76"/></marker>
-<marker id="arr-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#a95f64"/></marker>
-</defs><rect width="1280" height="860" fill="white"/>
+<marker id="arr-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#657386" /></marker>
+<marker id="arr-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#4078bd" /></marker>
+<marker id="arr-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#39826d" /></marker>
+<marker id="arr-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8d76b7" /></marker>
+<marker id="arr-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ac9c76" /></marker>
+<marker id="arr-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#a95f64" /></marker>
+</defs><rect width="1280" height="860" fill="white" stroke="none" />
 <text x="48" y="58" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="30" fill="#1f2d3d" font-weight="600" text-anchor="start">加载结束通知，与数据成功发布分开</text>
 <text x="48" y="94" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">正常成功 / std::exception 路径；外部 cancel 不是抢占式 I/O 中断。</text>
-<line x1="48" y1="118" x2="1232" y2="118" stroke="#dce3ea" stroke-width="1.5"/>
+<line x1="48" y1="118" x2="1232" y2="118" stroke="#dce3ea" stroke-width="1.6" />
 <g class="card">
-<rect x="48" y="178" width="300" height="98" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<rect x="48" y="178" width="300" height="98" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
 <text x="68" y="212" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#326cae" font-weight="600" text-anchor="start">Planned</text>
 <text x="68" y="246" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">尚无人执行</text>
 </g>
 <g class="card">
-<rect x="490" y="178" width="300" height="98" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
+<rect x="490" y="178" width="300" height="98" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4" />
 <text x="510" y="212" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#65537f" font-weight="600" text-anchor="start">Loading</text>
 <text x="510" y="246" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">mutex 下唯一取得者</text>
 </g>
-<polyline points="348,227 490,227" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)"/>
-<text x="367" y="204" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#657386" font-weight="400" text-anchor="start">loadOrFuture</text>
+<polyline points="348,227 490,227" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)" />
+<text x="367" y="204" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#1f2d3d" font-weight="400" text-anchor="start">loadOrFuture</text>
 <g class="card">
-<rect x="220" y="378" width="350" height="110" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<rect x="220" y="378" width="350" height="110" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4" />
 <text x="240" y="412" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#2e7963" font-weight="600" text-anchor="start">Loaded</text>
 <text x="240" y="446" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">loadData 成功返回</text>
 </g>
 <g class="card">
-<rect x="740" y="378" width="420" height="110" rx="6" fill="#fbf3f3" stroke="#a95f64" stroke-width="1.4"/>
+<rect x="740" y="378" width="420" height="110" rx="6" fill="#fbf3f3" stroke="#a95f64" stroke-width="1.4" />
 <text x="760" y="412" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#8d4f54" font-weight="600" text-anchor="start">Cancelled</text>
 <text x="760" y="446" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">loadData 抛出 → 原线程 rethrow</text>
 </g>
-<polyline points="585,276 585,325 395,325 395,378" fill="none" stroke="#39826d" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-green)"/>
-<polyline points="695,276 695,325 950,325 950,378" fill="none" stroke="#a95f64" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-red)"/>
+<polyline points="585,276 585,325 395,325 395,378" fill="none" stroke="#39826d" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-green)" />
+<polyline points="695,276 695,325 950,325 950,378" fill="none" stroke="#a95f64" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-red)" />
 <text x="80" y="551" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#65537f" font-weight="400" text-anchor="start">两条路径都调用 setEndState，并在锁外 setValue(true)</text>
 <g class="card">
-<rect x="48" y="603" width="530" height="115" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
-<text x="68" y="637" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#2e7963" font-weight="600" text-anchor="start">等待者醒来：getData()</text>
+<rect x="48" y="603" width="530" height="115" rx="6" fill="white" stroke="none" stroke-width="1.4" />
+<line x1="48" y1="603" x2="578.0" y2="603" stroke="#dce3ea" stroke-width="1.5" /><text x="68" y="637" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#2e7963" font-weight="600" text-anchor="start">等待者醒来：getData()</text>
 <text x="68" y="671" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">仅 Loaded 可发布完整 buffer</text>
 <text x="68" y="700" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">future ready 本身不代表读取成功</text>
 </g>
 <g class="card">
-<rect x="690" y="603" width="540" height="115" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
-<text x="710" y="637" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#877951" font-weight="600" text-anchor="start">非 Loaded → 空 buffer</text>
+<rect x="690" y="603" width="540" height="115" rx="6" fill="white" stroke="none" stroke-width="1.4" />
+<line x1="690" y1="603" x2="1230.0" y2="603" stroke="#dce3ea" stroke-width="1.5" /><text x="710" y="637" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#877951" font-weight="600" text-anchor="start">非 Loaded → 空 buffer</text>
 <text x="710" y="671" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">DirectInputStream 落到 loadSync</text>
 <text x="710" y="700" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">失败则在消费调用栈抛出</text>
 </g>
-<polyline points="578,660 690,660" fill="none" stroke="#ac9c76" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-warm)"/>
-<line x1="48" y1="756" x2="1232" y2="756" stroke="#dce3ea" stroke-width="1.5"/>
+<polyline points="578,660 690,660" fill="none" stroke="#ac9c76" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-warm)" />
+<line x1="48" y1="756" x2="1232" y2="756" stroke="#dce3ea" stroke-width="1.6" />
 <text x="48" y="790" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">这里不使用 SharedPromise.setException；后台原始异常不会经这个 future 自动传给等待者。</text>
 <text x="48" y="821" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">cancel 后进行中的 loadData 仍可能完成并写入 Loaded；图未把 Cancelled 画成不可离开的绝对终态。</text>
 </svg>

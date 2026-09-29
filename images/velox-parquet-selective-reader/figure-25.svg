@@ -1,66 +1,66 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="1060" viewBox="0 0 1280 1060" role="img"><title>addSplit：同名方法，两个层次</title><desc>生命线表示实现所在类；FileDataSource 与 HiveDataSource 属于同一个 DataSource 实例。</desc><defs>
-<marker id="arr-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#657386"/></marker>
-<marker id="arr-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#4078bd"/></marker>
-<marker id="arr-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#39826d"/></marker>
-<marker id="arr-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8d76b7"/></marker>
-<marker id="arr-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ac9c76"/></marker>
-<marker id="arr-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#a95f64"/></marker>
-</defs><rect width="1280" height="1060" fill="white"/>
+<marker id="arr-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#657386" /></marker>
+<marker id="arr-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#4078bd" /></marker>
+<marker id="arr-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#39826d" /></marker>
+<marker id="arr-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8d76b7" /></marker>
+<marker id="arr-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ac9c76" /></marker>
+<marker id="arr-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#a95f64" /></marker>
+</defs><rect width="1280" height="1060" fill="white" stroke="none" />
 <text x="48" y="58" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="30" fill="#1f2d3d" font-weight="600" text-anchor="start">addSplit：同名方法，两个层次</text>
 <text x="48" y="94" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">生命线表示实现所在类；FileDataSource 与 HiveDataSource 属于同一个 DataSource 实例。</text>
-<line x1="48" y1="118" x2="1232" y2="118" stroke="#dce3ea" stroke-width="1.5"/>
+<line x1="48" y1="118" x2="1232" y2="118" stroke="#dce3ea" stroke-width="1.6" />
 <g class="card">
-<rect x="25" y="150" width="280" height="76" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<rect x="25" y="150" width="280" height="76" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
 <text x="45" y="184" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="20" fill="#326cae" font-weight="600" text-anchor="start">FileDataSource</text>
 </g>
-<line x1="165" y1="226" x2="165" y2="918" stroke="#657386" stroke-width="2.3" stroke-dasharray="7 5"/>
+<line x1="165" y1="226" x2="165" y2="918" stroke="#657386" stroke-width="2.3" stroke-dasharray="7 5" />
 <g class="card">
-<rect x="345" y="150" width="280" height="76" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<rect x="345" y="150" width="280" height="76" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4" />
 <text x="365" y="184" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="20" fill="#2e7963" font-weight="600" text-anchor="start">HiveDataSource</text>
 </g>
-<line x1="485" y1="226" x2="485" y2="918" stroke="#657386" stroke-width="2.3" stroke-dasharray="7 5"/>
+<line x1="485" y1="226" x2="485" y2="918" stroke="#657386" stroke-width="2.3" stroke-dasharray="7 5" />
 <g class="card">
-<rect x="665" y="150" width="280" height="76" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<rect x="665" y="150" width="280" height="76" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4" />
 <text x="685" y="184" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="20" fill="#877951" font-weight="600" text-anchor="start">HiveSplitReader</text>
 </g>
-<line x1="805" y1="226" x2="805" y2="918" stroke="#657386" stroke-width="2.3" stroke-dasharray="7 5"/>
+<line x1="805" y1="226" x2="805" y2="918" stroke="#657386" stroke-width="2.3" stroke-dasharray="7 5" />
 <g class="card">
-<rect x="980" y="150" width="280" height="76" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
+<rect x="980" y="150" width="280" height="76" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4" />
 <text x="1000" y="184" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="20" fill="#65537f" font-weight="600" text-anchor="start">Parquet</text>
 </g>
-<line x1="1120" y1="226" x2="1120" y2="918" stroke="#657386" stroke-width="2.3" stroke-dasharray="7 5"/>
-<polyline points="165,286 485,286" fill="none" stroke="#4078bd" stroke-width="1.8" marker-end="url(#arr-blue)"/>
-<rect x="179" y="253" width="230.29999999999993" height="27" fill="white"/>
+<line x1="1120" y1="226" x2="1120" y2="918" stroke="#657386" stroke-width="2.3" stroke-dasharray="7 5" />
+<polyline points="165,286 485,286" fill="none" stroke="#4078bd" stroke-width="1.8" marker-end="url(#arr-blue)" />
+<rect x="179" y="253" width="230.29999999999993" height="27" fill="white" />
 <text x="183" y="273" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#326cae" font-weight="400" text-anchor="start">createSplitReader()</text>
 <g class="card">
-<rect x="356" y="325" width="257" height="111" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
-<text x="376" y="359" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#2e7963" font-weight="600" text-anchor="start">prepareSplit()</text>
+<rect x="356" y="325" width="257" height="111" rx="6" fill="white" stroke="none" stroke-width="1.4" />
+<line x1="356" y1="325" x2="613.0" y2="325" stroke="#dce3ea" stroke-width="1.5" /><text x="376" y="359" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#2e7963" font-weight="600" text-anchor="start">prepareSplit()</text>
 <text x="376" y="393" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">bucket / rowId</text>
 <text x="376" y="422" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">构造 HiveSplitReader</text>
 </g>
-<polyline points="485,477 165,477" fill="none" stroke="#39826d" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-green)"/>
-<rect x="179" y="444" width="186.19999999999996" height="27" fill="white"/>
+<polyline points="485,477 165,477" fill="none" stroke="#39826d" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-green)" />
+<rect x="179" y="444" width="186.19999999999996" height="27" fill="white" />
 <text x="183" y="464" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#2e7963" font-weight="400" text-anchor="start">返回 splitReader</text>
-<polyline points="165,538 805,538" fill="none" stroke="#4078bd" stroke-width="1.8" marker-end="url(#arr-blue)"/>
-<rect x="179" y="505" width="553.3999999999997" height="27" fill="white"/>
+<polyline points="165,538 805,538" fill="none" stroke="#4078bd" stroke-width="1.8" marker-end="url(#arr-blue)" />
+<rect x="179" y="505" width="553.3999999999997" height="27" fill="white" />
 <text x="183" y="525" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#326cae" font-weight="400" text-anchor="start">configure options；prepareSplit(metadataFilter)</text>
 <g class="card">
-<rect x="681" y="580" width="247" height="83" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<rect x="681" y="580" width="247" height="83" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4" />
 <text x="701" y="614" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#877951" font-weight="600" text-anchor="start">校验合成列 filters</text>
 </g>
-<polyline points="805,701 1120,701" fill="none" stroke="#8d76b7" stroke-width="1.8" marker-end="url(#arr-purple)"/>
-<rect x="819" y="668" width="268.09999999999997" height="27" fill="white"/>
+<polyline points="805,701 1120,701" fill="none" stroke="#8d76b7" stroke-width="1.8" marker-end="url(#arr-purple)" />
+<rect x="819" y="668" width="268.09999999999997" height="27" fill="white" />
 <text x="823" y="688" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#65537f" font-weight="400" text-anchor="start">createReader：读 footer</text>
 <g class="card">
-<rect x="681" y="748" width="247" height="107" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<rect x="681" y="748" width="247" height="107" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4" />
 <text x="701" y="782" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#877951" font-weight="600" text-anchor="start">公共 FileSplitReader</text>
 <text x="701" y="816" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">adaptColumns</text>
 <text x="701" y="845" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">checkIfSplitIsEmpty</text>
 </g>
-<polyline points="805,907 1120,907" fill="none" stroke="#8d76b7" stroke-width="1.8" marker-end="url(#arr-purple)"/>
-<rect x="819" y="874" width="183.49999999999997" height="27" fill="white"/>
+<polyline points="805,907 1120,907" fill="none" stroke="#8d76b7" stroke-width="1.8" marker-end="url(#arr-purple)" />
+<rect x="819" y="874" width="183.49999999999997" height="27" fill="white" />
 <text x="823" y="894" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#65537f" font-weight="400" text-anchor="start">createRowReader</text>
-<line x1="48" y1="956" x2="1232" y2="956" stroke="#dce3ea" stroke-width="1.5"/>
+<line x1="48" y1="956" x2="1232" y2="956" stroke="#dce3ea" stroke-width="1.6" />
 <text x="48" y="990" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">ParquetRowReader 构造时建列树、过滤 RowGroup，并安排第一组输入；prepareSplit 不只是存一份路径。</text>
 <text x="48" y="1021" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">实际 HiveSplitReader 继承 FileSplitReader；图中把 override 与公共步骤画在同一生命线上。</text>
 </svg>

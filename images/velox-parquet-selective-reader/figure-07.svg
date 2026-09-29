@@ -1,87 +1,87 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="930" viewBox="0 0 1280 930" role="img"><title>三个 parent，四个 level entries，两个非空 blockID</title><desc>levels 描述结构；encoded values 只存实际存在的值。</desc><defs>
-<marker id="arr-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#657386"/></marker>
-<marker id="arr-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#4078bd"/></marker>
-<marker id="arr-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#39826d"/></marker>
-<marker id="arr-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8d76b7"/></marker>
-<marker id="arr-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ac9c76"/></marker>
-<marker id="arr-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#a95f64"/></marker>
-</defs><rect width="1280" height="930" fill="white"/>
+<marker id="arr-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#657386" /></marker>
+<marker id="arr-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#4078bd" /></marker>
+<marker id="arr-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#39826d" /></marker>
+<marker id="arr-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8d76b7" /></marker>
+<marker id="arr-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ac9c76" /></marker>
+<marker id="arr-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#a95f64" /></marker>
+</defs><rect width="1280" height="930" fill="white" stroke="none" />
 <text x="48" y="58" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="30" fill="#1f2d3d" font-weight="600" text-anchor="start">三个 parent，四个 level entries，两个非空 blockID</text>
 <text x="48" y="94" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">levels 描述结构；encoded values 只存实际存在的值。</text>
-<line x1="48" y1="118" x2="1232" y2="118" stroke="#dce3ea" stroke-width="1.5"/>
+<line x1="48" y1="118" x2="1232" y2="118" stroke="#dce3ea" stroke-width="1.6" />
 <text x="48" y="161" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#657386" font-weight="400" text-anchor="start">顶层输入</text>
 <g class="card">
-<rect x="48" y="184" width="350" height="110" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<rect x="48" y="184" width="350" height="110" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4" />
 <text x="68" y="218" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#877951" font-weight="600" text-anchor="start">A</text>
 <text x="68" y="252" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">contacts = []</text>
 </g>
 <g class="card">
-<rect x="464" y="184" width="350" height="110" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<rect x="464" y="184" width="350" height="110" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
 <text x="484" y="218" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#326cae" font-weight="600" text-anchor="start">B</text>
 <text x="484" y="252" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">[{n1, null}]</text>
 </g>
 <g class="card">
-<rect x="880" y="184" width="350" height="110" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<rect x="880" y="184" width="350" height="110" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4" />
 <text x="900" y="218" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#2e7963" font-weight="600" text-anchor="start">C</text>
 <text x="900" y="252" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">[{n2, 10}, {n3, 20}]</text>
 </g>
-<text x="48" y="350" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#657386" font-weight="400" text-anchor="start">contacts.blockID 的 level stream</text>
-<rect x="48" y="377" width="220" height="50" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<text x="48" y="350" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#1f2d3d" font-weight="400" text-anchor="start">contacts.blockID 的 level stream</text>
+<rect x="48" y="377" width="220" height="50" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4" />
 <text x="158.0" y="410" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#877951" font-weight="600" text-anchor="middle">parent</text>
-<rect x="300" y="377" width="210" height="50" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<rect x="300" y="377" width="210" height="50" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4" />
 <text x="405.0" y="410" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#877951" font-weight="600" text-anchor="middle">A</text>
-<rect x="535" y="377" width="210" height="50" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<rect x="535" y="377" width="210" height="50" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4" />
 <text x="640.0" y="410" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#877951" font-weight="600" text-anchor="middle">B</text>
-<rect x="770" y="377" width="210" height="50" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<rect x="770" y="377" width="210" height="50" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4" />
 <text x="875.0" y="410" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#877951" font-weight="600" text-anchor="middle">C</text>
-<rect x="1005" y="377" width="225" height="50" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<rect x="1005" y="377" width="225" height="50" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4" />
 <text x="1117.5" y="410" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#877951" font-weight="600" text-anchor="middle">C</text>
-<rect x="48" y="434" width="220" height="50" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
+<rect x="48" y="434" width="220" height="50" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4" />
 <text x="158.0" y="467" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="20" fill="#1f2d3d" font-weight="400" text-anchor="middle">DL</text>
-<rect x="300" y="434" width="210" height="50" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<rect x="300" y="434" width="210" height="50" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
 <text x="405.0" y="467" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="20" fill="#1f2d3d" font-weight="400" text-anchor="middle">0</text>
-<rect x="535" y="434" width="210" height="50" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<rect x="535" y="434" width="210" height="50" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
 <text x="640.0" y="467" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="20" fill="#1f2d3d" font-weight="400" text-anchor="middle">1</text>
-<rect x="770" y="434" width="210" height="50" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<rect x="770" y="434" width="210" height="50" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
 <text x="875.0" y="467" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="20" fill="#1f2d3d" font-weight="400" text-anchor="middle">2</text>
-<rect x="1005" y="434" width="225" height="50" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<rect x="1005" y="434" width="225" height="50" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
 <text x="1117.5" y="467" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="20" fill="#1f2d3d" font-weight="400" text-anchor="middle">2</text>
-<rect x="48" y="492" width="220" height="50" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
+<rect x="48" y="492" width="220" height="50" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4" />
 <text x="158.0" y="525" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="20" fill="#1f2d3d" font-weight="400" text-anchor="middle">RL</text>
-<rect x="300" y="492" width="210" height="50" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<rect x="300" y="492" width="210" height="50" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
 <text x="405.0" y="525" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="20" fill="#1f2d3d" font-weight="400" text-anchor="middle">0</text>
-<rect x="535" y="492" width="210" height="50" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<rect x="535" y="492" width="210" height="50" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
 <text x="640.0" y="525" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="20" fill="#1f2d3d" font-weight="400" text-anchor="middle">0</text>
-<rect x="770" y="492" width="210" height="50" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<rect x="770" y="492" width="210" height="50" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
 <text x="875.0" y="525" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="20" fill="#1f2d3d" font-weight="400" text-anchor="middle">0</text>
-<rect x="1005" y="492" width="225" height="50" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<rect x="1005" y="492" width="225" height="50" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
 <text x="1117.5" y="525" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="20" fill="#1f2d3d" font-weight="400" text-anchor="middle">1</text>
-<rect x="48" y="550" width="220" height="50" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
+<rect x="48" y="550" width="220" height="50" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4" />
 <text x="158.0" y="583" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="20" fill="#1f2d3d" font-weight="400" text-anchor="middle">value</text>
-<rect x="300" y="550" width="210" height="50" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<rect x="300" y="550" width="210" height="50" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
 <text x="405.0" y="583" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="20" fill="#1f2d3d" font-weight="400" text-anchor="middle">无 value</text>
-<rect x="535" y="550" width="210" height="50" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<rect x="535" y="550" width="210" height="50" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
 <text x="640.0" y="583" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="20" fill="#1f2d3d" font-weight="400" text-anchor="middle">无 value</text>
-<rect x="770" y="550" width="210" height="50" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<rect x="770" y="550" width="210" height="50" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
 <text x="875.0" y="583" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="20" fill="#1f2d3d" font-weight="400" text-anchor="middle">10</text>
-<rect x="1005" y="550" width="225" height="50" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<rect x="1005" y="550" width="225" height="50" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
 <text x="1117.5" y="583" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="20" fill="#1f2d3d" font-weight="400" text-anchor="middle">20</text>
-<text x="298" y="644" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#657386" font-weight="400" text-anchor="start">空列表 marker</text>
-<text x="534" y="644" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#657386" font-weight="400" text-anchor="start">字段 null</text>
-<text x="770" y="644" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#657386" font-weight="400" text-anchor="start">新 parent</text>
-<text x="1005" y="644" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#657386" font-weight="400" text-anchor="start">延续 C</text>
+<text x="298" y="644" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#1f2d3d" font-weight="400" text-anchor="start">空列表 marker</text>
+<text x="534" y="644" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#1f2d3d" font-weight="400" text-anchor="start">字段 null</text>
+<text x="770" y="644" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#1f2d3d" font-weight="400" text-anchor="start">新 parent</text>
+<text x="1005" y="644" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#1f2d3d" font-weight="400" text-anchor="start">延续 C</text>
 <g class="card">
-<rect x="48" y="700" width="550" height="120" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
-<text x="68" y="734" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#2e7963" font-weight="600" text-anchor="start">重建 ArrayVector</text>
+<rect x="48" y="700" width="550" height="120" rx="6" fill="white" stroke="none" stroke-width="1.4" />
+<line x1="48" y1="700" x2="598.0" y2="700" stroke="#dce3ea" stroke-width="1.5" /><text x="68" y="734" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#2e7963" font-weight="600" text-anchor="start">重建 ArrayVector</text>
 <text x="68" y="768" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">sizes = [0, 1, 2]</text>
 <text x="68" y="797" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">offsets = [0, 0, 1]</text>
 </g>
 <g class="card">
-<rect x="675" y="700" width="555" height="120" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
-<text x="695" y="734" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#65537f" font-weight="600" text-anchor="start">重建 element vectors</text>
+<rect x="675" y="700" width="555" height="120" rx="6" fill="white" stroke="none" stroke-width="1.4" />
+<line x1="675" y1="700" x2="1230.0" y2="700" stroke="#dce3ea" stroke-width="1.5" /><text x="695" y="734" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#65537f" font-weight="600" text-anchor="start">重建 element vectors</text>
 <text x="695" y="768" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">name = [n1, n2, n3]</text>
 <text x="695" y="797" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">blockID = [null, 10, 20]</text>
 </g>
-<line x1="48" y1="858" x2="1232" y2="858" stroke="#dce3ea" stroke-width="1.5"/>
+<line x1="48" y1="858" x2="1232" y2="858" stroke="#dce3ea" stroke-width="1.6" />
 <text x="48" y="892" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">owner = [A, B, C]；A 的 contacts 是空列表，不是 null list。现代 LIST 的 DL 数字须按自身 schema 重算。</text>
 </svg>

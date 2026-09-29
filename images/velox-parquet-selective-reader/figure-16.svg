@@ -1,72 +1,72 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="780" viewBox="0 0 1280 780" role="img"><title>同一份读取结果，三种内存表示</title><desc>LoadedBuffer 交给 DirectInputStream；MemoryPool 的 allocation page 不等于 Parquet Data Page。</desc><defs>
-<marker id="arr-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#657386"/></marker>
-<marker id="arr-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#4078bd"/></marker>
-<marker id="arr-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#39826d"/></marker>
-<marker id="arr-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8d76b7"/></marker>
-<marker id="arr-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ac9c76"/></marker>
-<marker id="arr-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#a95f64"/></marker>
-</defs><rect width="1280" height="780" fill="white"/>
+<marker id="arr-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#657386" /></marker>
+<marker id="arr-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#4078bd" /></marker>
+<marker id="arr-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#39826d" /></marker>
+<marker id="arr-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8d76b7" /></marker>
+<marker id="arr-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ac9c76" /></marker>
+<marker id="arr-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#a95f64" /></marker>
+</defs><rect width="1280" height="780" fill="white" stroke="none" />
 <text x="48" y="58" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="30" fill="#1f2d3d" font-weight="600" text-anchor="start">同一份读取结果，三种内存表示</text>
 <text x="48" y="94" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">LoadedBuffer 交给 DirectInputStream；MemoryPool 的 allocation page 不等于 Parquet Data Page。</text>
-<line x1="48" y1="118" x2="1232" y2="118" stroke="#dce3ea" stroke-width="1.5"/>
+<line x1="48" y1="118" x2="1232" y2="118" stroke="#dce3ea" stroke-width="1.6" />
 <g class="card">
-<rect x="48" y="165" width="348" height="143" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
-<text x="68" y="199" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#326cae" font-weight="600" text-anchor="start">tinyData</text>
+<rect x="48" y="165" width="348" height="143" rx="6" fill="white" stroke="none" stroke-width="1.4" />
+<line x1="48" y1="165" x2="396.0" y2="165" stroke="#dce3ea" stroke-width="1.5" /><text x="68" y="199" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#326cae" font-weight="600" text-anchor="start">tinyData</text>
 <text x="68" y="233" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">连续小字节数组</text>
 <text x="68" y="262" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">getData 移交数组</text>
 </g>
-<polyline points="222,308 222,373" fill="none" stroke="#4078bd" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-blue)"/>
-<rect x="66" y="378" width="72" height="56" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<polyline points="222,308 222,373" fill="none" stroke="#4078bd" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-blue)" />
+<rect x="66" y="378" width="72" height="56" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
 <text x="102.0" y="413.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#326cae" font-weight="400" text-anchor="middle">b0</text>
-<rect x="143" y="378" width="72" height="56" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<rect x="143" y="378" width="72" height="56" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
 <text x="179.0" y="413.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#326cae" font-weight="400" text-anchor="middle">b1</text>
-<rect x="220" y="378" width="72" height="56" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<rect x="220" y="378" width="72" height="56" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
 <text x="256.0" y="413.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#326cae" font-weight="400" text-anchor="middle">b2</text>
-<rect x="297" y="378" width="72" height="56" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<rect x="297" y="378" width="72" height="56" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
 <text x="333.0" y="413.0" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#326cae" font-weight="400" text-anchor="middle">…</text>
 <g class="card">
-<rect x="48" y="513" width="348" height="119" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
-<text x="68" y="547" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#326cae" font-weight="600" text-anchor="start">DirectInputStream</text>
+<rect x="48" y="513" width="348" height="119" rx="6" fill="white" stroke="none" stroke-width="1.4" />
+<line x1="48" y1="513" x2="396.0" y2="513" stroke="#dce3ea" stroke-width="1.5" /><text x="68" y="547" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#326cae" font-weight="600" text-anchor="start">DirectInputStream</text>
 <text x="68" y="581" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">Next → pointer + size</text>
 <text x="68" y="610" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">跨 run 继续推进</text>
 </g>
-<polyline points="222,439 222,513" fill="none" stroke="#4078bd" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-blue)"/>
+<polyline points="222,439 222,513" fill="none" stroke="#4078bd" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-blue)" />
 <g class="card">
-<rect x="466" y="165" width="348" height="143" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
-<text x="486" y="199" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#2e7963" font-weight="600" text-anchor="start">ownedData</text>
+<rect x="466" y="165" width="348" height="143" rx="6" fill="white" stroke="none" stroke-width="1.4" />
+<line x1="466" y1="165" x2="814.0" y2="165" stroke="#dce3ea" stroke-width="1.5" /><text x="486" y="199" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#2e7963" font-weight="600" text-anchor="start">ownedData</text>
 <text x="486" y="233" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">非连续 allocation pages</text>
 <text x="486" y="262" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">getData 移交 Allocation</text>
 </g>
-<polyline points="640,308 640,373" fill="none" stroke="#39826d" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-green)"/>
-<rect x="481" y="378" width="130" height="60" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<polyline points="640,308 640,373" fill="none" stroke="#39826d" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-green)" />
+<rect x="481" y="378" width="130" height="60" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4" />
 <text x="546" y="417" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#2e7963" font-weight="400" text-anchor="middle">run 0</text>
-<rect x="653" y="378" width="145" height="60" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<rect x="653" y="378" width="145" height="60" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4" />
 <text x="725" y="417" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#2e7963" font-weight="400" text-anchor="middle">run 1</text>
 <g class="card">
-<rect x="466" y="513" width="348" height="119" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
-<text x="486" y="547" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#2e7963" font-weight="600" text-anchor="start">DirectInputStream</text>
+<rect x="466" y="513" width="348" height="119" rx="6" fill="white" stroke="none" stroke-width="1.4" />
+<line x1="466" y1="513" x2="814.0" y2="513" stroke="#dce3ea" stroke-width="1.5" /><text x="486" y="547" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#2e7963" font-weight="600" text-anchor="start">DirectInputStream</text>
 <text x="486" y="581" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">Next → pointer + size</text>
 <text x="486" y="610" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">跨 run 继续推进</text>
 </g>
-<polyline points="640,439 640,513" fill="none" stroke="#39826d" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-green)"/>
+<polyline points="640,439 640,513" fill="none" stroke="#39826d" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-green)" />
 <g class="card">
-<rect x="884" y="165" width="348" height="143" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
-<text x="904" y="199" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#65537f" font-weight="600" text-anchor="start">sharedData</text>
+<rect x="884" y="165" width="348" height="143" rx="6" fill="white" stroke="none" stroke-width="1.4" />
+<line x1="884" y1="165" x2="1232.0" y2="165" stroke="#dce3ea" stroke-width="1.5" /><text x="904" y="199" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#65537f" font-weight="600" text-anchor="start">sharedData</text>
 <text x="904" y="233" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">共享 allocation 中的 slice</text>
 <text x="904" y="262" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">stream 持有 load 保活</text>
 </g>
-<polyline points="1058,308 1058,373" fill="none" stroke="#8d76b7" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-purple)"/>
-<rect x="899" y="378" width="315" height="60" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
-<rect x="974" y="388" width="130" height="40" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<polyline points="1058,308 1058,373" fill="none" stroke="#8d76b7" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-purple)" />
+<rect x="899" y="378" width="315" height="60" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4" />
+<rect x="974" y="388" width="130" height="40" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4" />
 <text x="1039" y="416" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="20" fill="#65537f" font-weight="400" text-anchor="middle">slice</text>
 <g class="card">
-<rect x="884" y="513" width="348" height="119" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
-<text x="904" y="547" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#65537f" font-weight="600" text-anchor="start">DirectInputStream</text>
+<rect x="884" y="513" width="348" height="119" rx="6" fill="white" stroke="none" stroke-width="1.4" />
+<line x1="884" y1="513" x2="1232.0" y2="513" stroke="#dce3ea" stroke-width="1.5" /><text x="904" y="547" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#65537f" font-weight="600" text-anchor="start">DirectInputStream</text>
 <text x="904" y="581" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">Next → pointer + size</text>
 <text x="904" y="610" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">跨 run 继续推进</text>
 </g>
-<polyline points="1058,439 1058,513" fill="none" stroke="#8d76b7" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-purple)"/>
-<line x1="48" y1="676" x2="1232" y2="676" stroke="#dce3ea" stroke-width="1.5"/>
+<polyline points="1058,439 1058,513" fill="none" stroke="#8d76b7" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-purple)" />
+<line x1="48" y1="676" x2="1232" y2="676" stroke="#dce3ea" stroke-width="1.6" />
 <text x="48" y="710" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">shared allocation 由配置和 page-rounding 浪费阈值共同决定，不是所有大 request 都共享。</text>
 <text x="48" y="741" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">duplicate region：shared 路径复用只读 slice；非 shared 路径为消费者准备副本。</text>
 </svg>

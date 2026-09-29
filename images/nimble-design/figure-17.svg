@@ -1,66 +1,66 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1560" height="1230" viewBox="-20 -20 1560 1230">
-  <defs>
-<marker id="connector-arrow-0" markerUnits="userSpaceOnUse" markerWidth="40" markerHeight="40" refX="11.258330249197702" refY="0" orient="auto" overflow="visible"><path fill="#ac9c76" stroke="none" d="M 11.258330249197702 0 L 0 -6.5 L 0 6.5 Z"/></marker>
-<marker id="connector-arrow-1" markerUnits="userSpaceOnUse" markerWidth="40" markerHeight="40" refX="11.258330249197702" refY="0" orient="auto" overflow="visible"><path fill="#ac9c76" stroke="none" d="M 11.258330249197702 0 L 0 -6.5 L 0 6.5 Z"/></marker>
-<marker id="connector-arrow-2" markerUnits="userSpaceOnUse" markerWidth="40" markerHeight="40" refX="11.258330249197702" refY="0" orient="auto" overflow="visible"><path fill="#657386" stroke="none" d="M 11.258330249197702 0 L 0 -6.5 L 0 6.5 Z"/></marker>
-<marker id="connector-arrow-3" markerUnits="userSpaceOnUse" markerWidth="40" markerHeight="40" refX="11.258330249197702" refY="0" orient="auto" overflow="visible"><path fill="#657386" stroke="none" d="M 11.258330249197702 0 L 0 -6.5 L 0 6.5 Z"/></marker>
+<svg xmlns="http://www.w3.org/2000/svg" width="1560" height="1230" viewBox="-20 -20 1560 1230" role="img">
+  <title>文件布局：数据的包含关系 ≠ 元数据的定位关系</title><desc>文件布局：数据的包含关系 ≠ 元数据的定位关系；Nimble 与 Parquet 的对应是近似映射；下方字节顺序仅示意，不按比例。</desc><defs>
+<marker id="connector-arrow-0" markerUnits="userSpaceOnUse" markerWidth="40" markerHeight="40" refX="11.258330249197702" refY="0" orient="auto" overflow="visible"><path fill="#ac9c76" stroke="none" d="M 11.258330249197702 0 L 0 -6.5 L 0 6.5 Z" /></marker>
+<marker id="connector-arrow-1" markerUnits="userSpaceOnUse" markerWidth="40" markerHeight="40" refX="11.258330249197702" refY="0" orient="auto" overflow="visible"><path fill="#ac9c76" stroke="none" d="M 11.258330249197702 0 L 0 -6.5 L 0 6.5 Z" /></marker>
+<marker id="connector-arrow-2" markerUnits="userSpaceOnUse" markerWidth="40" markerHeight="40" refX="11.258330249197702" refY="0" orient="auto" overflow="visible"><path fill="#657386" stroke="none" d="M 11.258330249197702 0 L 0 -6.5 L 0 6.5 Z" /></marker>
+<marker id="connector-arrow-3" markerUnits="userSpaceOnUse" markerWidth="40" markerHeight="40" refX="11.258330249197702" refY="0" orient="auto" overflow="visible"><path fill="#657386" stroke="none" d="M 11.258330249197702 0 L 0 -6.5 L 0 6.5 Z" /></marker>
   </defs>
-<g id="o7:1" transform="translate(0, 0)"><rect x="0" y="0" width="1520" height="1190" fill="#ffffff" stroke="none" stroke-width="0" rx="0" ry="0"/></g>
-<g id="o7:2" transform="translate(12, 12)"><rect x="0" y="0" width="1496" height="1166" fill="#ffffff" stroke="none" stroke-width="1" rx="6" ry="6"/></g>
-<g id="o7:3" transform="translate(13, 13)"><rect x="0" y="0" width="1494" height="93" fill="#ffffff" stroke="none" stroke-width="0" rx="0" ry="0"/></g>
-<g id="c7:1" transform="translate(13, 106)"><path fill="none" stroke="#dce3ea" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M 0 0 L 1494 0"/></g>
-<g id="o7:4" transform="translate(1053, 71)"><ellipse fill="#4078bd" stroke="none" stroke-width="0" cx="7" cy="7" rx="7" ry="7"/></g>
-<g id="o7:5" transform="translate(1153, 71)"><ellipse fill="#ac9c76" stroke="none" stroke-width="0" cx="7" cy="7" rx="7" ry="7"/></g>
-<g id="c7:2" transform="translate(1300, 78)"><path fill="none" stroke="#ac9c76" stroke-width="2" stroke-dasharray="4 4" d="M 0 0 L 40 0"/></g>
-<g id="o7:6" transform="translate(36, 118)"><rect x="0" y="0" width="704" height="960" fill="#ffffff" stroke="#dce3ea" stroke-width="1" rx="6" ry="6"/></g>
-<g id="o7:7" transform="translate(780, 118)"><rect x="0" y="0" width="704" height="960" fill="#ffffff" stroke="#dce3ea" stroke-width="1" rx="6" ry="6"/></g>
-<g id="o7:8" transform="translate(36, 118)"><rect x="0" y="0" width="704" height="58" fill="#f3f7fc" stroke="none" stroke-width="0" rx="6" ry="6"/></g>
-<g id="o7:9" transform="translate(36, 118)"><rect x="0" y="0" width="5" height="58" fill="#4078bd" stroke="none" stroke-width="0" rx="1.5" ry="1.5"/></g>
-<g id="o7:10" transform="translate(780, 118)"><rect x="0" y="0" width="704" height="58" fill="#f0f7f6" stroke="none" stroke-width="0" rx="6" ry="6"/></g>
-<g id="o7:11" transform="translate(780, 118)"><rect x="0" y="0" width="5" height="58" fill="#3e8580" stroke="none" stroke-width="0" rx="1.5" ry="1.5"/></g>
-<g id="o7:12" transform="translate(60, 196)"><rect x="0" y="0" width="656" height="276" fill="#f3f7fc" stroke="#4078bd" stroke-width="1" rx="6" ry="6"/></g>
-<g id="o7:13" transform="translate(60, 196)"><rect x="0" y="0" width="5" height="276" fill="none" stroke="none" stroke-width="0" rx="1.5" ry="1.5"/></g>
-<g id="o7:14" transform="translate(80, 248)"><rect x="0" y="0" width="616" height="92" fill="#ffffff" stroke="#6e95c6" stroke-width="1" rx="6" ry="6"/></g>
-<g id="o7:15" transform="translate(234, 265)"><rect x="0" y="0" width="180" height="52" fill="#ffffff" stroke="none" stroke-width="0" rx="6" ry="6"/></g>
-<g id="o7:16" transform="translate(426, 265)"><rect x="0" y="0" width="250" height="52" fill="#ffffff" stroke="none" stroke-width="0" rx="6" ry="6"/></g>
-<g id="o7:17" transform="translate(80, 350)"><rect x="0" y="0" width="616" height="74" fill="#ffffff" stroke="#6e95c6" stroke-width="1" rx="6" ry="6"/></g>
-<g id="o7:18" transform="translate(234, 362)"><rect x="0" y="0" width="284" height="50" fill="#ffffff" stroke="none" stroke-width="0" rx="6" ry="6"/></g>
-<g id="o7:19" transform="translate(530, 362)"><rect x="0" y="0" width="146" height="50" fill="#ffffff" stroke="none" stroke-width="0" rx="6" ry="6"/></g>
-<g id="o7:20" transform="translate(804, 196)"><rect x="0" y="0" width="656" height="276" fill="#f0f7f6" stroke="#3e8580" stroke-width="1" rx="6" ry="6"/></g>
-<g id="o7:21" transform="translate(804, 196)"><rect x="0" y="0" width="5" height="276" fill="none" stroke="none" stroke-width="0" rx="1.5" ry="1.5"/></g>
-<g id="o7:22" transform="translate(824, 248)"><rect x="0" y="0" width="616" height="176" fill="#ffffff" stroke="#3e8580" stroke-width="1" rx="6" ry="6"/></g>
-<g id="o7:23" transform="translate(842, 300)"><rect x="0" y="0" width="212" height="100" fill="#f0f7f6" stroke="none" stroke-width="0" rx="6" ry="6"/></g>
-<g id="o7:24" transform="translate(1068, 300)"><rect x="0" y="0" width="162" height="100" fill="#e8f4ef" stroke="none" stroke-width="0" rx="6" ry="6"/></g>
-<g id="o7:25" transform="translate(1244, 300)"><rect x="0" y="0" width="176" height="100" fill="#e8f4ef" stroke="none" stroke-width="0" rx="6" ry="6"/></g>
-<g id="o7:26" transform="translate(60, 532)"><rect x="0" y="0" width="166" height="192" fill="#faf7ef" stroke="#ac9c76" stroke-width="1" rx="6" ry="6"/></g>
-<g id="o7:27" transform="translate(60, 532)"><rect x="0" y="0" width="5" height="192" fill="none" stroke="none" stroke-width="0" rx="1.5" ry="1.5"/></g>
-<g id="o7:28" transform="translate(272, 532)"><rect x="0" y="0" width="444" height="80" fill="#faf7ef" stroke="#ac9c76" stroke-width="1" rx="6" ry="6"/></g>
-<g id="o7:29" transform="translate(272, 532)"><rect x="0" y="0" width="5" height="80" fill="none" stroke="none" stroke-width="0" rx="1.5" ry="1.5"/></g>
-<g id="o7:30" transform="translate(272, 628)"><rect x="0" y="0" width="444" height="96" fill="#faf7ef" stroke="#ac9c76" stroke-width="1" rx="6" ry="6"/></g>
-<g id="o7:31" transform="translate(272, 628)"><rect x="0" y="0" width="5" height="96" fill="none" stroke="none" stroke-width="0" rx="1.5" ry="1.5"/></g>
-<g id="o7:32" transform="translate(804, 532)"><rect x="0" y="0" width="656" height="192" fill="#faf7ef" stroke="#ac9c76" stroke-width="1" rx="6" ry="6"/></g>
-<g id="o7:33" transform="translate(804, 532)"><rect x="0" y="0" width="5" height="192" fill="none" stroke="none" stroke-width="0" rx="1.5" ry="1.5"/></g>
-<g id="o7:34" transform="translate(824, 624)"><rect x="0" y="0" width="616" height="80" fill="#ffffff" stroke="#ded5bd" stroke-width="1" rx="6" ry="6"/></g>
-<g id="o7:35" transform="translate(60, 848)"><rect x="0" y="0" width="656" height="64" fill="#f3f7fc" stroke="none" stroke-width="0" rx="6" ry="6"/></g>
-<g id="o7:36" transform="translate(60, 848)"><rect x="0" y="0" width="5" height="64" fill="#4078bd" stroke="none" stroke-width="0" rx="1.5" ry="1.5"/></g>
-<g id="o7:37" transform="translate(60, 946)"><rect x="0" y="0" width="340" height="58" fill="#faf7ef" stroke="#ac9c76" stroke-width="1" rx="6" ry="6"/></g>
-<g id="o7:38" transform="translate(60, 946)"><rect x="0" y="0" width="5" height="58" fill="none" stroke="none" stroke-width="0" rx="1.5" ry="1.5"/></g>
-<g id="o7:39" transform="translate(412, 946)"><rect x="0" y="0" width="304" height="58" fill="#faf7ef" stroke="#ac9c76" stroke-width="1" rx="6" ry="6"/></g>
-<g id="o7:40" transform="translate(412, 946)"><rect x="0" y="0" width="5" height="58" fill="none" stroke="none" stroke-width="0" rx="1.5" ry="1.5"/></g>
-<g id="o7:41" transform="translate(804, 848)"><rect x="0" y="0" width="100" height="64" fill="#e8f4ef" stroke="none" stroke-width="0" rx="6" ry="6"/></g>
-<g id="o7:42" transform="translate(916, 848)"><rect x="0" y="0" width="544" height="64" fill="#f0f7f6" stroke="none" stroke-width="0" rx="6" ry="6"/></g>
-<g id="o7:43" transform="translate(916, 848)"><rect x="0" y="0" width="5" height="64" fill="#3e8580" stroke="none" stroke-width="0" rx="1.5" ry="1.5"/></g>
-<g id="o7:44" transform="translate(804, 946)"><rect x="0" y="0" width="308" height="58" fill="#faf7ef" stroke="#ac9c76" stroke-width="1" rx="6" ry="6"/></g>
-<g id="o7:45" transform="translate(804, 946)"><rect x="0" y="0" width="5" height="58" fill="none" stroke="none" stroke-width="0" rx="1.5" ry="1.5"/></g>
-<g id="o7:46" transform="translate(1124, 946)"><rect x="0" y="0" width="218" height="58" fill="#faf7ef" stroke="#ac9c76" stroke-width="1" rx="6" ry="6"/></g>
-<g id="o7:47" transform="translate(1124, 946)"><rect x="0" y="0" width="5" height="58" fill="none" stroke="none" stroke-width="0" rx="1.5" ry="1.5"/></g>
-<g id="o7:48" transform="translate(1354, 946)"><rect x="0" y="0" width="106" height="58" fill="#e8f4ef" stroke="none" stroke-width="0" rx="6" ry="6"/></g>
-<g id="o7:49" transform="translate(36, 1100)"><rect x="0" y="0" width="1448" height="62" fill="#ffffff" stroke="none" stroke-width="0" rx="6" ry="6"/><line x1="0.0" y1="0.0" x2="1448.0" y2="0.0" stroke="#dce3ea" stroke-width="1" data-style-decoration="summary-divider"/></g>
-<g id="o7:50" transform="translate(36, 1100)"><rect x="0" y="0" width="5" height="62" fill="#657386" stroke="none" stroke-width="0" rx="1.5" ry="1.5"/></g>
-<g id="c7:3" transform="translate(226, 572)"><path fill="none" stroke="#ac9c76" stroke-width="2" stroke-dasharray="4 4" marker-end="url(#connector-arrow-0)" d="M 0 0 L 46 0"/></g>
-<g id="c7:4" transform="translate(226, 676)"><path fill="none" stroke="#ac9c76" stroke-width="2" stroke-dasharray="4 4" marker-end="url(#connector-arrow-1)" d="M 0 0 L 46 0"/></g>
-<g id="c7:5" transform="translate(382, 912)"><path fill="none" stroke="#657386" stroke-width="2" stroke-dasharray="4 4" marker-end="url(#connector-arrow-2)" d="M 0 0 L 0 34"/></g>
-<g id="c7:6" transform="translate(1100, 912)"><path fill="none" stroke="#657386" stroke-width="2" stroke-dasharray="4 4" marker-end="url(#connector-arrow-3)" d="M 0 0 L 0 34"/></g>
+<g id="o7:1" transform="translate(0, 0)"><rect x="0" y="0" width="1520" height="1190" fill="white" stroke="none" stroke-width="0" rx="0" ry="0" /></g>
+<g id="o7:2" transform="translate(12, 12)"><rect x="0" y="0" width="1496" height="1166" fill="white" stroke="none" stroke-width="1" rx="6" ry="6" /></g>
+<g id="o7:3" transform="translate(13, 13)"><rect x="0" y="0" width="1494" height="93" fill="#ffffff" stroke="none" stroke-width="0" rx="0" ry="0" /></g>
+<g id="c7:1" transform="translate(13, 106)"><path fill="none" stroke="#dce3ea" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round" d="M 0 0 L 1494 0" /></g>
+<g id="o7:4" transform="translate(1053, 71)"><ellipse fill="#4078bd" stroke="none" stroke-width="0" cx="7" cy="7" rx="7" ry="7" /></g>
+<g id="o7:5" transform="translate(1153, 71)"><ellipse fill="#ac9c76" stroke="none" stroke-width="0" cx="7" cy="7" rx="7" ry="7" /></g>
+<g id="c7:2" transform="translate(1300, 78)"><path fill="none" stroke="#ac9c76" stroke-width="2.0" stroke-dasharray="4 4" d="M 0 0 L 40 0" /></g>
+<g id="o7:6" transform="translate(36, 118)"><rect x="0" y="0" width="704" height="960" fill="white" stroke="#dce3ea" stroke-width="1.3" rx="6" ry="6" /></g>
+<g id="o7:7" transform="translate(780, 118)"><rect x="0" y="0" width="704" height="960" fill="white" stroke="#dce3ea" stroke-width="1.3" rx="6" ry="6" /></g>
+<g id="o7:8" transform="translate(36, 118)"><rect x="0" y="0" width="704" height="58" fill="#f3f7fc" stroke="none" stroke-width="0" rx="6" ry="6" /></g>
+<g id="o7:9" transform="translate(36, 118)"><rect x="0" y="0" width="5" height="58" fill="none" stroke="none" stroke-width="0" rx="1.5" ry="1.5" /></g>
+<g id="o7:10" transform="translate(780, 118)"><rect x="0" y="0" width="704" height="58" fill="#f0f7f6" stroke="none" stroke-width="0" rx="6" ry="6" /></g>
+<g id="o7:11" transform="translate(780, 118)"><rect x="0" y="0" width="5" height="58" fill="none" stroke="none" stroke-width="0" rx="1.5" ry="1.5" /></g>
+<g id="o7:12" transform="translate(60, 196)"><rect x="0" y="0" width="656" height="276" fill="white" stroke="#4078bd" stroke-width="1.3" rx="6" ry="6" /></g>
+<g id="o7:13" transform="translate(60, 196)"><rect x="0" y="0" width="5" height="276" fill="none" stroke="none" stroke-width="0" rx="1.5" ry="1.5" /></g>
+<g id="o7:14" transform="translate(80, 248)"><rect x="0" y="0" width="616" height="92" fill="white" stroke="#6e95c6" stroke-width="1.3" rx="6" ry="6" /></g>
+<g id="o7:15" transform="translate(234, 265)"><rect x="0" y="0" width="180" height="52" fill="#ffffff" stroke="none" stroke-width="0" rx="6" ry="6" /></g>
+<g id="o7:16" transform="translate(426, 265)"><rect x="0" y="0" width="250" height="52" fill="#ffffff" stroke="none" stroke-width="0" rx="6" ry="6" /></g>
+<g id="o7:17" transform="translate(80, 350)"><rect x="0" y="0" width="616" height="74" fill="#ffffff" stroke="#6e95c6" stroke-width="1.25" rx="6" ry="6" /></g>
+<g id="o7:18" transform="translate(234, 362)"><rect x="0" y="0" width="284" height="50" fill="#ffffff" stroke="none" stroke-width="0" rx="6" ry="6" /></g>
+<g id="o7:19" transform="translate(530, 362)"><rect x="0" y="0" width="146" height="50" fill="#ffffff" stroke="none" stroke-width="0" rx="6" ry="6" /></g>
+<g id="o7:20" transform="translate(804, 196)"><rect x="0" y="0" width="656" height="276" fill="white" stroke="#3e8580" stroke-width="1.3" rx="6" ry="6" /></g>
+<g id="o7:21" transform="translate(804, 196)"><rect x="0" y="0" width="5" height="276" fill="none" stroke="none" stroke-width="0" rx="1.5" ry="1.5" /></g>
+<g id="o7:22" transform="translate(824, 248)"><rect x="0" y="0" width="616" height="176" fill="white" stroke="#3e8580" stroke-width="1.3" rx="6" ry="6" /></g>
+<g id="o7:23" transform="translate(842, 300)"><rect x="0" y="0" width="212" height="100" fill="#f0f7f6" stroke="none" stroke-width="0" rx="6" ry="6" /></g>
+<g id="o7:24" transform="translate(1068, 300)"><rect x="0" y="0" width="162" height="100" fill="#e8f4ef" stroke="none" stroke-width="0" rx="6" ry="6" /></g>
+<g id="o7:25" transform="translate(1244, 300)"><rect x="0" y="0" width="176" height="100" fill="#e8f4ef" stroke="none" stroke-width="0" rx="6" ry="6" /></g>
+<g id="o7:26" transform="translate(60, 532)"><rect x="0" y="0" width="166" height="192" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.25" rx="6" ry="6" /></g>
+<g id="o7:27" transform="translate(60, 532)"><rect x="0" y="0" width="5" height="192" fill="none" stroke="none" stroke-width="0" rx="1.5" ry="1.5" /></g>
+<g id="o7:28" transform="translate(272, 532)"><rect x="0" y="0" width="444" height="80" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.25" rx="6" ry="6" /></g>
+<g id="o7:29" transform="translate(272, 532)"><rect x="0" y="0" width="5" height="80" fill="none" stroke="none" stroke-width="0" rx="1.5" ry="1.5" /></g>
+<g id="o7:30" transform="translate(272, 628)"><rect x="0" y="0" width="444" height="96" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.25" rx="6" ry="6" /></g>
+<g id="o7:31" transform="translate(272, 628)"><rect x="0" y="0" width="5" height="96" fill="none" stroke="none" stroke-width="0" rx="1.5" ry="1.5" /></g>
+<g id="o7:32" transform="translate(804, 532)"><rect x="0" y="0" width="656" height="192" fill="white" stroke="#ac9c76" stroke-width="1.3" rx="6" ry="6" /></g>
+<g id="o7:33" transform="translate(804, 532)"><rect x="0" y="0" width="5" height="192" fill="none" stroke="none" stroke-width="0" rx="1.5" ry="1.5" /></g>
+<g id="o7:34" transform="translate(824, 624)"><rect x="0" y="0" width="616" height="80" fill="#ffffff" stroke="#ded5bd" stroke-width="1.25" rx="6" ry="6" /></g>
+<g id="o7:35" transform="translate(60, 848)"><rect x="0" y="0" width="656" height="64" fill="#f3f7fc" stroke="none" stroke-width="0" rx="6" ry="6" /></g>
+<g id="o7:36" transform="translate(60, 848)"><rect x="0" y="0" width="5" height="64" fill="none" stroke="none" stroke-width="0" rx="1.5" ry="1.5" /></g>
+<g id="o7:37" transform="translate(60, 946)"><rect x="0" y="0" width="340" height="58" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.25" rx="6" ry="6" /></g>
+<g id="o7:38" transform="translate(60, 946)"><rect x="0" y="0" width="5" height="58" fill="none" stroke="none" stroke-width="0" rx="1.5" ry="1.5" /></g>
+<g id="o7:39" transform="translate(412, 946)"><rect x="0" y="0" width="304" height="58" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.25" rx="6" ry="6" /></g>
+<g id="o7:40" transform="translate(412, 946)"><rect x="0" y="0" width="5" height="58" fill="none" stroke="none" stroke-width="0" rx="1.5" ry="1.5" /></g>
+<g id="o7:41" transform="translate(804, 848)"><rect x="0" y="0" width="100" height="64" fill="#e8f4ef" stroke="none" stroke-width="0" rx="6" ry="6" /></g>
+<g id="o7:42" transform="translate(916, 848)"><rect x="0" y="0" width="544" height="64" fill="#f0f7f6" stroke="none" stroke-width="0" rx="6" ry="6" /></g>
+<g id="o7:43" transform="translate(916, 848)"><rect x="0" y="0" width="5" height="64" fill="none" stroke="none" stroke-width="0" rx="1.5" ry="1.5" /></g>
+<g id="o7:44" transform="translate(804, 946)"><rect x="0" y="0" width="308" height="58" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.25" rx="6" ry="6" /></g>
+<g id="o7:45" transform="translate(804, 946)"><rect x="0" y="0" width="5" height="58" fill="none" stroke="none" stroke-width="0" rx="1.5" ry="1.5" /></g>
+<g id="o7:46" transform="translate(1124, 946)"><rect x="0" y="0" width="218" height="58" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.25" rx="6" ry="6" /></g>
+<g id="o7:47" transform="translate(1124, 946)"><rect x="0" y="0" width="5" height="58" fill="none" stroke="none" stroke-width="0" rx="1.5" ry="1.5" /></g>
+<g id="o7:48" transform="translate(1354, 946)"><rect x="0" y="0" width="106" height="58" fill="#e8f4ef" stroke="none" stroke-width="0" rx="6" ry="6" /></g>
+<g id="o7:49" transform="translate(36, 1100)"><rect x="0" y="0" width="1448" height="62" fill="white" stroke="none" stroke-width="0" rx="6" ry="6" /><line x1="0.0" y1="0.0" x2="1448.0" y2="0.0" stroke="#dce3ea" stroke-width="1.6" data-style-decoration="summary-divider" /></g>
+<g id="o7:50" transform="translate(36, 1100)"><rect x="0" y="0" width="5" height="62" fill="none" stroke="none" stroke-width="0" rx="1.5" ry="1.5" /></g>
+<g id="c7:3" transform="translate(226, 572)"><path fill="none" stroke="#ac9c76" stroke-width="2.0" stroke-dasharray="4 4" marker-end="url(#connector-arrow-0)" d="M 0 0 L 46 0" /></g>
+<g id="c7:4" transform="translate(226, 676)"><path fill="none" stroke="#ac9c76" stroke-width="2.0" stroke-dasharray="4 4" marker-end="url(#connector-arrow-1)" d="M 0 0 L 46 0" /></g>
+<g id="c7:5" transform="translate(382, 912)"><path fill="none" stroke="#657386" stroke-width="2.0" stroke-dasharray="4 4" marker-end="url(#connector-arrow-2)" d="M 0 0 L 0 34" /></g>
+<g id="c7:6" transform="translate(1100, 912)"><path fill="none" stroke="#657386" stroke-width="2.0" stroke-dasharray="4 4" marker-end="url(#connector-arrow-3)" d="M 0 0 L 0 34" /></g>
 <g id="a7:1" transform="translate(48, 18.705002)"><text font-size="30" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-weight="bold" fill="#1f2d3d" text-anchor="start" dominant-baseline="alphabetic" x="0"><tspan x="0" y="35.295"><tspan x="0" text-anchor="start">文件布局：数据的包含关系 ≠ 元数据的定位关系</tspan></tspan></text></g>
 <g id="a7:2" transform="translate(48, 67.823)"><text font-size="18" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-weight="normal" fill="#657386" text-anchor="start" dominant-baseline="alphabetic" x="0"><tspan x="0" y="21.177"><tspan x="0" text-anchor="start">Nimble 与 Parquet 的对应是近似映射；下方字节顺序仅示意，不按比例。</tspan></tspan></text></g>
 <g id="a7:3" transform="translate(1078, 64.999504)"><text font-size="17" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-weight="normal" fill="#1f2d3d" text-anchor="start" dominant-baseline="alphabetic" x="0"><tspan x="0" y="20.001"><tspan x="0" text-anchor="start">数据</tspan></tspan></text></g>

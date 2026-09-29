@@ -1,55 +1,55 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="700" viewBox="0 0 1280 700" role="img"><title>延迟物化：selection 必须走进读取接口</title><desc>两种执行顺序的差别，发生在 payload 生成之前。</desc><defs>
-<marker id="arr-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#657386"/></marker>
-<marker id="arr-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#4078bd"/></marker>
-<marker id="arr-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#39826d"/></marker>
-<marker id="arr-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8d76b7"/></marker>
-<marker id="arr-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ac9c76"/></marker>
-<marker id="arr-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#a95f64"/></marker>
-</defs><rect width="1280" height="700" fill="white"/>
+<marker id="arr-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#657386" /></marker>
+<marker id="arr-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#4078bd" /></marker>
+<marker id="arr-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#39826d" /></marker>
+<marker id="arr-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8d76b7" /></marker>
+<marker id="arr-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ac9c76" /></marker>
+<marker id="arr-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#a95f64" /></marker>
+</defs><rect width="1280" height="700" fill="white" stroke="none" />
 <text x="48" y="58" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="30" fill="#1f2d3d" font-weight="600" text-anchor="start">延迟物化：selection 必须走进读取接口</text>
 <text x="48" y="94" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">两种执行顺序的差别，发生在 payload 生成之前。</text>
-<line x1="48" y1="118" x2="1232" y2="118" stroke="#dce3ea" stroke-width="1.5"/>
-<rect x="48" y="141" width="34" height="34" rx="17" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<line x1="48" y1="118" x2="1232" y2="118" stroke="#dce3ea" stroke-width="1.6" />
+<rect x="48" y="141" width="34" height="34" rx="17" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4" />
 <text x="65" y="167" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#877951" font-weight="600" text-anchor="middle">1</text>
 <text x="96" y="167" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="24" fill="#877951" font-weight="600" text-anchor="start">先生成所有列值，再过滤</text>
 <g class="card">
-<rect x="48" y="202" width="310" height="116" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<rect x="48" y="202" width="310" height="116" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4" />
 <text x="68" y="236" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#877951" font-weight="600" text-anchor="start">全部列解码</text>
 <text x="68" y="270" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">predicate + payload</text>
 </g>
 <g class="card">
-<rect x="485" y="202" width="310" height="116" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<rect x="485" y="202" width="310" height="116" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4" />
 <text x="505" y="236" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#877951" font-weight="600" text-anchor="start">执行过滤</text>
 <text x="505" y="270" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">得到 selection</text>
 </g>
 <g class="card">
-<rect x="920" y="202" width="310" height="116" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<rect x="920" y="202" width="310" height="116" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4" />
 <text x="940" y="236" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#877951" font-weight="600" text-anchor="start">压缩结果</text>
 <text x="940" y="270" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">丢弃已生成的无用值</text>
 </g>
-<polyline points="358,260 485,260" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)"/>
-<polyline points="795,260 920,260" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)"/>
-<rect x="48" y="367" width="34" height="34" rx="17" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<polyline points="358,260 485,260" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)" />
+<polyline points="795,260 920,260" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)" />
+<rect x="48" y="367" width="34" height="34" rx="17" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4" />
 <text x="65" y="393" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#2e7963" font-weight="600" text-anchor="middle">2</text>
 <text x="96" y="393" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="24" fill="#2e7963" font-weight="600" text-anchor="start">先求选择，再按需生成 payload</text>
 <g class="card">
-<rect x="48" y="427" width="310" height="116" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<rect x="48" y="427" width="310" height="116" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
 <text x="68" y="461" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#326cae" font-weight="600" text-anchor="start">predicate 列</text>
 <text x="68" y="495" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">读取并过滤</text>
 </g>
 <g class="card">
-<rect x="485" y="427" width="310" height="116" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
+<rect x="485" y="427" width="310" height="116" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4" />
 <text x="505" y="461" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#65537f" font-weight="600" text-anchor="start">RowSet / mask</text>
 <text x="505" y="495" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">把选择传到列 reader</text>
 </g>
 <g class="card">
-<rect x="920" y="427" width="310" height="116" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<rect x="920" y="427" width="310" height="116" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4" />
 <text x="940" y="461" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#2e7963" font-weight="600" text-anchor="start">payload 列</text>
 <text x="940" y="495" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">只物化所需位置</text>
 </g>
-<polyline points="358,485 485,485" fill="none" stroke="#39826d" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-green)"/>
-<polyline points="795,485 920,485" fill="none" stroke="#39826d" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-green)"/>
-<line x1="48" y1="596" x2="1232" y2="596" stroke="#dce3ea" stroke-width="1.5"/>
+<polyline points="358,485 485,485" fill="none" stroke="#39826d" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-green)" />
+<polyline points="795,485 920,485" fill="none" stroke="#39826d" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-green)" />
+<line x1="48" y1="596" x2="1232" y2="596" stroke="#dce3ea" stroke-width="1.6" />
 <text x="48" y="630" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">只有 wrapper 不够：decoder、嵌套层级和 dictionary 都需要理解同一份 selection。</text>
 <text x="48" y="661" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">这里比较值物化顺序；压缩页的读取和解压仍受格式边界约束。</text>
 </svg>

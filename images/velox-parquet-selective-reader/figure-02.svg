@@ -1,56 +1,56 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="780" viewBox="0 0 1280 780" role="img"><title>Reader 与 RowReader：对象的持有关系</title><desc>箭头标注 ownership；共享元数据不等于可以并发消费同一个 reader。</desc><defs>
-<marker id="arr-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#657386"/></marker>
-<marker id="arr-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#4078bd"/></marker>
-<marker id="arr-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#39826d"/></marker>
-<marker id="arr-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8d76b7"/></marker>
-<marker id="arr-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ac9c76"/></marker>
-<marker id="arr-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#a95f64"/></marker>
-</defs><rect width="1280" height="780" fill="white"/>
+<marker id="arr-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#657386" /></marker>
+<marker id="arr-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#4078bd" /></marker>
+<marker id="arr-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#39826d" /></marker>
+<marker id="arr-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8d76b7" /></marker>
+<marker id="arr-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ac9c76" /></marker>
+<marker id="arr-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#a95f64" /></marker>
+</defs><rect width="1280" height="780" fill="white" stroke="none" />
 <text x="48" y="58" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="30" fill="#1f2d3d" font-weight="600" text-anchor="start">Reader 与 RowReader：对象的持有关系</text>
 <text x="48" y="94" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">箭头标注 ownership；共享元数据不等于可以并发消费同一个 reader。</text>
-<line x1="48" y1="118" x2="1232" y2="118" stroke="#dce3ea" stroke-width="1.5"/>
+<line x1="48" y1="118" x2="1232" y2="118" stroke="#dce3ea" stroke-width="1.6" />
 <g class="card">
-<rect x="48" y="152" width="360" height="105" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<rect x="48" y="152" width="360" height="105" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4" />
 <text x="68" y="186" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#877951" font-weight="600" text-anchor="start">HiveSplitReader</text>
 <text x="68" y="220" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">继承 FileSplitReader</text>
 </g>
 <g class="card">
-<rect x="70" y="337" width="320" height="110" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<rect x="70" y="337" width="320" height="110" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
 <text x="90" y="371" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#326cae" font-weight="600" text-anchor="start">ParquetReader</text>
 <text x="90" y="405" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">文件 schema / stats 接口</text>
 </g>
 <g class="card">
-<rect x="485" y="337" width="350" height="110" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<rect x="485" y="337" width="350" height="110" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4" />
 <text x="505" y="371" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#2e7963" font-weight="600" text-anchor="start">ParquetRowReader::Impl</text>
 <text x="505" y="405" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">有效组、组内游标、options</text>
 </g>
 <g class="card">
-<rect x="910" y="337" width="322" height="110" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
+<rect x="910" y="337" width="322" height="110" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4" />
 <text x="930" y="371" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#65537f" font-weight="600" text-anchor="start">ReaderBase</text>
 <text x="930" y="405" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">footer / schema / inputs_</text>
 </g>
-<polyline points="180,257 180,337" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)"/>
-<rect x="54" y="282" width="295.9999999999999" height="27" fill="white"/>
-<text x="58" y="302" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#657386" font-weight="400" text-anchor="start">baseReader_ · unique_ptr</text>
-<polyline points="345,257 660,257 660,337" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)"/>
-<text x="445" y="246" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#657386" font-weight="400" text-anchor="start">baseRowReader_ · unique_ptr</text>
-<polyline points="390,411 430,411 430,490 1070,490 1070,447" fill="none" stroke="#8d76b7" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-purple)"/>
+<polyline points="180,257 180,337" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)" />
+<rect x="54" y="282" width="295.9999999999999" height="27" fill="white" />
+<text x="58" y="302" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#1f2d3d" font-weight="400" text-anchor="start">baseReader_ · unique_ptr</text>
+<polyline points="345,257 660,257 660,337" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)" />
+<text x="445" y="246" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#1f2d3d" font-weight="400" text-anchor="start">baseRowReader_ · unique_ptr</text>
+<polyline points="390,411 430,411 430,490 1070,490 1070,447" fill="none" stroke="#8d76b7" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-purple)" />
 <text x="684" y="515" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#65537f" font-weight="400" text-anchor="start">shared_ptr&lt;ReaderBase&gt;</text>
-<polyline points="835,387 910,387" fill="none" stroke="#8d76b7" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-purple)"/>
+<polyline points="835,387 910,387" fill="none" stroke="#8d76b7" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-purple)" />
 <text x="839" y="318" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#65537f" font-weight="400" text-anchor="start">共享</text>
 <g class="card">
-<rect x="465" y="563" width="390" height="110" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<rect x="465" y="563" width="390" height="110" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4" />
 <text x="485" y="597" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#2e7963" font-weight="600" text-anchor="start">根 StructColumnReader</text>
 <text x="485" y="631" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">unique_ptr&lt;SelectiveColumnReader&gt;</text>
 </g>
 <g class="card">
-<rect x="910" y="563" width="322" height="110" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
+<rect x="910" y="563" width="322" height="110" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4" />
 <text x="930" y="597" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="20" fill="#65537f" font-weight="600" text-anchor="start">leaf readers / ParquetData</text>
 <text x="930" y="631" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">PageReader、stream、decoder</text>
 </g>
-<polyline points="660,447 660,563" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)"/>
-<text x="675" y="548" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#657386" font-weight="400" text-anchor="start">columnReader_</text>
-<polyline points="855,617 910,617" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)"/>
-<line x1="48" y1="708" x2="1232" y2="708" stroke="#dce3ea" stroke-width="1.5"/>
+<polyline points="660,447 660,563" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)" />
+<text x="675" y="548" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#1f2d3d" font-weight="400" text-anchor="start">columnReader_</text>
+<polyline points="855,617 910,617" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)" />
+<line x1="48" y1="708" x2="1232" y2="708" stroke="#dce3ea" stroke-width="1.6" />
 <text x="48" y="742" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">ColumnReader / PageReader 保存可变扫描状态；buffer 的共享寿命与 reader 游标的有效期分别管理。</text>
 </svg>

@@ -1,65 +1,65 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="1080" viewBox="0 0 1280 1080" role="img"><title>AsyncSource 的状态与异常：结果和通知分开</title><desc>实线箭头表示正常状态迁移；虚线箭头表示取消、关闭或异常分支。</desc><defs>
-<marker id="arr-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#657386"/></marker>
-<marker id="arr-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#4078bd"/></marker>
-<marker id="arr-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#39826d"/></marker>
-<marker id="arr-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8d76b7"/></marker>
-<marker id="arr-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ac9c76"/></marker>
-<marker id="arr-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#a95f64"/></marker>
-</defs><rect width="1280" height="1080" fill="white"/>
+<marker id="arr-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#657386" /></marker>
+<marker id="arr-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#4078bd" /></marker>
+<marker id="arr-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#39826d" /></marker>
+<marker id="arr-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8d76b7" /></marker>
+<marker id="arr-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ac9c76" /></marker>
+<marker id="arr-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#a95f64" /></marker>
+</defs><rect width="1280" height="1080" fill="white" stroke="none" />
 <text x="48" y="58" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="30" fill="#1f2d3d" font-weight="600" text-anchor="start">AsyncSource 的状态与异常：结果和通知分开</text>
 <text x="48" y="94" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">实线箭头表示正常状态迁移；虚线箭头表示取消、关闭或异常分支。</text>
-<line x1="48" y1="118" x2="1232" y2="118" stroke="#dce3ea" stroke-width="1.5"/>
+<line x1="48" y1="118" x2="1232" y2="118" stroke="#dce3ea" stroke-width="1.6" />
 <g class="card">
-<rect x="48" y="180" width="290" height="105" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<rect x="48" y="180" width="290" height="105" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
 <text x="68" y="214" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#326cae" font-weight="600" text-anchor="start">Init</text>
 <text x="68" y="248" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">maker 尚未执行</text>
 </g>
 <g class="card">
-<rect x="493" y="180" width="290" height="105" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
+<rect x="493" y="180" width="290" height="105" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4" />
 <text x="513" y="214" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#65537f" font-weight="600" text-anchor="start">Making</text>
 <text x="513" y="248" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">maker 在锁外执行</text>
 </g>
 <g class="card">
-<rect x="942" y="180" width="290" height="105" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<rect x="942" y="180" width="290" height="105" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4" />
 <text x="962" y="214" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#2e7963" font-weight="600" text-anchor="start">Prepared</text>
 <text x="962" y="248" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">item 已保存，可为空</text>
 </g>
-<polyline points="338,233 493,233" fill="none" stroke="#4078bd" stroke-width="1.8" marker-end="url(#arr-blue)"/>
+<polyline points="338,233 493,233" fill="none" stroke="#4078bd" stroke-width="1.8" marker-end="url(#arr-blue)" />
 <text x="342" y="168" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#326cae" font-weight="400" text-anchor="start">prepare / move</text>
-<polyline points="783,233 942,233" fill="none" stroke="#39826d" stroke-width="1.8" marker-end="url(#arr-green)"/>
+<polyline points="783,233 942,233" fill="none" stroke="#39826d" stroke-width="1.8" marker-end="url(#arr-green)" />
 <text x="814" y="168" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#2e7963" font-weight="400" text-anchor="start">成功</text>
 <g class="card">
-<rect x="493" y="432" width="290" height="105" rx="6" fill="#fbf3f3" stroke="#a95f64" stroke-width="1.4"/>
+<rect x="493" y="432" width="290" height="105" rx="6" fill="#fbf3f3" stroke="#a95f64" stroke-width="1.4" />
 <text x="513" y="466" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#8d4f54" font-weight="600" text-anchor="start">Failed</text>
 <text x="513" y="500" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">保存 exception_ptr</text>
 </g>
-<polyline points="638,285 638,432" fill="none" stroke="#a95f64" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-red)"/>
+<polyline points="638,285 638,432" fill="none" stroke="#a95f64" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-red)" />
 <text x="658" y="365" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#8d4f54" font-weight="400" text-anchor="start">catch(std::exception&amp;)</text>
 <g class="card">
-<rect x="48" y="686" width="440" height="128" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<rect x="48" y="686" width="440" height="128" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4" />
 <text x="68" y="720" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#877951" font-weight="600" text-anchor="start">Cancelled</text>
 <text x="68" y="754" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">Init / Prepared 可直接 cancel</text>
 <text x="68" y="784" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">Making 的 cancel() 不改变状态</text>
 </g>
 <g class="card">
-<rect x="792" y="686" width="440" height="128" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<rect x="792" y="686" width="440" height="128" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4" />
 <text x="812" y="720" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#2e7963" font-weight="600" text-anchor="start">Finished</text>
 <text x="812" y="754" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">Prepared 的 move / close</text>
 <text x="812" y="784" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">Init 的 close</text>
 </g>
-<polyline points="88,285 88,686" fill="none" stroke="#ac9c76" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-warm)"/>
-<rect x="104" y="471" width="78.2" height="27" fill="white"/>
+<polyline points="88,285 88,686" fill="none" stroke="#ac9c76" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-warm)" />
+<rect x="104" y="471" width="78.2" height="27" fill="white" />
 <text x="108" y="491" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#877951" font-weight="400" text-anchor="start">cancel</text>
-<polyline points="1195,285 1195,605 270,605 270,686" fill="none" stroke="#ac9c76" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-warm)"/>
-<rect x="1106" y="567" width="78.2" height="27" fill="white"/>
+<polyline points="1195,285 1195,605 270,605 270,686" fill="none" stroke="#ac9c76" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-warm)" />
+<rect x="1106" y="567" width="78.2" height="27" fill="white" />
 <text x="1110" y="587" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#877951" font-weight="400" text-anchor="start">cancel</text>
-<polyline points="1087,285 1087,545 1012,545 1012,686" fill="none" stroke="#39826d" stroke-width="1.8" marker-end="url(#arr-green)"/>
-<rect x="975" y="449" width="148.4" height="27" fill="white"/>
+<polyline points="1087,285 1087,545 1012,545 1012,686" fill="none" stroke="#39826d" stroke-width="1.8" marker-end="url(#arr-green)" />
+<rect x="975" y="449" width="148.4" height="27" fill="white" />
 <text x="979" y="469" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#2e7963" font-weight="400" text-anchor="start">move / close</text>
-<polyline points="48,233 27,233 27,855 947,855 947,814" fill="none" stroke="#39826d" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-green)"/>
-<rect x="553" y="829" width="268.0999999999999" height="27" fill="white"/>
+<polyline points="48,233 27,233 27,855 947,855 947,814" fill="none" stroke="#39826d" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-green)" />
+<rect x="553" y="829" width="268.0999999999999" height="27" fill="white" />
 <text x="557" y="849" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#2e7963" font-weight="400" text-anchor="start">Init → Finished：close</text>
-<line x1="48" y1="976" x2="1232" y2="976" stroke="#dce3ea" stroke-width="1.5"/>
+<line x1="48" y1="976" x2="1232" y2="976" stroke="#dce3ea" stroke-width="1.6" />
 <text x="48" y="1010" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">makeItem 完成后对等待 promises 调用 setValue；move 读取状态，并在 Failed 时 rethrow_exception。</text>
 <text x="48" y="1041" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">close 在 Making 时等待执行结束再清理；cancel 不会打断正在运行的文件 I/O。析构要求进入允许的终态。</text>
 </svg>

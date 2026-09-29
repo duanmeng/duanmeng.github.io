@@ -1,87 +1,87 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="950" viewBox="0 0 1280 950" role="img"><title>Hive → Parquet：请求向下，数据向上</title><desc>按职责分层；虚线箭头表示调用或请求，绿色箭头表示结果返回。</desc><defs>
-<marker id="arr-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#657386"/></marker>
-<marker id="arr-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#4078bd"/></marker>
-<marker id="arr-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#39826d"/></marker>
-<marker id="arr-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8d76b7"/></marker>
-<marker id="arr-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ac9c76"/></marker>
-<marker id="arr-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#a95f64"/></marker>
-</defs><rect width="1280" height="950" fill="white"/>
+<marker id="arr-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#657386" /></marker>
+<marker id="arr-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#4078bd" /></marker>
+<marker id="arr-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#39826d" /></marker>
+<marker id="arr-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8d76b7" /></marker>
+<marker id="arr-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ac9c76" /></marker>
+<marker id="arr-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#a95f64" /></marker>
+</defs><rect width="1280" height="950" fill="white" stroke="none" />
 <text x="48" y="58" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="30" fill="#1f2d3d" font-weight="600" text-anchor="start">Hive → Parquet：请求向下，数据向上</text>
 <text x="48" y="94" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">按职责分层；虚线箭头表示调用或请求，绿色箭头表示结果返回。</text>
-<line x1="48" y1="118" x2="1232" y2="118" stroke="#dce3ea" stroke-width="1.5"/>
-<rect x="48" y="134" width="34" height="34" rx="17" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<line x1="48" y1="118" x2="1232" y2="118" stroke="#dce3ea" stroke-width="1.6" />
+<rect x="48" y="134" width="34" height="34" rx="17" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
 <text x="65" y="160" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#326cae" font-weight="600" text-anchor="middle">1</text>
 <text x="96" y="160" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="24" fill="#326cae" font-weight="600" text-anchor="start">查询与 split</text>
 <g class="card">
-<rect x="50" y="190" width="285" height="125" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
-<text x="70" y="224" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#326cae" font-weight="600" text-anchor="start">TableScan</text>
+<rect x="50" y="190" width="285" height="125" rx="6" fill="white" stroke="none" stroke-width="1.4" />
+<line x1="50" y1="190" x2="335.0" y2="190" stroke="#dce3ea" stroke-width="1.5" /><text x="70" y="224" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#326cae" font-weight="600" text-anchor="start">TableScan</text>
 <text x="70" y="258" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">outputType / assignments</text>
 <text x="70" y="287" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">Task 提供 connector split</text>
 </g>
 <g class="card">
-<rect x="420" y="190" width="390" height="125" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
-<text x="440" y="224" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#326cae" font-weight="600" text-anchor="start">HiveDataSource / FileDataSource</text>
+<rect x="420" y="190" width="390" height="125" rx="6" fill="white" stroke="none" stroke-width="1.4" />
+<line x1="420" y1="190" x2="810.0" y2="190" stroke="#dce3ea" stroke-width="1.5" /><text x="440" y="224" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#326cae" font-weight="600" text-anchor="start">HiveDataSource / FileDataSource</text>
 <text x="440" y="258" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">ScanSpec + remaining ExprSet</text>
 <text x="440" y="287" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">addSplit() / next()</text>
 </g>
 <g class="card">
-<rect x="900" y="190" width="330" height="125" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
-<text x="920" y="224" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#877951" font-weight="600" text-anchor="start">HiveSplitReader</text>
+<rect x="900" y="190" width="330" height="125" rx="6" fill="white" stroke="none" stroke-width="1.4" />
+<line x1="900" y1="190" x2="1230.0" y2="190" stroke="#dce3ea" stroke-width="1.5" /><text x="920" y="224" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#877951" font-weight="600" text-anchor="start">HiveSplitReader</text>
 <text x="920" y="258" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">文件与分区语义</text>
 <text x="920" y="287" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">持有 Reader / RowReader</text>
 </g>
-<polyline points="335,252 420,252" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)"/>
-<polyline points="810,252 900,252" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)"/>
-<rect x="48" y="349" width="34" height="34" rx="17" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<polyline points="335,252 420,252" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)" />
+<polyline points="810,252 900,252" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)" />
+<rect x="48" y="349" width="34" height="34" rx="17" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4" />
 <text x="65" y="375" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#2e7963" font-weight="600" text-anchor="middle">2</text>
 <text x="96" y="375" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="24" fill="#2e7963" font-weight="600" text-anchor="start">Parquet 读取状态</text>
 <g class="card">
-<rect x="50" y="408" width="330" height="125" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
-<text x="70" y="442" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#2e7963" font-weight="600" text-anchor="start">ParquetRowReader</text>
+<rect x="50" y="408" width="330" height="125" rx="6" fill="white" stroke="none" stroke-width="1.4" />
+<line x1="50" y1="408" x2="380.0" y2="408" stroke="#dce3ea" stroke-width="1.5" /><text x="70" y="442" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#2e7963" font-weight="600" text-anchor="start">ParquetRowReader</text>
 <text x="70" y="476" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">有效 RowGroup / 行游标</text>
 <text x="70" y="505" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">next(size) → rowsScanned</text>
 </g>
 <g class="card">
-<rect x="480" y="408" width="340" height="125" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
-<text x="500" y="442" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#2e7963" font-weight="600" text-anchor="start">StructColumnReader</text>
+<rect x="480" y="408" width="340" height="125" rx="6" fill="white" stroke="none" stroke-width="1.4" />
+<line x1="480" y1="408" x2="820.0" y2="408" stroke="#dce3ea" stroke-width="1.5" /><text x="500" y="442" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#2e7963" font-weight="600" text-anchor="start">StructColumnReader</text>
 <text x="500" y="476" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">read：逐列缩小 RowSet</text>
 <text x="500" y="505" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">getValues：对齐 / 创建 lazy</text>
 </g>
 <g class="card">
-<rect x="920" y="408" width="310" height="125" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
-<text x="940" y="442" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#2e7963" font-weight="600" text-anchor="start">Leaf ColumnReader</text>
+<rect x="920" y="408" width="310" height="125" rx="6" fill="white" stroke="none" stroke-width="1.4" />
+<line x1="920" y1="408" x2="1230.0" y2="408" stroke="#dce3ea" stroke-width="1.5" /><text x="940" y="442" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#2e7963" font-weight="600" text-anchor="start">Leaf ColumnReader</text>
 <text x="940" y="476" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">Integer / String / …</text>
 <text x="940" y="505" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">ColumnVisitor + values</text>
 </g>
-<polyline points="1065,315 1065,337 32,337 32,392 215,392 215,408" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)"/>
-<polyline points="380,470 480,470" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)"/>
-<polyline points="820,470 920,470" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)"/>
-<rect x="48" y="567" width="34" height="34" rx="17" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
+<polyline points="1065,315 1065,337 32,337 32,392 215,392 215,408" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)" />
+<polyline points="380,470 480,470" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)" />
+<polyline points="820,470 920,470" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)" />
+<rect x="48" y="567" width="34" height="34" rx="17" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4" />
 <text x="65" y="593" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#65537f" font-weight="600" text-anchor="middle">3</text>
 <text x="96" y="593" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="24" fill="#65537f" font-weight="600" text-anchor="start">格式解码与字节来源</text>
 <g class="card">
-<rect x="50" y="625" width="330" height="125" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
-<text x="70" y="659" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#877951" font-weight="600" text-anchor="start">ReadFile / BufferedInput</text>
+<rect x="50" y="625" width="330" height="125" rx="6" fill="white" stroke="none" stroke-width="1.4" />
+<line x1="50" y1="625" x2="380.0" y2="625" stroke="#dce3ea" stroke-width="1.5" /><text x="70" y="659" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#877951" font-weight="600" text-anchor="start">ReadFile / BufferedInput</text>
 <text x="70" y="693" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">Region → coalesced load</text>
 <text x="70" y="722" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">缓存 / 预取 / 同步读取</text>
 </g>
 <g class="card">
-<rect x="480" y="625" width="340" height="125" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
-<text x="500" y="659" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#65537f" font-weight="600" text-anchor="start">ParquetData / PageReader</text>
+<rect x="480" y="625" width="340" height="125" rx="6" fill="white" stroke="none" stroke-width="1.4" />
+<line x1="480" y1="625" x2="820.0" y2="625" stroke="#dce3ea" stroke-width="1.5" /><text x="500" y="659" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#65537f" font-weight="600" text-anchor="start">ParquetData / PageReader</text>
 <text x="500" y="693" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">stream / pages / levels</text>
 <text x="500" y="722" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">编码、字典、nulls 状态</text>
 </g>
 <g class="card">
-<rect x="920" y="625" width="310" height="125" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
-<text x="940" y="659" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#2e7963" font-weight="600" text-anchor="start">RowVector</text>
+<rect x="920" y="625" width="310" height="125" rx="6" fill="white" stroke="none" stroke-width="1.4" />
+<line x1="920" y1="625" x2="1230.0" y2="625" stroke="#dce3ea" stroke-width="1.5" /><text x="940" y="659" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#2e7963" font-weight="600" text-anchor="start">RowVector</text>
 <text x="940" y="693" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">已读列 + LazyVector</text>
 <text x="940" y="722" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">ExprSet 后返回 SQL 列</text>
 </g>
-<polyline points="1075,533 1075,574 650,574 650,625" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)"/>
-<polyline points="480,686 380,686" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)"/>
-<polyline points="820,710 920,710" fill="none" stroke="#39826d" stroke-width="1.8" marker-end="url(#arr-green)"/>
+<polyline points="1075,533 1075,574 650,574 650,625" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)" />
+<polyline points="480,686 380,686" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)" />
+<polyline points="820,710 920,710" fill="none" stroke="#39826d" stroke-width="1.8" marker-end="url(#arr-green)" />
 <text x="865" y="791" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#2e7963" font-weight="400" text-anchor="start">解码值 → getValues → ExprSet</text>
-<line x1="48" y1="846" x2="1232" y2="846" stroke="#dce3ea" stroke-width="1.5"/>
+<line x1="48" y1="846" x2="1232" y2="846" stroke="#dce3ea" stroke-width="1.6" />
 <text x="48" y="880" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">Hive 决定读什么；RowReader 决定扫描范围；ColumnReader 决定读哪些值；I/O 层决定何时取字节。</text>
 <text x="48" y="911" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">底部的结果箭头概括返回路径，实际 RowVector 经 Struct / RowReader / FileDataSource 逐层返回。</text>
 </svg>

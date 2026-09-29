@@ -1,112 +1,112 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="840" viewBox="0 0 1280 840" role="img"><title>nation：两次 reader filter 逐步收缩 RowSet</title><desc>示例 WHERE nationkey BETWEEN 0 AND 3 AND regionkey = 0；输入共 11 行。</desc><defs>
-<marker id="arr-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#657386"/></marker>
-<marker id="arr-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#4078bd"/></marker>
-<marker id="arr-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#39826d"/></marker>
-<marker id="arr-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8d76b7"/></marker>
-<marker id="arr-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ac9c76"/></marker>
-<marker id="arr-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#a95f64"/></marker>
-</defs><rect width="1280" height="840" fill="white"/>
+<marker id="arr-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#657386" /></marker>
+<marker id="arr-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#4078bd" /></marker>
+<marker id="arr-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#39826d" /></marker>
+<marker id="arr-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8d76b7" /></marker>
+<marker id="arr-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ac9c76" /></marker>
+<marker id="arr-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#a95f64" /></marker>
+</defs><rect width="1280" height="840" fill="white" stroke="none" />
 <text x="48" y="58" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="30" fill="#1f2d3d" font-weight="600" text-anchor="start">nation：两次 reader filter 逐步收缩 RowSet</text>
 <text x="48" y="94" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">示例 WHERE nationkey BETWEEN 0 AND 3 AND regionkey = 0；输入共 11 行。</text>
-<line x1="48" y1="118" x2="1232" y2="118" stroke="#dce3ea" stroke-width="1.5"/>
-<text x="48" y="166" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#657386" font-weight="400" text-anchor="start">输入 row</text>
-<rect x="294" y="137" width="77" height="48" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<line x1="48" y1="118" x2="1232" y2="118" stroke="#dce3ea" stroke-width="1.6" />
+<text x="48" y="166" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#1f2d3d" font-weight="400" text-anchor="start">输入 row</text>
+<rect x="294" y="137" width="77" height="48" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4" />
 <text x="332.5" y="168.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#877951" font-weight="400" text-anchor="middle">0</text>
-<rect x="376" y="137" width="77" height="48" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<rect x="376" y="137" width="77" height="48" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4" />
 <text x="414.5" y="168.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#877951" font-weight="400" text-anchor="middle">1</text>
-<rect x="458" y="137" width="77" height="48" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<rect x="458" y="137" width="77" height="48" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4" />
 <text x="496.5" y="168.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#877951" font-weight="400" text-anchor="middle">2</text>
-<rect x="540" y="137" width="77" height="48" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<rect x="540" y="137" width="77" height="48" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4" />
 <text x="578.5" y="168.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#877951" font-weight="400" text-anchor="middle">3</text>
-<rect x="622" y="137" width="77" height="48" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<rect x="622" y="137" width="77" height="48" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4" />
 <text x="660.5" y="168.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#877951" font-weight="400" text-anchor="middle">4</text>
-<rect x="704" y="137" width="77" height="48" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<rect x="704" y="137" width="77" height="48" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4" />
 <text x="742.5" y="168.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#877951" font-weight="400" text-anchor="middle">5</text>
-<rect x="786" y="137" width="77" height="48" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<rect x="786" y="137" width="77" height="48" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4" />
 <text x="824.5" y="168.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#877951" font-weight="400" text-anchor="middle">6</text>
-<rect x="868" y="137" width="77" height="48" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<rect x="868" y="137" width="77" height="48" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4" />
 <text x="906.5" y="168.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#877951" font-weight="400" text-anchor="middle">7</text>
-<rect x="950" y="137" width="77" height="48" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<rect x="950" y="137" width="77" height="48" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4" />
 <text x="988.5" y="168.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#877951" font-weight="400" text-anchor="middle">8</text>
-<rect x="1032" y="137" width="77" height="48" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<rect x="1032" y="137" width="77" height="48" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4" />
 <text x="1070.5" y="168.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#877951" font-weight="400" text-anchor="middle">9</text>
-<rect x="1114" y="137" width="77" height="48" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<rect x="1114" y="137" width="77" height="48" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4" />
 <text x="1152.5" y="168.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#877951" font-weight="400" text-anchor="middle">10</text>
-<text x="48" y="231" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#657386" font-weight="400" text-anchor="start">nationkey</text>
-<rect x="294" y="202" width="77" height="48" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<text x="48" y="231" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#1f2d3d" font-weight="400" text-anchor="start">nationkey</text>
+<rect x="294" y="202" width="77" height="48" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
 <text x="332.5" y="233.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#326cae" font-weight="400" text-anchor="middle">0</text>
-<rect x="376" y="202" width="77" height="48" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<rect x="376" y="202" width="77" height="48" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
 <text x="414.5" y="233.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#326cae" font-weight="400" text-anchor="middle">1</text>
-<rect x="458" y="202" width="77" height="48" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<rect x="458" y="202" width="77" height="48" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
 <text x="496.5" y="233.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#326cae" font-weight="400" text-anchor="middle">2</text>
-<rect x="540" y="202" width="77" height="48" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<rect x="540" y="202" width="77" height="48" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
 <text x="578.5" y="233.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#326cae" font-weight="400" text-anchor="middle">3</text>
-<rect x="622" y="202" width="77" height="48" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<rect x="622" y="202" width="77" height="48" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
 <text x="660.5" y="233.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#326cae" font-weight="400" text-anchor="middle">4</text>
-<rect x="704" y="202" width="77" height="48" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<rect x="704" y="202" width="77" height="48" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
 <text x="742.5" y="233.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#326cae" font-weight="400" text-anchor="middle">5</text>
-<rect x="786" y="202" width="77" height="48" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<rect x="786" y="202" width="77" height="48" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
 <text x="824.5" y="233.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#326cae" font-weight="400" text-anchor="middle">6</text>
-<rect x="868" y="202" width="77" height="48" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<rect x="868" y="202" width="77" height="48" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
 <text x="906.5" y="233.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#326cae" font-weight="400" text-anchor="middle">7</text>
-<rect x="950" y="202" width="77" height="48" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<rect x="950" y="202" width="77" height="48" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
 <text x="988.5" y="233.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#326cae" font-weight="400" text-anchor="middle">8</text>
-<rect x="1032" y="202" width="77" height="48" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<rect x="1032" y="202" width="77" height="48" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
 <text x="1070.5" y="233.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#326cae" font-weight="400" text-anchor="middle">9</text>
-<rect x="1114" y="202" width="77" height="48" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<rect x="1114" y="202" width="77" height="48" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
 <text x="1152.5" y="233.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#326cae" font-weight="400" text-anchor="middle">10</text>
-<text x="48" y="296" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#657386" font-weight="400" text-anchor="start">regionkey</text>
-<rect x="294" y="267" width="77" height="48" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<text x="48" y="296" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#1f2d3d" font-weight="400" text-anchor="start">regionkey</text>
+<rect x="294" y="267" width="77" height="48" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4" />
 <text x="332.5" y="298.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#2e7963" font-weight="400" text-anchor="middle">0</text>
-<rect x="376" y="267" width="77" height="48" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<rect x="376" y="267" width="77" height="48" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4" />
 <text x="414.5" y="298.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#2e7963" font-weight="400" text-anchor="middle">1</text>
-<rect x="458" y="267" width="77" height="48" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<rect x="458" y="267" width="77" height="48" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4" />
 <text x="496.5" y="298.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#2e7963" font-weight="400" text-anchor="middle">1</text>
-<rect x="540" y="267" width="77" height="48" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<rect x="540" y="267" width="77" height="48" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4" />
 <text x="578.5" y="298.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#2e7963" font-weight="400" text-anchor="middle">1</text>
-<rect x="622" y="267" width="77" height="48" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<rect x="622" y="267" width="77" height="48" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4" />
 <text x="660.5" y="298.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#2e7963" font-weight="400" text-anchor="middle">4</text>
-<rect x="704" y="267" width="77" height="48" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<rect x="704" y="267" width="77" height="48" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4" />
 <text x="742.5" y="298.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#2e7963" font-weight="400" text-anchor="middle">0</text>
-<rect x="786" y="267" width="77" height="48" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<rect x="786" y="267" width="77" height="48" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4" />
 <text x="824.5" y="298.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#2e7963" font-weight="400" text-anchor="middle">3</text>
-<rect x="868" y="267" width="77" height="48" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<rect x="868" y="267" width="77" height="48" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4" />
 <text x="906.5" y="298.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#2e7963" font-weight="400" text-anchor="middle">3</text>
-<rect x="950" y="267" width="77" height="48" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<rect x="950" y="267" width="77" height="48" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4" />
 <text x="988.5" y="298.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#2e7963" font-weight="400" text-anchor="middle">2</text>
-<rect x="1032" y="267" width="77" height="48" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<rect x="1032" y="267" width="77" height="48" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4" />
 <text x="1070.5" y="298.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#2e7963" font-weight="400" text-anchor="middle">2</text>
-<rect x="1114" y="267" width="77" height="48" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<rect x="1114" y="267" width="77" height="48" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4" />
 <text x="1152.5" y="298.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#2e7963" font-weight="400" text-anchor="middle">4</text>
-<polyline points="540,315 540,364" fill="none" stroke="#4078bd" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-blue)"/>
+<polyline points="540,315 540,364" fill="none" stroke="#4078bd" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-blue)" />
 <text x="585" y="350" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#326cae" font-weight="400" text-anchor="start">nationkey BETWEEN 0 AND 3</text>
-<text x="48" y="408" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#657386" font-weight="400" text-anchor="start">第一次 outputRows</text>
-<rect x="294" y="379" width="77" height="48" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<text x="48" y="408" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#1f2d3d" font-weight="400" text-anchor="start">第一次 outputRows</text>
+<rect x="294" y="379" width="77" height="48" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
 <text x="332.5" y="410.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#326cae" font-weight="400" text-anchor="middle">0</text>
-<rect x="376" y="379" width="77" height="48" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<rect x="376" y="379" width="77" height="48" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
 <text x="414.5" y="410.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#326cae" font-weight="400" text-anchor="middle">1</text>
-<rect x="458" y="379" width="77" height="48" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<rect x="458" y="379" width="77" height="48" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
 <text x="496.5" y="410.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#326cae" font-weight="400" text-anchor="middle">2</text>
-<rect x="540" y="379" width="77" height="48" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<rect x="540" y="379" width="77" height="48" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
 <text x="578.5" y="410.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#326cae" font-weight="400" text-anchor="middle">3</text>
 <text x="695" y="409" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#2e7963" font-weight="400" text-anchor="start">regionkey 只访问这四行：0, 1, 1, 1</text>
-<polyline points="410,427 410,477" fill="none" stroke="#39826d" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-green)"/>
+<polyline points="410,427 410,477" fill="none" stroke="#39826d" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-green)" />
 <text x="460" y="460" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#2e7963" font-weight="400" text-anchor="start">regionkey = 0</text>
-<text x="48" y="521" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#657386" font-weight="400" text-anchor="start">最终 outputRows</text>
-<rect x="294" y="492" width="77" height="48" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
+<text x="48" y="521" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#1f2d3d" font-weight="400" text-anchor="start">最终 outputRows</text>
+<rect x="294" y="492" width="77" height="48" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4" />
 <text x="332.5" y="523.0" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="21" fill="#65537f" font-weight="400" text-anchor="middle">0</text>
 <g class="card">
-<rect x="48" y="603" width="540" height="116" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
-<text x="68" y="637" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#2e7963" font-weight="600" text-anchor="start">name / comment</text>
+<rect x="48" y="603" width="540" height="116" rx="6" fill="white" stroke="none" stroke-width="1.4" />
+<line x1="48" y1="603" x2="588.0" y2="603" stroke="#dce3ea" stroke-width="1.5" /><text x="68" y="637" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#2e7963" font-weight="600" text-anchor="start">name / comment</text>
 <text x="68" y="671" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">只需要 row 0：ALGERIA</text>
 <text x="68" y="700" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">payload 不必物化其余十行</text>
 </g>
 <g class="card">
-<rect x="650" y="603" width="580" height="116" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
-<text x="670" y="637" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#877951" font-weight="600" text-anchor="start">row 5 不能重新进入候选集</text>
+<rect x="650" y="603" width="580" height="116" rx="6" fill="white" stroke="none" stroke-width="1.4" />
+<line x1="650" y1="603" x2="1230.0" y2="603" stroke="#dce3ea" stroke-width="1.5" /><text x="670" y="637" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#877951" font-weight="600" text-anchor="start">row 5 不能重新进入候选集</text>
 <text x="670" y="671" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">虽然 regionkey[5] = 0</text>
 <text x="670" y="700" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">它已经被第一个 filter 排除</text>
 </g>
-<line x1="48" y1="768" x2="1232" y2="768" stroke="#dce3ea" stroke-width="1.5"/>
+<line x1="48" y1="768" x2="1232" y2="768" stroke="#dce3ea" stroke-width="1.6" />
 <text x="48" y="802" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">本例输入 row 恰好等于 nationkey 值；一般情况下二者没有这样的对应关系。</text>
 </svg>

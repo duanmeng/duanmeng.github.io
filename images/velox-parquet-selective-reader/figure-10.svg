@@ -1,62 +1,62 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="810" viewBox="0 0 1280 810" role="img"><title>read / getValues：两阶段保住列对齐</title><desc>本图 nationkey / regionkey 也被投影：先读列暂存值，最终选择确定后再 compact。</desc><defs>
-<marker id="arr-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#657386"/></marker>
-<marker id="arr-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#4078bd"/></marker>
-<marker id="arr-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#39826d"/></marker>
-<marker id="arr-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8d76b7"/></marker>
-<marker id="arr-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ac9c76"/></marker>
-<marker id="arr-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#a95f64"/></marker>
-</defs><rect width="1280" height="810" fill="white"/>
+<marker id="arr-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#657386" /></marker>
+<marker id="arr-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#4078bd" /></marker>
+<marker id="arr-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#39826d" /></marker>
+<marker id="arr-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8d76b7" /></marker>
+<marker id="arr-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ac9c76" /></marker>
+<marker id="arr-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#a95f64" /></marker>
+</defs><rect width="1280" height="810" fill="white" stroke="none" />
 <text x="48" y="58" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="30" fill="#1f2d3d" font-weight="600" text-anchor="start">read / getValues：两阶段保住列对齐</text>
 <text x="48" y="94" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">本图 nationkey / regionkey 也被投影：先读列暂存值，最终选择确定后再 compact。</text>
-<line x1="48" y1="118" x2="1232" y2="118" stroke="#dce3ea" stroke-width="1.5"/>
-<rect x="48" y="139" width="34" height="34" rx="17" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<line x1="48" y1="118" x2="1232" y2="118" stroke="#dce3ea" stroke-width="1.6" />
+<rect x="48" y="139" width="34" height="34" rx="17" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
 <text x="65" y="165" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#326cae" font-weight="600" text-anchor="middle">1</text>
 <text x="96" y="165" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="24" fill="#326cae" font-weight="600" text-anchor="start">read：选择逐步收缩</text>
 <g class="card">
-<rect x="48" y="198" width="342" height="150" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
-<text x="68" y="232" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#326cae" font-weight="600" text-anchor="start">nationkey</text>
+<rect x="48" y="198" width="342" height="150" rx="6" fill="white" stroke="none" stroke-width="1.4" />
+<line x1="48" y1="198" x2="390.0" y2="198" stroke="#dce3ea" stroke-width="1.5" /><text x="68" y="232" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#326cae" font-weight="600" text-anchor="start">nationkey</text>
 <text x="68" y="266" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">输入 rows = [0…10]</text>
 <text x="68" y="295" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">暂存通过值 [0,1,2,3]</text>
 <text x="68" y="324" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">outputRows = [0,1,2,3]</text>
 </g>
 <g class="card">
-<rect x="492" y="198" width="342" height="150" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
-<text x="512" y="232" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#2e7963" font-weight="600" text-anchor="start">regionkey</text>
+<rect x="492" y="198" width="342" height="150" rx="6" fill="white" stroke="none" stroke-width="1.4" />
+<line x1="492" y1="198" x2="834.0" y2="198" stroke="#dce3ea" stroke-width="1.5" /><text x="512" y="232" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#2e7963" font-weight="600" text-anchor="start">regionkey</text>
 <text x="512" y="266" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">输入 rows = [0,1,2,3]</text>
 <text x="512" y="295" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">读取值 [0,1,1,1]</text>
 <text x="512" y="324" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">outputRows = [0]</text>
 </g>
 <g class="card">
-<rect x="920" y="198" width="310" height="150" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
-<text x="940" y="232" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#65537f" font-weight="600" text-anchor="start">name / comment</text>
+<rect x="920" y="198" width="310" height="150" rx="6" fill="white" stroke="none" stroke-width="1.4" />
+<line x1="920" y1="198" x2="1230.0" y2="198" stroke="#dce3ea" stroke-width="1.5" /><text x="940" y="232" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#65537f" font-weight="600" text-anchor="start">name / comment</text>
 <text x="940" y="266" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">符合 lazy 条件</text>
 <text x="940" y="295" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">暂不解码 payload</text>
 </g>
-<polyline points="390,273 492,273" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)"/>
-<polyline points="834,273 920,273" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)"/>
-<rect x="48" y="399" width="34" height="34" rx="17" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<polyline points="390,273 492,273" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)" />
+<polyline points="834,273 920,273" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)" />
+<rect x="48" y="399" width="34" height="34" rx="17" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4" />
 <text x="65" y="425" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#2e7963" font-weight="600" text-anchor="middle">2</text>
 <text x="96" y="425" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="24" fill="#2e7963" font-weight="600" text-anchor="start">getValues([0])：所有输出列使用最终 rows</text>
 <g class="card">
-<rect x="48" y="465" width="342" height="140" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
-<text x="68" y="499" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#326cae" font-weight="600" text-anchor="start">已读列 compact</text>
+<rect x="48" y="465" width="342" height="140" rx="6" fill="white" stroke="none" stroke-width="1.4" />
+<line x1="48" y1="465" x2="390.0" y2="465" stroke="#dce3ea" stroke-width="1.5" /><text x="68" y="499" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#326cae" font-weight="600" text-anchor="start">已读列 compact</text>
 <text x="68" y="533" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">nationkey → [0]</text>
 <text x="68" y="562" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">regionkey → [0]</text>
 </g>
 <g class="card">
-<rect x="492" y="465" width="342" height="140" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
-<text x="512" y="499" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#2e7963" font-weight="600" text-anchor="start">输出位置 0</text>
+<rect x="492" y="465" width="342" height="140" rx="6" fill="white" stroke="none" stroke-width="1.4" />
+<line x1="492" y1="465" x2="834.0" y2="465" stroke="#dce3ea" stroke-width="1.5" /><text x="512" y="499" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#2e7963" font-weight="600" text-anchor="start">输出位置 0</text>
 <text x="512" y="533" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">两列都对应原 batch row 0</text>
 <text x="512" y="562" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">同步整理 values 与 nulls</text>
 </g>
 <g class="card">
-<rect x="920" y="465" width="310" height="140" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
-<text x="940" y="499" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#65537f" font-weight="600" text-anchor="start">LazyVector(size = 1)</text>
+<rect x="920" y="465" width="310" height="140" rx="6" fill="white" stroke="none" stroke-width="1.4" />
+<line x1="920" y1="465" x2="1230.0" y2="465" stroke="#dce3ea" stroke-width="1.5" /><text x="940" y="499" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#65537f" font-weight="600" text-anchor="start">LazyVector(size = 1)</text>
 <text x="940" y="533" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">记录父 reader 版本</text>
 <text x="940" y="562" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">等待实际访问</text>
 </g>
-<polyline points="1208,361 1208,451" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)"/>
-<line x1="48" y1="706" x2="1232" y2="706" stroke="#dce3ea" stroke-width="1.5"/>
+<polyline points="1208,361 1208,451" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)" />
+<line x1="48" y1="706" x2="1232" y2="706" stroke="#dce3ea" stroke-width="1.6" />
 <text x="48" y="740" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">read 已经执行过滤和需要的解码；getValues 不是重新全量扫描，而是用最终 RowSet 组装输出。</text>
 <text x="48" y="771" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">只有 top-level + projectOut + 无 filter + generateLazyChildren，普通 child 才走这里的 lazy 分支。</text>
 </svg>

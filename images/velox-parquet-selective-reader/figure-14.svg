@@ -1,38 +1,38 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img"><title>Coalescing：少发请求，可能多读 gap</title><desc>A=[0,100) KiB，B=[150,200) KiB；仅在距离与字节预算满足时合并。</desc><defs>
-<marker id="arr-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#657386"/></marker>
-<marker id="arr-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#4078bd"/></marker>
-<marker id="arr-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#39826d"/></marker>
-<marker id="arr-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8d76b7"/></marker>
-<marker id="arr-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ac9c76"/></marker>
-<marker id="arr-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#a95f64"/></marker>
-</defs><rect width="1280" height="720" fill="white"/>
+<marker id="arr-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#657386" /></marker>
+<marker id="arr-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#4078bd" /></marker>
+<marker id="arr-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#39826d" /></marker>
+<marker id="arr-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8d76b7" /></marker>
+<marker id="arr-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ac9c76" /></marker>
+<marker id="arr-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#a95f64" /></marker>
+</defs><rect width="1280" height="720" fill="white" stroke="none" />
 <text x="48" y="58" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="30" fill="#1f2d3d" font-weight="600" text-anchor="start">Coalescing：少发请求，可能多读 gap</text>
 <text x="48" y="94" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">A=[0,100) KiB，B=[150,200) KiB；仅在距离与字节预算满足时合并。</text>
-<line x1="48" y1="118" x2="1232" y2="118" stroke="#dce3ea" stroke-width="1.5"/>
-<text x="48" y="172" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#657386" font-weight="400" text-anchor="start">文件 offset / KiB</text>
-<text x="270" y="204" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#657386" font-weight="400" text-anchor="middle">0</text>
-<text x="670" y="204" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#657386" font-weight="400" text-anchor="middle">100</text>
-<text x="870" y="204" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#657386" font-weight="400" text-anchor="middle">150</text>
-<text x="1070" y="204" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#657386" font-weight="400" text-anchor="middle">200</text>
-<rect x="270" y="228" width="400" height="90" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<line x1="48" y1="118" x2="1232" y2="118" stroke="#dce3ea" stroke-width="1.6" />
+<text x="48" y="172" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#1f2d3d" font-weight="400" text-anchor="start">文件 offset / KiB</text>
+<text x="270" y="204" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#1f2d3d" font-weight="400" text-anchor="middle">0</text>
+<text x="670" y="204" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#1f2d3d" font-weight="400" text-anchor="middle">100</text>
+<text x="870" y="204" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#1f2d3d" font-weight="400" text-anchor="middle">150</text>
+<text x="1070" y="204" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#1f2d3d" font-weight="400" text-anchor="middle">200</text>
+<rect x="270" y="228" width="400" height="90" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
 <text x="470" y="282" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="24" fill="#326cae" font-weight="600" text-anchor="middle">A · 100 KiB</text>
-<rect x="670" y="228" width="200" height="90" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<rect x="670" y="228" width="200" height="90" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4" />
 <text x="770" y="282" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#877951" font-weight="600" text-anchor="middle">gap · 50</text>
-<rect x="870" y="228" width="200" height="90" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<rect x="870" y="228" width="200" height="90" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4" />
 <text x="970" y="282" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#2e7963" font-weight="600" text-anchor="middle">B · 50</text>
-<polyline points="670,318 670,379" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)"/>
-<rect x="270" y="379" width="800" height="85" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
+<polyline points="670,318 670,379" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)" />
+<rect x="270" y="379" width="800" height="85" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4" />
 <text x="670" y="430" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="23" fill="#65537f" font-weight="600" text-anchor="middle">一次合并区域：200 KiB；有效请求：150 KiB</text>
 <g class="card">
-<rect x="48" y="525" width="555" height="95" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<rect x="48" y="525" width="555" height="95" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4" />
 <text x="68" y="559" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#877951" font-weight="600" text-anchor="start">距离预算</text>
 <text x="68" y="593" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">maxCoalesceDistance 限制跨越的 gap</text>
 </g>
 <g class="card">
-<rect x="675" y="525" width="555" height="95" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<rect x="675" y="525" width="555" height="95" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
 <text x="695" y="559" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#326cae" font-weight="600" text-anchor="start">字节预算</text>
 <text x="695" y="593" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">prefetch：maxCoalesceBytes；sparse：quantum</text>
 </g>
-<line x1="48" y1="648" x2="1232" y2="648" stroke="#dce3ea" stroke-width="1.5"/>
+<line x1="48" y1="648" x2="1232" y2="648" stroke="#dce3ea" stroke-width="1.6" />
 <text x="48" y="682" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">一次 ReadFile::read 调用不等于一次系统调用，也不保证后端只产生一个网络请求。</text>
 </svg>

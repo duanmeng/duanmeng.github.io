@@ -1,69 +1,69 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="1100" viewBox="0 0 1280 1100" role="img"><title>addSplit：把查询级方案绑定到当前文件</title><desc>本图所有调用都发生在同一调用线程；四条生命线表示对象，不表示四个线程。</desc><defs>
-<marker id="arr-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#657386"/></marker>
-<marker id="arr-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#4078bd"/></marker>
-<marker id="arr-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#39826d"/></marker>
-<marker id="arr-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8d76b7"/></marker>
-<marker id="arr-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ac9c76"/></marker>
-<marker id="arr-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#a95f64"/></marker>
-</defs><rect width="1280" height="1100" fill="white"/>
+<marker id="arr-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#657386" /></marker>
+<marker id="arr-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#4078bd" /></marker>
+<marker id="arr-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#39826d" /></marker>
+<marker id="arr-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8d76b7" /></marker>
+<marker id="arr-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ac9c76" /></marker>
+<marker id="arr-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#a95f64" /></marker>
+</defs><rect width="1280" height="1100" fill="white" stroke="none" />
 <text x="48" y="58" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="30" fill="#1f2d3d" font-weight="600" text-anchor="start">addSplit：把查询级方案绑定到当前文件</text>
 <text x="48" y="94" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">本图所有调用都发生在同一调用线程；四条生命线表示对象，不表示四个线程。</text>
-<line x1="48" y1="118" x2="1232" y2="118" stroke="#dce3ea" stroke-width="1.5"/>
+<line x1="48" y1="118" x2="1232" y2="118" stroke="#dce3ea" stroke-width="1.6" />
 <g class="card">
-<rect x="40" y="155" width="220" height="103" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<rect x="40" y="155" width="220" height="103" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
 <text x="60" y="189" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#326cae" font-weight="600" text-anchor="start">TableScan</text>
 <text x="60" y="223" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">driver 调用者</text>
 </g>
-<line x1="150" y1="258" x2="150" y2="925" stroke="#657386" stroke-width="2.3" stroke-dasharray="7 5"/>
+<line x1="150" y1="258" x2="150" y2="925" stroke="#657386" stroke-width="2.3" stroke-dasharray="7 5" />
 <g class="card">
-<rect x="355" y="155" width="220" height="103" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<rect x="355" y="155" width="220" height="103" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4" />
 <text x="375" y="189" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#2e7963" font-weight="600" text-anchor="start">DataSource</text>
 <text x="375" y="223" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">Hive / File</text>
 </g>
-<line x1="465" y1="258" x2="465" y2="925" stroke="#657386" stroke-width="2.3" stroke-dasharray="7 5"/>
+<line x1="465" y1="258" x2="465" y2="925" stroke="#657386" stroke-width="2.3" stroke-dasharray="7 5" />
 <g class="card">
-<rect x="690" y="155" width="220" height="103" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<rect x="690" y="155" width="220" height="103" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4" />
 <text x="710" y="189" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#877951" font-weight="600" text-anchor="start">SplitReader</text>
 <text x="710" y="223" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">Hive / File</text>
 </g>
-<line x1="800" y1="258" x2="800" y2="925" stroke="#657386" stroke-width="2.3" stroke-dasharray="7 5"/>
+<line x1="800" y1="258" x2="800" y2="925" stroke="#657386" stroke-width="2.3" stroke-dasharray="7 5" />
 <g class="card">
-<rect x="1020" y="155" width="220" height="103" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
+<rect x="1020" y="155" width="220" height="103" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4" />
 <text x="1040" y="189" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#65537f" font-weight="600" text-anchor="start">格式接口</text>
 <text x="1040" y="223" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">Factory / Reader</text>
 </g>
-<line x1="1130" y1="258" x2="1130" y2="925" stroke="#657386" stroke-width="2.3" stroke-dasharray="7 5"/>
-<polyline points="150,316 465,316" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)"/>
-<rect x="162" y="283" width="183.49999999999997" height="27" fill="white"/>
-<text x="166" y="303" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#657386" font-weight="400" text-anchor="start">addSplit(split)</text>
-<rect x="326" y="353" width="419.2999999999999" height="27" fill="white"/>
-<text x="330" y="373" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#657386" font-weight="400" text-anchor="start">检查旧 split 已耗尽；释放旧 splitReader</text>
-<rect x="347" y="410" width="361.6999999999998" height="27" fill="white"/>
-<text x="351" y="430" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#657386" font-weight="400" text-anchor="start">Hive prepare：bucket 列 / rowId</text>
-<polyline points="465,485 800,485" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)"/>
-<rect x="477" y="452" width="232.99999999999991" height="27" fill="white"/>
-<text x="481" y="472" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#657386" font-weight="400" text-anchor="start">构造 HiveSplitReader</text>
-<polyline points="465,547 800,547" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)"/>
-<rect x="477" y="514" width="288.7999999999999" height="27" fill="white"/>
-<text x="481" y="534" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#657386" font-weight="400" text-anchor="start">configureReaderOptions()</text>
-<polyline points="465,611 800,611" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)"/>
-<rect x="477" y="578" width="171.79999999999998" height="27" fill="white"/>
-<text x="481" y="598" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#657386" font-weight="400" text-anchor="start">prepareSplit()</text>
-<polyline points="800,672 1130,672" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)"/>
-<rect x="812" y="639" width="171.79999999999998" height="27" fill="white"/>
-<text x="816" y="659" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#657386" font-weight="400" text-anchor="start">createReader()</text>
-<rect x="652" y="710" width="521.8999999999996" height="27" fill="white"/>
-<text x="656" y="730" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#657386" font-weight="400" text-anchor="start">读取 schema → adaptColumns → 测试常量 / stats</text>
-<polyline points="800,792 1130,792" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)"/>
-<rect x="812" y="759" width="288.7999999999999" height="27" fill="white"/>
-<text x="816" y="779" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#657386" font-weight="400" text-anchor="start">createRowReader(options)</text>
-<polyline points="800,867 465,867" fill="none" stroke="#39826d" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-green)"/>
-<rect x="477" y="834" width="244.69999999999996" height="27" fill="white"/>
+<line x1="1130" y1="258" x2="1130" y2="925" stroke="#657386" stroke-width="2.3" stroke-dasharray="7 5" />
+<polyline points="150,316 465,316" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)" />
+<rect x="162" y="283" width="183.49999999999997" height="27" fill="white" />
+<text x="166" y="303" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#1f2d3d" font-weight="400" text-anchor="start">addSplit(split)</text>
+<rect x="326" y="353" width="419.2999999999999" height="27" fill="white" />
+<text x="330" y="373" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#1f2d3d" font-weight="400" text-anchor="start">检查旧 split 已耗尽；释放旧 splitReader</text>
+<rect x="347" y="410" width="361.6999999999998" height="27" fill="white" />
+<text x="351" y="430" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#1f2d3d" font-weight="400" text-anchor="start">Hive prepare：bucket 列 / rowId</text>
+<polyline points="465,485 800,485" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)" />
+<rect x="477" y="452" width="232.99999999999991" height="27" fill="white" />
+<text x="481" y="472" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#1f2d3d" font-weight="400" text-anchor="start">构造 HiveSplitReader</text>
+<polyline points="465,547 800,547" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)" />
+<rect x="477" y="514" width="288.7999999999999" height="27" fill="white" />
+<text x="481" y="534" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#1f2d3d" font-weight="400" text-anchor="start">configureReaderOptions()</text>
+<polyline points="465,611 800,611" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)" />
+<rect x="477" y="578" width="171.79999999999998" height="27" fill="white" />
+<text x="481" y="598" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#1f2d3d" font-weight="400" text-anchor="start">prepareSplit()</text>
+<polyline points="800,672 1130,672" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)" />
+<rect x="812" y="639" width="171.79999999999998" height="27" fill="white" />
+<text x="816" y="659" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#1f2d3d" font-weight="400" text-anchor="start">createReader()</text>
+<rect x="652" y="710" width="521.8999999999996" height="27" fill="white" />
+<text x="656" y="730" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#1f2d3d" font-weight="400" text-anchor="start">读取 schema → adaptColumns → 测试常量 / stats</text>
+<polyline points="800,792 1130,792" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)" />
+<rect x="812" y="759" width="288.7999999999999" height="27" fill="white" />
+<text x="816" y="779" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#1f2d3d" font-weight="400" text-anchor="start">createRowReader(options)</text>
+<polyline points="800,867 465,867" fill="none" stroke="#39826d" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-green)" />
+<rect x="477" y="834" width="244.69999999999996" height="27" fill="white" />
 <text x="481" y="854" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#2e7963" font-weight="400" text-anchor="start">readerOutputType 就绪</text>
-<polyline points="465,924 150,924" fill="none" stroke="#39826d" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-green)"/>
-<rect x="162" y="891" width="222.19999999999993" height="27" fill="white"/>
+<polyline points="465,924 150,924" fill="none" stroke="#39826d" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-green)" />
+<rect x="162" y="891" width="222.19999999999993" height="27" fill="white" />
 <text x="166" y="911" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#2e7963" font-weight="400" text-anchor="start">返回；后续多次 next()</text>
-<line x1="48" y1="996" x2="1232" y2="996" stroke="#dce3ea" stroke-width="1.5"/>
+<line x1="48" y1="996" x2="1232" y2="996" stroke="#dce3ea" stroke-width="1.6" />
 <text x="48" y="1030" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">两层 prepareSplit 不同：HiveDataSource 补查询列；HiveSplitReader / FileSplitReader 准备具体文件。</text>
 <text x="48" y="1061" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">常量或统计排除 split 时可在创建 RowReader 前结束，但公共流程此前通常已经打开文件并取得元数据。</text>
 </svg>

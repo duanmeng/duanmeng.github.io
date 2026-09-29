@@ -1,60 +1,60 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="1010" viewBox="0 0 1280 1010" role="img"><title>谁在等待 coalesced load</title><desc>前两列是线程，右列是存储调用边界；共享 load 的检查发生在各自调用线程。</desc><defs>
-<marker id="arr-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#657386"/></marker>
-<marker id="arr-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#4078bd"/></marker>
-<marker id="arr-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#39826d"/></marker>
-<marker id="arr-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8d76b7"/></marker>
-<marker id="arr-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ac9c76"/></marker>
-<marker id="arr-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#a95f64"/></marker>
-</defs><rect width="1280" height="1010" fill="white"/>
+<marker id="arr-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#657386" /></marker>
+<marker id="arr-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#4078bd" /></marker>
+<marker id="arr-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#39826d" /></marker>
+<marker id="arr-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8d76b7" /></marker>
+<marker id="arr-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ac9c76" /></marker>
+<marker id="arr-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#a95f64" /></marker>
+</defs><rect width="1280" height="1010" fill="white" stroke="none" />
 <text x="48" y="58" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="30" fill="#1f2d3d" font-weight="600" text-anchor="start">谁在等待 coalesced load</text>
 <text x="48" y="94" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">前两列是线程，右列是存储调用边界；共享 load 的检查发生在各自调用线程。</text>
-<line x1="48" y1="118" x2="1232" y2="118" stroke="#dce3ea" stroke-width="1.5"/>
+<line x1="48" y1="118" x2="1232" y2="118" stroke="#dce3ea" stroke-width="1.6" />
 <g class="card">
-<rect x="55" y="150" width="290" height="95" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<rect x="55" y="150" width="290" height="95" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
 <text x="75" y="184" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#326cae" font-weight="600" text-anchor="start">消费线程</text>
 <text x="75" y="218" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">Driver 当前工作线程</text>
 </g>
-<line x1="200" y1="245" x2="200" y2="848" stroke="#657386" stroke-width="2.3" stroke-dasharray="7 5"/>
+<line x1="200" y1="245" x2="200" y2="848" stroke="#657386" stroke-width="2.3" stroke-dasharray="7 5" />
 <g class="card">
-<rect x="505" y="150" width="290" height="95" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<rect x="505" y="150" width="290" height="95" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4" />
 <text x="525" y="184" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#2e7963" font-weight="600" text-anchor="start">I/O executor 线程</text>
 <text x="525" y="218" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">执行同一 load</text>
 </g>
-<line x1="650" y1="245" x2="650" y2="848" stroke="#657386" stroke-width="2.3" stroke-dasharray="7 5"/>
+<line x1="650" y1="245" x2="650" y2="848" stroke="#657386" stroke-width="2.3" stroke-dasharray="7 5" />
 <g class="card">
-<rect x="935" y="150" width="290" height="95" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<rect x="935" y="150" width="290" height="95" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4" />
 <text x="955" y="184" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#877951" font-weight="600" text-anchor="start">ReadFile 后端</text>
 <text x="955" y="218" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">实际存储读取</text>
 </g>
-<line x1="1080" y1="245" x2="1080" y2="848" stroke="#657386" stroke-width="2.3" stroke-dasharray="7 5"/>
-<polyline points="650,320 1080,320" fill="none" stroke="#39826d" stroke-width="1.8" marker-end="url(#arr-green)"/>
-<rect x="664" y="287" width="307.6999999999999" height="27" fill="white"/>
+<line x1="1080" y1="245" x2="1080" y2="848" stroke="#657386" stroke-width="2.3" stroke-dasharray="7 5" />
+<polyline points="650,320 1080,320" fill="none" stroke="#39826d" stroke-width="1.8" marker-end="url(#arr-green)" />
+<rect x="664" y="287" width="307.6999999999999" height="27" fill="white" />
 <text x="668" y="307" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#2e7963" font-weight="400" text-anchor="start">loadData() → read(ranges)</text>
-<rect x="666" y="256" width="322.09999999999985" height="27" fill="white"/>
+<rect x="666" y="256" width="322.09999999999985" height="27" fill="white" />
 <text x="670" y="276" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#2e7963" font-weight="400" text-anchor="start">mutex 下：Planned → Loading</text>
-<rect x="51" y="382" width="319.39999999999986" height="27" fill="white"/>
+<rect x="51" y="382" width="319.39999999999986" height="27" fill="white" />
 <text x="55" y="402" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#326cae" font-weight="400" text-anchor="start">PageReader → stream.Next()</text>
-<rect x="51" y="411" width="300.4999999999999" height="27" fill="white"/>
+<rect x="51" y="411" width="300.4999999999999" height="27" fill="white" />
 <text x="55" y="431" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#326cae" font-weight="400" text-anchor="start">loadOrFuture(&amp;waitFuture)</text>
-<rect x="234" y="459" width="315.79999999999995" height="27" fill="white"/>
+<rect x="234" y="459" width="315.79999999999995" height="27" fill="white" />
 <text x="238" y="479" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#326cae" font-weight="400" text-anchor="start">发现 Loading，取得等待 future</text>
-<rect x="183" y="509" width="34" height="194" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
-<rect x="234" y="536" width="206.89999999999995" height="27" fill="white"/>
+<rect x="183" y="509" width="34" height="194" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4" />
+<rect x="234" y="536" width="206.89999999999995" height="27" fill="white" />
 <text x="238" y="556" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#877951" font-weight="400" text-anchor="start">waitFuture.wait()</text>
-<rect x="234" y="566" width="159.20000000000002" height="27" fill="white"/>
+<rect x="234" y="566" width="159.20000000000002" height="27" fill="white" />
 <text x="238" y="586" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#877951" font-weight="400" text-anchor="start">当前线程同步等待</text>
-<polyline points="1080,624 650,624" fill="none" stroke="#39826d" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-green)"/>
-<rect x="664" y="591" width="212.29999999999995" height="27" fill="white"/>
+<polyline points="1080,624 650,624" fill="none" stroke="#39826d" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-green)" />
+<rect x="664" y="591" width="212.29999999999995" height="27" fill="white" />
 <text x="668" y="611" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#2e7963" font-weight="400" text-anchor="start">read 返回完整 bytes</text>
 <text x="685" y="675" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#2e7963" font-weight="400" text-anchor="start">setEndState(Loaded)</text>
-<polyline points="650,723 200,723" fill="none" stroke="#39826d" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-green)"/>
-<rect x="214" y="690" width="335.59999999999985" height="27" fill="white"/>
+<polyline points="650,723 200,723" fill="none" stroke="#39826d" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-green)" />
+<rect x="214" y="690" width="335.59999999999985" height="27" fill="white" />
 <text x="218" y="710" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#2e7963" font-weight="400" text-anchor="start">SharedPromise.setValue(true)</text>
-<rect x="51" y="761" width="383.29999999999984" height="27" fill="white"/>
+<rect x="51" y="761" width="383.29999999999984" height="27" fill="white" />
 <text x="55" y="781" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#326cae" font-weight="400" text-anchor="start">getData() 检查 Loaded，接收 buffer</text>
-<rect x="51" y="796" width="283.4" height="27" fill="white"/>
+<rect x="51" y="796" width="283.4" height="27" fill="white" />
 <text x="55" y="816" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#326cae" font-weight="400" text-anchor="start">Next 返回连续 run，继续解码</text>
-<line x1="48" y1="906" x2="1232" y2="906" stroke="#dce3ea" stroke-width="1.5"/>
+<line x1="48" y1="906" x2="1232" y2="906" stroke="#dce3ea" stroke-width="1.6" />
 <text x="48" y="940" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">此处没有把 future 交回 DataSource::next / TableScan::isBlocked；不会因此自动 off-thread。</text>
 <text x="48" y="971" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">若消费线程先取得 Planned，它会自己执行 loadData。单个 sparse stream 也可能直接 loadSync。</text>
 </svg>

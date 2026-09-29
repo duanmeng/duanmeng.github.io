@@ -1,62 +1,62 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="1130" viewBox="0 0 1280 1130" role="img"><title>Split preload：提前准备，再由消费线程接管</title><desc>两条线程轨道；AsyncSource / prepared DataSource 是共享交接对象，不是额外线程。</desc><defs>
-<marker id="arr-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#657386"/></marker>
-<marker id="arr-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#4078bd"/></marker>
-<marker id="arr-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#39826d"/></marker>
-<marker id="arr-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8d76b7"/></marker>
-<marker id="arr-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ac9c76"/></marker>
-<marker id="arr-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#a95f64"/></marker>
-</defs><rect width="1280" height="1130" fill="white"/>
+<marker id="arr-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#657386" /></marker>
+<marker id="arr-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#4078bd" /></marker>
+<marker id="arr-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#39826d" /></marker>
+<marker id="arr-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8d76b7" /></marker>
+<marker id="arr-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ac9c76" /></marker>
+<marker id="arr-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#a95f64" /></marker>
+</defs><rect width="1280" height="1130" fill="white" stroke="none" />
 <text x="48" y="58" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="30" fill="#1f2d3d" font-weight="600" text-anchor="start">Split preload：提前准备，再由消费线程接管</text>
 <text x="48" y="94" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">两条线程轨道；AsyncSource / prepared DataSource 是共享交接对象，不是额外线程。</text>
-<line x1="48" y1="118" x2="1232" y2="118" stroke="#dce3ea" stroke-width="1.5"/>
+<line x1="48" y1="118" x2="1232" y2="118" stroke="#dce3ea" stroke-width="1.6" />
 <g class="card">
-<rect x="40" y="155" width="240" height="105" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<rect x="40" y="155" width="240" height="105" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
 <text x="60" y="189" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#326cae" font-weight="600" text-anchor="start">Driver 线程</text>
 <text x="60" y="223" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">消费当前 split</text>
 </g>
-<line x1="160" y1="260" x2="160" y2="957" stroke="#657386" stroke-width="2.3" stroke-dasharray="7 5"/>
+<line x1="160" y1="260" x2="160" y2="957" stroke="#657386" stroke-width="2.3" stroke-dasharray="7 5" />
 <g class="card">
-<rect x="505" y="155" width="240" height="105" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
+<rect x="505" y="155" width="240" height="105" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4" />
 <text x="525" y="189" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#65537f" font-weight="600" text-anchor="start">AsyncSource</text>
 <text x="525" y="223" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">一次性交接状态</text>
 </g>
-<line x1="625" y1="260" x2="625" y2="957" stroke="#657386" stroke-width="2.3" stroke-dasharray="7 5"/>
+<line x1="625" y1="260" x2="625" y2="957" stroke="#657386" stroke-width="2.3" stroke-dasharray="7 5" />
 <g class="card">
-<rect x="980" y="155" width="240" height="105" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<rect x="980" y="155" width="240" height="105" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4" />
 <text x="1000" y="189" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#2e7963" font-weight="600" text-anchor="start">IO executor 线程</text>
 <text x="1000" y="223" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">执行 prepare</text>
 </g>
-<line x1="1100" y1="260" x2="1100" y2="957" stroke="#657386" stroke-width="2.3" stroke-dasharray="7 5"/>
-<polyline points="160,317 625,317" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)"/>
-<rect x="172" y="284" width="266.29999999999995" height="27" fill="white"/>
-<text x="176" y="304" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#657386" font-weight="400" text-anchor="start">安装 maker；提交 prepare</text>
-<polyline points="1100,390 625,390" fill="none" stroke="#39826d" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-green)"/>
-<rect x="741" y="357" width="232.99999999999994" height="27" fill="white"/>
+<line x1="1100" y1="260" x2="1100" y2="957" stroke="#657386" stroke-width="2.3" stroke-dasharray="7 5" />
+<polyline points="160,317 625,317" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)" />
+<rect x="172" y="284" width="266.29999999999995" height="27" fill="white" />
+<text x="176" y="304" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#1f2d3d" font-weight="400" text-anchor="start">安装 maker；提交 prepare</text>
+<polyline points="1100,390 625,390" fill="none" stroke="#39826d" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-green)" />
+<rect x="741" y="357" width="232.99999999999994" height="27" fill="white" />
 <text x="745" y="377" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#2e7963" font-weight="400" text-anchor="start">prepare() 取得 maker</text>
-<rect x="823" y="426" width="212.29999999999995" height="27" fill="white"/>
-<text x="827" y="446" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#657386" font-weight="400" text-anchor="start">锁外创建 DataSource</text>
-<rect x="823" y="460" width="350.8999999999999" height="27" fill="white"/>
-<text x="827" y="480" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#657386" font-weight="400" text-anchor="start">addSplit：打开文件 / 准备 reader</text>
-<rect x="50" y="454" width="191.59999999999997" height="27" fill="white"/>
-<text x="54" y="474" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#657386" font-weight="400" text-anchor="start">继续消费当前 split</text>
-<polyline points="160,572 625,572" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)"/>
-<rect x="172" y="539" width="223.99999999999994" height="27" fill="white"/>
-<text x="176" y="559" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#657386" font-weight="400" text-anchor="start">下一个 split：move()</text>
-<rect x="179" y="613" width="241.10000000000005" height="27" fill="white"/>
-<text x="183" y="633" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#657386" font-weight="400" text-anchor="start">若正在 Making：同步等待</text>
-<polyline points="1100,698 625,698" fill="none" stroke="#39826d" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-green)"/>
-<rect x="743" y="665" width="298.6999999999999" height="27" fill="white"/>
+<rect x="823" y="426" width="212.29999999999995" height="27" fill="white" />
+<text x="827" y="446" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#1f2d3d" font-weight="400" text-anchor="start">锁外创建 DataSource</text>
+<rect x="823" y="460" width="350.8999999999999" height="27" fill="white" />
+<text x="827" y="480" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#1f2d3d" font-weight="400" text-anchor="start">addSplit：打开文件 / 准备 reader</text>
+<rect x="50" y="454" width="191.59999999999997" height="27" fill="white" />
+<text x="54" y="474" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#1f2d3d" font-weight="400" text-anchor="start">继续消费当前 split</text>
+<polyline points="160,572 625,572" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)" />
+<rect x="172" y="539" width="223.99999999999994" height="27" fill="white" />
+<text x="176" y="559" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#1f2d3d" font-weight="400" text-anchor="start">下一个 split：move()</text>
+<rect x="179" y="613" width="241.10000000000005" height="27" fill="white" />
+<text x="183" y="633" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#1f2d3d" font-weight="400" text-anchor="start">若正在 Making：同步等待</text>
+<polyline points="1100,698 625,698" fill="none" stroke="#39826d" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-green)" />
+<rect x="743" y="665" width="298.6999999999999" height="27" fill="white" />
 <text x="747" y="685" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#2e7963" font-weight="400" text-anchor="start">保存 item 或 exception_ptr</text>
-<polyline points="625,765 160,765" fill="none" stroke="#8d76b7" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-purple)"/>
-<rect x="172" y="732" width="196.10000000000002" height="27" fill="white"/>
+<polyline points="625,765 160,765" fill="none" stroke="#8d76b7" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-purple)" />
+<rect x="172" y="732" width="196.10000000000002" height="27" fill="white" />
 <text x="176" y="752" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#65537f" font-weight="400" text-anchor="start">promise 唤醒等待者</text>
-<rect x="185" y="809" width="345.49999999999983" height="27" fill="white"/>
-<text x="189" y="829" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#657386" font-weight="400" text-anchor="start">成功：move prepared DataSource</text>
-<rect x="185" y="843" width="272.6" height="27" fill="white"/>
+<rect x="185" y="809" width="345.49999999999983" height="27" fill="white" />
+<text x="189" y="829" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#1f2d3d" font-weight="400" text-anchor="start">成功：move prepared DataSource</text>
+<rect x="185" y="843" width="272.6" height="27" fill="white" />
 <text x="189" y="863" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#8d4f54" font-weight="400" text-anchor="start">失败：在此消费线程重新抛异常</text>
-<rect x="54" y="909" width="567.8" height="27" fill="white"/>
-<text x="58" y="929" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#657386" font-weight="400" text-anchor="start">setFromDataSource：迁移 reader / ScanSpec / stats</text>
-<line x1="48" y1="1026" x2="1232" y2="1026" stroke="#dce3ea" stroke-width="1.5"/>
+<rect x="54" y="909" width="567.8" height="27" fill="white" />
+<text x="58" y="929" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#1f2d3d" font-weight="400" text-anchor="start">setFromDataSource：迁移 reader / ScanSpec / stats</text>
+<line x1="48" y1="1026" x2="1232" y2="1026" stroke="#dce3ea" stroke-width="1.6" />
 <text x="48" y="1060" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">若 executor 尚未开始，move() 可以在消费线程直接调用 maker；若已 Prepared，则直接取走结果。</text>
 <text x="48" y="1091" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">该等待没有通过 DataSource::next 的 future 交给 Driver；Task shared_ptr 捕获用于延长内存池等资源的寿命。</text>
 </svg>

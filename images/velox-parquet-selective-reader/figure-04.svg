@@ -1,72 +1,72 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="780" viewBox="0 0 1280 780" role="img"><title>Parquet：一组行，多个连续 ColumnChunk</title><desc>示意 2 个 RowGroup × 3 个叶子列；各列的 page 边界不必对齐。</desc><defs>
-<marker id="arr-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#657386"/></marker>
-<marker id="arr-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#4078bd"/></marker>
-<marker id="arr-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#39826d"/></marker>
-<marker id="arr-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8d76b7"/></marker>
-<marker id="arr-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ac9c76"/></marker>
-<marker id="arr-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#a95f64"/></marker>
-</defs><rect width="1280" height="780" fill="white"/>
+<marker id="arr-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#657386" /></marker>
+<marker id="arr-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#4078bd" /></marker>
+<marker id="arr-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#39826d" /></marker>
+<marker id="arr-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8d76b7" /></marker>
+<marker id="arr-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ac9c76" /></marker>
+<marker id="arr-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#a95f64" /></marker>
+</defs><rect width="1280" height="780" fill="white" stroke="none" />
 <text x="48" y="58" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="30" fill="#1f2d3d" font-weight="600" text-anchor="start">Parquet：一组行，多个连续 ColumnChunk</text>
 <text x="48" y="94" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">示意 2 个 RowGroup × 3 个叶子列；各列的 page 边界不必对齐。</text>
-<line x1="48" y1="118" x2="1232" y2="118" stroke="#dce3ea" stroke-width="1.5"/>
+<line x1="48" y1="118" x2="1232" y2="118" stroke="#dce3ea" stroke-width="1.6" />
 <text x="50" y="159" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#657386" font-weight="400" text-anchor="start">逻辑行分组</text>
 <text x="320" y="159" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#657386" font-weight="400" text-anchor="start">叶子列 A</text>
 <text x="590" y="159" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#657386" font-weight="400" text-anchor="start">叶子列 B</text>
 <text x="860" y="159" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#657386" font-weight="400" text-anchor="start">叶子列 C</text>
 <text x="55" y="231" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="23" fill="#326cae" font-weight="600" text-anchor="start">RG 0</text>
 <g class="card">
-<rect x="275" y="183" width="230" height="80" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<rect x="275" y="183" width="230" height="80" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
 <text x="295" y="217" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#326cae" font-weight="600" text-anchor="start">A chunk</text>
 </g>
 <g class="card">
-<rect x="545" y="183" width="230" height="80" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<rect x="545" y="183" width="230" height="80" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
 <text x="565" y="217" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#326cae" font-weight="600" text-anchor="start">B chunk</text>
 </g>
 <g class="card">
-<rect x="815" y="183" width="230" height="80" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<rect x="815" y="183" width="230" height="80" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
 <text x="835" y="217" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#326cae" font-weight="600" text-anchor="start">C chunk</text>
 </g>
 <text x="55" y="338" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="23" fill="#2e7963" font-weight="600" text-anchor="start">RG 1</text>
 <g class="card">
-<rect x="275" y="290" width="230" height="80" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<rect x="275" y="290" width="230" height="80" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4" />
 <text x="295" y="324" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#2e7963" font-weight="600" text-anchor="start">A chunk</text>
 </g>
 <g class="card">
-<rect x="545" y="290" width="230" height="80" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<rect x="545" y="290" width="230" height="80" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4" />
 <text x="565" y="324" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#2e7963" font-weight="600" text-anchor="start">B chunk</text>
 </g>
 <g class="card">
-<rect x="815" y="290" width="230" height="80" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<rect x="815" y="290" width="230" height="80" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4" />
 <text x="835" y="324" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="22" fill="#2e7963" font-weight="600" text-anchor="start">C chunk</text>
 </g>
-<polyline points="660,388 660,442" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)"/>
-<text x="48" y="458" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#657386" font-weight="400" text-anchor="start">文件 byte offset →</text>
-<rect x="48" y="485" width="69" height="63" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4"/>
+<polyline points="660,388 660,442" fill="none" stroke="#657386" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr-muted)" />
+<text x="48" y="458" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#1f2d3d" font-weight="400" text-anchor="start">文件 byte offset →</text>
+<rect x="48" y="485" width="69" height="63" rx="6" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.4" />
 <text x="82.5" y="523" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#877951" font-weight="400" text-anchor="middle">PAR1</text>
-<rect x="120" y="485" width="159" height="63" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<rect x="120" y="485" width="159" height="63" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
 <text x="199.5" y="523" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#326cae" font-weight="400" text-anchor="middle">RG0.A</text>
-<rect x="282" y="485" width="159" height="63" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<rect x="282" y="485" width="159" height="63" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
 <text x="361.5" y="523" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#326cae" font-weight="400" text-anchor="middle">RG0.B</text>
-<rect x="444" y="485" width="159" height="63" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<rect x="444" y="485" width="159" height="63" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
 <text x="523.5" y="523" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#326cae" font-weight="400" text-anchor="middle">RG0.C</text>
-<rect x="606" y="485" width="159" height="63" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<rect x="606" y="485" width="159" height="63" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4" />
 <text x="685.5" y="523" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#2e7963" font-weight="400" text-anchor="middle">RG1.A</text>
-<rect x="768" y="485" width="159" height="63" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<rect x="768" y="485" width="159" height="63" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4" />
 <text x="847.5" y="523" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#2e7963" font-weight="400" text-anchor="middle">RG1.B</text>
-<rect x="930" y="485" width="159" height="63" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4"/>
+<rect x="930" y="485" width="159" height="63" rx="6" fill="#f0f7f3" stroke="#39826d" stroke-width="1.4" />
 <text x="1009.5" y="523" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#2e7963" font-weight="400" text-anchor="middle">RG1.C</text>
-<rect x="1092" y="485" width="97" height="63" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
+<rect x="1092" y="485" width="97" height="63" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4" />
 <text x="1140.5" y="523" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="18" fill="#65537f" font-weight="400" text-anchor="middle">footer</text>
 <g class="card">
-<rect x="48" y="588" width="540" height="94" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4"/>
+<rect x="48" y="588" width="540" height="94" rx="6" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.4" />
 <text x="68" y="622" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#326cae" font-weight="600" text-anchor="start">一个 chunk 内</text>
 <text x="68" y="656" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">Dictionary page（可选）→ Data page 0 → …</text>
 </g>
 <g class="card">
-<rect x="650" y="588" width="582" height="94" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4"/>
+<rect x="650" y="588" width="582" height="94" rx="6" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.4" />
 <text x="670" y="622" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="21" fill="#65537f" font-weight="600" text-anchor="start">footer 提供定位依据</text>
 <text x="670" y="656" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#1f2d3d" font-weight="400" text-anchor="start">schema、行数、offset/size、codec、statistics</text>
 </g>
-<line x1="48" y1="708" x2="1232" y2="708" stroke="#dce3ea" stroke-width="1.5"/>
+<line x1="48" y1="708" x2="1232" y2="708" stroke="#dce3ea" stroke-width="1.6" />
 <text x="48" y="742" font-family="Noto Sans SC, Noto Sans CJK SC, Inter, Arial, sans-serif" font-size="19" fill="#657386" font-weight="400" text-anchor="start">图不按真实字节比例；尾部还有 footer 长度与 PAR1，RowGroup 归属按 split 字节范围判断。</text>
 </svg>
