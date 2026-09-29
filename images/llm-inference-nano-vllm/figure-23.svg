@@ -2,6 +2,9 @@
      width="1640"
      height="1250"
      viewBox="-20 -20 1640 1250">
+  <defs>
+<marker id="connector-arrow-0" markerUnits="userSpaceOnUse" markerWidth="40" markerHeight="40" refX="11.258330249197702" refY="0" orient="auto" overflow="visible"><path fill="#4078bd" stroke="none" d="M 11.258330249197702 0 L 0 -6.5 L 0 6.5 Z"/></marker>
+  </defs>
 <g id="o8:1" transform="translate(0, 0)"><rect x="0" y="0" width="1600" height="1210" fill="#ffffff" stroke="none" stroke-width="0" rx="0" ry="0"/></g>
 <g id="a8:1" transform="translate(52, 16.352001)"><text font-size="32" font-family="Noto Sans SC" font-weight="bold" fill="#1f2d3d" text-anchor="start" dominant-baseline="alphabetic" x="0"><tspan x="0" y="37.648"><tspan x="0" text-anchor="start">同一条残差流：数学上相加，源码里延后相加</tspan></tspan></text></g>
 <g id="a8:2" transform="translate(52, 67.47)"><text font-size="20" font-family="Noto Sans SC" font-weight="normal" fill="#657386" text-anchor="start" dominant-baseline="alphabetic" x="0"><tspan x="0" y="23.53"><tspan x="0" text-anchor="start">Qwen3-0.6B · hidden = 1024 · T 是本轮送入模型的 token 数；下图所有 h、r、x、a、y 均为 [T, 1024]</tspan></tspan></text></g>
@@ -91,7 +94,7 @@
 <g id="o8:18" transform="translate(997, 675)"><rect x="0" y="0" width="186" height="108" fill="#f3f7fc" stroke="#4078bd" stroke-width="2" rx="6" ry="6"/></g>
 <g id="a8:35" transform="translate(1064, 686.9405)"><text font-size="23" font-family="Noto Sans SC" font-weight="bold" fill="#326cae" text-anchor="start" dominant-baseline="alphabetic" x="0"><tspan x="0" y="27.06"><tspan x="0" text-anchor="start">MLP</tspan></tspan></text></g>
 <g id="a8:36" transform="translate(1021, 729.2935)"><text font-size="21" font-family="Noto Sans SC" font-weight="normal" fill="#326cae" text-anchor="start" dominant-baseline="alphabetic" x="0"><tspan x="0" y="24.707"><tspan x="0" text-anchor="start">h = MLP(h)</tspan></tspan></text></g>
-<g id="o8:19" transform="translate(1261, 675)"><rect x="0" y="0" width="287" height="108" fill="#f3f7fc" stroke="#4078bd" stroke-width="2" rx="6" ry="6"/></g>
+<g id="o8:19" transform="translate(1261, 675)"><rect x="0" y="0" width="228.514" height="108" fill="#f3f7fc" stroke="#4078bd" stroke-width="2" rx="6" ry="6"/></g>
 <g id="a8:37" transform="translate(1285, 681.9405)"><text font-size="23" font-family="Noto Sans SC" font-weight="bold" fill="#326cae" text-anchor="start" dominant-baseline="alphabetic" x="0"><tspan x="0" y="27.06"><tspan x="0" text-anchor="start">返回 h</tspan></tspan></text></g>
 <g id="a8:38" transform="translate(1285, 722.2935)"><text font-size="21" font-family="Noto Sans SC" font-weight="normal" fill="#326cae" text-anchor="start" dominant-baseline="alphabetic" x="0"><tspan x="0" y="24.707"><tspan x="0" text-anchor="start">MLP(Norm2(a))</tspan></tspan></text></g>
 <g id="c8:19" transform="translate(178, 783)"><path fill="none" stroke="#39826d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M 0 0 L 0 58 L 517 58 L 517 0"/></g>
@@ -100,13 +103,12 @@
 <g id="c8:20" transform="translate(870, 783)"><path fill="none" stroke="#39826d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M 0 0 L 0 111 L 391 111"/></g>
 <g id="p8:19" transform="translate(1248.5, 886.5)"><defs><symbol id="svgicon-p8-19" viewBox="0 0 15 15"><g transform="translate(-1248.5 -886.5)"><polygon points="1261,894 1251,889 1251,899" fill="#39826D" /></g></symbol></defs><use href="#svgicon-p8-19" x="0" y="0" width="15" height="15"/></g>
 <g id="a8:40" transform="translate(945, 853.2935)"><text font-size="21" font-family="Noto Sans SC" font-weight="normal" fill="#2e7963" text-anchor="start" dominant-baseline="alphabetic" x="0"><tspan x="0" y="24.707"><tspan x="0" text-anchor="start">r = a；绕过 MLP</tspan></tspan></text></g>
-<g id="o8:20" transform="translate(1261, 842)"><rect x="0" y="0" width="287" height="94" fill="#f0f7f3" stroke="#39826d" stroke-width="2" rx="6" ry="6"/></g>
+<g id="o8:20" transform="translate(1261, 842)"><rect x="0" y="0" width="228.514" height="94" fill="#f0f7f3" stroke="#39826d" stroke-width="2" rx="6" ry="6"/></g>
 <g id="a8:41" transform="translate(1285, 848.9405)"><text font-size="23" font-family="Noto Sans SC" font-weight="bold" fill="#2e7963" text-anchor="start" dominant-baseline="alphabetic" x="0"><tspan x="0" y="27.06"><tspan x="0" text-anchor="start">返回 r</tspan></tspan></text></g>
 <g id="a8:42" transform="translate(1285, 887.2935)"><text font-size="21" font-family="Noto Sans SC" font-weight="normal" fill="#2e7963" text-anchor="start" dominant-baseline="alphabetic" x="0"><tspan x="0" y="24.707"><tspan x="0" text-anchor="start">a = x + Attention(...)</tspan></tspan></text></g>
 <g id="a8:43" transform="translate(52, 883.117)"><text font-size="22" font-family="Noto Sans SC" font-weight="normal" fill="#65537f" text-anchor="start" dominant-baseline="alphabetic" x="0"><tspan x="0" y="25.883"><tspan x="0" text-anchor="start">此时返回 (h, r)，还没有显式构造 y = r + h。</tspan></tspan></text></g>
-<g id="c8:21" transform="translate(1510, 726)"><path fill="none" stroke="#4078bd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M 38 0 L 63 0 L 63 230 L 0 230 L 0 251"/></g>
-<g id="p8:20" transform="translate(1502.5, 964.5)"><defs><symbol id="svgicon-p8-20" viewBox="0 0 15 15"><g transform="translate(-1502.5 -964.5)"><polygon points="1510,977 1505,967 1515,967" fill="#4078BD" /></g></symbol></defs><use href="#svgicon-p8-20" x="0" y="0" width="15" height="15"/></g>
 <g id="o8:21" transform="translate(52, 977)"><rect x="0" y="0" width="1496" height="164" fill="#faf7ef" stroke="#ac9c76" stroke-width="2" rx="6" ry="6"/></g>
+<g id="c8:21" transform="translate(1489.5142, 729)"><path fill="none" stroke="#4078bd" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round" marker-end="url(#connector-arrow-0)" stroke-dasharray="0 0 271.24476775080234 11.258330249197702" d="M 0 0 L 34.503098 0 L 34.503098 248"/></g>
 <g id="a8:44" transform="translate(77, 990.764)"><text font-size="24" font-family="Noto Sans SC" font-weight="bold" fill="#877951" text-anchor="start" dominant-baseline="alphabetic" x="0"><tspan x="0" y="28.236"><tspan x="0" text-anchor="start">第二次相加发生在哪里？</tspan></tspan></text></g>
 <g id="c8:22" transform="translate(1405, 936)"><path fill="none" stroke="#ac9c76" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M 0 0 L 0 41"/></g>
 <g id="p8:21" transform="translate(1397.5, 964.5)"><defs><symbol id="svgicon-p8-21" viewBox="0 0 15 15"><g transform="translate(-1397.5 -964.5)"><polygon points="1405,977 1400,967 1410,967" fill="#AC9C76" /></g></symbol></defs><use href="#svgicon-p8-21" x="0" y="0" width="15" height="15"/></g>
