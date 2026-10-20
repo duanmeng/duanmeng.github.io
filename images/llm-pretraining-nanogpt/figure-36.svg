@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="642" viewBox="0 0 1280 642" role="img"><title>梯度累积：多次反向，一次参数更新</title><desc>先完成 N 个 micro-step，再裁剪、更新和清梯度；循环中的分支决定何时真正 step。</desc><rect width="1280" height="642" fill="#ffffff"/><defs>
+<marker id="arrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#4078bd"/></marker>
+<marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#39826d"/></marker>
+<marker id="arrow-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#8d76b7"/></marker>
+<marker id="arrow-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#ac9c76"/></marker>
+<marker id="arrow-gray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#657386"/></marker>
+</defs>
+<text x="32" y="46" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="28" font-weight="600" fill="#1f2d3d" text-anchor="start">梯度累积：多次反向，一次参数更新</text>
+<text x="32" y="78" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#657386" text-anchor="start">先完成 N 个 micro-step，再裁剪、更新和清梯度；循环中的分支决定何时真正 step。</text>
+<polyline points="32,100 1248,100" fill="none" stroke="#dce3ea" stroke-width="1.8" stroke-linejoin="round"/>
+<rect x="32" y="159" width="264" height="112" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="164.0" y="189" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#326cae" text-anchor="middle">forward</text>
+<text x="164.0" y="218" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">autocast bf16</text>
+<rect x="348" y="159" width="264" height="112" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
+<text x="480.0" y="189" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#65537f" text-anchor="middle">loss / accum_steps</text>
+<text x="480.0" y="218" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">梯度累加</text>
+<rect x="664" y="159" width="220" height="112" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
+<text x="774.0" y="189" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#65537f" text-anchor="middle">backward</text>
+<rect x="960" y="159" width="288" height="112" rx="4" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.5"/>
+<text x="1104.0" y="189" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#877951" text-anchor="middle">够 N 步？</text>
+<text x="1104.0" y="218" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">检查累积次数</text>
+<polyline points="296,215 348,215" fill="none" stroke="#4078bd" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-blue)"/>
+<polyline points="612,215 664,215" fill="none" stroke="#8d76b7" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-purple)"/>
+<polyline points="884,215 960,215" fill="none" stroke="#8d76b7" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-purple)"/>
+<polyline points="1104,159 1104,121 164,121 164,159" fill="none" stroke="#ac9c76" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-warm)"/>
+<rect x="600" y="108" width="110" height="28" rx="4" fill="#ffffff" stroke="#dce3ea" stroke-width="1.5"/>
+<text x="655" y="130" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="18" font-weight="400" fill="#877951" text-anchor="middle">否：继续</text>
+<polyline points="1104,271 1104,354" fill="none" stroke="#39826d" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-green)"/>
+<text x="1120" y="318" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="600" fill="#2e7963" text-anchor="start">是</text>
+<rect x="960" y="356" width="288" height="111" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="1104.0" y="386" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#2e7963" text-anchor="middle">梯度裁剪</text>
+<text x="1104.0" y="415" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">clip_grad_norm</text>
+<rect x="664" y="356" width="220" height="111" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="774.0" y="386" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#2e7963" text-anchor="middle">optimizer.step()</text>
+<rect x="348" y="356" width="264" height="111" rx="4" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.5"/>
+<text x="480.0" y="386" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#877951" text-anchor="middle">scheduler.step()</text>
+<text x="480.0" y="415" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">warmup + cosine</text>
+<rect x="32" y="356" width="264" height="111" rx="4" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.5"/>
+<text x="164.0" y="386" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#877951" text-anchor="middle">zero_grad()</text>
+<polyline points="960,411 884,411" fill="none" stroke="#39826d" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-green)"/>
+<polyline points="664,411 612,411" fill="none" stroke="#39826d" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-green)"/>
+<polyline points="348,411 296,411" fill="none" stroke="#ac9c76" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-warm)"/>
+<polyline points="164,356 164,271" fill="none" stroke="#ac9c76" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-warm)"/>
+<text x="32" y="514" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#657386" text-anchor="start">每次 backward 把梯度加进 .grad；未达到 N 次时，不清梯度、不更新参数。</text>
+<polyline points="32,550 1248,550" fill="none" stroke="#dce3ea" stroke-width="1.8" stroke-linejoin="round"/>
+<text x="32" y="586" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="400" fill="#657386" text-anchor="start">bf16 示例未使用 GradScaler；学习率调度在 optimizer.step() 之后推进。</text>
+<text x="32" y="620" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#657386" text-anchor="start">loss / accum_steps 对应等权、等大小 micro-batch 的平均；变长输入还需核对有效 token 权重。</text>
+</svg>

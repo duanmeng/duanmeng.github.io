@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="522" viewBox="0 0 1280 522" role="img"><title>LoRA：冻结原权重，只训练低秩增量</title><desc>两条分支处理同一个输入；W 保持不变，A 和 B 提供可训练的低秩更新。</desc><rect width="1280" height="522" fill="#ffffff"/><defs>
+<marker id="arrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#4078bd"/></marker>
+<marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#39826d"/></marker>
+<marker id="arrow-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#8d76b7"/></marker>
+<marker id="arrow-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#ac9c76"/></marker>
+<marker id="arrow-gray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#657386"/></marker>
+</defs>
+<text x="32" y="46" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="28" font-weight="600" fill="#1f2d3d" text-anchor="start">LoRA：冻结原权重，只训练低秩增量</text>
+<text x="32" y="78" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#657386" text-anchor="start">两条分支处理同一个输入；W 保持不变，A 和 B 提供可训练的低秩更新。</text>
+<polyline points="32,100 1248,100" fill="none" stroke="#dce3ea" stroke-width="1.8" stroke-linejoin="round"/>
+<rect x="32" y="218" width="154" height="82" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="109.0" y="248" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#326cae" text-anchor="middle">输入 x</text>
+<rect x="294" y="133" width="482" height="91" rx="4" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.5"/>
+<text x="535.0" y="163" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#877951" text-anchor="middle">冻结的原权重 W</text>
+<text x="535.0" y="192" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">不更新</text>
+<rect x="294" y="323" width="210" height="105" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
+<text x="399.0" y="353" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#65537f" text-anchor="middle">降维 A</text>
+<text x="399.0" y="382" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">dim → r</text>
+<text x="399.0" y="409" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">r 很小</text>
+<rect x="566" y="323" width="210" height="105" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="671.0" y="353" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#2e7963" text-anchor="middle">升维 B</text>
+<text x="671.0" y="382" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">r → dim</text>
+<polyline points="186,259 242,259 242,178 294,178" fill="none" stroke="#ac9c76" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-warm)"/>
+<polyline points="186,259 242,259 242,375 294,375" fill="none" stroke="#8d76b7" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-purple)"/>
+<polyline points="504,375 566,375" fill="none" stroke="#8d76b7" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-purple)"/>
+<rect x="900" y="228" width="62" height="62" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
+<text x="931" y="269" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="34" font-weight="600" fill="#65537f" text-anchor="middle">+</text>
+<polyline points="776,178 842,178 842,259 900,259" fill="none" stroke="#ac9c76" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-warm)"/>
+<polyline points="776,375 842,375 842,281 900,281" fill="none" stroke="#39826d" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-green)"/>
+<rect x="1032" y="218" width="216" height="101" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="1140.0" y="248" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#2e7963" text-anchor="middle">输出</text>
+<text x="1140.0" y="277" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">等价于 (W + BA)x</text>
+<polyline points="962,259 1032,259" fill="none" stroke="#39826d" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-green)"/>
+<text x="906" y="325" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="400" fill="#65537f" text-anchor="start">相加</text>
+<text x="32" y="482" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="400" fill="#657386" text-anchor="start">简式省略 LoRA 的缩放系数；增量矩阵 BA 的秩至多为 r。</text>
+</svg>

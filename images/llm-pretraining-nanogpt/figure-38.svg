@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="472" viewBox="0 0 1280 472" role="img"><title>图像分类 MLP：784 → 256 → 128 → 10</title><desc>输入是一张 28 × 28 图片；展平后经线性层与非线性变换，输出 10 个类别的分数。</desc><rect width="1280" height="472" fill="#ffffff"/><defs>
+<marker id="arrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#4078bd"/></marker>
+<marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#39826d"/></marker>
+<marker id="arrow-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#8d76b7"/></marker>
+<marker id="arrow-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#ac9c76"/></marker>
+<marker id="arrow-gray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#657386"/></marker>
+</defs>
+<text x="32" y="46" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="28" font-weight="600" fill="#1f2d3d" text-anchor="start">图像分类 MLP：784 → 256 → 128 → 10</text>
+<text x="32" y="78" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#657386" text-anchor="start">输入是一张 28 × 28 图片；展平后经线性层与非线性变换，输出 10 个类别的分数。</text>
+<polyline points="32,100 1248,100" fill="none" stroke="#dce3ea" stroke-width="1.8" stroke-linejoin="round"/>
+<rect x="32" y="159" width="150" height="150" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="46" y="173" width="17" height="17" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="66" y="173" width="17" height="17" rx="4" fill="#ffffff" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="86" y="173" width="17" height="17" rx="4" fill="#ffffff" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="106" y="173" width="17" height="17" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="126" y="173" width="17" height="17" rx="4" fill="#ffffff" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="146" y="173" width="17" height="17" rx="4" fill="#ffffff" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="46" y="193" width="17" height="17" rx="4" fill="#ffffff" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="66" y="193" width="17" height="17" rx="4" fill="#ffffff" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="86" y="193" width="17" height="17" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="106" y="193" width="17" height="17" rx="4" fill="#ffffff" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="126" y="193" width="17" height="17" rx="4" fill="#ffffff" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="146" y="193" width="17" height="17" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="46" y="213" width="17" height="17" rx="4" fill="#ffffff" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="66" y="213" width="17" height="17" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="86" y="213" width="17" height="17" rx="4" fill="#ffffff" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="106" y="213" width="17" height="17" rx="4" fill="#ffffff" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="126" y="213" width="17" height="17" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="146" y="213" width="17" height="17" rx="4" fill="#ffffff" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="46" y="233" width="17" height="17" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="66" y="233" width="17" height="17" rx="4" fill="#ffffff" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="86" y="233" width="17" height="17" rx="4" fill="#ffffff" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="106" y="233" width="17" height="17" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="126" y="233" width="17" height="17" rx="4" fill="#ffffff" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="146" y="233" width="17" height="17" rx="4" fill="#ffffff" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="46" y="253" width="17" height="17" rx="4" fill="#ffffff" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="66" y="253" width="17" height="17" rx="4" fill="#ffffff" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="86" y="253" width="17" height="17" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="106" y="253" width="17" height="17" rx="4" fill="#ffffff" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="126" y="253" width="17" height="17" rx="4" fill="#ffffff" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="146" y="253" width="17" height="17" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="46" y="273" width="17" height="17" rx="4" fill="#ffffff" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="66" y="273" width="17" height="17" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="86" y="273" width="17" height="17" rx="4" fill="#ffffff" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="106" y="273" width="17" height="17" rx="4" fill="#ffffff" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="126" y="273" width="17" height="17" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="146" y="273" width="17" height="17" rx="4" fill="#ffffff" stroke="#4078bd" stroke-width="1.5"/>
+<text x="107" y="343" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="600" fill="#326cae" text-anchor="middle">输入图片</text>
+<text x="107" y="373" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">28 × 28 = 784</text>
+<rect x="240" y="182" width="180" height="104" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="330.0" y="212" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#326cae" text-anchor="middle">Linear</text>
+<text x="330.0" y="241" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">784 → 256</text>
+<polyline points="182,234 240,234" fill="none" stroke="#4078bd" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-blue)"/>
+<rect x="456" y="182" width="146" height="104" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
+<text x="529.0" y="212" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#65537f" text-anchor="middle">ReLU</text>
+<text x="529.0" y="241" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">非线性</text>
+<polyline points="420,234 456,234" fill="none" stroke="#4078bd" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-blue)"/>
+<rect x="638" y="182" width="180" height="104" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="728.0" y="212" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#326cae" text-anchor="middle">Linear</text>
+<text x="728.0" y="241" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">256 → 128</text>
+<polyline points="602,234 638,234" fill="none" stroke="#8d76b7" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-purple)"/>
+<rect x="854" y="182" width="146" height="104" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
+<text x="927.0" y="212" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#65537f" text-anchor="middle">ReLU</text>
+<text x="927.0" y="241" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">非线性</text>
+<polyline points="818,234 854,234" fill="none" stroke="#4078bd" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-blue)"/>
+<rect x="1036" y="182" width="180" height="104" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="1126.0" y="212" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#2e7963" text-anchor="middle">Linear</text>
+<text x="1126.0" y="241" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">128 → 10</text>
+<polyline points="1000,234 1036,234" fill="none" stroke="#8d76b7" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-purple)"/>
+<polyline points="1126,286 1126,327" fill="none" stroke="#39826d" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-green)"/>
+<text x="1126" y="357" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="600" fill="#2e7963" text-anchor="middle">10 个类别的分数</text>
+<text x="1126" y="386" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#2e7963" text-anchor="middle">logits</text>
+<polyline points="32,411 1248,411" fill="none" stroke="#dce3ea" stroke-width="1.8" stroke-linejoin="round"/>
+<text x="32" y="446" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="400" fill="#657386" text-anchor="start">线性层学习特征组合，ReLU 引入非线性；logits 是 Softmax 之前的原始分数。</text>
+</svg>

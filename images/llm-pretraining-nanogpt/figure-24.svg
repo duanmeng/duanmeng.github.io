@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="490" viewBox="0 0 1280 490" role="img"><title>Attention：由相关性分数得到加权输出</title><desc>输入 X 生成 Q、K、V；Q 和 K 决定权重，V 提供被汇总的内容。</desc><rect width="1280" height="490" fill="#ffffff"/><defs>
+<marker id="arrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#4078bd"/></marker>
+<marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#39826d"/></marker>
+<marker id="arrow-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#8d76b7"/></marker>
+<marker id="arrow-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#ac9c76"/></marker>
+<marker id="arrow-gray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#657386"/></marker>
+</defs>
+<text x="32" y="46" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="28" font-weight="600" fill="#1f2d3d" text-anchor="start">Attention：由相关性分数得到加权输出</text>
+<text x="32" y="78" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#657386" text-anchor="start">输入 X 生成 Q、K、V；Q 和 K 决定权重，V 提供被汇总的内容。</text>
+<polyline points="32,100 1248,100" fill="none" stroke="#dce3ea" stroke-width="1.8" stroke-linejoin="round"/>
+<rect x="32" y="230" width="176" height="92" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="120.0" y="260" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#326cae" text-anchor="middle">输入 token 向量</text>
+<text x="120.0" y="289" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">X</text>
+<rect x="300" y="130" width="148" height="70" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="374.0" y="160" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#326cae" text-anchor="middle">Q 查询</text>
+<polyline points="208,276 254,276 254,165 300,165" fill="none" stroke="#4078bd" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-blue)"/>
+<rect x="300" y="250" width="148" height="70" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="374.0" y="280" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#326cae" text-anchor="middle">K 键</text>
+<polyline points="208,276 254,276 254,285 300,285" fill="none" stroke="#4078bd" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-blue)"/>
+<rect x="300" y="370" width="148" height="70" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="374.0" y="400" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#2e7963" text-anchor="middle">V 值</text>
+<polyline points="208,276 254,276 254,405 300,405" fill="none" stroke="#39826d" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-green)"/>
+<rect x="528" y="182" width="220" height="106" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
+<text x="638.0" y="212" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#65537f" text-anchor="middle">QKᵀ / √d</text>
+<text x="638.0" y="241" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">算相关性分数</text>
+<polyline points="448,165 486,165 486,213 528,213" fill="none" stroke="#4078bd" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-blue)"/>
+<polyline points="448,285 486,285 486,255 528,255" fill="none" stroke="#4078bd" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-blue)"/>
+<rect x="806" y="182" width="180" height="106" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
+<text x="896.0" y="212" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#65537f" text-anchor="middle">softmax</text>
+<text x="896.0" y="241" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">归一化成权重</text>
+<polyline points="748,235 806,235" fill="none" stroke="#8d76b7" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-purple)"/>
+<rect x="1044" y="182" width="204" height="106" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="1146.0" y="212" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#2e7963" text-anchor="middle">加权求和 V</text>
+<text x="1146.0" y="241" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">得到输出</text>
+<polyline points="986,235 1044,235" fill="none" stroke="#8d76b7" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-purple)"/>
+<polyline points="448,405 1146,405 1146,288" fill="none" stroke="#39826d" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-green)"/>
+<text x="620" y="392" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#2e7963" text-anchor="start">值向量 V 沿独立路径参与加权求和</text>
+</svg>

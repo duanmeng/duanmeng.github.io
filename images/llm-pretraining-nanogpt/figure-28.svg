@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="704" viewBox="0 0 1280 704" role="img"><title>FSDP1 与 FSDP2：分片边界如何对应参数</title><desc>以一个 Linear 权重 W 为例，完整形状为 (out, in)。两条路径分担状态的目标相同。</desc><rect width="1280" height="704" fill="#ffffff"/><defs>
+<marker id="arrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#4078bd"/></marker>
+<marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#39826d"/></marker>
+<marker id="arrow-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#8d76b7"/></marker>
+<marker id="arrow-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#ac9c76"/></marker>
+<marker id="arrow-gray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#657386"/></marker>
+</defs>
+<text x="32" y="46" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="28" font-weight="600" fill="#1f2d3d" text-anchor="start">FSDP1 与 FSDP2：分片边界如何对应参数</text>
+<text x="32" y="78" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#657386" text-anchor="start">以一个 Linear 权重 W 为例，完整形状为 (out, in)。两条路径分担状态的目标相同。</text>
+<polyline points="32,100 1248,100" fill="none" stroke="#dce3ea" stroke-width="1.8" stroke-linejoin="round"/>
+<text x="32" y="143" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="24" font-weight="600" fill="#326cae" text-anchor="start">FSDP1：先展平参数组</text>
+<text x="678" y="143" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="24" font-weight="600" fill="#2e7963" text-anchor="start">FSDP2：每个参数保留身份</text>
+<rect x="32" y="171" width="548" height="87" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="306.0" y="201" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#326cae" text-anchor="middle">同单元参数合并为一个大一维张量</text>
+<text x="306.0" y="230" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">W 与其他参数一起 flatten</text>
+<rect x="50" y="288" width="190" height="48" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="145" y="319" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="600" fill="#326cae" text-anchor="middle">W</text>
+<rect x="242" y="288" width="80" height="48" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
+<text x="282" y="319" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="600" fill="#65537f" text-anchor="middle">b</text>
+<rect x="324" y="288" width="238" height="48" rx="4" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.5"/>
+<text x="443" y="319" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="600" fill="#877951" text-anchor="middle">其他参数</text>
+<polyline points="306,258 306,284" fill="none" stroke="#4078bd" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-blue)"/>
+<text x="32" y="373" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#1f2d3d" text-anchor="start">按总长度平均切 N 段</text>
+<rect x="50" y="393" width="124" height="44" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="112" y="422" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#326cae" text-anchor="middle">shard 0</text>
+<rect x="180" y="393" width="124" height="44" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="242" y="422" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#326cae" text-anchor="middle">shard 1</text>
+<rect x="310" y="393" width="124" height="44" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="372" y="422" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#326cae" text-anchor="middle">shard 2</text>
+<rect x="440" y="393" width="124" height="44" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="502" y="422" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#326cae" text-anchor="middle">shard 3</text>
+<polyline points="306,336 306,393" fill="none" stroke="#4078bd" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-blue)"/>
+<polyline points="306,437 306,514" fill="none" stroke="#4078bd" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-blue)"/>
+<text x="32" y="476" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#657386" text-anchor="start">分片边界与单个权重无关</text>
+<rect x="32" y="514" width="548" height="94" rx="4" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.5"/>
+<text x="306.0" y="544" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#877951" text-anchor="middle">state_dict 需要映射回原参数</text>
+<text x="306.0" y="573" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">与 TP 组合需要处理 flatten 后的对应关系</text>
+<rect x="678" y="171" width="570" height="87" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="963.0" y="201" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#2e7963" text-anchor="middle">W 单独按第 0 维分成 N 片</text>
+<text x="963.0" y="230" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">每片由 DTensor 表达</text>
+<polyline points="963,258 963,284" fill="none" stroke="#39826d" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-green)"/>
+<rect x="708" y="288" width="170" height="33" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="793" y="311" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="18" font-weight="400" fill="#2e7963" text-anchor="middle">W shard 0</text>
+<rect x="708" y="325" width="170" height="33" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="793" y="348" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="18" font-weight="400" fill="#2e7963" text-anchor="middle">W shard 1</text>
+<rect x="708" y="362" width="170" height="33" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="793" y="385" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="18" font-weight="400" fill="#2e7963" text-anchor="middle">W shard 2</text>
+<rect x="708" y="399" width="170" height="33" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="793" y="422" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="18" font-weight="400" fill="#2e7963" text-anchor="middle">W shard 3</text>
+<text x="912" y="322" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="600" fill="#2e7963" text-anchor="start">DTensor 携带分布信息</text>
+<text x="912" y="356" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="400" fill="#657386" text-anchor="start">知道自己属于 W 的哪一片</text>
+<text x="912" y="390" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="400" fill="#657386" text-anchor="start">保留参数的名称与形状</text>
+<rect x="678" y="514" width="570" height="94" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="963.0" y="544" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#2e7963" text-anchor="middle">state_dict 天然对应原权重</text>
+<text x="963.0" y="573" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">可与 TP 在同一 DeviceMesh 上组合</text>
+<polyline points="963,437 963,514" fill="none" stroke="#39826d" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-green)"/>
+<polyline points="32,636 1248,636" fill="none" stroke="#dce3ea" stroke-width="1.8" stroke-linejoin="round"/>
+<text x="32" y="673" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#657386" text-anchor="start">图示为常见的 dim-0 分片方式；per-parameter 身份减少了状态保存和并行组合中的映射工作。</text>
+</svg>

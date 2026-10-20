@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="1540"
+     height="760"
+     viewBox="-20 -20 1540 760">
+  <defs>
+<marker id="connector-arrow-0" markerUnits="userSpaceOnUse" markerWidth="40" markerHeight="40" refX="7" refY="0" orient="auto" overflow="visible"><path fill="none" stroke="#657386" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M 0 -6 L 6 0 L 0 6 M 0 0 L 6 0"/></marker>
+<marker id="connector-arrow-1" markerUnits="userSpaceOnUse" markerWidth="40" markerHeight="40" refX="7" refY="0" orient="auto" overflow="visible"><path fill="none" stroke="#657386" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M 0 -6 L 6 0 L 0 6 M 0 0 L 6 0"/></marker>
+  </defs>
+<g id="o7:1" transform="translate(0, 0)"><rect x="0" y="0" width="1500" height="720" fill="#ffffff" stroke="none" stroke-width="0" rx="0" ry="0"/></g>
+<g id="a7:1" transform="translate(45, 19.646002)"><text font-size="36" font-family="Noto Sans SC" font-weight="bold" fill="#1f2d3d" text-anchor="start" dominant-baseline="alphabetic" x="0"><tspan x="0" y="42.354"><tspan x="0" text-anchor="start">CPU–GPU 数据往返有成本</tspan></tspan></text></g>
+<g id="a7:2" transform="translate(45, 78.9405)"><text font-size="23" font-family="Noto Sans SC" font-weight="normal" fill="#657386" text-anchor="start" dominant-baseline="alphabetic" x="0"><tspan x="0" y="27.06"><tspan x="0" text-anchor="start">把数据放到合适的设备，并在后续计算中复用。</tspan></tspan></text></g>
+<g id="c7:1" transform="translate(45, 137)"><path fill="none" stroke="#dce3ea" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M 0 0 L 1410 0"/></g>
+<g id="o7:2" transform="translate(45, 178)"><rect x="0" y="0" width="380" height="346" fill="#faf7ef" stroke="#ac9c76" stroke-width="2" rx="6" ry="6"/></g>
+<g id="o7:3" transform="translate(1075, 178)"><rect x="0" y="0" width="380" height="346" fill="#f3f7fc" stroke="#4078bd" stroke-width="2" rx="6" ry="6"/></g>
+<g id="o7:4" transform="translate(183, 213)"><rect x="0" y="0" width="104" height="65" fill="#ffffff" stroke="#ac9c76" stroke-width="2" rx="6" ry="6"/></g>
+<g id="c7:2" transform="translate(202, 204)"><path fill="none" stroke="#ac9c76" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M 0 0 L 0 9"/></g>
+<g id="c7:3" transform="translate(202, 278)"><path fill="none" stroke="#ac9c76" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M 0 0 L 0 9"/></g>
+<g id="c7:4" transform="translate(224, 204)"><path fill="none" stroke="#ac9c76" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M 0 0 L 0 9"/></g>
+<g id="c7:5" transform="translate(224, 278)"><path fill="none" stroke="#ac9c76" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M 0 0 L 0 9"/></g>
+<g id="c7:6" transform="translate(246, 204)"><path fill="none" stroke="#ac9c76" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M 0 0 L 0 9"/></g>
+<g id="c7:7" transform="translate(246, 278)"><path fill="none" stroke="#ac9c76" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M 0 0 L 0 9"/></g>
+<g id="c7:8" transform="translate(268, 204)"><path fill="none" stroke="#ac9c76" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M 0 0 L 0 9"/></g>
+<g id="c7:9" transform="translate(268, 278)"><path fill="none" stroke="#ac9c76" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M 0 0 L 0 9"/></g>
+<g id="c7:10" transform="translate(175, 225)"><path fill="none" stroke="#ac9c76" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M 0 0 L 8 0"/></g>
+<g id="c7:11" transform="translate(287, 225)"><path fill="none" stroke="#ac9c76" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M 0 0 L 8 0"/></g>
+<g id="c7:12" transform="translate(175, 245)"><path fill="none" stroke="#ac9c76" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M 0 0 L 8 0"/></g>
+<g id="c7:13" transform="translate(287, 245)"><path fill="none" stroke="#ac9c76" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M 0 0 L 8 0"/></g>
+<g id="c7:14" transform="translate(175, 265)"><path fill="none" stroke="#ac9c76" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M 0 0 L 8 0"/></g>
+<g id="c7:15" transform="translate(287, 265)"><path fill="none" stroke="#ac9c76" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M 0 0 L 8 0"/></g>
+<g id="o7:5" transform="translate(1213, 213)"><rect x="0" y="0" width="104" height="65" fill="#ffffff" stroke="#4078bd" stroke-width="2" rx="6" ry="6"/></g>
+<g id="c7:16" transform="translate(1232, 204)"><path fill="none" stroke="#4078bd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M 0 0 L 0 9"/></g>
+<g id="c7:17" transform="translate(1232, 278)"><path fill="none" stroke="#4078bd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M 0 0 L 0 9"/></g>
+<g id="c7:18" transform="translate(1254, 204)"><path fill="none" stroke="#4078bd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M 0 0 L 0 9"/></g>
+<g id="c7:19" transform="translate(1254, 278)"><path fill="none" stroke="#4078bd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M 0 0 L 0 9"/></g>
+<g id="c7:20" transform="translate(1276, 204)"><path fill="none" stroke="#4078bd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M 0 0 L 0 9"/></g>
+<g id="c7:21" transform="translate(1276, 278)"><path fill="none" stroke="#4078bd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M 0 0 L 0 9"/></g>
+<g id="c7:22" transform="translate(1298, 204)"><path fill="none" stroke="#4078bd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M 0 0 L 0 9"/></g>
+<g id="c7:23" transform="translate(1298, 278)"><path fill="none" stroke="#4078bd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M 0 0 L 0 9"/></g>
+<g id="c7:24" transform="translate(1205, 225)"><path fill="none" stroke="#4078bd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M 0 0 L 8 0"/></g>
+<g id="c7:25" transform="translate(1317, 225)"><path fill="none" stroke="#4078bd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M 0 0 L 8 0"/></g>
+<g id="c7:26" transform="translate(1205, 245)"><path fill="none" stroke="#4078bd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M 0 0 L 8 0"/></g>
+<g id="c7:27" transform="translate(1317, 245)"><path fill="none" stroke="#4078bd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M 0 0 L 8 0"/></g>
+<g id="c7:28" transform="translate(1205, 265)"><path fill="none" stroke="#4078bd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M 0 0 L 8 0"/></g>
+<g id="c7:29" transform="translate(1317, 265)"><path fill="none" stroke="#4078bd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M 0 0 L 8 0"/></g>
+<g id="a7:3" transform="translate(201, 226.764)"><text font-size="24" font-family="Noto Sans SC" font-weight="bold" fill="#877951" text-anchor="middle" dominant-baseline="alphabetic" x="34"><tspan x="34" y="28.236"><tspan x="9.15" text-anchor="start">CPU</tspan></tspan></text></g>
+<g id="a7:4" transform="translate(1230, 226.764)"><text font-size="24" font-family="Noto Sans SC" font-weight="bold" fill="#326cae" text-anchor="middle" dominant-baseline="alphabetic" x="35"><tspan x="35" y="28.236"><tspan x="9.415" text-anchor="start">GPU</tspan></tspan></text></g>
+<g id="a7:5" transform="translate(129, 308.058)"><text font-size="28" font-family="Noto Sans SC" font-weight="bold" fill="#877951" text-anchor="middle" dominant-baseline="alphabetic" x="106"><tspan x="106" y="32.942"><tspan x="9.23" text-anchor="start">CPU / 主机内存</tspan></tspan></text></g>
+<g id="o7:6" transform="translate(111, 369)"><rect x="0" y="0" width="248" height="37" fill="#ffffff" stroke="#ac9c76" stroke-width="2" rx="6" ry="6"/></g>
+<g id="c7:30" transform="translate(173, 369)"><path fill="none" stroke="#ac9c76" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M 0 0 L 0 37"/></g>
+<g id="c7:31" transform="translate(235, 369)"><path fill="none" stroke="#ac9c76" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M 0 0 L 0 37"/></g>
+<g id="c7:32" transform="translate(297, 369)"><path fill="none" stroke="#ac9c76" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M 0 0 L 0 37"/></g>
+<g id="a7:6" transform="translate(117, 419.9405)"><text font-size="23" font-family="Noto Sans SC" font-weight="normal" fill="#657386" text-anchor="middle" dominant-baseline="alphabetic" x="118"><tspan x="118" y="27.06"><tspan x="9.35" text-anchor="start">准备数据 · 发起计算</tspan></tspan></text></g>
+<g id="a7:7" transform="translate(151.5, 461.2935)"><text font-size="21" font-family="Noto Sans SC" font-weight="normal" fill="#657386" text-anchor="middle" dominant-baseline="alphabetic" x="83.5"><tspan x="83.5" y="24.707"><tspan x="9.465" text-anchor="start">主机内存：RAM</tspan></tspan></text></g>
+<g id="a7:8" transform="translate(1158, 308.058)"><text font-size="28" font-family="Noto Sans SC" font-weight="bold" fill="#326cae" text-anchor="middle" dominant-baseline="alphabetic" x="107"><tspan x="107" y="32.942"><tspan x="9.38" text-anchor="start">GPU / 设备显存</tspan></tspan></text></g>
+<g id="o7:7" transform="translate(1141, 369)"><rect x="0" y="0" width="248" height="37" fill="#ffffff" stroke="#4078bd" stroke-width="2" rx="6" ry="6"/></g>
+<g id="c7:33" transform="translate(1203, 369)"><path fill="none" stroke="#4078bd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M 0 0 L 0 37"/></g>
+<g id="c7:34" transform="translate(1265, 369)"><path fill="none" stroke="#4078bd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M 0 0 L 0 37"/></g>
+<g id="c7:35" transform="translate(1327, 369)"><path fill="none" stroke="#4078bd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M 0 0 L 0 37"/></g>
+<g id="a7:9" transform="translate(1173.5, 419.9405)"><text font-size="23" font-family="Noto Sans SC" font-weight="normal" fill="#657386" text-anchor="middle" dominant-baseline="alphabetic" x="91.5"><tspan x="91.5" y="27.06"><tspan x="9.32" text-anchor="start">执行并行 kernel</tspan></tspan></text></g>
+<g id="a7:10" transform="translate(1157.5, 461.2935)"><text font-size="21" font-family="Noto Sans SC" font-weight="normal" fill="#657386" text-anchor="middle" dominant-baseline="alphabetic" x="107.5"><tspan x="107.5" y="24.707"><tspan x="9.38" text-anchor="start">显存：HBM 或 GDDR</tspan></tspan></text></g>
+<g id="a7:11" transform="translate(580.98, 217.764)"><text font-size="24" font-family="Noto Sans SC" font-weight="bold" fill="#326cae" text-anchor="middle" dominant-baseline="alphabetic" x="169.02"><tspan x="169.02" y="28.236"><tspan x="13.905" text-anchor="start">.to("cuda")：数据移到 GPU</tspan></tspan></text></g>
+<g id="c7:36" transform="translate(443, 277)"><path fill="none" stroke="#657386" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round" marker-end="url(#connector-arrow-0)" stroke-dasharray="0 0 607 7" d="M 0 0 L 614 0"/></g>
+<g id="a7:12" transform="translate(679.5, 311.9405)"><text font-size="23" font-family="Noto Sans SC" font-weight="normal" fill="#657386" text-anchor="middle" dominant-baseline="alphabetic" x="70.5"><tspan x="70.5" y="27.06"><tspan x="9.065" text-anchor="start">PCIe 等互连</tspan></tspan></text></g>
+<g id="a7:13" transform="translate(683.5, 350.9405)"><text font-size="23" font-family="Noto Sans SC" font-weight="normal" fill="#657386" text-anchor="middle" dominant-baseline="alphabetic" x="66.5"><tspan x="66.5" y="27.06"><tspan x="9" text-anchor="start">传输有成本</tspan></tspan></text></g>
+<g id="c7:37" transform="translate(443, 437)"><path fill="none" stroke="#657386" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round" marker-end="url(#connector-arrow-1)" stroke-dasharray="0 0 607 7" d="M 614 0 L 0 0"/></g>
+<g id="a7:14" transform="translate(602.58, 453.764)"><text font-size="24" font-family="Noto Sans SC" font-weight="bold" fill="#877951" text-anchor="middle" dominant-baseline="alphabetic" x="147.42"><tspan x="147.42" y="28.236"><tspan x="11.03" text-anchor="start">取回 CPU 数据 / 标量结果</tspan></tspan></text></g>
+<g id="c7:38" transform="translate(45, 560)"><path fill="none" stroke="#dce3ea" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M 0 0 L 1410 0"/></g>
+<g id="a7:15" transform="translate(45, 574.411)"><text font-size="26" font-family="Noto Sans SC" font-weight="bold" fill="#2e7963" text-anchor="start" dominant-baseline="alphabetic" x="0"><tspan x="0" y="30.589"><tspan x="0" text-anchor="start">复用设备数据，减少不必要的 CPU–GPU 往返。</tspan></tspan></text></g>
+<g id="a7:16" transform="translate(45, 622.9405)"><text font-size="23" font-family="Noto Sans SC" font-weight="normal" fill="#657386" text-anchor="start" dominant-baseline="alphabetic" x="0"><tspan x="0" y="27.06"><tspan x="0" text-anchor="start">需要 CPU 结果时，可能等待 GPU 完成，例如调用 .cpu() 或 .item()。</tspan></tspan></text></g>
+<g id="a7:17" transform="translate(45, 667.6465)"><text font-size="19" font-family="Noto Sans SC" font-weight="normal" fill="#657386" text-anchor="start" dominant-baseline="alphabetic" x="0"><tspan x="0" y="22.354"><tspan x="0" text-anchor="start">示意图：具体显存和互连方式取决于硬件。</tspan></tspan></text></g>
+</svg>

@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="716" viewBox="0 0 1280 716" role="img"><title>Megatron MLP：列并行接行并行</title><desc>fc1 按输出维切分，fc2 按输入维切分；中间激活保持分片，不必在两层之间拼齐。</desc><rect width="1280" height="716" fill="#ffffff"/><defs>
+<marker id="arrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#4078bd"/></marker>
+<marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#39826d"/></marker>
+<marker id="arrow-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#8d76b7"/></marker>
+<marker id="arrow-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#ac9c76"/></marker>
+<marker id="arrow-gray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#657386"/></marker>
+</defs>
+<text x="32" y="46" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="28" font-weight="600" fill="#1f2d3d" text-anchor="start">Megatron MLP：列并行接行并行</text>
+<text x="32" y="78" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#657386" text-anchor="start">fc1 按输出维切分，fc2 按输入维切分；中间激活保持分片，不必在两层之间拼齐。</text>
+<polyline points="32,100 1248,100" fill="none" stroke="#dce3ea" stroke-width="1.8" stroke-linejoin="round"/>
+<rect x="32" y="252" width="174" height="102" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="119.0" y="282" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#326cae" text-anchor="middle">输入 x</text>
+<text x="119.0" y="311" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">每卡完整 x</text>
+<text x="266" y="132" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="600" fill="#326cae" text-anchor="start">rank 0</text>
+<rect x="266" y="146" width="234" height="107" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="383.0" y="176" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#326cae" text-anchor="middle">fc1 列并行</text>
+<text x="383.0" y="205" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">按输出维切</text>
+<text x="383.0" y="232" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">各算部分隐藏神经元</text>
+<rect x="548" y="146" width="166" height="107" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
+<text x="631.0" y="176" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#65537f" text-anchor="middle">GELU</text>
+<text x="631.0" y="205" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">逐元素计算</text>
+<text x="631.0" y="232" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">各卡无需通信</text>
+<rect x="762" y="146" width="232" height="107" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="878.0" y="176" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#326cae" text-anchor="middle">fc2 行并行</text>
+<text x="878.0" y="205" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">按输入维切</text>
+<text x="878.0" y="232" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">产生局部部分和</text>
+<polyline points="206,303 232,303 232,199 266,199" fill="none" stroke="#4078bd" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-blue)"/>
+<polyline points="500,199 548,199" fill="none" stroke="#4078bd" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-blue)"/>
+<polyline points="714,199 762,199" fill="none" stroke="#4078bd" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-blue)"/>
+<text x="266" y="374" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="600" fill="#2e7963" text-anchor="start">rank 1</text>
+<rect x="266" y="388" width="234" height="107" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="383.0" y="418" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#2e7963" text-anchor="middle">fc1 列并行</text>
+<text x="383.0" y="447" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">按输出维切</text>
+<text x="383.0" y="474" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">各算部分隐藏神经元</text>
+<rect x="548" y="388" width="166" height="107" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
+<text x="631.0" y="418" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#65537f" text-anchor="middle">GELU</text>
+<text x="631.0" y="447" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">逐元素计算</text>
+<text x="631.0" y="474" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">各卡无需通信</text>
+<rect x="762" y="388" width="232" height="107" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="878.0" y="418" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#2e7963" text-anchor="middle">fc2 行并行</text>
+<text x="878.0" y="447" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">按输入维切</text>
+<text x="878.0" y="474" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">产生局部部分和</text>
+<polyline points="206,303 232,303 232,441 266,441" fill="none" stroke="#39826d" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-green)"/>
+<polyline points="500,441 548,441" fill="none" stroke="#39826d" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-green)"/>
+<polyline points="714,441 762,441" fill="none" stroke="#39826d" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-green)"/>
+<rect x="1050" y="250" width="198" height="106" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
+<text x="1149.0" y="280" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#65537f" text-anchor="middle">all-reduce</text>
+<text x="1149.0" y="309" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">各卡部分和相加</text>
+<polyline points="994,199 1018,199 1018,281 1050,281" fill="none" stroke="#4078bd" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-blue)"/>
+<polyline points="994,441 1018,441 1018,325 1050,325" fill="none" stroke="#39826d" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-green)"/>
+<polyline points="1149,356 1149,401" fill="none" stroke="#8d76b7" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-purple)"/>
+<rect x="1050" y="405" width="198" height="105" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="1149.0" y="435" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#2e7963" text-anchor="middle">完整输出</text>
+<text x="1149.0" y="464" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">与单卡数值等价</text>
+<polyline points="32,550 1248,550" fill="none" stroke="#dce3ea" stroke-width="1.8" stroke-linejoin="round"/>
+<text x="32" y="587" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#877951" text-anchor="start">通信口径：仅指这个 MLP 子块</text>
+<text x="32" y="625" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#657386" text-anchor="start">前向：1 次关键集合通信；反向：1 次关键集合通信。</text>
+<text x="32" y="663" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#657386" text-anchor="start">完整 Transformer 层还包含 Attention 子块，不能概括为整层总共两次通信。</text>
+</svg>

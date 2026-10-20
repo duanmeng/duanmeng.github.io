@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="550" viewBox="0 0 1280 550" role="img"><title>多机训练：两个节点，16 个训练进程</title><desc>node-rank 标识机器；global rank 标识进程。NCCL 承担训练中的跨机通信。</desc><rect width="1280" height="550" fill="#ffffff"/><defs>
+<marker id="arrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#4078bd"/></marker>
+<marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#39826d"/></marker>
+<marker id="arrow-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#8d76b7"/></marker>
+<marker id="arrow-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#ac9c76"/></marker>
+<marker id="arrow-gray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#657386"/></marker>
+</defs>
+<text x="32" y="46" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="28" font-weight="600" fill="#1f2d3d" text-anchor="start">多机训练：两个节点，16 个训练进程</text>
+<text x="32" y="78" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#657386" text-anchor="start">node-rank 标识机器；global rank 标识进程。NCCL 承担训练中的跨机通信。</text>
+<polyline points="32,100 1248,100" fill="none" stroke="#dce3ea" stroke-width="1.8" stroke-linejoin="round"/>
+<rect x="437" y="124" width="406" height="92" rx="4" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.5"/>
+<text x="640.0" y="154" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#877951" text-anchor="middle">主节点 MASTER_ADDR:29500</text>
+<text x="640.0" y="183" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">rendezvous 会合点</text>
+<rect x="32" y="268" width="430" height="196" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="50" y="300" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="23" font-weight="600" fill="#326cae" text-anchor="start">节点 0 · 8 × H800</text>
+<text x="50" y="330" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#657386" text-anchor="start">node-rank=0 · global rank 0–7</text>
+<rect x="50" y="350" width="91" height="38" rx="4" fill="#ffffff" stroke="#4078bd" stroke-width="1.5"/>
+<text x="95.5" y="375" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="18" font-weight="400" fill="#326cae" text-anchor="middle">rank 0</text>
+<rect x="148" y="350" width="91" height="38" rx="4" fill="#ffffff" stroke="#4078bd" stroke-width="1.5"/>
+<text x="193.5" y="375" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="18" font-weight="400" fill="#326cae" text-anchor="middle">rank 1</text>
+<rect x="246" y="350" width="91" height="38" rx="4" fill="#ffffff" stroke="#4078bd" stroke-width="1.5"/>
+<text x="291.5" y="375" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="18" font-weight="400" fill="#326cae" text-anchor="middle">rank 2</text>
+<rect x="344" y="350" width="91" height="38" rx="4" fill="#ffffff" stroke="#4078bd" stroke-width="1.5"/>
+<text x="389.5" y="375" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="18" font-weight="400" fill="#326cae" text-anchor="middle">rank 3</text>
+<rect x="50" y="399" width="91" height="38" rx="4" fill="#ffffff" stroke="#4078bd" stroke-width="1.5"/>
+<text x="95.5" y="424" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="18" font-weight="400" fill="#326cae" text-anchor="middle">rank 4</text>
+<rect x="148" y="399" width="91" height="38" rx="4" fill="#ffffff" stroke="#4078bd" stroke-width="1.5"/>
+<text x="193.5" y="424" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="18" font-weight="400" fill="#326cae" text-anchor="middle">rank 5</text>
+<rect x="246" y="399" width="91" height="38" rx="4" fill="#ffffff" stroke="#4078bd" stroke-width="1.5"/>
+<text x="291.5" y="424" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="18" font-weight="400" fill="#326cae" text-anchor="middle">rank 6</text>
+<rect x="344" y="399" width="91" height="38" rx="4" fill="#ffffff" stroke="#4078bd" stroke-width="1.5"/>
+<text x="389.5" y="424" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="18" font-weight="400" fill="#326cae" text-anchor="middle">rank 7</text>
+<polyline points="247,268 247,246 640,246 640,216" fill="none" stroke="#ac9c76" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-warm)"/>
+<rect x="818" y="268" width="430" height="196" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="836" y="300" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="23" font-weight="600" fill="#2e7963" text-anchor="start">节点 1 · 8 × H800</text>
+<text x="836" y="330" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#657386" text-anchor="start">node-rank=1 · global rank 8–15</text>
+<rect x="836" y="350" width="91" height="38" rx="4" fill="#ffffff" stroke="#39826d" stroke-width="1.5"/>
+<text x="881.5" y="375" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="18" font-weight="400" fill="#2e7963" text-anchor="middle">rank 8</text>
+<rect x="934" y="350" width="91" height="38" rx="4" fill="#ffffff" stroke="#39826d" stroke-width="1.5"/>
+<text x="979.5" y="375" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="18" font-weight="400" fill="#2e7963" text-anchor="middle">rank 9</text>
+<rect x="1032" y="350" width="91" height="38" rx="4" fill="#ffffff" stroke="#39826d" stroke-width="1.5"/>
+<text x="1077.5" y="375" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="18" font-weight="400" fill="#2e7963" text-anchor="middle">rank 10</text>
+<rect x="1130" y="350" width="91" height="38" rx="4" fill="#ffffff" stroke="#39826d" stroke-width="1.5"/>
+<text x="1175.5" y="375" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="18" font-weight="400" fill="#2e7963" text-anchor="middle">rank 11</text>
+<rect x="836" y="399" width="91" height="38" rx="4" fill="#ffffff" stroke="#39826d" stroke-width="1.5"/>
+<text x="881.5" y="424" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="18" font-weight="400" fill="#2e7963" text-anchor="middle">rank 12</text>
+<rect x="934" y="399" width="91" height="38" rx="4" fill="#ffffff" stroke="#39826d" stroke-width="1.5"/>
+<text x="979.5" y="424" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="18" font-weight="400" fill="#2e7963" text-anchor="middle">rank 13</text>
+<rect x="1032" y="399" width="91" height="38" rx="4" fill="#ffffff" stroke="#39826d" stroke-width="1.5"/>
+<text x="1077.5" y="424" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="18" font-weight="400" fill="#2e7963" text-anchor="middle">rank 14</text>
+<rect x="1130" y="399" width="91" height="38" rx="4" fill="#ffffff" stroke="#39826d" stroke-width="1.5"/>
+<text x="1175.5" y="424" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="18" font-weight="400" fill="#2e7963" text-anchor="middle">rank 15</text>
+<polyline points="1033,268 1033,246 640,246 640,216" fill="none" stroke="#ac9c76" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-warm)"/>
+<polyline points="462,390 818,390" fill="none" stroke="#8d76b7" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-purple)" marker-start="url(#arrow-purple)"/>
+<text x="640" y="350" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#65537f" text-anchor="middle">IB / RoCE 高速网络</text>
+<text x="640" y="378" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="400" fill="#1f2d3d" text-anchor="middle">NCCL 跨机通信</text>
+<text x="32" y="508" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="400" fill="#657386" text-anchor="start">会合点用于建立分布式作业；各训练 rank 通过通信组交换张量。</text>
+</svg>

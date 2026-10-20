@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="660" viewBox="0 0 1280 660" role="img"><title>FlashAttention：把完整矩阵改为分块计算</title><desc>计算同样的 Attention；通过分块与在线 softmax，减少 HBM 中间读写。</desc><rect width="1280" height="660" fill="#ffffff"/><defs>
+<marker id="arrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#4078bd"/></marker>
+<marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#39826d"/></marker>
+<marker id="arrow-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#8d76b7"/></marker>
+<marker id="arrow-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#ac9c76"/></marker>
+<marker id="arrow-gray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#657386"/></marker>
+</defs>
+<text x="32" y="46" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="28" font-weight="600" fill="#1f2d3d" text-anchor="start">FlashAttention：把完整矩阵改为分块计算</text>
+<text x="32" y="78" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#657386" text-anchor="start">计算同样的 Attention；通过分块与在线 softmax，减少 HBM 中间读写。</text>
+<polyline points="32,100 1248,100" fill="none" stroke="#dce3ea" stroke-width="1.8" stroke-linejoin="round"/>
+<text x="32" y="140" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="24" font-weight="600" fill="#326cae" text-anchor="start">朴素注意力</text>
+<text x="676" y="140" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="24" font-weight="600" fill="#2e7963" text-anchor="start">FlashAttention</text>
+<rect x="32" y="166" width="548" height="76" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="306.0" y="196" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#326cae" text-anchor="middle">生成完整 T × T 分数矩阵</text>
+<polyline points="306,242 306,274" fill="none" stroke="#4078bd" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-blue)"/>
+<rect x="32" y="276" width="548" height="200" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="55" y="310" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#326cae" text-anchor="start">写回显存 HBM</text>
+<rect x="58" y="334" width="23" height="21" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="83" y="334" width="23" height="21" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="108" y="334" width="23" height="21" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="133" y="334" width="23" height="21" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="158" y="334" width="23" height="21" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="58" y="357" width="23" height="21" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="83" y="357" width="23" height="21" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="108" y="357" width="23" height="21" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="133" y="357" width="23" height="21" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="158" y="357" width="23" height="21" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="58" y="380" width="23" height="21" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="83" y="380" width="23" height="21" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="108" y="380" width="23" height="21" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="133" y="380" width="23" height="21" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="158" y="380" width="23" height="21" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="58" y="403" width="23" height="21" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="83" y="403" width="23" height="21" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="108" y="403" width="23" height="21" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="133" y="403" width="23" height="21" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="158" y="403" width="23" height="21" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="58" y="426" width="23" height="21" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="83" y="426" width="23" height="21" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="108" y="426" width="23" height="21" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="133" y="426" width="23" height="21" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="158" y="426" width="23" height="21" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="226" y="365" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="24" font-weight="600" fill="#1f2d3d" text-anchor="start">O(T²) 中间存储</text>
+<text x="226" y="399" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="400" fill="#657386" text-anchor="start">长序列会迅速放大显存需求</text>
+<text x="226" y="438" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="400" fill="#657386" text-anchor="start">完整矩阵反复读写 HBM</text>
+<rect x="676" y="166" width="572" height="76" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="962.0" y="196" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#2e7963" text-anchor="middle">Q / K / V 分块载入片上 SRAM</text>
+<polyline points="962,242 962,274" fill="none" stroke="#39826d" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-green)"/>
+<rect x="676" y="276" width="572" height="200" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<rect x="700" y="298" width="150" height="60" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="775.0" y="328" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#2e7963" text-anchor="middle">Q 块</text>
+<rect x="871" y="298" width="150" height="60" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="946.0" y="328" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#2e7963" text-anchor="middle">K 块</text>
+<rect x="1042" y="298" width="150" height="60" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="1117.0" y="328" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#2e7963" text-anchor="middle">V 块</text>
+<text x="700" y="399" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="24" font-weight="600" fill="#2e7963" text-anchor="start">在线 softmax，逐块累加</text>
+<text x="700" y="438" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="400" fill="#657386" text-anchor="start">不生成完整 T × T 矩阵</text>
+<polyline points="962,476 962,506" fill="none" stroke="#39826d" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-green)"/>
+<rect x="676" y="508" width="572" height="65" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="962.0" y="538" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#2e7963" text-anchor="middle">Attention 辅助存储随 T 线性增长</text>
+<text x="32" y="536" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="26" font-weight="600" fill="#65537f" text-anchor="start">O(T²) → O(T)</text>
+<text x="32" y="569" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="400" fill="#657386" text-anchor="start">避免二次方中间矩阵，降低长序列的显存压力。</text>
+<polyline points="32,596 1248,596" fill="none" stroke="#dce3ea" stroke-width="1.8" stroke-linejoin="round"/>
+<text x="32" y="628" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#657386" text-anchor="start">O(T) 按固定 head dimension 讨论；减少 I/O 通常能加速，实际收益取决于设备与输入形状。</text>
+</svg>

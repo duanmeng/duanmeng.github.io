@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="658" viewBox="0 0 1280 658" role="img"><title>ZeRO / FSDP：逐步分担训练状态</title><desc>示意 N = 4 个数据并行 rank；下面只画每个 rank 在非计算时长期保存的份额。</desc><rect width="1280" height="658" fill="#ffffff"/><defs>
+<marker id="arrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#4078bd"/></marker>
+<marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#39826d"/></marker>
+<marker id="arrow-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#8d76b7"/></marker>
+<marker id="arrow-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#ac9c76"/></marker>
+<marker id="arrow-gray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#657386"/></marker>
+</defs>
+<text x="32" y="46" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="28" font-weight="600" fill="#1f2d3d" text-anchor="start">ZeRO / FSDP：逐步分担训练状态</text>
+<text x="32" y="78" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#657386" text-anchor="start">示意 N = 4 个数据并行 rank；下面只画每个 rank 在非计算时长期保存的份额。</text>
+<polyline points="32,100 1248,100" fill="none" stroke="#dce3ea" stroke-width="1.8" stroke-linejoin="round"/>
+<text x="32" y="142" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="23" font-weight="600" fill="#326cae" text-anchor="start">DDP</text>
+<text x="32" y="175" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#657386" text-anchor="start">完整保存三类状态</text>
+<text x="32" y="223" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#657386" text-anchor="start">参数 P</text>
+<rect x="130" y="204" width="36" height="30" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="168" y="204" width="36" height="30" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="206" y="204" width="36" height="30" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="244" y="204" width="36" height="30" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="130" y="259" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="18" font-weight="400" fill="#326cae" text-anchor="start">完整副本</text>
+<text x="32" y="299" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#657386" text-anchor="start">梯度 G</text>
+<rect x="130" y="280" width="36" height="30" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<rect x="168" y="280" width="36" height="30" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<rect x="206" y="280" width="36" height="30" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<rect x="244" y="280" width="36" height="30" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="130" y="335" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="18" font-weight="400" fill="#2e7963" text-anchor="start">完整副本</text>
+<text x="32" y="375" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#657386" text-anchor="start">优化器 O</text>
+<rect x="130" y="356" width="36" height="30" rx="4" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.5"/>
+<rect x="168" y="356" width="36" height="30" rx="4" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.5"/>
+<rect x="206" y="356" width="36" height="30" rx="4" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.5"/>
+<rect x="244" y="356" width="36" height="30" rx="4" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.5"/>
+<text x="130" y="411" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="18" font-weight="400" fill="#877951" text-anchor="start">完整副本</text>
+<polyline points="304,277 334,277" fill="none" stroke="#8d76b7" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-purple)"/>
+<text x="348" y="142" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="23" font-weight="600" fill="#2e7963" text-anchor="start">ZeRO-1</text>
+<text x="348" y="175" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#657386" text-anchor="start">只切优化器状态</text>
+<text x="348" y="223" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#657386" text-anchor="start">参数 P</text>
+<rect x="446" y="204" width="36" height="30" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="484" y="204" width="36" height="30" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="522" y="204" width="36" height="30" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="560" y="204" width="36" height="30" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="446" y="259" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="18" font-weight="400" fill="#326cae" text-anchor="start">完整副本</text>
+<text x="348" y="299" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#657386" text-anchor="start">梯度 G</text>
+<rect x="446" y="280" width="36" height="30" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<rect x="484" y="280" width="36" height="30" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<rect x="522" y="280" width="36" height="30" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<rect x="560" y="280" width="36" height="30" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="446" y="335" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="18" font-weight="400" fill="#2e7963" text-anchor="start">完整副本</text>
+<text x="348" y="375" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#657386" text-anchor="start">优化器 O</text>
+<rect x="446" y="356" width="36" height="30" rx="4" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.5"/>
+<rect x="484" y="356" width="36" height="30" rx="4" fill="#ffffff" stroke="#ac9c76" stroke-width="1.5"/>
+<rect x="522" y="356" width="36" height="30" rx="4" fill="#ffffff" stroke="#ac9c76" stroke-width="1.5"/>
+<rect x="560" y="356" width="36" height="30" rx="4" fill="#ffffff" stroke="#ac9c76" stroke-width="1.5"/>
+<text x="446" y="411" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="18" font-weight="400" fill="#877951" text-anchor="start">1 / N</text>
+<polyline points="620,277 650,277" fill="none" stroke="#8d76b7" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-purple)"/>
+<text x="664" y="142" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="23" font-weight="600" fill="#2e7963" text-anchor="start">ZeRO-2</text>
+<text x="664" y="175" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#657386" text-anchor="start">再切梯度</text>
+<text x="664" y="223" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#657386" text-anchor="start">参数 P</text>
+<rect x="762" y="204" width="36" height="30" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="800" y="204" width="36" height="30" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="838" y="204" width="36" height="30" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="876" y="204" width="36" height="30" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="762" y="259" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="18" font-weight="400" fill="#326cae" text-anchor="start">完整副本</text>
+<text x="664" y="299" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#657386" text-anchor="start">梯度 G</text>
+<rect x="762" y="280" width="36" height="30" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<rect x="800" y="280" width="36" height="30" rx="4" fill="#ffffff" stroke="#39826d" stroke-width="1.5"/>
+<rect x="838" y="280" width="36" height="30" rx="4" fill="#ffffff" stroke="#39826d" stroke-width="1.5"/>
+<rect x="876" y="280" width="36" height="30" rx="4" fill="#ffffff" stroke="#39826d" stroke-width="1.5"/>
+<text x="762" y="335" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="18" font-weight="400" fill="#2e7963" text-anchor="start">1 / N</text>
+<text x="664" y="375" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#657386" text-anchor="start">优化器 O</text>
+<rect x="762" y="356" width="36" height="30" rx="4" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.5"/>
+<rect x="800" y="356" width="36" height="30" rx="4" fill="#ffffff" stroke="#ac9c76" stroke-width="1.5"/>
+<rect x="838" y="356" width="36" height="30" rx="4" fill="#ffffff" stroke="#ac9c76" stroke-width="1.5"/>
+<rect x="876" y="356" width="36" height="30" rx="4" fill="#ffffff" stroke="#ac9c76" stroke-width="1.5"/>
+<text x="762" y="411" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="18" font-weight="400" fill="#877951" text-anchor="start">1 / N</text>
+<polyline points="936,277 966,277" fill="none" stroke="#8d76b7" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-purple)"/>
+<text x="980" y="142" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="23" font-weight="600" fill="#2e7963" text-anchor="start">ZeRO-3 / FSDP</text>
+<text x="980" y="175" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#657386" text-anchor="start">连参数也切</text>
+<text x="980" y="223" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#657386" text-anchor="start">参数 P</text>
+<rect x="1078" y="204" width="36" height="30" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="1116" y="204" width="36" height="30" rx="4" fill="#ffffff" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="1154" y="204" width="36" height="30" rx="4" fill="#ffffff" stroke="#4078bd" stroke-width="1.5"/>
+<rect x="1192" y="204" width="36" height="30" rx="4" fill="#ffffff" stroke="#4078bd" stroke-width="1.5"/>
+<text x="1078" y="259" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="18" font-weight="400" fill="#326cae" text-anchor="start">1 / N</text>
+<text x="980" y="299" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#657386" text-anchor="start">梯度 G</text>
+<rect x="1078" y="280" width="36" height="30" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<rect x="1116" y="280" width="36" height="30" rx="4" fill="#ffffff" stroke="#39826d" stroke-width="1.5"/>
+<rect x="1154" y="280" width="36" height="30" rx="4" fill="#ffffff" stroke="#39826d" stroke-width="1.5"/>
+<rect x="1192" y="280" width="36" height="30" rx="4" fill="#ffffff" stroke="#39826d" stroke-width="1.5"/>
+<text x="1078" y="335" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="18" font-weight="400" fill="#2e7963" text-anchor="start">1 / N</text>
+<text x="980" y="375" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#657386" text-anchor="start">优化器 O</text>
+<rect x="1078" y="356" width="36" height="30" rx="4" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.5"/>
+<rect x="1116" y="356" width="36" height="30" rx="4" fill="#ffffff" stroke="#ac9c76" stroke-width="1.5"/>
+<rect x="1154" y="356" width="36" height="30" rx="4" fill="#ffffff" stroke="#ac9c76" stroke-width="1.5"/>
+<rect x="1192" y="356" width="36" height="30" rx="4" fill="#ffffff" stroke="#ac9c76" stroke-width="1.5"/>
+<text x="1078" y="411" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="18" font-weight="400" fill="#877951" text-anchor="start">1 / N</text>
+<text x="32" y="464" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="400" fill="#657386" text-anchor="start">DDP：参数、梯度、优化器状态，跨卡完整存 N 份。</text>
+<text x="32" y="496" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="400" fill="#657386" text-anchor="start">ZeRO-3 与 FSDP 的全分片思想：每卡长期保存约 1 / N，计算时临时拼齐当前单元。</text>
+<rect x="32" y="528" width="376" height="85" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="220.0" y="558" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#326cae" text-anchor="middle">all-gather</text>
+<text x="220.0" y="587" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">用到某层时拼齐参数</text>
+<rect x="452" y="528" width="376" height="85" rx="4" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.5"/>
+<text x="640.0" y="558" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#877951" text-anchor="middle">计算当前单元</text>
+<text x="640.0" y="587" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">按策略释放完整参数</text>
+<rect x="872" y="528" width="376" height="85" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="1060.0" y="558" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#2e7963" text-anchor="middle">reduce-scatter</text>
+<text x="1060.0" y="587" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">后向梯度归并并分片</text>
+<polyline points="408,570 452,570" fill="none" stroke="#4078bd" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-blue)"/>
+<polyline points="828,570 872,570" fill="none" stroke="#39826d" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-green)"/>
+<text x="32" y="642" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="18" font-weight="400" fill="#657386" text-anchor="start">完整参数何时释放取决于 reshard 策略；“每卡 1 / N”不包含激活、通信 buffer 和临时完整参数。</text>
+</svg>
