@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="842" viewBox="0 0 1280 842" role="img"><title>Preload → takeover：准备与消费分开，接管关联状态</title><desc>实线为同步调用，虚线为返回 / 完成；生命线表示参与者。AsyncSource.move 可同步等待。</desc><rect width="1280" height="842" fill="#ffffff"/><defs>
+<marker id="arrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#4078bd"/></marker>
+<marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#39826d"/></marker>
+<marker id="arrow-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#8d76b7"/></marker>
+<marker id="arrow-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#ac9c76"/></marker>
+<marker id="arrow-gray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#657386"/></marker>
+<marker id="arrow-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#a95f64"/></marker>
+</defs>
+<text x="32" y="45" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="28" font-weight="600" fill="#1f2d3d" text-anchor="start">Preload → takeover：准备与消费分开，接管关联状态</text>
+<text x="32" y="79" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#657386" text-anchor="start">实线为同步调用，虚线为返回 / 完成；生命线表示参与者。AsyncSource.move 可同步等待。</text>
+<polyline points="32,101 1248,101" fill="none" stroke="#dce3ea" stroke-width="1.8" stroke-linejoin="round"/>
+<rect x="20" y="128" width="260" height="56" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="150.0" y="158" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="600" fill="#326cae" text-anchor="middle">TableScan / receiver</text>
+<polyline points="150,184 150,714" fill="none" stroke="#657386" stroke-width="2.3" stroke-linejoin="round" stroke-dasharray="6 5"/>
+<rect x="336" y="128" width="260" height="56" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
+<text x="466.0" y="158" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="600" fill="#65537f" text-anchor="middle">AsyncSource</text>
+<polyline points="466,184 466,714" fill="none" stroke="#657386" stroke-width="2.3" stroke-linejoin="round" stroke-dasharray="6 5"/>
+<rect x="663" y="128" width="260" height="56" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
+<text x="793.0" y="158" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="600" fill="#65537f" text-anchor="middle">preload executor</text>
+<polyline points="793,184 793,714" fill="none" stroke="#657386" stroke-width="2.3" stroke-linejoin="round" stroke-dasharray="6 5"/>
+<rect x="995" y="128" width="260" height="56" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
+<text x="1125.0" y="158" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="600" fill="#65537f" text-anchor="middle">donor DataSource</text>
+<polyline points="1125,184 1125,714" fill="none" stroke="#657386" stroke-width="2.3" stroke-linejoin="round" stroke-dasharray="6 5"/>
+<polyline points="150,226 466,226" fill="none" stroke="#4078bd" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-blue)"/>
+<text x="308.0" y="216" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#326cae" text-anchor="middle">注册下一 split 的 maker</text>
+<polyline points="793,286 466,286" fill="none" stroke="#8d76b7" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-purple)"/>
+<text x="629.5" y="276" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#65537f" text-anchor="middle">prepare()</text>
+<polyline points="793,347 1125,347" fill="none" stroke="#8d76b7" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-purple)"/>
+<text x="959.0" y="337" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#65537f" text-anchor="middle">创建 DS / 编译 / addSplit</text>
+<polyline points="1125,411 793,411" fill="none" stroke="#39826d" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-green)" stroke-dasharray="6 5"/>
+<text x="959.0" y="401" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#2e7963" text-anchor="middle">Reader / RowReader 准备完成</text>
+<polyline points="793,470 466,470" fill="none" stroke="#39826d" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-green)" stroke-dasharray="6 5"/>
+<text x="629.5" y="460" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#2e7963" text-anchor="middle">发布 donor；满足 promise</text>
+<polyline points="150,532 466,532" fill="none" stroke="#4078bd" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-blue)"/>
+<text x="308.0" y="522" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#326cae" text-anchor="middle">当前 split 结束：move()</text>
+<polyline points="466,588 150,588" fill="none" stroke="#39826d" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-green)" stroke-dasharray="6 5"/>
+<text x="308.0" y="578" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#2e7963" text-anchor="middle">返回 donor，或重抛准备异常</text>
+<rect x="42" y="630" width="1176" height="75" rx="4" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.5"/>
+<text x="630.0" y="660" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#877951" text-anchor="middle">receiver.setFromDataSource(donor)</text>
+<text x="630.0" y="689" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">移 split / R / G / ScanSpec / metadata / reader；保留 receiver ExprSet；重绑 ctx，合并 I/O 统计</text>
+<polyline points="32,732 1248,732" fill="none" stroke="#dce3ea" stroke-width="1.8" stroke-linejoin="round"/>
+<text x="32" y="758" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="400" fill="#657386" text-anchor="start">T0 donor 准备后、T1 receiver 收到的新动态条件：T2 接管只按 moveAdaptationFrom 的规则迁移。</text>
+<text x="32" y="787" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="400" fill="#657386" text-anchor="start">普通 addSplit 不重复编译 residual；preload 新建一份 DataSource，所以会额外编译与准备。</text>
+</svg>

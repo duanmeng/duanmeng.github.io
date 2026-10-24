@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="631" viewBox="0 0 1280 631" role="img"><title>Bucket conversion：4 桶扩到 8 桶</title><desc>历史文件不重写；按当前表桶号重新选择行。桶参数变化与读取需求变化是两件事。</desc><rect width="1280" height="631" fill="#ffffff"/><defs>
+<marker id="arrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#4078bd"/></marker>
+<marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#39826d"/></marker>
+<marker id="arrow-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#8d76b7"/></marker>
+<marker id="arrow-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#ac9c76"/></marker>
+<marker id="arrow-gray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#657386"/></marker>
+<marker id="arrow-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#a95f64"/></marker>
+</defs>
+<text x="32" y="45" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="28" font-weight="600" fill="#1f2d3d" text-anchor="start">Bucket conversion：4 桶扩到 8 桶</text>
+<text x="32" y="79" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#657386" text-anchor="start">历史文件不重写；按当前表桶号重新选择行。桶参数变化与读取需求变化是两件事。</text>
+<polyline points="32,101 1248,101" fill="none" stroke="#dce3ea" stroke-width="1.8" stroke-linejoin="round"/>
+<text x="32" y="147" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="23" font-weight="600" fill="#326cae" text-anchor="start">旧分区桶 1：h % 4 = 1</text>
+<rect x="32" y="174" width="128" height="84" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="96.0" y="204" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#326cae" text-anchor="middle">h=1</text>
+<text x="96.0" y="233" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">新桶 1</text>
+<rect x="182" y="174" width="128" height="84" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="246.0" y="204" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#326cae" text-anchor="middle">h=5</text>
+<text x="246.0" y="233" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">新桶 5</text>
+<rect x="332" y="174" width="128" height="84" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="396.0" y="204" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#326cae" text-anchor="middle">h=9</text>
+<text x="396.0" y="233" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">新桶 1</text>
+<rect x="482" y="174" width="128" height="84" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="546.0" y="204" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#326cae" text-anchor="middle">h=13</text>
+<text x="546.0" y="233" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">新桶 5</text>
+<polyline points="96,258 96,302" fill="none" stroke="#39826d" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-green)"/>
+<polyline points="246,258 246,277 476,277 476,302" fill="none" stroke="#8d76b7" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-purple)"/>
+<polyline points="396,258 396,289 172,289 172,302" fill="none" stroke="#39826d" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-green)"/>
+<polyline points="546,258 546,302" fill="none" stroke="#8d76b7" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-purple)"/>
+<rect x="32" y="302" width="280" height="86" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="172.0" y="332" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="600" fill="#2e7963" text-anchor="middle">目标 tableBucketNumber=1</text>
+<text x="172.0" y="361" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">保留 h=1、9</text>
+<rect x="336" y="302" width="280" height="86" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
+<text x="476.0" y="332" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="600" fill="#65537f" text-anchor="middle">目标 tableBucketNumber=5</text>
+<text x="476.0" y="361" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">保留 h=5、13</text>
+<text x="690" y="147" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="23" font-weight="600" fill="#2e7963" text-anchor="start">同一 DataSource 的连续 split</text>
+<rect x="690" y="174" width="558" height="100" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="969.0" y="204" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#2e7963" text-anchor="middle">split A：首次需要隐藏 k</text>
+<text x="969.0" y="233" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">R=[c0] → [c0,k]；取消 k 的子字段裁剪</text>
+<text x="969.0" y="261" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">读取需求变化 → 重建 ScanSpec</text>
+<rect x="690" y="315" width="558" height="100" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
+<text x="969.0" y="345" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#65537f" text-anchor="middle">split B：同样读取 k，目标桶变化</text>
+<text x="969.0" y="374" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">R=[c0,k] 保留；嵌套节点 / 反馈继续保留</text>
+<text x="969.0" y="402" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">读取需求不变 → 复用 ScanSpec</text>
+<polyline points="969,274 969,315" fill="none" stroke="#8d76b7" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-purple)"/>
+<rect x="32" y="457" width="1216" height="76" rx="4" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.5"/>
+<text x="640.0" y="487" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#877951" text-anchor="middle">每个带 conversion 的 split：创建新的 HivePartitionFunction</text>
+<text x="640.0" y="516" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">DWIO reader Filter → 完整 bucket key 的 Hive hash → 桶行筛选 → remaining expression</text>
+<polyline points="32,555 1248,555" fill="none" stroke="#dce3ea" stroke-width="1.8" stroke-linejoin="round"/>
+<text x="32" y="581" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="400" fill="#657386" text-anchor="start">查询即使不投影 k，也要把它读到内部 RowVector；只读 ROW 的部分字段可能改变 hash。</text>
+</svg>

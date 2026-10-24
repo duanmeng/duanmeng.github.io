@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="634" viewBox="0 0 1280 634" role="img"><title>类型与 channel：输出前缀固定，辅助列只向尾部追加</title><desc>schemaType 描述表列；dataType 描述交付值。extraction 可让请求类型与产生类型不同。</desc><rect width="1280" height="634" fill="#ffffff"/><defs>
+<marker id="arrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#4078bd"/></marker>
+<marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#39826d"/></marker>
+<marker id="arrow-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#8d76b7"/></marker>
+<marker id="arrow-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#ac9c76"/></marker>
+<marker id="arrow-gray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#657386"/></marker>
+<marker id="arrow-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#a95f64"/></marker>
+</defs>
+<text x="32" y="45" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="28" font-weight="600" fill="#1f2d3d" text-anchor="start">类型与 channel：输出前缀固定，辅助列只向尾部追加</text>
+<text x="32" y="79" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#657386" text-anchor="start">schemaType 描述表列；dataType 描述交付值。extraction 可让请求类型与产生类型不同。</text>
+<polyline points="32,101 1248,101" fill="none" stroke="#dce3ea" stroke-width="1.8" stroke-linejoin="round"/>
+<text x="32" y="186" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#326cae" text-anchor="start">计划 / P</text>
+<rect x="244" y="154" width="224" height="60" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="356.0" y="184" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="600" fill="#326cae" text-anchor="middle">keys : ARRAY</text>
+<rect x="489" y="154" width="224" height="60" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="601.0" y="184" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="600" fill="#326cae" text-anchor="middle">p : VARCHAR</text>
+<text x="32" y="281" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#65537f" text-anchor="start">构造后 R</text>
+<rect x="244" y="249" width="224" height="60" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
+<text x="356.0" y="279" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="600" fill="#65537f" text-anchor="middle">m : MAP</text>
+<rect x="489" y="249" width="224" height="60" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
+<text x="601.0" y="279" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="600" fill="#65537f" text-anchor="middle">p : VARCHAR</text>
+<rect x="734" y="249" width="224" height="60" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
+<text x="846.0" y="279" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="600" fill="#65537f" text-anchor="middle">c1 : BIGINT</text>
+<text x="32" y="376" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#65537f" text-anchor="start">split 扩展 R</text>
+<rect x="244" y="344" width="224" height="60" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
+<text x="356.0" y="374" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="600" fill="#65537f" text-anchor="middle">m : MAP</text>
+<rect x="489" y="344" width="224" height="60" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
+<text x="601.0" y="374" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="600" fill="#65537f" text-anchor="middle">p : VARCHAR</text>
+<rect x="734" y="344" width="224" height="60" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
+<text x="846.0" y="374" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="600" fill="#65537f" text-anchor="middle">c1 : BIGINT</text>
+<rect x="979" y="344" width="224" height="60" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
+<text x="1091.0" y="374" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="600" fill="#65537f" text-anchor="middle">key : BIGINT</text>
+<text x="32" y="471" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#2e7963" text-anchor="start">对应 G</text>
+<rect x="244" y="439" width="224" height="60" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="356.0" y="469" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="600" fill="#2e7963" text-anchor="middle">m : ARRAY</text>
+<rect x="489" y="439" width="224" height="60" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="601.0" y="469" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="600" fill="#2e7963" text-anchor="middle">p : VARCHAR</text>
+<rect x="734" y="439" width="224" height="60" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="846.0" y="469" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="600" fill="#2e7963" text-anchor="middle">c1 : BIGINT</text>
+<rect x="979" y="439" width="224" height="60" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="1091.0" y="469" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="600" fill="#2e7963" text-anchor="middle">key : BIGINT</text>
+<text x="256" y="125" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="18" font-weight="400" fill="#657386" text-anchor="start">channel 0</text>
+<text x="501" y="125" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="18" font-weight="400" fill="#657386" text-anchor="start">channel 1</text>
+<text x="746" y="125" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="18" font-weight="400" fill="#657386" text-anchor="start">channel 2</text>
+<text x="991" y="125" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="18" font-weight="400" fill="#657386" text-anchor="start">channel 3</text>
+<polyline points="244,530 713,530" fill="none" stroke="#4078bd" stroke-width="2.2" stroke-linejoin="round"/>
+<text x="478" y="561" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="600" fill="#326cae" text-anchor="middle">前 N=2 列：最终投影</text>
+<polyline points="734,530 1203,530" fill="none" stroke="#ac9c76" stroke-width="2.2" stroke-linejoin="round"/>
+<text x="968" y="561" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="600" fill="#877951" text-anchor="middle">隐藏依赖：remaining / equality</text>
+<text x="32" y="608" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="400" fill="#657386" text-anchor="start">keys → handle.name=m；最终 RowVector 恢复 keys。G 非空时用于分配，不能用 R 的 MAP 代替 ARRAY。</text>
+</svg>

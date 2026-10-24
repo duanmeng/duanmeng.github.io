@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="Velox DataSource 源码核对清单基线：origin&#x2F;main c52ff97b4b5b0f2d0f931f989e5f9c98020927ba，2026-10-21。 本文按真实 TableScan 调用者核对 Hive &#x2F; Iceberg 的 CPU 文件扫描。没有改动 Velox，也未运行完整引擎测试。13 个场景为源码推演；小型数据选择与桶号算例单独校验。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Macduan Notes">
+<meta property="og:url" content="https://duanmeng.github.io/downloads/velox-data-source-main/source-audit.html">
+<meta property="og:site_name" content="Macduan Notes">
+<meta property="og:description" content="Velox DataSource 源码核对清单基线：origin&#x2F;main c52ff97b4b5b0f2d0f931f989e5f9c98020927ba，2026-10-21。 本文按真实 TableScan 调用者核对 Hive &#x2F; Iceberg 的 CPU 文件扫描。没有改动 Velox，也未运行完整引擎测试。13 个场景为源码推演；小型数据选择与桶号算例单独校验。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2026-10-24T03:25:47.565Z">
+<meta property="article:modified_time" content="2026-10-24T03:25:47.565Z">
+<meta property="article:author" content="duanmeng">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Macduan Notes</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr theme-whiteboard">
+    
+    <div class="content index py4">
+        
+          <header id="header">
+  <a href="/">
+  
+    
+      <div id="logo" style="background-image: url(/images/logo.png);"></div>
+    
+  
+    <div id="title">
+      <h1>Macduan Notes</h1>
+    </div>
+  </a>
+  <div id="nav">
+    <ul>
+      <li class="icon">
+        <a href="#" aria-label="Menu"><i class="fas fa-bars fa-2x"></i></a>
+      </li>
+      <!--
+     --><li><a href="/">Home</a></li><!--
+   --><!--
+     --><li><a href="/categories/technology">Technology</a></li><!--
+   --><!--
+     --><li><a href="/categories/life">Life</a></li><!--
+   --><!--
+     --><li><a href="/archives/">Archives</a></li><!--
+   --><!--
+     --><li><a href="/tags/">Tags</a></li><!--
+   --><!--
+     --><li><a href="/about">About</a></li><!--
+   -->
+    </ul>
+  </div>
+</header>
+
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  
+
+  <div class="content" itemprop="articleBody">
+      
+          <h1 id="Velox-DataSource-源码核对清单"><a href="#Velox-DataSource-源码核对清单" class="headerlink" title="Velox DataSource 源码核对清单"></a>Velox DataSource 源码核对清单</h1><p>基线：origin&#x2F;main c52ff97b4b5b0f2d0f931f989e5f9c98020927ba，2026-10-21。</p>
+<p>本文按真实 TableScan 调用者核对 Hive &#x2F; Iceberg 的 CPU 文件扫描。没有改动 Velox，也未运行完整引擎测试。13 个场景为源码推演；小型数据选择与桶号算例单独校验。</p>
+<h2 id="主调用链"><a href="#主调用链" class="headerlink" title="主调用链"></a>主调用链</h2><p>TableScanNode → TableScan::getSplit &#x2F; getOutput → registry-selected Connector → FileDataSource constructor → subclass createSplitReader → FileSplitReader&#x2F;override prepareSplit → DWIO Reader &#x2F; RowReader → subclass next → residual ExprSet → output projection → splitFinished &#x2F; next split &#x2F; takeover。</p>
+<h2 id="重点行为边界"><a href="#重点行为边界" class="headerlink" title="重点行为边界"></a>重点行为边界</h2><ul>
+<li>普通 split 复用 ScanSpec；extraction&#x2F;bucket&#x2F;preload 是不同创建或替换路径。</li>
+<li>moveAdaptationFrom 只处理直接 child，跳 constant，不递归、不清缓存、不复制 metadata&#x2F;extraction。</li>
+<li>MetadataFilter leaf 与创建时 ScanSpec 绑定；重建不自动重绑。</li>
+<li>DataSource 的 R、G、P 类型与实际 RowVector&#x2F;child.type 分开检查，前 N 列保持投影契约。</li>
+<li>zero-projection 带辅助列的非零行路径返回内部 RowVector；空 batch 使用计划类型。</li>
+<li>动态 Filter 在 Driver 合并，在 ScanSpec 替换；常量与 takeover 时序有独立边界。</li>
+<li>donor context、ExprSet listener 析构与 borrowed reader 状态应分别做寿命审计。</li>
+<li>Iceberg position&#x2F;DV 在 DWIO Mutation 阶段，equality delete 在读 key 后；changelog 分路。</li>
+</ul>
+<h2 id="13-个场景"><a href="#13-个场景" class="headerlink" title="13 个场景"></a>13 个场景</h2><ul>
+<li>15.1 输出名称与表&#x2F;文件列名不同</li>
+<li>15.2 输出 c0，remaining filter 用未投影 c1</li>
+<li>15.3 某列仅做 reader 下推过滤</li>
+<li>15.4 ROW &#x2F; ARRAY &#x2F; MAP 子字段裁剪</li>
+<li>15.5 extraction 把 MAP 变成 ARRAY</li>
+<li>15.6 只输出分区列、row index 或 Hive row ID</li>
+<li>15.7 文件缺列后又重新出现</li>
+<li>15.8 相同隐藏桶列的连续 split，同时有嵌套 Filter</li>
+<li>15.9 Hive row ID 常量在连续 split 与 takeover 后变化</li>
+<li>15.10 Equality delete 需要未投影 key</li>
+<li>15.11 Position delete、lineage 与 changelog</li>
+<li>15.12 动态过滤遇到真实列、缺失列、常量与 preload</li>
+<li>15.13 零输出列、零 batch、空 split</li>
+</ul>
+<h2 id="固定版本源码入口"><a href="#固定版本源码入口" class="headerlink" title="固定版本源码入口"></a>固定版本源码入口</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/core/PlanNode.h#L1040">TableScanNode</a> — <code>velox/core/PlanNode.h:1040</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/exec/TableScan.cpp#L90">TableScan 构造函数</a> — <code>velox/exec/TableScan.cpp:90</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/exec/TableScan.cpp#L367">getSplit</a> — <code>velox/exec/TableScan.cpp:367</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/connectors/hive/HiveConnector.cpp#L64">HiveConnector::createDataSource</a> — <code>velox/connectors/hive/HiveConnector.cpp:64</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/connectors/hive/iceberg/IcebergConnector.cpp#L123">IcebergConnector::createDataSource</a> — <code>velox/connectors/hive/iceberg/IcebergConnector.cpp:123</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/connectors/hive/FileDataSource.cpp#L449">FileDataSource::next</a> — <code>velox/connectors/hive/FileDataSource.cpp:449</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/exec/TableScan.cpp#L147">TableScan::getOutput</a> — <code>velox/exec/TableScan.cpp:147</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/connectors/hive/FileTableHandle.h#L31">FileTableHandle</a> — <code>velox/connectors/hive/FileTableHandle.h:31</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/connectors/hive/TableHandle.h#L183">TableHandle.h</a> — <code>velox/connectors/hive/TableHandle.h:183</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/connectors/hive/FileColumnHandle.h#L175">FileColumnHandle</a> — <code>velox/connectors/hive/FileColumnHandle.h:175</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/connectors/hive/FileConnectorSplit.h#L31">FileConnectorSplit</a> — <code>velox/connectors/hive/FileConnectorSplit.h:31</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/connectors/hive/HiveConnectorSplit.h#L43">HiveConnectorSplit</a> — <code>velox/connectors/hive/HiveConnectorSplit.h:43</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/connectors/hive/iceberg/IcebergSplit.h#L32">HiveIcebergSplit</a> — <code>velox/connectors/hive/iceberg/IcebergSplit.h:32</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/connectors/hive/FileDataSource.cpp#L128">构造函数</a> — <code>velox/connectors/hive/FileDataSource.cpp:128</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/connectors/hive/HiveDataSource.cpp#L46">setupBucketConversion</a> — <code>velox/connectors/hive/HiveDataSource.cpp:46</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/connectors/hive/iceberg/IcebergSplitReader.cpp#L695">appendProjectedColumns</a> — <code>velox/connectors/hive/iceberg/IcebergSplitReader.cpp:695</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/connectors/hive/FileDataSource.cpp#L287">configureExtractionColumns</a> — <code>velox/connectors/hive/FileDataSource.cpp:287</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/dwio/common/SelectiveRepeatedColumnReader.cpp#L373">SelectiveRepeatedColumnReader</a> — <code>velox/dwio/common/SelectiveRepeatedColumnReader.cpp:373</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/dwio/common/ColumnLoader.cpp#L119">TransformColumnLoader</a> — <code>velox/dwio/common/ColumnLoader.cpp:119</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/type/Filter.h#L282">Filter::merge</a> — <code>velox/type/Filter.h:282</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/connectors/hive/HiveConnectorUtil.cpp#L761">extractFiltersFromRemainingFilter</a> — <code>velox/connectors/hive/HiveConnectorUtil.cpp:761</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/expression/ExprToSubfieldFilter.cpp#L491">TypedExpr parser 的 toSubfield</a> — <code>velox/expression/ExprToSubfieldFilter.cpp:491</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/connectors/hive/FileDataSource.cpp#L170">FileDataSource.cpp:170</a> — <code>velox/connectors/hive/FileDataSource.cpp:170</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/exec/Operator.cpp#L58">OperatorCtx::createConnectorQueryCtx</a> — <code>velox/exec/Operator.cpp:58</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/expression/Expr.cpp#L2480">按需创建自己的 ExecCtx</a> — <code>velox/expression/Expr.cpp:2480</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/connectors/hive/HiveConnectorUtil.cpp#L890">shouldEagerlyMaterialize</a> — <code>velox/connectors/hive/HiveConnectorUtil.cpp:890</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/connectors/hive/HiveConnectorUtil.cpp#L393">makeScanSpec</a> — <code>velox/connectors/hive/HiveConnectorUtil.cpp:393</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/connectors/hive/HiveConnectorUtil.cpp#L99">addSubfields</a> — <code>velox/connectors/hive/HiveConnectorUtil.cpp:99</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/dwio/common/MetadataFilter.cpp#L231">MetadataFilter 构造</a> — <code>velox/dwio/common/MetadataFilter.cpp:231</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/connectors/hive/FileDataSource.cpp#L410">FileDataSource::addSplit</a> — <code>velox/connectors/hive/FileDataSource.cpp:410</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/connectors/hive/FileSplitReader.cpp#L137">FileSplitReader::prepareSplit</a> — <code>velox/connectors/hive/FileSplitReader.cpp:137</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/connectors/hive/FileConnectorUtil.cpp#L99">FileConnectorUtil::configureReaderOptions</a> — <code>velox/connectors/hive/FileConnectorUtil.cpp:99</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/connectors/hive/HivePartitionFunction.cpp#L360">HivePartitionFunction</a> — <code>velox/connectors/hive/HivePartitionFunction.cpp:360</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/dwio/common/SelectiveStructColumnReader.cpp#L113">setRowNumberField</a> — <code>velox/dwio/common/SelectiveStructColumnReader.cpp:113</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/exec/tests/TableScanTest.cpp#L6299">rowNumberInRemainingFilter</a> — <code>velox/exec/tests/TableScanTest.cpp:6299</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/exec/tests/TableScanTest.cpp#L6484">TableScanTest.rowId</a> — <code>velox/exec/tests/TableScanTest.cpp:6484</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/connectors/hive/HiveDataSource.cpp#L98">setupRowIdColumn</a> — <code>velox/connectors/hive/HiveDataSource.cpp:98</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/connectors/hive/iceberg/IcebergSplitReader.cpp#L243">IcebergSplitReader::buildFieldIds</a> — <code>velox/connectors/hive/iceberg/IcebergSplitReader.cpp:243</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/connectors/hive/iceberg/IcebergSplitReader.cpp#L855">configureEqualityDeleteColumns</a> — <code>velox/connectors/hive/iceberg/IcebergSplitReader.cpp:855</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/connectors/hive/iceberg/EqualityDeleteFileReader.cpp#L139">EqualityDeleteFileReader</a> — <code>velox/connectors/hive/iceberg/EqualityDeleteFileReader.cpp:139</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/connectors/hive/iceberg/IcebergSplitReader.cpp#L1076">IcebergSplitReader::next</a> — <code>velox/connectors/hive/iceberg/IcebergSplitReader.cpp:1076</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/connectors/hive/iceberg/IcebergChangelogSplitReader.cpp#L96">源码明确记录</a> — <code>velox/connectors/hive/iceberg/IcebergChangelogSplitReader.cpp:96</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/connectors/hive/HiveSplitReader.cpp#L74">validateSynthesizedColumnFilters</a> — <code>velox/connectors/hive/HiveSplitReader.cpp:74</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/exec/Driver.cpp#L1215">Driver::pushdownFilters</a> — <code>velox/exec/Driver.cpp:1215</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/exec/TableScan.cpp#L526">TableScan::addDynamicFilterLocked</a> — <code>velox/exec/TableScan.cpp:526</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/connectors/hive/FileDataSource.cpp#L540">FileDataSource</a> — <code>velox/connectors/hive/FileDataSource.cpp:540</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/dwio/common/SelectiveStructColumnReader.cpp#L748">testFilterOnConstant</a> — <code>velox/dwio/common/SelectiveStructColumnReader.cpp:748</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/exec/OperatorUtils.cpp#L392">exec::wrap 的这个重载</a> — <code>velox/exec/OperatorUtils.cpp:392</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/dwio/common/SelectiveStructColumnReader.cpp#L46">prepareResult &#x2F; tryReuseResult</a> — <code>velox/dwio/common/SelectiveStructColumnReader.cpp:46</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/dwio/common/ScanSpec.cpp#L206">实现</a> — <code>velox/dwio/common/ScanSpec.cpp:206</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/connectors/hive/FileDataSource.cpp#L613">FileDataSource::setFromDataSource</a> — <code>velox/connectors/hive/FileDataSource.cpp:613</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/common/base/AsyncSource.h#L72">AsyncSource::prepare</a> — <code>velox/common/base/AsyncSource.h:72</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/expression/Expr.cpp#L2239">ExprSet 析构</a> — <code>velox/expression/Expr.cpp:2239</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/connectors/hive/tests/HiveConnectorTest.cpp#L92">HiveConnectorTest.makeScanSpecRequiredSubfields*</a> — <code>velox/connectors/hive/tests/HiveConnectorTest.cpp:92</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/exec/tests/TableScanTest.cpp#L701">TableScanTest.subfieldPruningRowType</a> — <code>velox/exec/tests/TableScanTest.cpp:701</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/exec/tests/TableScanTest.cpp#L4136">remainingFilterLazyWithMultiReferences</a> — <code>velox/exec/tests/TableScanTest.cpp:4136</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/connectors/hive/tests/HiveConnectorUtilTest.cpp#L1011">shouldEagerlyMaterialize</a> — <code>velox/connectors/hive/tests/HiveConnectorUtilTest.cpp:1011</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/exec/tests/TableScanTest.cpp#L5027">readMissingFieldsFilesVary</a> — <code>velox/exec/tests/TableScanTest.cpp:5027</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/exec/tests/TableScanTest.cpp#L3609">bucketConversion</a> — <code>velox/exec/tests/TableScanTest.cpp:3609</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/exec/tests/TableScanTest.cpp#L3714">bucketConversionWithSubfieldPruning</a> — <code>velox/exec/tests/TableScanTest.cpp:3714</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/exec/tests/TableScanTest.cpp#L6402">rowIndexWithDynamicFilterOnPartitionKey</a> — <code>velox/exec/tests/TableScanTest.cpp:6402</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/exec/tests/TableScanTest.cpp#L7585">extractionMapKeys</a> — <code>velox/exec/tests/TableScanTest.cpp:7585</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/exec/tests/TableScanTest.cpp#L8288">extractionMultipleFormatsMultipleSplits</a> — <code>velox/exec/tests/TableScanTest.cpp:8288</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/connectors/hive/iceberg/tests/EqualityDeleteFileReaderTest.cpp#L437">equalityFilterOnlyColumnNotInProjection</a> — <code>velox/connectors/hive/iceberg/tests/EqualityDeleteFileReaderTest.cpp:437</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/connectors/hive/iceberg/tests/EqualityDeleteFileReaderTest.cpp#L611">nonSequentialEqualityFieldId</a> — <code>velox/connectors/hive/iceberg/tests/EqualityDeleteFileReaderTest.cpp:611</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/connectors/hive/iceberg/tests/IcebergReadTest.cpp#L2412">rowLineageFilterOnUnprojectedColumnWithExtraction</a> — <code>velox/connectors/hive/iceberg/tests/IcebergReadTest.cpp:2412</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/connectors/hive/iceberg/tests/IcebergReadTest.cpp#L2738">rowLineageDynamicFilterMidSplit</a> — <code>velox/connectors/hive/iceberg/tests/IcebergReadTest.cpp:2738</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/connectors/hive/iceberg/tests/IcebergReadTest.cpp#L1217">identityPartitionConstantDoesNotLeakToNextSplit</a> — <code>velox/connectors/hive/iceberg/tests/IcebergReadTest.cpp:1217</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/connectors/hive/iceberg/tests/IcebergReadTest.cpp#L1000">partitionEnforcedFilterKeptForDynamicFilterOnAdoption</a> — <code>velox/connectors/hive/iceberg/tests/IcebergReadTest.cpp:1000</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebookincubator/velox/blob/c52ff97b4b5b0f2d0f931f989e5f9c98020927ba/velox/connectors/hive/iceberg/tests/IcebergChangelogE2ETest.cpp#L30">IcebergChangelogE2ETest</a> — <code>velox/connectors/hive/iceberg/tests/IcebergChangelogE2ETest.cpp:30</code></li>
+</ul>
+<h2 id="配图生成"><a href="#配图生成" class="headerlink" title="配图生成"></a>配图生成</h2><p>SVG 按 MacHexo 项目 lark-doc-diagram-style 与 nano-vLLM 图例绘制。下载同目录 draw.py 后使用 Python 3：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python3 draw.py ./diagrams</span><br></pre></td></tr></table></figure>
+
+<p>生成后仍须用 whiteboard-cli 和中文字体浏览器检查，不能以 XML 合法代替语义与布局检查。</p>
+
+        
+  </div>
+</article>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2026
+    duanmeng
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/categories/technology">Technology</a></li><!--
+     --><!--
+       --><li><a href="/categories/life">Life</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Archives</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tags</a></li><!--
+     --><!--
+       --><li><a href="/about">About</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+ 
+  <link
+    rel="preload"
+    href="/lib/font-awesome/css/all.min.css"
+    as="style"
+    onload="this.onload=null;this.rel='stylesheet'"
+  />
+  <noscript
+    ><link
+      rel="stylesheet"
+      href="/lib/font-awesome/css/all.min.css"
+  /></noscript>
+
+
+
+  
+    <script defer src="/lib/mermaid/mermaid.min.js"></script>
+  
+  <script type="application/json" id="mermaid-config">{"theme":"base","securityLevel":"strict","fontFamily":"-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, Microsoft YaHei, sans-serif","themeVariables":{"background":"#FAF9F6","primaryColor":"#FAF9F6","primaryBorderColor":"#B6A088","primaryTextColor":"#302E2B","secondaryColor":"#EEE7ED","secondaryBorderColor":"#9A8097","secondaryTextColor":"#302E2B","tertiaryColor":"#E8EFE3","tertiaryBorderColor":"#74896B","tertiaryTextColor":"#302E2B","lineColor":"#B8B1A7","textColor":"#302E2B","mainBkg":"#FAF9F6","nodeBorder":"#B6A088","clusterBkg":"#F2F1ED","clusterBorder":"#B6A088","titleColor":"#302E2B","edgeLabelBackground":"#FAF9F6","actorBkg":"#F2F1ED","actorBorder":"#B6A088","actorTextColor":"#302E2B","actorLineColor":"#B8B1A7","signalColor":"#706B63","signalTextColor":"#302E2B","noteBkgColor":"#F8EED8","noteBorderColor":"#BEA16D","noteTextColor":"#302E2B","labelBoxBkgColor":"#EEE7ED","labelBoxBorderColor":"#9A8097","labelTextColor":"#302E2B","activationBkgColor":"#E8EFE3","activationBorderColor":"#74896B","fontSize":"15px"},"flowchart":{"curve":"linear","padding":16,"nodeSpacing":40,"rankSpacing":48,"useMaxWidth":true},"sequence":{"useMaxWidth":true,"actorMargin":48,"messageMargin":36}}</script>
+  <script defer src="/js/mermaid-init.js"></script>
+
+
+    <!-- jquery -->
+ 
+  
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+
+
+
+<!-- clipboard -->
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

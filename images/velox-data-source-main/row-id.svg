@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="705" viewBox="0 0 1280 705" role="img"><title>行标识：物理位置、Hive 复合 ID 与 Iceberg lineage</title><desc>row index 是文件绝对行位置；同名 “row ID” 并不意味着相同类型或相同稳定性。</desc><rect width="1280" height="705" fill="#ffffff"/><defs>
+<marker id="arrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#4078bd"/></marker>
+<marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#39826d"/></marker>
+<marker id="arrow-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#8d76b7"/></marker>
+<marker id="arrow-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#ac9c76"/></marker>
+<marker id="arrow-gray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#657386"/></marker>
+<marker id="arrow-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#a95f64"/></marker>
+</defs>
+<text x="32" y="45" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="28" font-weight="600" fill="#1f2d3d" text-anchor="start">行标识：物理位置、Hive 复合 ID 与 Iceberg lineage</text>
+<text x="32" y="79" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#657386" text-anchor="start">row index 是文件绝对行位置；同名 “row ID” 并不意味着相同类型或相同稳定性。</text>
+<polyline points="32,101 1248,101" fill="none" stroke="#dce3ea" stroke-width="1.8" stroke-linejoin="round"/>
+<text x="32" y="146" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="24" font-weight="600" fill="#326cae" text-anchor="start">Hive kRowId</text>
+<rect x="32" y="170" width="1216" height="59" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="48" y="207" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="600" fill="#1f2d3d" text-anchor="start">row_number</text>
+<text x="315" y="207" font-family="DejaVu Sans Mono,monospace" font-size="20" font-weight="400" fill="#326cae" text-anchor="start">BIGINT</text>
+<text x="498" y="207" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="400" fill="#657386" text-anchor="start">DWIO：文件起点 + selected row</text>
+<rect x="32" y="239" width="1216" height="59" rx="4" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.5"/>
+<text x="48" y="276" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="600" fill="#1f2d3d" text-anchor="start">row_group_id</text>
+<text x="315" y="276" font-family="DejaVu Sans Mono,monospace" font-size="20" font-weight="400" fill="#326cae" text-anchor="start">VARCHAR</text>
+<text x="498" y="276" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="400" fill="#657386" text-anchor="start">split.getFileName()，不是 Parquet 组号</text>
+<rect x="32" y="308" width="1216" height="59" rx="4" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.5"/>
+<text x="48" y="345" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="600" fill="#1f2d3d" text-anchor="start">metadata_version</text>
+<text x="315" y="345" font-family="DejaVu Sans Mono,monospace" font-size="20" font-weight="400" fill="#326cae" text-anchor="start">BIGINT</text>
+<text x="498" y="345" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="400" fill="#657386" text-anchor="start">rowIdProperties.metadataVersion</text>
+<rect x="32" y="377" width="1216" height="59" rx="4" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.5"/>
+<text x="48" y="414" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="600" fill="#1f2d3d" text-anchor="start">partition_id</text>
+<text x="315" y="414" font-family="DejaVu Sans Mono,monospace" font-size="20" font-weight="400" fill="#326cae" text-anchor="start">BIGINT</text>
+<text x="498" y="414" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="400" fill="#657386" text-anchor="start">rowIdProperties.partitionId</text>
+<rect x="32" y="446" width="1216" height="59" rx="4" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.5"/>
+<text x="48" y="483" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="600" fill="#1f2d3d" text-anchor="start">table_guid</text>
+<text x="315" y="483" font-family="DejaVu Sans Mono,monospace" font-size="20" font-weight="400" fill="#326cae" text-anchor="start">VARCHAR</text>
+<text x="498" y="483" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="400" fill="#657386" text-anchor="start">rowIdProperties.tableGuid</text>
+<text x="32" y="560" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#65537f" text-anchor="start">Iceberg MERGE 定位</text>
+<text x="396" y="560" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="400" fill="#1f2d3d" text-anchor="start">ROW(file_path, row_position, spec_id, partition_data)</text>
+<text x="32" y="607" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#2e7963" text-anchor="start">Iceberg V3 lineage</text>
+<text x="396" y="607" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="400" fill="#1f2d3d" text-anchor="start">_row_id : BIGINT；缺失值用 firstRowId + 文件位置继承</text>
+<polyline points="32,645 1248,645" fill="none" stroke="#dce3ea" stroke-width="1.8" stroke-linejoin="round"/>
+<text x="32" y="671" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="400" fill="#657386" text-anchor="start">已有非 null lineage 值保留。物理文件定位不自动成为跨文件重写稳定的逻辑主键。</text>
+</svg>
