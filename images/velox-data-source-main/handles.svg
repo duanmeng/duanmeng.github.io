@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="778" viewBox="0 0 1280 778" role="img"><title>计划句柄与扫描状态：先描述要求，再构造执行现场</title><desc>左侧虚线箭头指向基类；右侧实线表示参数消费与派生。句柄不是已打开的文件。</desc><rect width="1280" height="778" fill="#ffffff"/><defs>
+<marker id="arrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#4078bd"/></marker>
+<marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#39826d"/></marker>
+<marker id="arrow-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#8d76b7"/></marker>
+<marker id="arrow-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#ac9c76"/></marker>
+<marker id="arrow-gray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#657386"/></marker>
+<marker id="arrow-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#a95f64"/></marker>
+</defs>
+<text x="32" y="45" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="28" font-weight="600" fill="#1f2d3d" text-anchor="start">计划句柄与扫描状态：先描述要求，再构造执行现场</text>
+<text x="32" y="79" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#657386" text-anchor="start">左侧虚线箭头指向基类；右侧实线表示参数消费与派生。句柄不是已打开的文件。</text>
+<polyline points="32,101 1248,101" fill="none" stroke="#dce3ea" stroke-width="1.8" stroke-linejoin="round"/>
+<text x="32" y="139" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="23" font-weight="600" fill="#326cae" text-anchor="start">表扫描契约</text>
+<rect x="32" y="160" width="350" height="53" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="207.0" y="190" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="600" fill="#326cae" text-anchor="middle">ConnectorTableHandle</text>
+<rect x="32" y="241" width="350" height="53" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="207.0" y="271" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="600" fill="#326cae" text-anchor="middle">FileTableHandle</text>
+<polyline points="207.0,241 207.0,213" fill="none" stroke="#4078bd" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-blue)" stroke-dasharray="6 5"/>
+<rect x="32" y="322" width="350" height="53" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="207.0" y="352" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="600" fill="#326cae" text-anchor="middle">HiveTableHandle</text>
+<polyline points="207.0,322 207.0,294" fill="none" stroke="#4078bd" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-blue)" stroke-dasharray="6 5"/>
+<rect x="32" y="403" width="350" height="53" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="207.0" y="433" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="600" fill="#326cae" text-anchor="middle">IcebergTableHandle</text>
+<polyline points="207.0,403 207.0,375" fill="none" stroke="#4078bd" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-blue)" stroke-dasharray="6 5"/>
+<text x="418" y="139" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="23" font-weight="600" fill="#65537f" text-anchor="start">单列读取契约</text>
+<rect x="418" y="160" width="350" height="53" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
+<text x="593.0" y="190" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="600" fill="#65537f" text-anchor="middle">ColumnHandle</text>
+<rect x="418" y="241" width="350" height="53" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
+<text x="593.0" y="271" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="600" fill="#65537f" text-anchor="middle">FileColumnHandle</text>
+<polyline points="593.0,241 593.0,213" fill="none" stroke="#8d76b7" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-purple)" stroke-dasharray="6 5"/>
+<rect x="418" y="322" width="350" height="53" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
+<text x="593.0" y="352" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="600" fill="#65537f" text-anchor="middle">HiveColumnHandle</text>
+<polyline points="593.0,322 593.0,294" fill="none" stroke="#8d76b7" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-purple)" stroke-dasharray="6 5"/>
+<rect x="418" y="403" width="350" height="53" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
+<text x="593.0" y="433" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="600" fill="#65537f" text-anchor="middle">IcebergColumnHandle</text>
+<polyline points="593.0,403 593.0,375" fill="none" stroke="#8d76b7" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-purple)" stroke-dasharray="6 5"/>
+<rect x="32" y="519" width="736" height="105" rx="4" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.5"/>
+<text x="400.0" y="549" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="23" font-weight="600" fill="#877951" text-anchor="middle">TableScanNode 的三类输入</text>
+<text x="400.0" y="578" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">outputType + tableHandle + assignments</text>
+<text x="400.0" y="606" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">计划输出名 → 列句柄；表谓词与 schema 一起传入</text>
+<rect x="816" y="160" width="432" height="143" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="1032.0" y="190" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="23" font-weight="600" fill="#326cae" text-anchor="middle">FileDataSource 构造</text>
+<text x="1032.0" y="219" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">handles → 列角色 / 前缀 channel</text>
+<text x="1032.0" y="247" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">原始谓词 → filters_ / ExprSet</text>
+<text x="1032.0" y="275" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">读取需求 → readerOutputType</text>
+<rect x="816" y="373" width="432" height="114" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
+<text x="1032.0" y="403" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#65537f" text-anchor="middle">ScanSpec + MetadataFilter</text>
+<text x="1032.0" y="432" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">字段需求、投影、下推 Filter</text>
+<text x="1032.0" y="460" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">表达式求值仍由 DataSource 驱动</text>
+<rect x="816" y="553" width="432" height="91" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="1032.0" y="583" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="600" fill="#2e7963" text-anchor="middle">SplitReader / DWIO</text>
+<text x="1032.0" y="612" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">绑定文件、常量、ColumnReader</text>
+<polyline points="768,571 791,571 791,230 816,230" fill="none" stroke="#ac9c76" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-warm)"/>
+<polyline points="1032,303 1032,373" fill="none" stroke="#4078bd" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-blue)"/>
+<polyline points="1032,487 1032,553" fill="none" stroke="#39826d" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-green)"/>
+<polyline points="32,678 1248,678" fill="none" stroke="#dce3ea" stroke-width="1.8" stroke-linejoin="round"/>
+<text x="32" y="704" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="400" fill="#657386" text-anchor="start">Type / TypedExpr 等原始描述可共享；ExprSet、ScanSpec、reader 与运行反馈有各自生命周期。</text>
+<text x="32" y="733" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="400" fill="#657386" text-anchor="start">split 再提供路径、范围、分区值与删除信息；当前文件 schema 到准备阶段才确定。</text>
+</svg>

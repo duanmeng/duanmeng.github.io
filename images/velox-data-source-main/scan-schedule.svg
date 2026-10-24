@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="1010" viewBox="0 0 1280 1010" role="img"><title>从先过滤到晚物化：ScanSpec、表达式与消费者接力</title><desc>泳道表示对象而非独立线程；实线为调用，虚线为返回。此处展示允许 LazyVector 的路径。</desc><rect width="1280" height="1010" fill="#ffffff"/><defs>
+<marker id="arrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#4078bd"/></marker>
+<marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#39826d"/></marker>
+<marker id="arrow-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#8d76b7"/></marker>
+<marker id="arrow-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#ac9c76"/></marker>
+<marker id="arrow-gray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#657386"/></marker>
+<marker id="arrow-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#a95f64"/></marker>
+</defs>
+<text x="32" y="45" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="28" font-weight="600" fill="#1f2d3d" text-anchor="start">从先过滤到晚物化：ScanSpec、表达式与消费者接力</text>
+<text x="32" y="79" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#657386" text-anchor="start">泳道表示对象而非独立线程；实线为调用，虚线为返回。此处展示允许 LazyVector 的路径。</text>
+<polyline points="32,101 1248,101" fill="none" stroke="#dce3ea" stroke-width="1.8" stroke-linejoin="round"/>
+<rect x="32" y="133" width="250" height="60" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="157.0" y="163" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="600" fill="#326cae" text-anchor="middle">FileDataSource</text>
+<polyline points="157,193 157,904" fill="none" stroke="#4078bd" stroke-width="2.2" stroke-linejoin="round" stroke-dasharray="6 5"/>
+<rect x="312" y="133" width="270" height="60" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
+<text x="447.0" y="163" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="600" fill="#65537f" text-anchor="middle">DWIO / ColumnReader</text>
+<polyline points="447,193 447,904" fill="none" stroke="#8d76b7" stroke-width="2.2" stroke-linejoin="round" stroke-dasharray="6 5"/>
+<rect x="618" y="133" width="270" height="60" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="753.0" y="163" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="600" fill="#2e7963" text-anchor="middle">ExprSet / EvalCtx</text>
+<polyline points="753,193 753,904" fill="none" stroke="#39826d" stroke-width="2.2" stroke-linejoin="round" stroke-dasharray="6 5"/>
+<rect x="924" y="133" width="324" height="60" rx="4" fill="#faf7ef" stroke="#ac9c76" stroke-width="1.5"/>
+<text x="1086.0" y="163" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="600" fill="#877951" text-anchor="middle">下游消费者</text>
+<polyline points="1086,193 1086,904" fill="none" stroke="#ac9c76" stroke-width="2.2" stroke-linejoin="round" stroke-dasharray="6 5"/>
+<rect x="187.25" y="219" width="229.5" height="29" fill="#ffffff"/>
+<text x="302.0" y="241" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="600" fill="#326cae" text-anchor="middle">1  next()：推进本批文件行</text>
+<polyline points="157,254 447,254" fill="none" stroke="#4078bd" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow-blue)"/>
+<polyline points="447,285 550,285 550,322 447,322" fill="none" stroke="#8d76b7" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow-purple)"/>
+<rect x="619" y="264" width="629" height="70" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
+<text x="933.5" y="294" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="600" fill="#65537f" text-anchor="middle">2  ScanSpec 次序 → c2 Filter</text>
+<text x="933.5" y="323" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">c2 保留文件行 [0,2,3]（reader 结果有 3 行）</text>
+<rect x="45.5" y="356" width="513.0" height="29" fill="#ffffff"/>
+<text x="302.0" y="378" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="600" fill="#65537f" text-anchor="middle">3  R: payload / c0 / c1 可仍为 LazyVector</text>
+<polyline points="447,391 157,391" fill="none" stroke="#8d76b7" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow-purple)" stroke-dasharray="6 5"/>
+<rect x="293.0" y="425" width="324.0" height="29" fill="#ffffff"/>
+<text x="455.0" y="447" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="600" fill="#2e7963" text-anchor="middle">4  evaluate：c0 + c1 &gt; 10</text>
+<polyline points="157,460 753,460" fill="none" stroke="#39826d" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow-green)"/>
+<rect x="490.0" y="490" width="220" height="29" fill="#ffffff"/>
+<text x="600.0" y="512" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="600" fill="#2e7963" text-anchor="middle">5  按需加载 c0、c1</text>
+<polyline points="753,525 447,525" fill="none" stroke="#39826d" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow-green)"/>
+<rect x="438.0" y="555" width="324.0" height="29" fill="#ffffff"/>
+<text x="600.0" y="577" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="600" fill="#2e7963" text-anchor="middle">6  ColumnLoader 映射行号，返回值</text>
+<polyline points="447,590 753,590" fill="none" stroke="#39826d" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow-green)" stroke-dasharray="6 5"/>
+<rect x="279.5" y="620" width="351.0" height="29" fill="#ffffff"/>
+<text x="455.0" y="642" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="600" fill="#2e7963" text-anchor="middle">7  返回 BOOLEAN；DS 整理出 [0,2]</text>
+<polyline points="753,655 157,655" fill="none" stroke="#39826d" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow-green)" stroke-dasharray="6 5"/>
+<rect x="392.0" y="685" width="459.0" height="29" fill="#ffffff"/>
+<text x="621.5" y="707" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="600" fill="#326cae" text-anchor="middle">8  两行输出：dictionary(payload, [0,2])</text>
+<polyline points="157,720 1086,720" fill="none" stroke="#4078bd" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow-blue)" stroke-dasharray="6 5"/>
+<rect x="597.75" y="755" width="337.5" height="29" fill="#ffffff"/>
+<text x="766.5" y="777" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="600" fill="#877951" text-anchor="middle">9  实际使用 payload：文件行 [0,3]</text>
+<polyline points="1086,790 447,790" fill="none" stroke="#ac9c76" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow-warm)"/>
+<rect x="631.5" y="820" width="270.0" height="29" fill="#ffffff"/>
+<text x="766.5" y="842" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="600" fill="#326cae" text-anchor="middle">10  返回这两行的 payload 值</text>
+<polyline points="447,855 1086,855" fill="none" stroke="#4078bd" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow-blue)" stroke-dasharray="6 5"/>
+<polyline points="32,918 1248,918" fill="none" stroke="#dce3ea" stroke-width="1.8" stroke-linejoin="round"/>
+<text x="32" y="944" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="400" fill="#657386" text-anchor="start">c0/c1 先于 payload 加载，是表达式需求与 LazyVector 协作的结果，不是第二个 ScanSpec 排序组。</text>
+<text x="32" y="973" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="400" fill="#657386" text-anchor="start">压缩流可能已预取；selective Nimble 的 lazy I/O 还能进一步推迟未被过滤使用的 payload 流。</text>
+</svg>

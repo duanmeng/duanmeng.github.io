@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800" role="img"><title>一棵 ScanSpec，三种顺序</title><desc>示例：只输出 payload；c2 ≥ 0 下推，c0 + c1 &gt; 10 留在 DataSource。</desc><rect width="1280" height="800" fill="#ffffff"/><defs>
+<marker id="arrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#4078bd"/></marker>
+<marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#39826d"/></marker>
+<marker id="arrow-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#8d76b7"/></marker>
+<marker id="arrow-warm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#ac9c76"/></marker>
+<marker id="arrow-gray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#657386"/></marker>
+<marker id="arrow-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#a95f64"/></marker>
+</defs>
+<text x="32" y="45" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="28" font-weight="600" fill="#1f2d3d" text-anchor="start">一棵 ScanSpec，三种顺序</text>
+<text x="32" y="79" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#657386" text-anchor="start">示例：只输出 payload；c2 ≥ 0 下推，c0 + c1 &gt; 10 留在 DataSource。</text>
+<polyline points="32,101 1248,101" fill="none" stroke="#dce3ea" stroke-width="1.8" stroke-linejoin="round"/>
+<rect x="459" y="127" width="362" height="62" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="640.0" y="157" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="23" font-weight="600" fill="#326cae" text-anchor="middle">root ROW / ScanSpec</text>
+<rect x="32" y="245" width="280" height="119" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="172.0" y="275" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="600" fill="#326cae" text-anchor="middle">payload · ch=0</text>
+<text x="172.0" y="304" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">projectOut=true</text>
+<text x="172.0" y="332" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">无下推 Filter · 输出载荷</text>
+<polyline points="640,189 640,218 172,218 172,245" fill="none" stroke="#4078bd" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-blue)"/>
+<rect x="344" y="245" width="280" height="119" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="484.0" y="275" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="600" fill="#2e7963" text-anchor="middle">c0 · ch=1</text>
+<text x="484.0" y="304" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">projectOut=true</text>
+<text x="484.0" y="332" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">无下推 Filter · residual 输入</text>
+<polyline points="640,189 640,218 484,218 484,245" fill="none" stroke="#39826d" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-green)"/>
+<rect x="656" y="245" width="280" height="119" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="796.0" y="275" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="600" fill="#2e7963" text-anchor="middle">c1 · ch=2</text>
+<text x="796.0" y="304" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">projectOut=true</text>
+<text x="796.0" y="332" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">无下推 Filter · residual 输入</text>
+<polyline points="640,189 640,218 796,218 796,245" fill="none" stroke="#39826d" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-green)"/>
+<rect x="968" y="245" width="280" height="119" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
+<text x="1108.0" y="275" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="600" fill="#65537f" text-anchor="middle">c2 · 无输出 channel</text>
+<text x="1108.0" y="304" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">projectOut=false</text>
+<text x="1108.0" y="332" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#1f2d3d" text-anchor="middle">Filter: c2 ≥ 0</text>
+<polyline points="640,189 640,218 1108,218 1108,245" fill="none" stroke="#8d76b7" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow-purple)"/>
+<text x="32" y="410" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="400" fill="#657386" text-anchor="start">ExprSet 需要 c0/c1，故它们被投影成辅助列；ScanSpec 不把 residual 表达式当成 c0/c1 的 Filter。</text>
+<text x="32" y="484" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="23" font-weight="600" fill="#1f2d3d" text-anchor="start">稳定加入顺序</text>
+<rect x="282" y="451" width="230" height="58" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="397.0" y="481" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="600" fill="#326cae" text-anchor="middle">payload</text>
+<rect x="524" y="451" width="230" height="58" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="639.0" y="481" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="600" fill="#2e7963" text-anchor="middle">c0</text>
+<rect x="766" y="451" width="230" height="58" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="881.0" y="481" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="600" fill="#2e7963" text-anchor="middle">c1</text>
+<rect x="1008" y="451" width="230" height="58" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
+<text x="1123.0" y="481" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="600" fill="#65537f" text-anchor="middle">c2</text>
+<text x="32" y="569" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="23" font-weight="600" fill="#1f2d3d" text-anchor="start">本例 read 顺序</text>
+<rect x="282" y="536" width="230" height="58" rx="4" fill="#f7f4fb" stroke="#8d76b7" stroke-width="1.5"/>
+<text x="397.0" y="566" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="600" fill="#65537f" text-anchor="middle">c2 · 先过滤</text>
+<rect x="524" y="536" width="230" height="58" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="639.0" y="566" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="600" fill="#2e7963" text-anchor="middle">c0 · 可暂缓</text>
+<rect x="766" y="536" width="230" height="58" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="881.0" y="566" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="600" fill="#2e7963" text-anchor="middle">c1 · 可暂缓</text>
+<rect x="1008" y="536" width="230" height="58" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="1123.0" y="566" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="600" fill="#326cae" text-anchor="middle">payload · 可暂缓</text>
+<text x="32" y="654" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="23" font-weight="600" fill="#1f2d3d" text-anchor="start">输出 R 的 channel</text>
+<rect x="282" y="621" width="230" height="58" rx="4" fill="#f3f7fc" stroke="#4078bd" stroke-width="1.5"/>
+<text x="397.0" y="651" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="600" fill="#326cae" text-anchor="middle">0: payload</text>
+<rect x="524" y="621" width="230" height="58" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="639.0" y="651" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="600" fill="#2e7963" text-anchor="middle">1: c0</text>
+<rect x="766" y="621" width="230" height="58" rx="4" fill="#f0f7f3" stroke="#39826d" stroke-width="1.5"/>
+<text x="881.0" y="651" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="600" fill="#2e7963" text-anchor="middle">2: c1</text>
+<polyline points="32,706 1248,706" fill="none" stroke="#dce3ea" stroke-width="1.8" stroke-linejoin="round"/>
+<text x="32" y="732" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="400" fill="#657386" text-anchor="start">处理顺序由 children() / reorder 改变；channel 始终指向同一个输出位置。</text>
+<text x="32" y="761" font-family="Noto Sans SC,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="400" fill="#657386" text-anchor="start">subscript 另把节点接到当前 ColumnReader；stableChildren() 保持构建 reader 时的稳定视图。</text>
+</svg>

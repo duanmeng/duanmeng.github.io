@@ -166,4 +166,55 @@ msg(150,466,532,'当前 split 结束：move()')
 msg(466,150,588,'返回 donor，或重抛准备异常','green',True)
 s.box(42,630,1176,75,'receiver.setFromDataSource(donor)',['移 split / R / G / ScanSpec / metadata / reader；保留 receiver ExprSet；重绑 ctx，合并 I/O 统计'],'warm',22)
 s.note(758,['T0 donor 准备后、T1 receiver 收到的新动态条件：T2 接管只按 moveAdaptationFrom 的规则迁移。','普通 addSplit 不重复编译 residual；preload 新建一份 DataSource，所以会额外编译与准备。']);s.save('takeover')
+s=SVG('计划句柄与扫描状态：先描述要求，再构造执行现场','左侧虚线箭头指向基类；右侧实线表示参数消费与派生。句柄不是已打开的文件。',778)
+for x,w,head,key,names in [(32,350,'表扫描契约','blue',['ConnectorTableHandle','FileTableHandle','HiveTableHandle','IcebergTableHandle']),(418,350,'单列读取契约','purple',['ColumnHandle','FileColumnHandle','HiveColumnHandle','IcebergColumnHandle'])]:
+ s.t(x,139,head,23,C[key][2],True)
+ for i,n in enumerate(names):
+  y=160+i*81;s.box(x,y,w,53,n,key=key,size=21)
+  if i:s.line([(x+w/2,y),(x+w/2,y-28)],key,dashed=True)
+s.box(32,519,736,105,'TableScanNode 的三类输入',['outputType + tableHandle + assignments','计划输出名 → 列句柄；表谓词与 schema 一起传入'],'warm',23)
+s.box(816,160,432,143,'FileDataSource 构造',['handles → 列角色 / 前缀 channel','原始谓词 → filters_ / ExprSet','读取需求 → readerOutputType'],'blue',23)
+s.box(816,373,432,114,'ScanSpec + MetadataFilter',['字段需求、投影、下推 Filter','表达式求值仍由 DataSource 驱动'],'purple',22)
+s.box(816,553,432,91,'SplitReader / DWIO',['绑定文件、常量、ColumnReader'],'green',22)
+s.line([(768,571),(791,571),(791,230),(816,230)],'warm')
+s.line([(1032,303),(1032,373)],'blue');s.line([(1032,487),(1032,553)],'green')
+s.note(704,['Type / TypedExpr 等原始描述可共享；ExprSet、ScanSpec、reader 与运行反馈有各自生命周期。','split 再提供路径、范围、分区值与删除信息；当前文件 schema 到准备阶段才确定。'])
+s.save('handles')
+
+s=SVG('一棵 ScanSpec，三种顺序','示例：只输出 payload；c2 ≥ 0 下推，c0 + c1 > 10 留在 DataSource。',800)
+s.box(459,127,362,62,'root ROW / ScanSpec',key='blue',size=23)
+for x,title,lines,key in [(32,'payload · ch=0',['projectOut=true','无下推 Filter · 输出载荷'],'blue'),(344,'c0 · ch=1',['projectOut=true','无下推 Filter · residual 输入'],'green'),(656,'c1 · ch=2',['projectOut=true','无下推 Filter · residual 输入'],'green'),(968,'c2 · 无输出 channel',['projectOut=false','Filter: c2 ≥ 0'],'purple')]:
+ s.box(x,245,280,119,title,lines,key,20)
+ s.line([(640,189),(640,218),(x+140,218),(x+140,245)],key)
+s.t(32,410,'ExprSet 需要 c0/c1，故它们被投影成辅助列；ScanSpec 不把 residual 表达式当成 c0/c1 的 Filter。',20)
+for y,label,names in [(451,'稳定加入顺序',['payload','c0','c1','c2']),(536,'本例 read 顺序',['c2 · 先过滤','c0 · 可暂缓','c1 · 可暂缓','payload · 可暂缓']),(621,'输出 R 的 channel',['0: payload','1: c0','2: c1'])]:
+ s.t(32,y+33,label,23,'#1f2d3d',True)
+ for i,n in enumerate(names):
+  key='purple' if n.startswith('c2') else ('blue' if 'payload' in n else 'green')
+  s.box(282+i*242,y,230,58,n,key=key,size=20)
+s.note(732,['处理顺序由 children() / reorder 改变；channel 始终指向同一个输出位置。','subscript 另把节点接到当前 ColumnReader；stableChildren() 保持构建 reader 时的稳定视图。'])
+s.save('scan-spec')
+
+s=SVG('从先过滤到晚物化：ScanSpec、表达式与消费者接力','泳道表示对象而非独立线程；实线为调用，虚线为返回。此处展示允许 LazyVector 的路径。',1010)
+lanes=[(157,32,250,'FileDataSource','blue'),(447,312,270,'DWIO / ColumnReader','purple'),(753,618,270,'ExprSet / EvalCtx','green'),(1086,924,324,'下游消费者','warm')]
+for x,bx,w,title,key in lanes:
+ s.box(bx,133,w,60,title,key=key,size=21);s.line([(x,193),(x,904)],key,False,True,2.2)
+def msg(y,x1,x2,label,key='blue',back=False):
+ mid=(x1+x2)/2
+ width=min(1150,max(220,len(label)*13.5))
+ s.parts.append(f'<rect x="{mid-width/2}" y="{y-35}" width="{width}" height="29" fill="#ffffff"/>')
+ s.t(mid,y-13,label,19,C[key][2],True,'middle');s.line([(x1,y),(x2,y)],key,True,back,2)
+msg(254,157,447,'1  next()：推进本批文件行','blue')
+s.line([(447,285),(550,285),(550,322),(447,322)],'purple',width=2)
+s.box(619,264,629,70,'2  ScanSpec 次序 → c2 Filter',['c2 保留文件行 [0,2,3]（reader 结果有 3 行）'],'purple',21)
+msg(391,447,157,'3  R: payload / c0 / c1 可仍为 LazyVector','purple',True)
+msg(460,157,753,'4  evaluate：c0 + c1 > 10','green')
+msg(525,753,447,'5  按需加载 c0、c1','green')
+msg(590,447,753,'6  ColumnLoader 映射行号，返回值','green',True)
+msg(655,753,157,'7  返回 BOOLEAN；DS 整理出 [0,2]','green',True)
+msg(720,157,1086,'8  两行输出：dictionary(payload, [0,2])','blue',True)
+msg(790,1086,447,'9  实际使用 payload：文件行 [0,3]','warm')
+msg(855,447,1086,'10  返回这两行的 payload 值','blue',True)
+s.note(944,['c0/c1 先于 payload 加载，是表达式需求与 LazyVector 协作的结果，不是第二个 ScanSpec 排序组。','压缩流可能已预取；selective Nimble 的 lazy I/O 还能进一步推迟未被过滤使用的 payload 流。'])
+s.save('scan-schedule')
 print('SVG diagrams:',len(list(D.glob('*.svg'))))
